@@ -1,0 +1,288 @@
+import { useState } from 'react';
+import { Button, Input, Popconfirm, Tooltip } from 'antd';
+import {
+  PlusOutlined,
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
+import {
+  useCustomers,
+  useDeactivateCustomer,
+} from '@/entities/customer';
+import { CustomerFormModal } from '@/features/create-customer';
+import { CustomerDetailDrawer } from '@/widgets/customer-detail';
+import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
+import { useCurrentUser } from '@/entities/user';
+import type { Customer } from '@/shared/types/domain';
+import type { ColumnDef } from '@/shared/ui';
+import { formatDate } from '@/shared/lib/formatters';
+
+export function CustomersPage() {
+  const { can } = useCurrentUser();
+  const canManage = can('customers:create');
+
+  const [search, setSearch] = useState('');
+  const [drawerCustomer, setDrawerCustomer] = useState<Customer | null>(null);
+  const [editCustomer, setEditCustomer] = useState<Customer | null | undefined>(undefined);
+
+  const { data: customers = [], isLoading, isFetching, refetch } = useCustomers({
+    search: search || undefined,
+  });
+
+  const deleteMutation = useDeactivateCustomer();
+
+  const totalDebt = customers.reduce((sum, c) => sum + (c.balance > 0 ? c.balance : 0), 0);
+  const totalCredit = customers.reduce((sum, c) => sum + (c.balance < 0 ? -c.balance : 0), 0);
+
+  const columns: ColumnDef<Customer>[] = [
+    {
+      title: 'Mijoz',
+      key: 'fullName',
+      render: (_: unknown, c: Customer) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              width: 34, height: 34, borderRadius: '50%',
+              background: 'var(--primary)', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 14, fontWeight: 700, flexShrink: 0,
+            }}
+          >
+            {c.fullName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style={{ fontWeight: 600 }}>{c.fullName}</div>
+            {c.address && (
+              <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{c.address}</div>
+            )}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Telefon',
+      dataIndex: 'phone',
+      width: 170,
+      render: (v: string | null) =>
+        v ? (
+          <span className="num" style={{ fontSize: 13 }}>{v}</span>
+        ) : (
+          <span style={{ color: 'var(--ink-4)' }}>—</span>
+        ),
+    },
+    {
+      title: 'Filial',
+      key: 'branch',
+      width: 150,
+      render: (_: unknown, c: Customer) => (
+        <StatusBadge tone="muted">{c.branch.name}</StatusBadge>
+      ),
+    },
+    {
+      title: 'Balans',
+      key: 'balance',
+      width: 180,
+      align: 'right',
+      render: (_: unknown, c: Customer) => {
+        const tone = c.balance > 0 ? 'danger' : c.balance < 0 ? 'success' : 'muted';
+        const label = c.balance > 0 ? 'Qarzdor' : c.balance < 0 ? "Ortiqcha" : 'Teng';
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
+            <span className="num" style={{ fontWeight: 700 }}>
+              <MoneyDisplay amount={Math.abs(c.balance)} currency="UZS" />
+            </span>
+            <StatusBadge tone={tone}>{label}</StatusBadge>
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Holat',
+      dataIndex: 'isActive',
+      width: 90,
+      align: 'center',
+      render: (v: boolean) =>
+        v ? (
+          <StatusBadge tone="success" dot>Faol</StatusBadge>
+        ) : (
+          <StatusBadge tone="danger" dot>Nofaol</StatusBadge>
+        ),
+    },
+    {
+      title: "Qo'shilgan",
+      dataIndex: 'createdAt',
+      width: 110,
+      render: (v: string) => (
+        <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(v)}</span>
+      ),
+    },
+    {
+      title: '',
+      key: 'actions',
+      width: 90,
+      fixed: 'right',
+      render: (_: unknown, c: Customer) => (
+        <div style={{ display: 'flex', gap: 4 }}>
+          <Tooltip title="Ko'rish">
+            <Button
+              size="small"
+              type="text"
+              icon={<EyeOutlined />}
+              onClick={(e) => { e.stopPropagation(); setDrawerCustomer(c); }}
+            />
+          </Tooltip>
+          {canManage && (
+            <>
+              <Tooltip title="Tahrirlash">
+                <Button
+                  size="small"
+                  type="text"
+                  icon={<EditOutlined />}
+                  onClick={(e) => { e.stopPropagation(); setEditCustomer(c); }}
+                />
+              </Tooltip>
+              <Popconfirm
+                title="O'chirilsinmi?"
+                description={`"${c.fullName}" mijozni nofaol qilasizmi?`}
+                okText="Ha, o'chir"
+                cancelText="Bekor"
+                okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+                onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(c.id); }}
+                onPopupClick={(e) => e.stopPropagation()}
+              >
+                <Tooltip title="Nofaol qilish">
+                  <Button
+                    size="small"
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            </>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <div className="page-head">
+        <div>
+          <h1>Mijozlar</h1>
+          <div className="sub">
+            {customers.length} ta mijoz · balans va to'lov tarixi
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Tooltip title="Yangilash">
+            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+          </Tooltip>
+          {canManage && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setEditCustomer(null)}
+            >
+              Yangi mijoz
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* KPI row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+        <KpiBox
+          label="Umumiy qarz"
+          value={<MoneyDisplay amount={totalDebt} currency="UZS" />}
+          hint={`${customers.filter((c) => c.balance > 0).length} ta mijoz`}
+          tone="danger"
+        />
+        <KpiBox
+          label="Ortiqcha to'lovlar"
+          value={<MoneyDisplay amount={totalCredit} currency="UZS" />}
+          hint={`${customers.filter((c) => c.balance < 0).length} ta mijoz`}
+          tone="success"
+        />
+        <KpiBox
+          label="Sof debitorlik"
+          value={<MoneyDisplay amount={totalDebt - totalCredit} currency="UZS" />}
+          hint={`${customers.length} ta jami`}
+          tone="muted"
+        />
+      </div>
+
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Toolbar */}
+        <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Ism yoki telefon bo'yicha qidirish"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            allowClear
+            style={{ maxWidth: 320 }}
+          />
+          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
+            <strong>{customers.length}</strong> ta natija
+          </span>
+        </div>
+
+        <DataTable<Customer>
+          rowKey="id"
+          dataSource={customers}
+          columns={columns}
+          loading={isLoading}
+          pagination={{ pageSize: 15, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+          onRow={(c) => ({
+            onClick: () => setDrawerCustomer(c),
+            style: { cursor: 'pointer' },
+          })}
+          emptyText="Mijozlar topilmadi"
+        />
+      </div>
+
+      <CustomerFormModal
+        open={editCustomer !== undefined}
+        customer={editCustomer ?? null}
+        onClose={() => setEditCustomer(undefined)}
+      />
+
+      <CustomerDetailDrawer
+        customer={drawerCustomer}
+        onClose={() => setDrawerCustomer(null)}
+      />
+    </>
+  );
+}
+
+function KpiBox({
+  label, value, hint, tone,
+}: {
+  label: string;
+  value: React.ReactNode;
+  hint: string;
+  tone: 'danger' | 'success' | 'muted';
+}) {
+  const colors: Record<string, string> = {
+    danger: 'var(--danger)',
+    success: 'var(--success)',
+    muted: 'var(--ink-2)',
+  };
+  return (
+    <div className="card" style={{ padding: '14px 16px' }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+        {label}
+      </div>
+      <div className="num" style={{ fontSize: 18, fontWeight: 700, color: colors[tone] }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>{hint}</div>
+    </div>
+  );
+}

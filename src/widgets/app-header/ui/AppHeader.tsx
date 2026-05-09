@@ -1,0 +1,165 @@
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Select, Dropdown } from 'antd';
+import {
+  EnvironmentOutlined,
+  DollarOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+  DownOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+} from '@ant-design/icons';
+import { useAuthStore } from '@/entities/user';
+import { useDispatch } from '@/app/store.jsx';
+import { useUIStore } from '@/app/stores/ui.store';
+import { NAV_ITEMS } from '@/widgets/app-sidebar/model/navConfig';
+import { ROUTES } from '@/shared/config/routes';
+
+// Inline until i18n is wired
+const T: Record<string, string> = {
+  'nav.dashboard': 'Dashboard',
+  'nav.products': 'Products',
+  'nav.customers': 'Customers',
+  'nav.sales': 'Sales',
+  'nav.purchases': 'Purchases',
+  'nav.expenses': 'Expenses',
+  'nav.transfers': 'Transfers',
+  'nav.analytics': 'Analytics',
+  'nav.settings': 'Settings',
+  'common.allBranches': 'All Branches',
+};
+
+interface AppHeaderProps {
+  branches: Array<{ id: string; name: string }>;
+}
+
+export function AppHeader({ branches }: AppHeaderProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const zustandLogout = useAuthStore((s) => s.logout);
+  const legacyDispatch = useDispatch();
+  const isSuper = useAuthStore((s) => s.isSuper)();
+
+  const activeBranchId = useUIStore((s) => s.activeBranchId);
+  const exchangeRate = useUIStore((s) => s.exchangeRate);
+  const setActiveBranch = useUIStore((s) => s.setActiveBranch);
+  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+
+  const activeBranch = branches.find((b) => b.id === activeBranchId);
+  const userBranch = branches.find((b) => b.id === user?.branchId);
+
+  const currentNav = NAV_ITEMS.find((n) => {
+    if (n.path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(n.path);
+  });
+  const pageLabel = T[currentNav?.labelKey ?? ''] ?? 'Dashboard';
+
+  const profileMenuItems = [
+    {
+      key: 'header',
+      type: 'group' as const,
+      label: (
+        <div style={{ padding: '4px 0', minWidth: 220 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{user?.name}</div>
+          <div style={{ fontSize: 11, color: '#64748b', textTransform: 'capitalize', marginTop: 2 }}>
+            {user?.role?.replace('_', ' ')} · {userBranch?.name?.split(' — ')[0] ?? 'All branches'}
+          </div>
+        </div>
+      ),
+    },
+    { type: 'divider' as const },
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: () => navigate(ROUTES.SETTINGS),
+    },
+    {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: <span style={{ color: '#dc2626' }}>Sign out</span>,
+      onClick: () => {
+        zustandLogout();
+        legacyDispatch({ type: 'auth/logout' });
+        navigate(ROUTES.LOGIN);
+      },
+    },
+  ];
+
+  return (
+    <header className="topbar">
+      <button className="sidebar-toggle" onClick={toggleSidebar} type="button">
+        {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+      </button>
+
+      <div className="crumbs">
+        AKFA ERP · <strong>{pageLabel}</strong>
+      </div>
+
+      <div className="grow" />
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <span className="tagpill info">
+          <DollarOutlined style={{ fontSize: 11 }} />
+          1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
+        </span>
+
+        {isSuper ? (
+          <Select
+            value={activeBranchId}
+            onChange={setActiveBranch}
+            style={{ minWidth: 220 }}
+            suffixIcon={<EnvironmentOutlined />}
+            options={[
+              { value: '__all__', label: T['common.allBranches'] },
+              ...branches.map((b) => ({ value: b.id, label: b.name })),
+            ]}
+          />
+        ) : (
+          <span className="branchchip">
+            <span className="dot" /> {activeBranch?.name ?? userBranch?.name}
+          </span>
+        )}
+
+        <Dropdown menu={{ items: profileMenuItems }} trigger={['click']} placement="bottomRight">
+          <button className="profile-trigger" type="button">
+            <UserAvatar name={user?.name} size={28} />
+            <span className="profile-name">{user?.name?.split(' ')[0]}</span>
+            <DownOutlined style={{ fontSize: 10, color: '#64748b' }} />
+          </button>
+        </Dropdown>
+      </div>
+    </header>
+  );
+}
+
+function UserAvatar({ name, size = 28 }: { name?: string; size?: number }) {
+  const tone = '#1e4dd8';
+  const initials = (name ?? '?')
+    .split(' ')
+    .slice(0, 2)
+    .map((s) => s[0])
+    .join('')
+    .toUpperCase();
+  return (
+    <span
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: `linear-gradient(135deg, ${tone}, ${tone}cc)`,
+        color: '#fff',
+        fontSize: size * 0.42,
+        fontWeight: 600,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {initials}
+    </span>
+  );
+}

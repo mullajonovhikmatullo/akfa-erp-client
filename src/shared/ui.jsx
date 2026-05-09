@@ -73,3 +73,12 @@ const EmptyState = ({ title = "No data", hint }) => (
 );
 
 export { Brandmark, TagPill, Money, Sparkbar, Avatar, SectionTitle, EmptyState };
+
+// New typed components — re-exported from the new ui/ directory so that
+// `@/shared/ui` resolves to this file (which takes precedence over ui/index.ts)
+// and all new imports still find these components.
+export { DataTable } from './ui/DataTable/DataTable.tsx';
+export { AppModal } from './ui/AppModal/AppModal.tsx';
+export { FormField } from './ui/FormField/FormField.tsx';
+export { MoneyDisplay } from './ui/MoneyDisplay/MoneyDisplay.tsx';
+export { StatusBadge } from './ui/StatusBadge/StatusBadge.tsx';
