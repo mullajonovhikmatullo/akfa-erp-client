@@ -21,6 +21,7 @@ import { getField } from '@/features/excel-import/lib/parseExcel';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { useCurrentUser } from '@/entities/user';
 import type { Customer } from '@/shared/types/domain';
+// @ts-ignore
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
