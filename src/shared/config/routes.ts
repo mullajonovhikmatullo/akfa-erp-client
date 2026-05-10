@@ -8,6 +8,9 @@ export const ROUTES = {
   EXPENSES: '/expenses',
   TRANSFERS: '/transfers',
   ANALYTICS: '/analytics',
+  BRANCHES: '/branches',
+  ADMINS: '/admins',
+  CATEGORIES: '/categories',
   SETTINGS: '/settings',
 } as const;
 

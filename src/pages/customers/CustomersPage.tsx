@@ -11,17 +11,23 @@ import {
 import {
   useCustomers,
   useDeactivateCustomer,
+  customerApi,
 } from '@/entities/customer';
+import type { CreateCustomerPayload } from '@/entities/customer';
 import { CustomerFormModal } from '@/features/create-customer';
 import { CustomerDetailDrawer } from '@/widgets/customer-detail';
+import { ExcelImportButton } from '@/features/excel-import';
+import { getField } from '@/features/excel-import/lib/parseExcel';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { useCurrentUser } from '@/entities/user';
 import type { Customer } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 
 export function CustomersPage() {
-  const { can } = useCurrentUser();
+  const { can, isSuper, branchId } = useCurrentUser();
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('customers:create');
 
   const [search, setSearch] = useState('');
@@ -39,16 +45,24 @@ export function CustomersPage() {
 
   const columns: ColumnDef<Customer>[] = [
     {
+      title: '#',
+      key: '_idx',
+      width: 40,
+      render: (_: unknown, __: Customer, index: number) => (
+        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+      ),
+    },
+    {
       title: 'Mijoz',
       key: 'fullName',
       render: (_: unknown, c: Customer) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div
             style={{
-              width: 34, height: 34, borderRadius: '50%',
+              width: 26, height: 26, borderRadius: '50%',
               background: 'var(--primary)', color: '#fff',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 700, flexShrink: 0,
+              fontSize: 11, fontWeight: 700, flexShrink: 0,
             }}
           >
             {c.fullName.charAt(0).toUpperCase()}
@@ -66,6 +80,7 @@ export function CustomersPage() {
       title: 'Telefon',
       dataIndex: 'phone',
       width: 170,
+      responsiveHide: true,
       render: (v: string | null) =>
         v ? (
           <span className="num" style={{ fontSize: 13 }}>{v}</span>
@@ -77,6 +92,7 @@ export function CustomersPage() {
       title: 'Filial',
       key: 'branch',
       width: 150,
+      responsiveHide: true,
       render: (_: unknown, c: Customer) => (
         <StatusBadge tone="muted">{c.branch.name}</StatusBadge>
       ),
@@ -104,6 +120,7 @@ export function CustomersPage() {
       dataIndex: 'isActive',
       width: 90,
       align: 'center',
+      responsiveHide: true,
       render: (v: boolean) =>
         v ? (
           <StatusBadge tone="success" dot>Faol</StatusBadge>
@@ -115,6 +132,7 @@ export function CustomersPage() {
       title: "Qo'shilgan",
       dataIndex: 'createdAt',
       width: 110,
+      responsiveHide: true,
       render: (v: string) => (
         <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(v)}</span>
       ),
@@ -184,13 +202,31 @@ export function CustomersPage() {
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setEditCustomer(null)}
-            >
-              Yangi mijoz
-            </Button>
+            <>
+              <ExcelImportButton<CreateCustomerPayload>
+                entityLabel="Customers"
+                templateHeaders={['fullName', 'phone', 'address']}
+                templateExample={['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor']}
+                templateFileName="customers_template.xlsx"
+                parseRow={(raw, index) => {
+                  const fullName = getField(raw, 'fullName');
+                  if (!fullName) return { index, raw, error: 'fullName is required' };
+                  const phone = getField(raw, 'phone') || undefined;
+                  const address = getField(raw, 'address') || undefined;
+                  const resolvedBranchId = isSuper ? (branchId ?? undefined) : (branchId ?? undefined);
+                  return { index, raw, data: { fullName, phone, address, branchId: resolvedBranchId } };
+                }}
+                createFn={(data) => customerApi.create(data)}
+                onComplete={() => refetch()}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setEditCustomer(null)}
+              >
+                Yangi mijoz
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -238,7 +274,7 @@ export function CustomersPage() {
           dataSource={customers}
           columns={columns}
           loading={isLoading}
-          pagination={{ pageSize: 15, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
           onRow={(c) => ({
             onClick: () => setDrawerCustomer(c),
             style: { cursor: 'pointer' },

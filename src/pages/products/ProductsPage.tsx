@@ -12,7 +12,11 @@ import {
   useProducts,
   useCategories,
   useDeleteProduct,
+  productApi,
 } from '@/entities/product';
+import type { CreateProductPayload } from '@/entities/product';
+import { ExcelImportButton } from '@/features/excel-import';
+import { getField } from '@/features/excel-import/lib/parseExcel';
 import { ProductFormModal } from '@/features/create-product';
 import { ProductDetailDrawer } from '@/widgets/product-detail';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
@@ -21,9 +25,11 @@ import type { Product, ProductUnit } from '@/shared/types/domain';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 
 export function ProductsPage() {
   const { can } = useCurrentUser();
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('products:create');
 
   const [search, setSearch] = useState('');
@@ -42,9 +48,18 @@ export function ProductsPage() {
 
   const columns: ColumnDef<Product>[] = [
     {
+      title: '#',
+      key: '_idx',
+      width: 40,
+      render: (_: unknown, __: Product, index: number) => (
+        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+      ),
+    },
+    {
       title: 'SKU',
       dataIndex: 'sku',
       width: 140,
+      responsiveHide: true,
       render: (v: string | null) =>
         v ? (
           <span className="num" style={{ color: 'var(--ink-2)', fontSize: 12 }}>{v}</span>
@@ -66,6 +81,7 @@ export function ProductsPage() {
       title: "O'lchov",
       dataIndex: 'unit',
       width: 90,
+      responsiveHide: true,
       render: (v: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[v]}</StatusBadge>,
     },
     {
@@ -84,6 +100,7 @@ export function ProductsPage() {
       key: 'wholesale',
       width: 150,
       align: 'right',
+      responsiveHide: true,
       render: (_: unknown, p: Product) => (
         <span className="num">
           <MoneyDisplay amount={p.wholesalePriceUzs} currency="UZS" />
@@ -95,6 +112,7 @@ export function ProductsPage() {
       dataIndex: 'isActive',
       width: 100,
       align: 'center',
+      responsiveHide: true,
       render: (v: boolean) =>
         v ? (
           <StatusBadge tone="success" dot>Faol</StatusBadge>
@@ -106,6 +124,7 @@ export function ProductsPage() {
       title: 'Qo\'shilgan',
       dataIndex: 'createdAt',
       width: 120,
+      responsiveHide: true,
       render: (v: string) => (
         <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(v)}</span>
       ),
@@ -175,13 +194,61 @@ export function ProductsPage() {
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setEditProduct(null)}
-            >
-              Yangi mahsulot
-            </Button>
+            <>
+              <ExcelImportButton<CreateProductPayload>
+                entityLabel="Products"
+                templateHeaders={['name', 'sku', 'unit', 'category', 'retailPriceUzs', 'wholesalePriceUzs']}
+                templateExample={['Float Glass 4mm', 'FG-4MM', 'SQUARE_METER', 'Glass Panels', '85000', '75000']}
+                templateFileName="products_template.xlsx"
+                parseRow={(raw, index) => {
+                  const name = getField(raw, 'name');
+                  if (!name) return { index, raw, error: 'name is required' };
+
+                  const unitRaw = getField(raw, 'unit').toUpperCase();
+                  const validUnits = ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'];
+                  if (!validUnits.includes(unitRaw)) {
+                    return { index, raw, error: `unit must be one of: ${validUnits.join(', ')}` };
+                  }
+
+                  const categoryName = getField(raw, 'category');
+                  if (!categoryName) return { index, raw, error: 'category is required' };
+                  const cat = categories.find(
+                    (c) => c.name.toLowerCase() === categoryName.toLowerCase(),
+                  );
+                  if (!cat) return { index, raw, error: `Category "${categoryName}" not found` };
+
+                  const retailPriceUzs = Number(getField(raw, 'retailPriceUzs'));
+                  if (isNaN(retailPriceUzs) || retailPriceUzs < 0) {
+                    return { index, raw, error: 'retailPriceUzs must be a valid number' };
+                  }
+                  const wholesalePriceUzs = Number(getField(raw, 'wholesalePriceUzs'));
+                  if (isNaN(wholesalePriceUzs) || wholesalePriceUzs < 0) {
+                    return { index, raw, error: 'wholesalePriceUzs must be a valid number' };
+                  }
+
+                  const sku = getField(raw, 'sku') || undefined;
+                  return {
+                    index, raw,
+                    data: {
+                      name, sku,
+                      unit: unitRaw as CreateProductPayload['unit'],
+                      categoryId: cat.id,
+                      retailPriceUzs,
+                      wholesalePriceUzs,
+                    },
+                  };
+                }}
+                createFn={(data) => productApi.create(data)}
+                onComplete={() => refetch()}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setEditProduct(null)}
+              >
+                Yangi mahsulot
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -216,7 +283,7 @@ export function ProductsPage() {
           dataSource={products}
           columns={columns}
           loading={isLoading}
-          pagination={{ pageSize: 15, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
           onRow={(p) => ({
             onClick: () => setDrawerProduct(p),
             style: { cursor: 'pointer' },

@@ -13,9 +13,11 @@ import { useCurrentUser } from '@/entities/user';
 import type { Expense } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 
 export function ExpensesPage() {
   const { isSuper } = useCurrentUser();
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
 
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
   const [creating, setCreating] = useState(false);
@@ -41,6 +43,14 @@ export function ExpensesPage() {
 
   const columns: ColumnDef<Expense>[] = [
     {
+      title: '#',
+      key: '_idx',
+      width: 40,
+      render: (_: unknown, __: Expense, index: number) => (
+        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+      ),
+    },
+    {
       title: 'Sana',
       dataIndex: 'expenseDate',
       width: 120,
@@ -60,6 +70,7 @@ export function ExpensesPage() {
       title: 'Filial',
       key: 'branch',
       width: 150,
+      responsiveHide: true,
       render: (_: unknown, e: Expense) => (
         <StatusBadge tone="info">{e.branch.name}</StatusBadge>
       ),
@@ -89,6 +100,7 @@ export function ExpensesPage() {
       title: 'Kirituvchi',
       key: 'createdBy',
       width: 150,
+      responsiveHide: true,
       render: (_: unknown, e: Expense) => (
         <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{e.createdBy.fullName}</span>
       ),
@@ -192,7 +204,7 @@ export function ExpensesPage() {
             dataSource={expenses}
             columns={columns}
             loading={isLoading}
-            pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
             emptyText="Xarajatlar topilmadi"
           />
         </div>

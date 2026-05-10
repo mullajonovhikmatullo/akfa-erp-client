@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { productApi, type ProductListParams } from '../api/product.api';
-import { categoryApi } from '../api/category.api';
+import { categoryApi, type UpdateCategoryPayload } from '../api/category.api';
 
 // ── Query keys ─────────────────────────────────────────────────────────────────
 export const productKeys = {
@@ -90,6 +90,31 @@ export function useCategories(isActive?: boolean) {
   return useQuery({
     queryKey: [...categoryKeys.list(), isActive] as const,
     queryFn: () => categoryApi.list(isActive),
-    staleTime: 1000 * 60 * 5, // categories change rarely
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCreateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: categoryApi.create,
+    onSuccess: () => qc.invalidateQueries({ queryKey: categoryKeys.all }),
+  });
+}
+
+export function useUpdateCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateCategoryPayload }) =>
+      categoryApi.update(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: categoryKeys.all }),
+  });
+}
+
+export function useDeleteCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: categoryApi.remove,
+    onSuccess: () => qc.invalidateQueries({ queryKey: categoryKeys.all }),
   });
 }

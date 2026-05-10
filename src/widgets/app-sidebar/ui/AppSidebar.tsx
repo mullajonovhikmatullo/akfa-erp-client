@@ -2,10 +2,10 @@ import { NavLink, useLocation } from 'react-router-dom';
 import * as icons from '@ant-design/icons';
 import clsx from 'clsx';
 import { useAuthStore } from '@/entities/user';
+import { useUIStore } from '@/app/stores/ui.store';
 import { getVisibleNavItems } from '../model/navConfig';
 import type { Permission } from '@/shared/config/permissions';
 
-// Inline translation map — replace with i18n hook when integrated
 const T: Record<string, string> = {
   'nav.dashboard': 'Dashboard',
   'nav.catalog': 'Catalog',
@@ -19,17 +19,27 @@ const T: Record<string, string> = {
   'nav.insights': 'Insights',
   'nav.analytics': 'Analytics',
   'nav.settings': 'Settings',
+  'nav.admin': 'Administration',
+  'nav.branches': 'Branches',
+  'nav.admins': 'Admins',
+  'nav.categories': 'Categories',
 };
 
 const t = (key: string) => T[key] ?? key;
 
-export function AppSidebar({ collapsed }: { collapsed: boolean }) {
+interface AppSidebarProps {
+  collapsed: boolean;
+  mobileOpen: boolean;
+}
+
+export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
   const can = useAuthStore((s) => s.can);
+  const closeMobileSidebar = useUIStore((s) => s.closeMobileSidebar);
   const location = useLocation();
   const navGroups = getVisibleNavItems(can as (p: Permission) => boolean);
 
   return (
-    <aside className={clsx('sidebar', collapsed && 'sidebar--collapsed')}>
+    <aside className={clsx('sidebar', collapsed && 'sidebar--collapsed', mobileOpen && 'sidebar--mobile-open')}>
       <div className="sidebar__brand">
         <span className="logo" />
         {!collapsed && (
@@ -58,6 +68,7 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
                   to={item.path}
                   className={clsx('nav-item', isActive && 'active')}
                   title={collapsed ? t(item.labelKey) : undefined}
+                  onClick={closeMobileSidebar}
                 >
                   {Icon && <Icon />}
                   {!collapsed && <span>{t(item.labelKey)}</span>}

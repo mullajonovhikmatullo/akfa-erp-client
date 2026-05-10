@@ -9,8 +9,10 @@ import type { StockBatch } from '@/shared/types/domain';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 
 export function PurchasesPage() {
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const [creating, setCreating] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
   const [depletedFilter, setDepletedFilter] = useState<boolean | undefined>();
@@ -40,6 +42,14 @@ export function PurchasesPage() {
 
   const columns: ColumnDef<StockBatch>[] = [
     {
+      title: '#',
+      key: '_idx',
+      width: 40,
+      render: (_: unknown, __: StockBatch, index: number) => (
+        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+      ),
+    },
+    {
       title: 'Sana',
       dataIndex: 'receivedAt',
       width: 120,
@@ -65,6 +75,7 @@ export function PurchasesPage() {
       title: 'Filial',
       key: 'branch',
       width: 150,
+      responsiveHide: true,
       render: (_: unknown, b: StockBatch) => (
         <StatusBadge tone="info">{b.branch.name}</StatusBadge>
       ),
@@ -113,6 +124,7 @@ export function PurchasesPage() {
       title: 'Jami tan narxi',
       key: 'totalCost',
       width: 160,
+      responsiveHide: true,
       align: 'right',
       render: (_: unknown, b: StockBatch) => (
         <span className="num" style={{ fontWeight: 600 }}>
@@ -123,6 +135,7 @@ export function PurchasesPage() {
     {
       title: 'Etkazuvchi izohi',
       dataIndex: 'supplierNote',
+      responsiveHide: true,
       render: (v: string | null) =>
         v ? (
           <span style={{ fontSize: 12.5, color: 'var(--ink-2)' }}>{v}</span>
@@ -134,6 +147,7 @@ export function PurchasesPage() {
       title: 'Kirituvchi',
       key: 'createdBy',
       width: 140,
+      responsiveHide: true,
       render: (_: unknown, b: StockBatch) => (
         <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{b.createdBy.fullName}</span>
       ),
@@ -194,7 +208,7 @@ export function PurchasesPage() {
           dataSource={depletedFiltered}
           columns={columns}
           loading={isLoading}
-          pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText="Kirim partiyalari topilmadi"
         />
       </div>

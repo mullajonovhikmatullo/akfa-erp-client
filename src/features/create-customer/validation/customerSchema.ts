@@ -9,6 +9,7 @@ export const customerSchema = z.object({
     .or(z.literal('')),
   address: z.string().max(300).optional().or(z.literal('')),
   isActive: z.boolean().optional(),
+  branchId: z.string().uuid().optional(),
 });
 
 export type CustomerFormValues = z.infer<typeof customerSchema>;

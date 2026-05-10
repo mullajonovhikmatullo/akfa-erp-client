@@ -1,5 +1,5 @@
 import { Controller } from 'react-hook-form';
-import { Form, Input, Switch } from 'antd';
+import { Form, Input, Switch, Select } from 'antd';
 import { AppModal } from '@/shared/ui';
 import { Button } from 'antd';
 import type { Customer } from '@/shared/types/domain';
@@ -12,7 +12,7 @@ interface CustomerFormModalProps {
 }
 
 export function CustomerFormModal({ open, customer, onClose }: CustomerFormModalProps) {
-  const { form, onSubmit, isPending, isEdit } = useCustomerForm({
+  const { form, onSubmit, isPending, isEdit, isSuper, branches } = useCustomerForm({
     customer,
     onSuccess: onClose,
   });
@@ -34,6 +34,27 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
       ]}
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
+
+        {isSuper && !isEdit && (
+          <Controller
+            name="branchId"
+            control={control}
+            render={({ field }) => (
+              <Form.Item
+                label="Filial"
+                required
+                validateStatus={errors.branchId ? 'error' : undefined}
+                help={errors.branchId?.message}
+              >
+                <Select
+                  {...field}
+                  placeholder="Filialni tanlang"
+                  options={branches.map((b) => ({ value: b.id, label: b.name }))}
+                />
+              </Form.Item>
+            )}
+          />
+        )}
 
         <Controller
           name="fullName"

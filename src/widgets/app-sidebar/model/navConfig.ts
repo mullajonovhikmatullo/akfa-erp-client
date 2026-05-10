@@ -86,6 +86,30 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'SettingOutlined',
     group: 'nav.insights',
   },
+  {
+    key: 'branches',
+    path: ROUTES.BRANCHES,
+    labelKey: 'nav.branches',
+    icon: 'BankOutlined',
+    group: 'nav.admin',
+    permission: 'branch:create',
+  },
+  {
+    key: 'admins',
+    path: ROUTES.ADMINS,
+    labelKey: 'nav.admins',
+    icon: 'UserSwitchOutlined',
+    group: 'nav.admin',
+    permission: 'admin:create',
+  },
+  {
+    key: 'categories',
+    path: ROUTES.CATEGORIES,
+    labelKey: 'nav.categories',
+    icon: 'AppstoreOutlined',
+    group: 'nav.admin',
+    permission: 'category:manage',
+  },
 ];
 
 export function getVisibleNavItems(

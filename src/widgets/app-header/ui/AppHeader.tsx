@@ -46,6 +46,12 @@ export function AppHeader({ branches }: AppHeaderProps) {
   const setActiveBranch = useUIStore((s) => s.setActiveBranch);
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const toggleMobileSidebar = useUIStore((s) => s.toggleMobileSidebar);
+
+  const handleToggle = () => {
+    if (window.innerWidth < 768) toggleMobileSidebar();
+    else toggleSidebar();
+  };
 
   const activeBranch = branches.find((b) => b.id === activeBranchId);
   const userBranch = branches.find((b) => b.id === user?.branchId);
@@ -90,7 +96,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
 
   return (
     <header className="topbar">
-      <button className="sidebar-toggle" onClick={toggleSidebar} type="button">
+      <button className="sidebar-toggle" onClick={handleToggle} type="button">
         {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </button>
 
@@ -101,7 +107,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
       <div className="grow" />
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <span className="tagpill info">
+        <span className="tagpill info topbar-hide-mobile">
           <DollarOutlined style={{ fontSize: 11 }} />
           1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
         </span>
@@ -110,6 +116,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
           <Select
             value={activeBranchId}
             onChange={setActiveBranch}
+            className="topbar-hide-mobile"
             style={{ minWidth: 220 }}
             suffixIcon={<EnvironmentOutlined />}
             options={[
@@ -118,7 +125,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
             ]}
           />
         ) : (
-          <span className="branchchip">
+          <span className="branchchip topbar-hide-mobile">
             <span className="dot" /> {activeBranch?.name ?? userBranch?.name}
           </span>
         )}

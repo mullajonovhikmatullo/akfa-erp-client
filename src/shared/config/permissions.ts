@@ -18,6 +18,7 @@ export type Permission =
   | 'products:create'
   | 'products:edit'
   | 'products:delete'
+  | 'category:manage'
   | 'customers:create'
   | 'customers:edit'
   | 'settings:global';
@@ -40,6 +41,7 @@ const SUPER_ADMIN_PERMISSIONS: Permission[] = [
   'products:create',
   'products:edit',
   'products:delete',
+  'category:manage',
   'customers:create',
   'customers:edit',
   'settings:global',

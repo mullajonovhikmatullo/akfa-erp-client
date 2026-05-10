@@ -42,3 +42,15 @@ export const SettingsPage = lazy(() =>
 export const LoginPage = lazy(() =>
   import('@/pages/login/LoginPage').then((m) => ({ default: m.LoginPage })),
 );
+
+export const BranchesPage = lazy(() =>
+  import('@/pages/branches/BranchesPage').then((m) => ({ default: m.BranchesPage })),
+);
+
+export const AdminsPage = lazy(() =>
+  import('@/pages/admins/AdminsPage').then((m) => ({ default: m.AdminsPage })),
+);
+
+export const CategoriesPage = lazy(() =>
+  import('@/pages/categories/CategoriesPage').then((m) => ({ default: m.CategoriesPage })),
+);

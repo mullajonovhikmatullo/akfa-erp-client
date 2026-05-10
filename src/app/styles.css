@@ -143,17 +143,24 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
 .card .card-head .meta{ color:var(--ink-3); font-size:12px; }
 
 /* Tables */
-.ant-table{ font-size:13px; }
+.ant-table{ font-size:12.5px; }
 .ant-table-thead > tr > th{
   background: #f3f5f9 !important;
-  color: var(--ink-2) !important;
+  color: var(--ink-3) !important;
   font-weight:600 !important;
-  font-size:12px !important;
-  text-transform:uppercase; letter-spacing:.04em;
+  font-size:11px !important;
+  text-transform:uppercase; letter-spacing:.05em;
   border-bottom:1px solid var(--border) !important;
+  padding:6px 10px !important;
+  white-space:nowrap;
+}
+.ant-table-tbody > tr > td{
+  padding:6px 10px !important;
+  border-bottom:1px solid #f0f2f5 !important;
 }
 .ant-table-tbody > tr:hover > td{ background: #f7faff !important; }
-.num{ font-variant-numeric: tabular-nums; font-family:"JetBrains Mono", ui-monospace, monospace; font-size:12.5px; }
+.ant-table-tbody > tr:last-child > td{ border-bottom:none !important; }
+.num{ font-variant-numeric: tabular-nums; font-family:"JetBrains Mono", ui-monospace, monospace; font-size:12px; }
 
 /* Login */
 .login-shell{
@@ -226,8 +233,10 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
 .tagpill.muted{ background:#f1f5f9; color:#475569; }
 
 /* Density modifiers */
-body.density-compact .ant-table-cell{ padding: 8px 10px !important; }
-body.density-spacious .ant-table-cell{ padding: 16px 16px !important; }
+body.density-compact .ant-table-thead > tr > th{ padding: 4px 8px !important; }
+body.density-compact .ant-table-tbody > tr > td{ padding: 4px 8px !important; }
+body.density-spacious .ant-table-thead > tr > th{ padding: 10px 14px !important; }
+body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important; }
 
 /* Sales line items table */
 .sales-grid{
@@ -316,3 +325,103 @@ body.density-spacious .ant-table-cell{ padding: 16px 16px !important; }
 }
 .sidebar--collapsed .sidebar__nav .nav-section{ display:none; }
 .sidebar--collapsed .sidebar__footer{ display:none; }
+
+/* ─── Mobile backdrop ───────────────────────────────────────────────────────── */
+.mobile-backdrop{
+  display:none;
+  position:fixed; inset:0; z-index:199;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+
+/* ─── Responsive: tablet 1024px ────────────────────────────────────────────── */
+@media (max-width: 1024px){
+  .page{ padding:20px 20px 56px; }
+  .topbar{ padding:0 16px; }
+}
+
+/* ─── Responsive: mobile 767px ─────────────────────────────────────────────── */
+@media (max-width: 767px){
+  /* Layout: remove sidebar from grid flow */
+  .app-shell{ grid-template-columns: 1fr !important; }
+
+  /* Sidebar becomes fixed overlay */
+  .sidebar{
+    position:fixed; left:0; top:0; bottom:0; z-index:200;
+    width:260px !important;
+    transform:translateX(-100%);
+    transition:transform .25s ease, box-shadow .25s ease;
+    box-shadow:none;
+    padding:18px 12px;
+  }
+  .sidebar--mobile-open{
+    transform:translateX(0);
+    box-shadow:4px 0 24px rgba(0,0,0,.22);
+  }
+  /* Reset desktop collapsed styles on mobile */
+  .sidebar--collapsed{ padding:18px 12px; }
+  .sidebar--collapsed .sidebar__brand{ justify-content:flex-start; padding:4px 8px 16px; }
+  .sidebar--collapsed .sidebar__nav .nav-item{ justify-content:flex-start; padding:9px 10px; gap:10px; }
+  .sidebar--collapsed .sidebar__nav .nav-section{ display:block; }
+  .sidebar--collapsed .sidebar__footer{ display:block; }
+
+  .mobile-backdrop{ display:block; }
+
+  /* Page & header */
+  .page{ padding:14px 12px 48px; }
+  .topbar{ padding:0 12px; height:52px; }
+  .topbar .crumbs{ font-size:12px; }
+
+  /* Hide secondary topbar elements */
+  .topbar-hide-mobile{ display:none !important; }
+
+  /* Page head — stack vertically */
+  .page-head{ flex-direction:column; align-items:stretch; gap:10px; margin-bottom:14px; }
+  .page-head h1{ font-size:20px; }
+  .page-head .sub{ font-size:12px; }
+
+  /* Summary cards grid */
+  .grid-3{ grid-template-columns: 1fr 1fr; }
+  .grid-4{ grid-template-columns: 1fr 1fr; }
+  .grid-2{ grid-template-columns: 1fr; }
+
+  /* Tables: compact mode, hide secondary columns */
+  .ant-table{ font-size:11.5px; }
+  .ant-table-thead > tr > th{ padding:5px 8px !important; }
+  .ant-table-tbody > tr > td{ padding:5px 8px !important; }
+  .col-hide-mobile,
+  .col-hide-mobile.ant-table-cell{ display:none !important; }
+
+  /* Buttons: larger tap targets */
+  .ant-btn{ min-height:36px; }
+  .ant-btn.ant-btn-sm{ min-height:30px; }
+
+  /* Login: stack panels */
+  .login-shell{ grid-template-columns:1fr; }
+  .login-art{ display:none; }
+  .login-form{ padding:32px 24px; max-width:100%; }
+
+  /* Modals: full width on mobile */
+  .ant-modal{ max-width:calc(100vw - 24px) !important; margin:12px !important; }
+  .ant-modal-content{ border-radius:12px; }
+
+  /* Drawers: full width */
+  .ant-drawer-content-wrapper{ max-width:100vw !important; }
+
+  /* KPI card font */
+  .kpi .value{ font-size:20px; }
+
+  /* Card padding */
+  .card{ padding:14px 14px; }
+
+  /* Table wrapper to allow horizontal scroll */
+  .ant-table-wrapper{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+}
+
+/* ─── Responsive: very small (iPhone SE) 374px ─────────────────────────────── */
+@media (max-width: 374px){
+  .page{ padding:10px 8px 40px; }
+  .topbar{ padding:0 8px; }
+  .page-head h1{ font-size:18px; }
+}

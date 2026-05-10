@@ -9,6 +9,7 @@ import type { SaleListItem, SaleType } from '@/shared/types/domain';
 import { SALE_TYPE_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 
 const SALE_TYPE_OPTIONS: { value: SaleType; label: string }[] = [
   { value: 'RETAIL', label: 'Chakana' },
@@ -16,6 +17,7 @@ const SALE_TYPE_OPTIONS: { value: SaleType; label: string }[] = [
 ];
 
 export function SalesPage() {
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const [tab, setTab] = useState<'new' | 'history'>('new');
   const [drawerSale, setDrawerSale] = useState<SaleListItem | null>(null);
   const [saleTypeFilter, setSaleTypeFilter] = useState<SaleType | undefined>();
@@ -28,6 +30,14 @@ export function SalesPage() {
   });
 
   const columns: ColumnDef<SaleListItem>[] = [
+    {
+      title: '#',
+      key: '_idx',
+      width: 40,
+      render: (_: unknown, __: SaleListItem, index: number) => (
+        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+      ),
+    },
     {
       title: 'Sana',
       dataIndex: 'createdAt',
@@ -57,6 +67,7 @@ export function SalesPage() {
       title: 'Filial',
       key: 'branch',
       width: 140,
+      responsiveHide: true,
       render: (_: unknown, s: SaleListItem) => (
         <StatusBadge tone="muted">{s.branch.name}</StatusBadge>
       ),
@@ -65,6 +76,7 @@ export function SalesPage() {
       title: 'Tur',
       dataIndex: 'saleType',
       width: 100,
+      responsiveHide: true,
       render: (v: SaleType) => (
         <StatusBadge tone={v === 'RETAIL' ? 'muted' : 'info'}>{SALE_TYPE_LABELS[v]}</StatusBadge>
       ),
@@ -74,6 +86,7 @@ export function SalesPage() {
       key: 'count',
       width: 90,
       align: 'center',
+      responsiveHide: true,
       render: (_: unknown, s: SaleListItem) => (
         <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
           {s._count.items} ta
@@ -96,6 +109,7 @@ export function SalesPage() {
       key: 'paid',
       width: 150,
       align: 'right',
+      responsiveHide: true,
       render: (_: unknown, s: SaleListItem) => (
         <span className="num">
           <MoneyDisplay amount={s.paidAmountUzs} currency="UZS" />
@@ -197,7 +211,7 @@ export function SalesPage() {
             dataSource={sales}
             columns={columns}
             loading={isLoading}
-            pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
             onRow={(s) => ({
               onClick: () => setDrawerSale(s),
               style: { cursor: 'pointer' },

@@ -23,6 +23,8 @@ export interface User {
   username: string;
   role: UserRole;
   branchId: string | null;
+  isActive?: boolean;
+  createdAt?: string;
 }
 
 export interface Category {
@@ -30,6 +32,8 @@ export interface Category {
   name: string;
   description?: string | null;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type StockMovementType = 'STOCK_IN' | 'STOCK_OUT' | 'ADJUSTMENT' | 'TRANSFER_IN' | 'TRANSFER_OUT';

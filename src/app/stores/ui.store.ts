@@ -10,6 +10,7 @@ interface UIState {
   lang: Lang;
   density: Density;
   sidebarCollapsed: boolean;
+  mobileSidebarOpen: boolean;
   displayCurrency: Currency;
   exchangeRate: number;
   lowStockThreshold: number;
@@ -20,6 +21,8 @@ interface UIActions {
   setLang: (lang: Lang) => void;
   setDensity: (density: Density) => void;
   toggleSidebar: () => void;
+  toggleMobileSidebar: () => void;
+  closeMobileSidebar: () => void;
   setDisplayCurrency: (currency: Currency) => void;
   setExchangeRate: (rate: number) => void;
 }
@@ -34,6 +37,7 @@ export const useUIStore = create<UIStore>()(
         lang: 'en',
         density: 'default',
         sidebarCollapsed: false,
+        mobileSidebarOpen: false,
         displayCurrency: 'UZS',
         exchangeRate: 12_650,
         lowStockThreshold: 50,
@@ -43,6 +47,10 @@ export const useUIStore = create<UIStore>()(
         setDensity: (density) => set({ density }, false, 'ui/setDensity'),
         toggleSidebar: () =>
           set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed }), false, 'ui/toggleSidebar'),
+        toggleMobileSidebar: () =>
+          set((s) => ({ mobileSidebarOpen: !s.mobileSidebarOpen }), false, 'ui/toggleMobileSidebar'),
+        closeMobileSidebar: () =>
+          set({ mobileSidebarOpen: false }, false, 'ui/closeMobileSidebar'),
         setDisplayCurrency: (displayCurrency) =>
           set({ displayCurrency }, false, 'ui/setDisplayCurrency'),
         setExchangeRate: (exchangeRate) =>

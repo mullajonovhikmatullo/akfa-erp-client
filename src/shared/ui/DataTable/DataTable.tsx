@@ -1,11 +1,12 @@
 import { Table } from 'antd';
 import type { TableProps, TableColumnsType } from 'antd';
 
-// Re-export AntD table column type under a cleaner name
-export type { TableColumnsType as ColumnDef };
+export type ColumnDef<T> = TableColumnsType<T>[number] & {
+  responsiveHide?: boolean;
+};
 
 interface DataTableProps<T> extends Omit<TableProps<T>, 'columns'> {
-  columns: TableColumnsType<T>;
+  columns: ColumnDef<T>[];
   loading?: boolean;
   emptyText?: string;
 }
@@ -17,24 +18,33 @@ export function DataTable<T extends object>({
   pagination,
   ...rest
 }: DataTableProps<T>) {
+  const processedColumns = columns.map((col) => {
+    if (!col.responsiveHide) return col;
+    return {
+      ...col,
+      className: [col.className, 'col-hide-mobile'].filter(Boolean).join(' '),
+      onHeaderCell: () => ({ className: 'col-hide-mobile' }),
+    };
+  });
+
   return (
     <Table<T>
-      columns={columns}
+      columns={processedColumns}
       loading={loading}
       locale={{ emptyText }}
       pagination={
         pagination !== false
           ? {
-              pageSize: 15,
+              pageSize: 10,
               showSizeChanger: true,
               showTotal: (total) => `${total} records`,
-              pageSizeOptions: ['10', '15', '25', '50'],
+              pageSizeOptions: ['10', '25', '50'],
               ...((pagination as object) ?? {}),
             }
           : false
       }
       scroll={{ x: 'max-content' }}
-      size="middle"
+      size="small"
       {...rest}
     />
   );

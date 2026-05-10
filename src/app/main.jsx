@@ -9,30 +9,34 @@
 
 import './styles.css';
 import ReactDOM from 'react-dom/client';
-import { Toaster } from 'sonner';
-import { StoreProvider } from './store.jsx';
-import { AppProviders } from './providers/index.tsx';
-import { AppRouter } from '../routes/index.tsx';
+import {Toaster} from 'sonner';
+import {StoreProvider} from './store.jsx';
+import {AppProviders} from './providers/index.tsx';
+import {AppRouter} from '../routes/index.tsx';
 
+// eslint-disable-next-line react-refresh/only-export-components
 const App = () => (
-  <AppProviders>
-    <StoreProvider>
-      <AppRouter />
-      <Toaster richColors position="top-right" />
-    </StoreProvider>
-  </AppProviders>
+    <AppProviders>
+        <StoreProvider>
+            <AppRouter/>
+            <Toaster richColors position="top-right"/>
+        </StoreProvider>
+    </AppProviders>
 );
 
 const mount = () => {
-  if (window.__akfa_mounted) return;
-  const el = document.getElementById('root');
-  if (!el) { setTimeout(mount, 30); return; }
-  window.__akfa_mounted = true;
-  ReactDOM.createRoot(el).render(<App />);
+    if (window.__akfa_mounted) return;
+    const el = document.getElementById('root');
+    if (!el) {
+        setTimeout(mount, 30);
+        return;
+    }
+    window.__akfa_mounted = true;
+    ReactDOM.createRoot(el).render(<App/>);
 };
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mount);
+    document.addEventListener('DOMContentLoaded', mount);
 } else {
-  mount();
+    mount();
 }

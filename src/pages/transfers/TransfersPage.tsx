@@ -19,6 +19,7 @@ import type { Transfer, TransferStatus } from '@/shared/types/domain';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 
 const STATUS_OPTIONS: { value: TransferStatus; label: string }[] = [
   { value: 'PENDING', label: 'Kutilmoqda' },
@@ -39,6 +40,7 @@ const STATUS_LABEL: Record<TransferStatus, string> = {
 };
 
 export function TransfersPage() {
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const { isSuper } = useCurrentUser();
   const [creating, setCreating] = useState(false);
   const [statusFilter, setStatusFilter] = useState<TransferStatus | undefined>();
@@ -54,6 +56,14 @@ export function TransfersPage() {
   const pendingCount = transfers.filter((t) => t.status === 'PENDING').length;
 
   const columns: ColumnDef<Transfer>[] = [
+    {
+      title: '#',
+      key: '_idx',
+      width: 40,
+      render: (_: unknown, __: Transfer, index: number) => (
+        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+      ),
+    },
     {
       title: 'Sana',
       dataIndex: 'createdAt',
@@ -78,6 +88,7 @@ export function TransfersPage() {
       key: 'items',
       width: 90,
       align: 'center',
+      responsiveHide: true,
       render: (_: unknown, t: Transfer) => (
         <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
           {t.items.length} tur
@@ -110,6 +121,7 @@ export function TransfersPage() {
       title: 'Yaratuvchi',
       key: 'initiatedBy',
       width: 140,
+      responsiveHide: true,
       render: (_: unknown, t: Transfer) => (
         <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{t.initiatedBy.fullName}</span>
       ),
@@ -208,7 +220,7 @@ export function TransfersPage() {
           dataSource={transfers}
           columns={columns}
           loading={isLoading}
-          pagination={{ pageSize: 20, showSizeChanger: true, showTotal: (t) => `${t} ta` }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
           expandable={{
             expandedRowRender: (transfer) => (
               <div style={{ padding: '8px 0 8px 48px' }}>
