@@ -3,25 +3,25 @@ import { z } from 'zod';
 const UNITS = ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'] as const;
 
 const priceField = z
-  .number({ invalid_type_error: 'Narxni kiriting' })
-  .nonnegative("Narx manfiy bo'lmasligi kerak")
+  .number({ invalid_type_error: 'Нархни киритинг' })
+  .nonnegative('Нарх манфий бўлмаслиги керак')
   .multipleOf(0.01);
 
 export const productSchema = z
   .object({
     name: z
       .string()
-      .min(1, 'Nom majburiy')
-      .max(200, "Nom 200 ta belgidan oshmasligi kerak"),
+      .min(1, 'Номи мажбурий')
+      .max(200, 'Ном 200 та белгидан ошмаслиги керак'),
     description: z.string().max(1000).optional().or(z.literal('')),
     sku: z
       .string()
       .max(100)
-      .regex(/^[A-Za-z0-9_-]*$/, "SKU faqat harf, raqam, tire va pastki chiziqdan iborat bo'lishi mumkin")
+      .regex(/^[A-Za-z0-9_-]*$/, 'SKU фақат ҳарф, рақам, тире ва пастки чизиқдан иборат бўлиши мумкин')
       .optional()
       .or(z.literal('')),
-    unit: z.enum(UNITS, { required_error: "O'lchov birligini tanlang" }),
-    categoryId: z.string().uuid("Kategoriyani tanlang"),
+    unit: z.enum(UNITS, { required_error: 'Ўлчов бирлигини танланг' }),
+    categoryId: z.string().uuid('Категорияни танланг'),
     retailPriceUzs: priceField,
     wholesalePriceUzs: priceField,
     retailPriceUsd: priceField.optional(),
@@ -29,7 +29,7 @@ export const productSchema = z
     isActive: z.boolean().optional(),
   })
   .refine((d) => d.wholesalePriceUzs <= d.retailPriceUzs, {
-    message: "Ulgurji narx chakana narxdan oshmasligi kerak",
+    message: 'Улгуржи нарх чакана нархдан ошмаслиги керак',
     path: ['wholesalePriceUzs'],
   });
 

@@ -82,13 +82,13 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
 
   return (
     <AppModal
-      title="Omborga kirim"
+      title="Омборга кирим"
       open={open}
       onClose={onClose}
       width={760}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={stockInBatch.isPending}>
-          Bekor qilish
+          Бекор қилиш
         </Button>,
         <Button
           key="submit"
@@ -97,7 +97,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          Kirimni tasdiqlash ({cart.length} ta)
+          Киримни тасдиқлаш ({cart.length} та)
         </Button>,
       ]}
     >
@@ -106,11 +106,11 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
         {/* Branch selector (SUPER_ADMIN only) */}
         {isSuper && (
           <div>
-            <Label>Filial</Label>
+            <Label>Филиал</Label>
             <Select
               value={branchId}
               onChange={setBranchId}
-              placeholder="Filial tanlang"
+              placeholder="Филиал танланг"
               style={{ width: 280 }}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
@@ -119,13 +119,13 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
 
         {/* Product search */}
         <div>
-          <Label>Mahsulot qo'shish</Label>
+          <Label>Маҳсулот қўшиш</Label>
           <Select
             showSearch
             optionFilterProp="label"
             onChange={addProduct}
             value={null}
-            placeholder="SKU yoki nom bo'yicha qidirish"
+            placeholder="SKU ёки ном бўйича қидириш"
             style={{ width: '100%' }}
             suffixIcon={<PlusOutlined />}
             options={products
@@ -140,7 +140,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
         {/* Cart table */}
         {cart.length === 0 ? (
           <Empty
-            description="Hali mahsulot qo'shilmadi"
+            description="Ҳали маҳсулот қўшилмади"
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             style={{ padding: '16px 0' }}
           />
@@ -153,7 +153,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               dataSource={cart}
               columns={[
                 {
-                  title: 'Mahsulot',
+                  title: 'Маҳсулот',
                   key: 'product',
                   render: (_, item) => (
                     <div>
@@ -167,7 +167,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: 'Miqdor',
+                  title: 'Миқдор',
                   key: 'qty',
                   width: 130,
                   render: (_, item) => (
@@ -186,7 +186,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: "Tan narxi (so'm)",
+                  title: 'Тан нархи (сўм)',
                   key: 'cost',
                   width: 160,
                   render: (_, item) => (
@@ -202,19 +202,19 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: 'Etkazuvchi izohi',
+                  title: 'Етказувчи изоҳи',
                   key: 'note',
                   render: (_, item) => (
                     <Input
                       value={item.supplierNote}
                       onChange={(e) => updateItem(item._key, { supplierNote: e.target.value })}
-                      placeholder="Ixtiyoriy..."
+                      placeholder="Ихтиёрий..."
                       maxLength={200}
                     />
                   ),
                 },
                 {
-                  title: 'Jami',
+                  title: 'Жами',
                   key: 'total',
                   width: 130,
                   align: 'right',
@@ -241,7 +241,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               ]}
             />
             <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 13, paddingRight: 32 }}>
-              <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>Jami tan narxi:</span>
+              <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>Жами тан нархи:</span>
               <span className="num" style={{ fontWeight: 700 }}>
                 <MoneyDisplay amount={totalCost} currency="UZS" />
               </span>

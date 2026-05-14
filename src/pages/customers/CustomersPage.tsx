@@ -54,7 +54,7 @@ export function CustomersPage() {
       ),
     },
     {
-      title: 'Mijoz',
+      title: 'Мижоз',
       key: 'fullName',
       render: (_: unknown, c: Customer) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -78,7 +78,7 @@ export function CustomersPage() {
       ),
     },
     {
-      title: 'Telefon',
+      title: 'Телефон',
       dataIndex: 'phone',
       width: 170,
       responsiveHide: true,
@@ -90,7 +90,7 @@ export function CustomersPage() {
         ),
     },
     {
-      title: 'Filial',
+      title: 'Филиал',
       key: 'branch',
       width: 150,
       responsiveHide: true,
@@ -99,13 +99,13 @@ export function CustomersPage() {
       ),
     },
     {
-      title: 'Balans',
+      title: 'Баланс',
       key: 'balance',
       width: 180,
       align: 'right',
       render: (_: unknown, c: Customer) => {
         const tone = c.balance > 0 ? 'danger' : c.balance < 0 ? 'success' : 'muted';
-        const label = c.balance > 0 ? 'Qarzdor' : c.balance < 0 ? "Ortiqcha" : 'Teng';
+        const label = c.balance > 0 ? 'Қарздор' : c.balance < 0 ? 'Ортиқча' : 'Тенг';
         return (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
             <span className="num" style={{ fontWeight: 700 }}>
@@ -117,20 +117,20 @@ export function CustomersPage() {
       },
     },
     {
-      title: 'Holat',
+      title: 'Ҳолат',
       dataIndex: 'isActive',
       width: 90,
       align: 'center',
       responsiveHide: true,
       render: (v: boolean) =>
         v ? (
-          <StatusBadge tone="success" dot>Faol</StatusBadge>
+          <StatusBadge tone="success" dot>Фаол</StatusBadge>
         ) : (
-          <StatusBadge tone="danger" dot>Nofaol</StatusBadge>
+          <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
         ),
     },
     {
-      title: "Qo'shilgan",
+      title: 'Қўшилган',
       dataIndex: 'createdAt',
       width: 110,
       responsiveHide: true,
@@ -145,7 +145,7 @@ export function CustomersPage() {
       fixed: 'right',
       render: (_: unknown, c: Customer) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Ko'rish">
+          <Tooltip title="Кўриш">
             <Button
               size="small"
               type="text"
@@ -155,7 +155,7 @@ export function CustomersPage() {
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title="Tahrirlash">
+              <Tooltip title="Таҳрирлаш">
                 <Button
                   size="small"
                   type="text"
@@ -164,15 +164,15 @@ export function CustomersPage() {
                 />
               </Tooltip>
               <Popconfirm
-                title="O'chirilsinmi?"
-                description={`"${c.fullName}" mijozni nofaol qilasizmi?`}
-                okText="Ha, o'chir"
-                cancelText="Bekor"
+                title="Ўчирилсинми?"
+                description={`"${c.fullName}" мижозни нофаол қиласизми?`}
+                okText="Ҳа, ўчир"
+                cancelText="Бекор"
                 okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
                 onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(c.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title="Nofaol qilish">
+                <Tooltip title="Нофаол қилиш">
                   <Button
                     size="small"
                     type="text"
@@ -193,19 +193,19 @@ export function CustomersPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Mijozlar</h1>
+          <h1>Мижозлар</h1>
           <div className="sub">
-            {customers.length} ta mijoz · balans va to'lov tarixi
+            {customers.length} та мижоз · баланс ва тўлов тарихи
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Yangilash">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
             <>
               <ExcelImportButton<CreateCustomerPayload>
-                entityLabel="Customers"
+                entityLabel="Мижозлар"
                 templateHeaders={['fullName', 'phone', 'address']}
                 templateExample={['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor']}
                 templateFileName="customers_template.xlsx"
@@ -225,7 +225,7 @@ export function CustomersPage() {
                 icon={<PlusOutlined />}
                 onClick={() => setEditCustomer(null)}
               >
-                Yangi mijoz
+                Янги мижоз
               </Button>
             </>
           )}
@@ -235,21 +235,21 @@ export function CustomersPage() {
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
         <KpiBox
-          label="Umumiy qarz"
+          label="Умумий қарз"
           value={<MoneyDisplay amount={totalDebt} currency="UZS" />}
-          hint={`${customers.filter((c) => c.balance > 0).length} ta mijoz`}
+          hint={`${customers.filter((c) => c.balance > 0).length} та мижоз`}
           tone="danger"
         />
         <KpiBox
-          label="Ortiqcha to'lovlar"
+          label="Ортиқча тўловлар"
           value={<MoneyDisplay amount={totalCredit} currency="UZS" />}
-          hint={`${customers.filter((c) => c.balance < 0).length} ta mijoz`}
+          hint={`${customers.filter((c) => c.balance < 0).length} та мижоз`}
           tone="success"
         />
         <KpiBox
-          label="Sof debitorlik"
+          label="Соф дебиторлик"
           value={<MoneyDisplay amount={totalDebt - totalCredit} currency="UZS" />}
-          hint={`${customers.length} ta jami`}
+          hint={`${customers.length} та жами`}
           tone="muted"
         />
       </div>
@@ -259,14 +259,14 @@ export function CustomersPage() {
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
           <Input
             prefix={<SearchOutlined />}
-            placeholder="Ism yoki telefon bo'yicha qidirish"
+            placeholder="Исм ёки телефон бўйича қидириш"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
             style={{ maxWidth: 320 }}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{customers.length}</strong> ta natija
+            <strong>{customers.length}</strong> та натижа
           </span>
         </div>
 
@@ -280,7 +280,7 @@ export function CustomersPage() {
             onClick: () => setDrawerCustomer(c),
             style: { cursor: 'pointer' },
           })}
-          emptyText="Mijozlar topilmadi"
+          emptyText="Мижозлар топилмади"
         />
       </div>
 

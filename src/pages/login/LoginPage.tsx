@@ -14,13 +14,13 @@ export function LoginPage() {
         </div>
         <div className="stack">
           <div style={{ fontSize: 12, letterSpacing: '.18em', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Internal control panel
+            Корпоратив бошқарув тизими
           </div>
-          <h2>Run every branch from one cockpit.</h2>
+          <h2>Барча филиалларни бир панелдан назорат қилинг.</h2>
           <p>
-            Track stock down to the batch, watch sales hit the ledger in real time,
-            settle debts in two currencies, and rebalance inventory between branches
-            without leaving your dashboard.
+            Партия даражасида омборни кузатинг, сотувларни реал вақтда кўринг,
+            икки валютада қарзларни ҳисобланг ва филиаллар ўртасида
+            захираларни осонгина тенгланг.
           </p>
         </div>
         <div style={{ position: 'relative', zIndex: 1, color: '#64748b', fontSize: 12 }}>
@@ -29,8 +29,8 @@ export function LoginPage() {
       </div>
 
       <div className="login-form">
-        <h1>Sign in</h1>
-        <p className="lead">Access your branch management panel.</p>
+        <h1>Тизимга кириш</h1>
+        <p className="lead">Филиал бошқарув панелига кириш.</p>
         <LoginForm />
       </div>
     </div>

@@ -50,7 +50,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Sana',
+      title: 'Сана',
       dataIndex: 'receivedAt',
       width: 120,
       render: (v: string) => (
@@ -58,7 +58,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Mahsulot',
+      title: 'Маҳсулот',
       key: 'product',
       render: (_: unknown, b: StockBatch) => (
         <div>
@@ -72,7 +72,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Filial',
+      title: 'Филиал',
       key: 'branch',
       width: 150,
       responsiveHide: true,
@@ -81,7 +81,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Miqdor',
+      title: 'Миқдор',
       key: 'qty',
       width: 160,
       align: 'right',
@@ -95,15 +95,15 @@ export function PurchasesPage() {
             </div>
             <div style={{ fontSize: 11.5, color: depleted ? 'var(--ink-4)' : 'var(--success)' }}>
               {depleted
-                ? 'Tugagan'
-                : `${b.remainingQty.toLocaleString('ru-RU')} ${unit} qoldi`}
+                ? 'Тугаган'
+                : `${b.remainingQty.toLocaleString('ru-RU')} ${unit} қолди`}
             </div>
           </div>
         );
       },
     },
     {
-      title: "Tan narxi",
+      title: 'Тан нархи',
       key: 'cost',
       width: 150,
       align: 'right',
@@ -121,7 +121,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Jami tan narxi',
+      title: 'Жами тан нархи',
       key: 'totalCost',
       width: 160,
       responsiveHide: true,
@@ -133,7 +133,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Etkazuvchi izohi',
+      title: 'Етказувчи изоҳи',
       dataIndex: 'supplierNote',
       responsiveHide: true,
       render: (v: string | null) =>
@@ -144,7 +144,7 @@ export function PurchasesPage() {
         ),
     },
     {
-      title: 'Kirituvchi',
+      title: 'Киритувчи',
       key: 'createdBy',
       width: 140,
       responsiveHide: true,
@@ -158,29 +158,29 @@ export function PurchasesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Kirim</h1>
+          <h1>Кирим</h1>
           <div className="sub">
-            {totalBatches} ta partiya · {activeBatches} ta faol
+            {totalBatches} та партия · {activeBatches} та фаол
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Yangilash">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
-            Kirim qilish
+            Кирим қилиш
           </Button>
         </div>
       </div>
 
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
-        <KpiBox label="Jami partiyalar" value={totalBatches} hint="barcha vaqt" />
-        <KpiBox label="Faol partiyalar" value={activeBatches} hint="qoldig'i > 0" tone="success" />
+        <KpiBox label="Жами партиялар" value={totalBatches} hint="барча вақт" />
+        <KpiBox label="Фаол партиялар" value={activeBatches} hint="қолдиғи > 0" tone="success" />
         <KpiBox
-          label="Jami kirim qiymati"
+          label="Жами кирим қиймати"
           value={<MoneyDisplay amount={totalCost} currency="UZS" />}
-          hint="tan narxlar bo'yicha"
+          hint="тан нархлар бўйича"
         />
       </div>
 
@@ -191,15 +191,15 @@ export function PurchasesPage() {
             value={depletedFilter === undefined ? undefined : String(depletedFilter)}
             onChange={(v) => setDepletedFilter(v === undefined ? undefined : v === 'true')}
             allowClear
-            placeholder="Barcha partiyalar"
+            placeholder="Барча партиялар"
             style={{ minWidth: 180 }}
             options={[
-              { value: 'false', label: 'Faol (qoldig\'i bor)' },
-              { value: 'true', label: 'Tugagan' },
+              { value: 'false', label: 'Фаол (қолдиғи бор)' },
+              { value: 'true', label: 'Тугаган' },
             ]}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{depletedFiltered.length}</strong> ta natija
+            <strong>{depletedFiltered.length}</strong> та натижа
           </span>
         </div>
 
@@ -209,7 +209,7 @@ export function PurchasesPage() {
           columns={columns}
           loading={isLoading}
           pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
-          emptyText="Kirim partiyalari topilmadi"
+          emptyText="Кирим партиялари топилмади"
         />
       </div>
 

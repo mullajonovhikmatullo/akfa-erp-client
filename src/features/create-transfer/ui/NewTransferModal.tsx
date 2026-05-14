@@ -93,13 +93,13 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
   return (
     <AppModal
-      title="Yangi transfer"
+      title="Янги трансфер"
       open={open}
       onClose={onClose}
       width={680}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={createTransfer.isPending}>
-          Bekor qilish
+          Бекор қилиш
         </Button>,
         <Button
           key="submit"
@@ -108,34 +108,34 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          Transfer yaratish
+          Трансфер яратиш
         </Button>,
       ]}
     >
       {/* Branch row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
         <div>
-          <Label>Qayerdan</Label>
+          <Label>Қаердан</Label>
           {isSuper ? (
             <Select
               value={fromBranchId}
               onChange={setFromBranchId}
-              placeholder="Filial tanlang"
+              placeholder="Филиал танланг"
               style={{ width: '100%' }}
               options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
             />
           ) : (
             <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
-              {branches.find((b) => b.id === userBranchId)?.name ?? 'Sizning filialingiz'}
+              {branches.find((b) => b.id === userBranchId)?.name ?? 'Сизнинг филиалингиз'}
             </div>
           )}
         </div>
         <div>
-          <Label>Qayerga</Label>
+          <Label>Қаерга</Label>
           <Select
             value={toBranchId}
             onChange={setToBranchId}
-            placeholder="Filial tanlang"
+            placeholder="Филиал танланг"
             style={{ width: '100%' }}
             options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
           />
@@ -144,13 +144,13 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
       {/* Product selector */}
       <div style={{ marginBottom: 12 }}>
-        <Label>Mahsulot qo'shish</Label>
+        <Label>Маҳсулот қўшиш</Label>
         <Select
           showSearch
           optionFilterProp="label"
           onChange={addProduct}
           value={null}
-          placeholder="SKU yoki nom bo'yicha qidirish"
+          placeholder="SKU ёки ном бўйича қидириш"
           style={{ width: '100%' }}
           suffixIcon={<PlusOutlined />}
           options={products
@@ -165,14 +165,14 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
       {/* Cart */}
       {cart.length === 0 ? (
         <Empty
-          description="Hali mahsulot qo'shilmadi"
+          description="Ҳали маҳсулот қўшилмади"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           style={{ padding: '16px 0' }}
         />
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 140px 100px 28px', gap: 8, padding: '6px 8px', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>
-            <div>Mahsulot</div><div>Miqdor</div><div>Tan narxi</div><div style={{ textAlign: 'right' }}>Jami</div><div />
+            <div>Маҳсулот</div><div>Миқдор</div><div>Тан нархи</div><div style={{ textAlign: 'right' }}>Жами</div><div />
           </div>
           {cart.map((item) => (
             <div key={item._key} style={{ display: 'grid', gridTemplateColumns: '1fr 110px 140px 100px 28px', gap: 8, alignItems: 'center', padding: '7px 8px', borderBottom: '1px solid var(--border)' }}>
@@ -206,7 +206,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 8px 0', fontSize: 13 }}>
-            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>Jami tan narxi:</span>
+            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>Жами тан нархи:</span>
             <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={totalCost} currency="UZS" /></span>
           </div>
         </>
@@ -214,12 +214,12 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
       {/* Note */}
       <div style={{ marginTop: 12 }}>
-        <Label>Izoh (ixtiyoriy)</Label>
+        <Label>Изоҳ (ихтиёрий)</Label>
         <Input.TextArea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={2}
-          placeholder="Transfer haqida qo'shimcha ma'lumot..."
+          placeholder="Трансфер ҳақида қўшимча маълумот..."
           maxLength={500}
         />
       </div>

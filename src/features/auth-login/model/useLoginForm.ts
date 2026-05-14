@@ -27,7 +27,7 @@ export function useLoginForm() {
       login(user, accessToken);
       const from = searchParams.get('from') ?? ROUTES.DASHBOARD;
       navigate(from, { replace: true });
-      toast.success(`Xush kelibsiz, ${user.name.split(' ')[0]}!`);
+      toast.success(`Хуш келибсиз, ${user.name.split(' ')[0]}!`);
     },
     onError: (error: unknown) => {
       if (isAxiosError(error)) {
@@ -37,7 +37,7 @@ export function useLoginForm() {
         if (status === 401) {
           form.setError('root', {
             type: 'credentials',
-            message: 'Username yoki parol noto\'g\'ri.',
+            message: 'Фойдаланувчи номи ёки парол нотўғри.',
           });
           // Highlight both fields without extra text under them
           form.setError('username', { type: 'credentials', message: '' });
@@ -45,23 +45,23 @@ export function useLoginForm() {
         } else if (status === 403) {
           form.setError('root', {
             type: 'disabled',
-            message: 'Hisobingiz bloklangan. Administrator bilan bog\'laning.',
+            message: 'Ҳисобингиз блокланган. Администратор билан боғланинг.',
           });
         } else if (!error.response) {
           form.setError('root', {
             type: 'network',
-            message: 'Server bilan bog\'lanib bo\'lmadi. Internet aloqangizni tekshiring.',
+            message: 'Сервер билан боғланиб бўлмади. Интернет алоқангизни текширинг.',
           });
         } else {
           form.setError('root', {
             type: 'server',
-            message: message || 'Kutilmagan xato yuz berdi. Qaytadan urinib ko\'ring.',
+            message: message || 'Кутилмаган хатолик юз берди. Қайтадан уриниб кўринг.',
           });
         }
       } else {
         form.setError('root', {
           type: 'unknown',
-          message: 'Kutilmagan xato yuz berdi. Qaytadan urinib ko\'ring.',
+          message: 'Кутилмаган хатолик юз берди. Қайтадан уриниб кўринг.',
         });
       }
     },

@@ -45,9 +45,9 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
               <StatusBadge tone="info">{product.category.name}</StatusBadge>
               <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[product.unit]}</StatusBadge>
               {product.isActive ? (
-                <StatusBadge tone="success" dot>Faol</StatusBadge>
+                <StatusBadge tone="success" dot>Фаол</StatusBadge>
               ) : (
-                <StatusBadge tone="danger" dot>Nofaol</StatusBadge>
+                <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
               )}
             </div>
           </div>
@@ -55,27 +55,27 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           <div style={{ padding: '20px 24px' }}>
 
             {/* Pricing */}
-            <SectionLabel>Narxlar</SectionLabel>
+            <SectionLabel>Нарҳлар</SectionLabel>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-              <PriceBox label="Chakana (so'm)" amount={product.retailPriceUzs} currency="UZS" />
-              <PriceBox label="Ulgurji (so'm)" amount={product.wholesalePriceUzs} currency="UZS" />
+              <PriceBox label="Чакана (сўм)" amount={product.retailPriceUzs} currency="UZS" />
+              <PriceBox label="Улгуржи (сўм)" amount={product.wholesalePriceUzs} currency="UZS" />
               {product.retailPriceUsd != null && (
-                <PriceBox label="Chakana (USD)" amount={product.retailPriceUsd} currency="USD" />
+                <PriceBox label="Чакана (USD)" amount={product.retailPriceUsd} currency="USD" />
               )}
               {product.wholesalePriceUsd != null && (
-                <PriceBox label="Ulgurji (USD)" amount={product.wholesalePriceUsd} currency="USD" />
+                <PriceBox label="Улгуржи (USD)" amount={product.wholesalePriceUsd} currency="USD" />
               )}
             </div>
 
             <Divider style={{ margin: '0 0 16px' }} />
 
             {/* Stock by branch */}
-            <SectionLabel>Filiallar bo'yicha qoldiq</SectionLabel>
+            <SectionLabel>Филиаллар бўйича қолдиқ</SectionLabel>
             {stockLoading ? (
               <Skeleton active paragraph={{ rows: 2 }} />
             ) : inventory.length === 0 ? (
               <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>
-                Hali qoldiq ma'lumoti yo'q
+                Ҳали қолдиқ маълумоти йўқ
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

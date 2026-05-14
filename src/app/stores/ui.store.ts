@@ -14,6 +14,7 @@ interface UIState {
   displayCurrency: Currency;
   exchangeRate: number;
   lowStockThreshold: number;
+  sidebarFavorites: string[];
 }
 
 interface UIActions {
@@ -25,6 +26,7 @@ interface UIActions {
   closeMobileSidebar: () => void;
   setDisplayCurrency: (currency: Currency) => void;
   setExchangeRate: (rate: number) => void;
+  toggleFavorite: (key: string) => void;
 }
 
 type UIStore = UIState & UIActions;
@@ -41,6 +43,7 @@ export const useUIStore = create<UIStore>()(
         displayCurrency: 'UZS',
         exchangeRate: 12_650,
         lowStockThreshold: 50,
+        sidebarFavorites: [],
 
         setActiveBranch: (id) => set({ activeBranchId: id }, false, 'ui/setActiveBranch'),
         setLang: (lang) => set({ lang }, false, 'ui/setLang'),
@@ -55,6 +58,16 @@ export const useUIStore = create<UIStore>()(
           set({ displayCurrency }, false, 'ui/setDisplayCurrency'),
         setExchangeRate: (exchangeRate) =>
           set({ exchangeRate }, false, 'ui/setExchangeRate'),
+        toggleFavorite: (key) =>
+          set(
+            (s) => ({
+              sidebarFavorites: s.sidebarFavorites.includes(key)
+                ? s.sidebarFavorites.filter((k) => k !== key)
+                : [...s.sidebarFavorites, key],
+            }),
+            false,
+            'ui/toggleFavorite',
+          ),
       }),
       {
         name: 'akfa-ui',
@@ -64,6 +77,7 @@ export const useUIStore = create<UIStore>()(
           displayCurrency: s.displayCurrency,
           exchangeRate: s.exchangeRate,
           sidebarCollapsed: s.sidebarCollapsed,
+          sidebarFavorites: s.sidebarFavorites,
         }),
       },
     ),

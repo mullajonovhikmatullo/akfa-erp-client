@@ -39,16 +39,16 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
 
   return (
     <AppModal
-      title="Xarajat qayd qilish"
+      title="Харажат қайд қилиш"
       open={open}
       onClose={onClose}
       width={480}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={createExpense.isPending}>
-          Bekor qilish
+          Бекор қилиш
         </Button>,
         <Button key="submit" type="primary" loading={createExpense.isPending} onClick={onSubmit}>
-          Saqlash
+          Сақлаш
         </Button>,
       ]}
     >
@@ -59,7 +59,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Kategoriya"
+              label="Категория"
               required
               validateStatus={errors.categoryId ? 'error' : undefined}
               help={errors.categoryId?.message}
@@ -67,7 +67,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
               <Select
                 {...field}
                 loading={catsLoading}
-                placeholder="Kategoriyani tanlang"
+                placeholder="Категория танланг"
                 options={categories.map((c) => ({ value: c.id, label: c.name }))}
               />
             </Form.Item>
@@ -80,7 +80,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Miqdor (so'm)"
+                label="Миқдор (сўм)"
                 required
                 validateStatus={errors.amount ? 'error' : undefined}
                 help={errors.amount?.message}
@@ -101,7 +101,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
             name="expenseDate"
             control={control}
             render={({ field }) => (
-              <Form.Item label="Sana (ixtiyoriy)">
+              <Form.Item label="Сана (ихтиёрий)">
                 <DatePicker
                   style={{ width: '100%' }}
                   value={field.value ? dayjs(field.value) : null}
@@ -118,8 +118,8 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
           name="description"
           control={control}
           render={({ field }) => (
-            <Form.Item label="Izoh (ixtiyoriy)">
-              <Input.TextArea {...field} rows={2} placeholder="Qisqacha tavsif..." />
+            <Form.Item label="Изоҳ (ихтиёрий)">
+              <Input.TextArea {...field} rows={2} placeholder="Қисқача тасниф..." />
             </Form.Item>
           )}
         />

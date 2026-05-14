@@ -13,13 +13,13 @@ export function RecentSalesWidget() {
   return (
     <div className="card">
       <div className="card-head">
-        <h3>Recent sales</h3>
+        <h3>Сўнгги сотувлар</h3>
         <button
           className="link-btn"
           onClick={() => navigate(ROUTES.SALES)}
           style={{ fontSize: 12, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          View all →
+          Барчасини кўриш →
         </button>
       </div>
       <div className="col" style={{ gap: 8 }}>
@@ -34,7 +34,7 @@ export function RecentSalesWidget() {
                 {s.customer?.fullName ?? '—'}
               </div>
               <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
-                #{s.id.slice(-6).toUpperCase()} · {s._count.items} items · {formatDate(s.createdAt)}
+                #{s.id.slice(-6).toUpperCase()} · {s._count.items} та · {formatDate(s.createdAt)}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>

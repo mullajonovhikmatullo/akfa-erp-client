@@ -20,7 +20,7 @@ export function LoginForm() {
         <Alert
           icon={<ClockCircleOutlined />}
           type="warning"
-          message="Sessiya muddati tugadi. Qayta kiring."
+          message="Сессия муддати тугади. Қайта киринг."
           showIcon
           style={{ marginBottom: 20, borderRadius: 8 }}
         />
@@ -44,7 +44,7 @@ export function LoginForm() {
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Username"
+              label="Фойдаланувчи номи"
               required
               validateStatus={errors.username || isCredentialError ? 'error' : undefined}
               help={errors.username?.message || undefined}
@@ -54,7 +54,7 @@ export function LoginForm() {
                 {...field}
                 size="large"
                 prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
-                placeholder="Foydalanuvchi nomi"
+                placeholder="Фойдаланувчи номини киритинг"
                 autoComplete="username"
                 autoFocus
                 disabled={isLoading}
@@ -69,7 +69,7 @@ export function LoginForm() {
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Parol"
+              label="Парол"
               required
               validateStatus={errors.password || isCredentialError ? 'error' : undefined}
               help={errors.password?.message || undefined}
@@ -79,7 +79,7 @@ export function LoginForm() {
                 {...field}
                 size="large"
                 prefix={<LockOutlined style={{ color: '#94a3b8' }} />}
-                placeholder="Parolni kiriting"
+                placeholder="Паролни киритинг"
                 autoComplete="current-password"
                 disabled={isLoading}
                 onChange={(e) => { field.onChange(e); clearCredentialErrors(); }}
@@ -98,7 +98,7 @@ export function LoginForm() {
         loading={isLoading}
         style={{ marginTop: 8, height: 44, fontWeight: 600, fontSize: 15 }}
       >
-        {isLoading ? 'Kirish...' : 'Kirish'}
+        {isLoading ? 'Кириш...' : 'Кириш'}
       </Button>
     </form>
   );

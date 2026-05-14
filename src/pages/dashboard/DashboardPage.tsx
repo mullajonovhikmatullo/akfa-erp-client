@@ -21,20 +21,20 @@ export function DashboardPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Welcome back, {firstName}</h1>
+          <h1>Хуш келибсиз, {firstName}</h1>
           <div className="sub">
-            {formatDate(dayjs().format('YYYY-MM-DD'))} · last sync just now.
+            {formatDate(dayjs().format('YYYY-MM-DD'))} · жорий маълумотлар.
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <Button icon={<PlusOutlined />} onClick={() => navigate(ROUTES.SALES)}>
-            New sale
+            Янги сотув
           </Button>
           <Button icon={<DropboxOutlined />} onClick={() => navigate(ROUTES.PURCHASES)}>
-            Receive stock
+            Омборга кирим
           </Button>
           <Button type="primary" icon={<LineChartOutlined />} onClick={() => navigate(ROUTES.ANALYTICS)}>
-            Open analytics
+            Таҳлилни очиш
           </Button>
         </div>
       </div>

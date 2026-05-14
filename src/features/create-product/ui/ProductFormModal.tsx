@@ -6,13 +6,13 @@ import type { Product, ProductUnit } from '@/shared/types/domain';
 import { useProductForm } from '../model/useProductForm';
 
 const UNIT_OPTIONS: { value: ProductUnit; label: string }[] = [
-  { value: 'KG', label: 'kg' },
-  { value: 'PIECE', label: 'dona (pcs)' },
-  { value: 'PACK', label: 'paket (pack)' },
-  { value: 'METER', label: 'metr (m)' },
-  { value: 'SQUARE_METER', label: 'm²' },
-  { value: 'LITER', label: 'litr (L)' },
-  { value: 'SET', label: "to'plam (set)" },
+  { value: 'KG', label: 'кг' },
+  { value: 'PIECE', label: 'дона (pcs)' },
+  { value: 'PACK', label: 'пакет (pack)' },
+  { value: 'METER', label: 'метр (m)' },
+  { value: 'SQUARE_METER', label: 'м²' },
+  { value: 'LITER', label: 'литр (L)' },
+  { value: 'SET', label: 'тўплам (set)' },
 ];
 
 interface ProductFormModalProps {
@@ -34,16 +34,16 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
 
   return (
     <AppModal
-      title={isEdit ? `Tahrirlash · ${product?.sku ?? product?.name}` : "Yangi mahsulot"}
+      title={isEdit ? `Таҳрирлаш · ${product?.sku ?? product?.name}` : 'Янги маҳсулот'}
       open={open}
       onClose={onClose}
       width={700}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={isPending}>
-          Bekor qilish
+          Бекор қилиш
         </Button>,
         <Button key="submit" type="primary" loading={isPending} onClick={() => onSubmit()}>
-          {isEdit ? 'Saqlash' : "Qo'shish"}
+          {isEdit ? 'Сақлаш' : 'Қўшиш'}
         </Button>,
       ]}
     >
@@ -56,12 +56,12 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Nomi"
+                label="Номи"
                 required
                 validateStatus={errors.name ? 'error' : undefined}
                 help={errors.name?.message}
               >
-                <Input {...field} placeholder="Masalan: Profil A60 — Oq" />
+                <Input {...field} placeholder="Масалан: Профил А60 — Оқ" />
               </Form.Item>
             )}
           />
@@ -70,7 +70,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="SKU (ixtiyoriy)"
+                label="SKU (ихтиёрий)"
                 validateStatus={errors.sku ? 'error' : undefined}
                 help={errors.sku?.message}
               >
@@ -87,7 +87,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Kategoriya"
+                label="Категория"
                 required
                 validateStatus={errors.categoryId ? 'error' : undefined}
                 help={errors.categoryId?.message}
@@ -96,7 +96,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                   {...field}
                   loading={catsLoading}
                   options={categories.map((c) => ({ value: c.id, label: c.name }))}
-                  placeholder="Kategoriyani tanlang"
+                  placeholder="Категория танланг"
                 />
               </Form.Item>
             )}
@@ -106,7 +106,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="O'lchov birligi"
+                label="Ўлчов бирлиги"
                 required
                 validateStatus={errors.unit ? 'error' : undefined}
                 help={errors.unit?.message}
@@ -124,7 +124,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Chakana narx (so'm)"
+                label="Чакана нарх (сўм)"
                 required
                 validateStatus={errors.retailPriceUzs ? 'error' : undefined}
                 help={errors.retailPriceUzs?.message}
@@ -145,7 +145,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Ulgurji narx (so'm)"
+                label="Улгуржи нарх (сўм)"
                 required
                 validateStatus={errors.wholesalePriceUzs ? 'error' : undefined}
                 help={errors.wholesalePriceUzs?.message}
@@ -171,7 +171,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Chakana narx (USD, ixtiyoriy)"
+                label="Чакана нарх (USD, ихтиёрий)"
                 validateStatus={errors.retailPriceUsd ? 'error' : undefined}
                 help={errors.retailPriceUsd?.message}
               >
@@ -192,7 +192,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Ulgurji narx (USD, ixtiyoriy)"
+                label="Улгуржи нарх (USD, ихтиёрий)"
                 validateStatus={errors.wholesalePriceUsd ? 'error' : undefined}
                 help={errors.wholesalePriceUsd?.message}
               >
@@ -215,8 +215,8 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
           name="description"
           control={control}
           render={({ field }) => (
-            <Form.Item label="Tavsif (ixtiyoriy)">
-              <Input.TextArea {...field} rows={2} placeholder="Qisqacha tavsif..." />
+            <Form.Item label="Тасниф (ихтиёрий)">
+              <Input.TextArea {...field} rows={2} placeholder="Қисқача тасниф..." />
             </Form.Item>
           )}
         />
@@ -227,12 +227,12 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             name="isActive"
             control={control}
             render={({ field }) => (
-              <Form.Item label="Holat">
+              <Form.Item label="Ҳолат">
                 <Switch
                   checked={field.value}
                   onChange={field.onChange}
-                  checkedChildren="Faol"
-                  unCheckedChildren="Nofaol"
+                  checkedChildren="Фаол"
+                  unCheckedChildren="Нофаол"
                 />
               </Form.Item>
             )}

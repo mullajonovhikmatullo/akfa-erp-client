@@ -69,9 +69,9 @@ export function CategoriesPage() {
       updateMutation.mutate(
         { id: editTarget.id, payload },
         {
-          onSuccess: () => { toast.success('Category updated'); setModalOpen(false); },
+          onSuccess: () => { toast.success('Категория янгиланди'); setModalOpen(false); },
           onError: (e: unknown) =>
-            toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Failed to update category'),
+            toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Янгилашда хатолик'),
         },
       );
     } else {
@@ -80,9 +80,9 @@ export function CategoriesPage() {
         description: values.description || undefined,
       };
       createMutation.mutate(payload, {
-        onSuccess: () => { toast.success('Category created'); setModalOpen(false); },
+        onSuccess: () => { toast.success('Категория яратилди'); setModalOpen(false); },
         onError: (e: unknown) =>
-          toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Failed to create category'),
+          toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Яратишда хатолик'),
       });
     }
   }
@@ -100,7 +100,7 @@ export function CategoriesPage() {
       ),
     },
     {
-      title: 'Name',
+      title: 'Номи',
       key: 'name',
       render: (_: unknown, c: Category) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -115,17 +115,17 @@ export function CategoriesPage() {
       ),
     },
     {
-      title: 'Status',
+      title: 'Ҳолат',
       key: 'isActive',
       width: 110,
       responsiveHide: true,
       render: (_: unknown, c: Category) =>
         c.isActive
-          ? <StatusBadge tone="success">Active</StatusBadge>
-          : <Tag color="default">Inactive</Tag>,
+          ? <StatusBadge tone="success">Фаол</StatusBadge>
+          : <Tag color="default">Нофаол</Tag>,
     },
     {
-      title: 'Created',
+      title: 'Қўшилган',
       key: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -141,7 +141,7 @@ export function CategoriesPage() {
       fixed: 'right' as const,
       render: (_: unknown, c: Category) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Edit">
+          <Tooltip title="Таҳрирлаш">
             <Button
               size="small"
               type="text"
@@ -150,22 +150,22 @@ export function CategoriesPage() {
             />
           </Tooltip>
           <Popconfirm
-            title="Delete category?"
-            description="Only possible if no products are assigned to it."
-            okText="Delete"
-            cancelText="Cancel"
+            title="Категория ўчирилсинми?"
+            description="Фақат маҳсулот бириктирилмаган бўлса мумкин."
+            okText="Ўчириш"
+            cancelText="Бекор"
             okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
             onConfirm={(e) => {
               e?.stopPropagation();
               deleteMutation.mutate(c.id, {
-                onSuccess: () => toast.success('Category deleted'),
+                onSuccess: () => toast.success('Категория ўчирилди'),
                 onError: (err: unknown) =>
-                  toast.error((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Failed to delete category'),
+                  toast.error((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Ўчиришда хатолик'),
               });
             }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title="Delete">
+            <Tooltip title="Ўчириш">
               <Button
                 size="small"
                 type="text"
@@ -184,21 +184,21 @@ export function CategoriesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Categories</h1>
-          <div className="sub">{categories.length} product categor{categories.length !== 1 ? 'ies' : 'y'}</div>
+          <h1>Категориялар</h1>
+          <div className="sub">{categories.length} та категория</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Refresh">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <ExcelImportButton<CreateCategoryPayload>
-            entityLabel="Categories"
+            entityLabel="Категориялар"
             templateHeaders={['name', 'description']}
             templateExample={['Glass Panels', 'All types of flat glass products']}
             templateFileName="categories_template.xlsx"
             parseRow={(raw, index) => {
               const name = getField(raw, 'name');
-              if (!name) return { index, raw, error: 'Name is required' };
+              if (!name) return { index, raw, error: 'Номи киритилмаган' };
               const description = getField(raw, 'description') || undefined;
               return { index, raw, data: { name, description } };
             }}
@@ -206,7 +206,7 @@ export function CategoriesPage() {
             onComplete={() => refetch()}
           />
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            New category
+            Янги категория
           </Button>
         </div>
       </div>
@@ -214,19 +214,19 @@ export function CategoriesPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Total
+            Жами
           </div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{categories.length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Active
+            Фаол
           </div>
           <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{active}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Inactive
+            Нофаол
           </div>
           <div style={{ fontSize: 28, fontWeight: 700, color: inactive > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{inactive}</div>
         </div>
@@ -239,7 +239,7 @@ export function CategoriesPage() {
           columns={columns}
           loading={isLoading}
           pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
-          emptyText="No categories yet — create the first one"
+          emptyText="Ҳали категориялар йўқ"
         />
       </div>
 
@@ -247,13 +247,13 @@ export function CategoriesPage() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <AppstoreOutlined />
-            {editTarget ? `Edit — ${editTarget.name}` : 'New category'}
+            {editTarget ? `Таҳрирлаш — ${editTarget.name}` : 'Янги категория'}
           </div>
         }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSubmit}
-        okText={editTarget ? 'Save changes' : 'Create category'}
+        okText={editTarget ? 'Сақлаш' : 'Яратиш'}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
         width={440}
@@ -261,15 +261,15 @@ export function CategoriesPage() {
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item
             name="name"
-            label="Name"
-            rules={[{ required: true, message: 'Name is required' }, { max: 100 }]}
+            label="Номи"
+            rules={[{ required: true, message: 'Номни киритинг' }, { max: 100 }]}
           >
-            <Input placeholder="e.g. Glass Panels" />
+            <Input placeholder="Масалан: Шиша панеллар" />
           </Form.Item>
 
-          <Form.Item name="description" label="Description">
+          <Form.Item name="description" label="Тасниф">
             <Input.TextArea
-              placeholder="Optional description"
+              placeholder="Қисқача тасниф"
               rows={3}
               maxLength={500}
               showCount
@@ -277,8 +277,8 @@ export function CategoriesPage() {
           </Form.Item>
 
           {editTarget && (
-            <Form.Item name="isActive" label="Status" valuePropName="checked">
-              <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
+            <Form.Item name="isActive" label="Ҳолат" valuePropName="checked">
+              <Switch checkedChildren="Фаол" unCheckedChildren="Нофаол" />
             </Form.Item>
           )}
         </Form>

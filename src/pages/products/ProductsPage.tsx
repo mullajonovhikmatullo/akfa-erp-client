@@ -68,7 +68,7 @@ export function ProductsPage() {
         ),
     },
     {
-      title: 'Mahsulot',
+      title: 'Маҳсулот',
       key: 'name',
       render: (_: unknown, p: Product) => (
         <div>
@@ -78,14 +78,14 @@ export function ProductsPage() {
       ),
     },
     {
-      title: "O'lchov",
+      title: 'Ўлчов',
       dataIndex: 'unit',
       width: 90,
       responsiveHide: true,
       render: (v: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[v]}</StatusBadge>,
     },
     {
-      title: 'Chakana narx',
+      title: 'Чакана нарх',
       key: 'retail',
       width: 150,
       align: 'right',
@@ -96,7 +96,7 @@ export function ProductsPage() {
       ),
     },
     {
-      title: 'Ulgurji narx',
+      title: 'Улгуржи нарх',
       key: 'wholesale',
       width: 150,
       align: 'right',
@@ -108,20 +108,20 @@ export function ProductsPage() {
       ),
     },
     {
-      title: 'Holat',
+      title: 'Ҳолат',
       dataIndex: 'isActive',
       width: 100,
       align: 'center',
       responsiveHide: true,
       render: (v: boolean) =>
         v ? (
-          <StatusBadge tone="success" dot>Faol</StatusBadge>
+          <StatusBadge tone="success" dot>Фаол</StatusBadge>
         ) : (
-          <StatusBadge tone="danger" dot>Nofaol</StatusBadge>
+          <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
         ),
     },
     {
-      title: 'Qo\'shilgan',
+      title: 'Қўшилган',
       dataIndex: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -136,7 +136,7 @@ export function ProductsPage() {
       fixed: 'right',
       render: (_: unknown, p: Product) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Ko'rish">
+          <Tooltip title="Кўриш">
             <Button
               size="small"
               type="text"
@@ -146,7 +146,7 @@ export function ProductsPage() {
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title="Tahrirlash">
+              <Tooltip title="Таҳрирлаш">
                 <Button
                   size="small"
                   type="text"
@@ -155,15 +155,15 @@ export function ProductsPage() {
                 />
               </Tooltip>
               <Popconfirm
-                title="O'chirilsinmi?"
-                description={`"${p.name}" mahsulotini o'chirasizmi?`}
-                okText="Ha, o'chir"
-                cancelText="Bekor"
+                title="Ўчирилсинми?"
+                description={`"${p.name}" маҳсулотини ўчирасизми?`}
+                okText="Ҳа, ўчир"
+                cancelText="Бекор"
                 okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
                 onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(p.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title="O'chirish">
+                <Tooltip title="Ўчириш">
                   <Button
                     size="small"
                     type="text"
@@ -184,19 +184,19 @@ export function ProductsPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Mahsulotlar</h1>
+          <h1>Маҳсулотлар</h1>
           <div className="sub">
-            {products.length} ta SKU · filiallar bo'yicha ombor boshqaruvi
+            {products.length} та SKU · филиаллар бўйича омбор бошқаруви
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Yangilash">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
             <>
               <ExcelImportButton<CreateProductPayload>
-                entityLabel="Products"
+                entityLabel="Маҳсулотлар"
                 templateHeaders={['name', 'sku', 'unit', 'category', 'retailPriceUzs', 'wholesalePriceUzs']}
                 templateExample={['Float Glass 4mm', 'FG-4MM', 'SQUARE_METER', 'Glass Panels', '85000', '75000']}
                 templateFileName="products_template.xlsx"
@@ -246,7 +246,7 @@ export function ProductsPage() {
                 icon={<PlusOutlined />}
                 onClick={() => setEditProduct(null)}
               >
-                Yangi mahsulot
+                Янги маҳсулот
               </Button>
             </>
           )}
@@ -258,7 +258,7 @@ export function ProductsPage() {
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
           <Input
             prefix={<SearchOutlined />}
-            placeholder="SKU yoki nom bo'yicha qidirish"
+            placeholder="SKU ёки ном бўйича қидириш"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
@@ -268,12 +268,12 @@ export function ProductsPage() {
             value={categoryId}
             onChange={setCategoryId}
             allowClear
-            placeholder="Barcha kategoriyalar"
+            placeholder="Барча категориялар"
             style={{ minWidth: 220 }}
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{products.length}</strong> ta natija
+            <strong>{products.length}</strong> та натижа
           </span>
         </div>
 
@@ -288,7 +288,7 @@ export function ProductsPage() {
             onClick: () => setDrawerProduct(p),
             style: { cursor: 'pointer' },
           })}
-          emptyText="Mahsulotlar topilmadi"
+          emptyText="Маҳсулотлар топилмади"
         />
       </div>
 

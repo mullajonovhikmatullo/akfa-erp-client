@@ -61,7 +61,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 8px' }}>
               <h2 style={{ margin: 0, fontSize: 18 }}>
-                {sale.customer?.fullName ?? 'Anonim mijoz'}
+                {sale.customer?.fullName ?? 'Аноним мижоз'}
               </h2>
               <StatusBadge tone={sale.saleType === 'RETAIL' ? 'muted' : 'info'}>
                 {SALE_TYPE_LABELS[sale.saleType]}
@@ -79,11 +79,11 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
           <div style={{ padding: '20px 24px' }}>
 
             {/* Financials */}
-            <SectionLabel>To'lov</SectionLabel>
+            <SectionLabel>Тўлов</SectionLabel>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
-              <StatBox label="Jami" value={<MoneyDisplay amount={sale.totalAmountUzs} currency="UZS" />} />
-              <StatBox label="To'langan" value={<MoneyDisplay amount={sale.paidAmountUzs} currency="UZS" />} tone="success" />
-              <StatBox label="Qarz" value={<MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />} tone={sale.debtAmountUzs > 0 ? 'danger' : 'muted'} />
+              <StatBox label="Жами" value={<MoneyDisplay amount={sale.totalAmountUzs} currency="UZS" />} />
+              <StatBox label="Тўланган" value={<MoneyDisplay amount={sale.paidAmountUzs} currency="UZS" />} tone="success" />
+              <StatBox label="Қарз" value={<MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />} tone={sale.debtAmountUzs > 0 ? 'danger' : 'muted'} />
             </div>
 
             {/* Add payment */}
@@ -91,7 +91,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
               <div style={{ marginBottom: 16 }}>
                 {showPayForm ? (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                    <Form.Item label="Miqdor (so'm)" style={{ flex: 1, minWidth: 140, margin: 0 }}>
+                    <Form.Item label="Миқдор (сўм)" style={{ flex: 1, minWidth: 140, margin: 0 }}>
                       <InputNumber
                         value={payAmount}
                         onChange={(v) => setPayAmount(v ?? 0)}
@@ -103,7 +103,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
                         parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
                       />
                     </Form.Item>
-                    <Form.Item label="Usul" style={{ flex: 1, minWidth: 140, margin: 0 }}>
+                    <Form.Item label="Усул" style={{ flex: 1, minWidth: 140, margin: 0 }}>
                       <Select
                         value={payMethod}
                         onChange={setPayMethod}
@@ -117,13 +117,13 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
                       disabled={payAmount <= 0}
                       onClick={handleAddPayment}
                     >
-                      Qabul qilish
+                      Қабул қилиш
                     </Button>
-                    <Button onClick={() => setShowPayForm(false)}>Bekor</Button>
+                    <Button onClick={() => setShowPayForm(false)}>Бекор</Button>
                   </div>
                 ) : (
                   <Button icon={<PlusOutlined />} onClick={() => setShowPayForm(true)}>
-                    To'lov qabul qilish
+                    Тўлов қабул қилиш
                   </Button>
                 )}
               </div>
@@ -132,7 +132,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
             <Divider style={{ margin: '0 0 16px' }} />
 
             {/* Items */}
-            <SectionLabel>Mahsulotlar ({sale._count.items} ta)</SectionLabel>
+            <SectionLabel>Маҳсулотлар ({sale._count.items} та)</SectionLabel>
             {isLoading ? (
               <Skeleton active paragraph={{ rows: 3 }} />
             ) : (
@@ -176,7 +176,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
             {sale._count.payments > 0 && (
               <>
                 <Divider style={{ margin: '0 0 16px' }} />
-                <SectionLabel>To'lovlar tarixi ({sale._count.payments} ta)</SectionLabel>
+                <SectionLabel>Тўловлар тарихи ({sale._count.payments} та)</SectionLabel>
                 {isLoading ? (
                   <Skeleton active paragraph={{ rows: 2 }} />
                 ) : (

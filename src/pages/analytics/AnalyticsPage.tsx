@@ -24,17 +24,17 @@ import { formatDate } from '@/shared/lib/formatters';
 type Tab = 'dashboard' | 'sales' | 'expenses' | 'inventory' | 'debt';
 
 const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
-  { value: 'day', label: 'Kunlik' },
-  { value: 'week', label: 'Haftalik' },
-  { value: 'month', label: 'Oylik' },
+  { value: 'day', label: 'Кунлик' },
+  { value: 'week', label: 'Ҳафталик' },
+  { value: 'month', label: 'Ойлик' },
 ];
 
 const MOVEMENT_LABELS: Record<string, string> = {
-  STOCK_IN: 'Kirim',
-  STOCK_OUT: 'Chiqim (sotuv)',
-  ADJUSTMENT: 'Tuzatish',
-  TRANSFER_IN: 'Transfer kirim',
-  TRANSFER_OUT: 'Transfer chiqim',
+  STOCK_IN: 'Кирим',
+  STOCK_OUT: 'Чиқим (сотув)',
+  ADJUSTMENT: 'Тузатиш',
+  TRANSFER_IN: 'Трансфер кирим',
+  TRANSFER_OUT: 'Трансфер чиқим',
 };
 
 export function AnalyticsPage() {
@@ -74,19 +74,19 @@ export function AnalyticsPage() {
     customerDebt.isFetching;
 
   const TABS: { key: Tab; label: string }[] = [
-    { key: 'dashboard', label: 'Asosiy' },
-    { key: 'sales', label: 'Sotuvlar' },
-    { key: 'expenses', label: 'Xarajatlar' },
-    { key: 'inventory', label: 'Ombor' },
-    { key: 'debt', label: 'Debitorlik' },
+    { key: 'dashboard', label: 'Асосий' },
+    { key: 'sales', label: 'Сотувлар' },
+    { key: 'expenses', label: 'Харажатлар' },
+    { key: 'inventory', label: 'Омбор' },
+    { key: 'debt', label: 'Дебиторлик' },
   ];
 
   return (
     <>
       <div className="page-head">
         <div>
-          <h1>Tahlil</h1>
-          <div className="sub">Sotuv, xarajat va ombor ko'rsatkichlari</div>
+          <h1>Таҳлил</h1>
+          <div className="sub">Сотув, харажат ва омбор кўрсаткичлари</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <DatePicker.RangePicker
@@ -94,10 +94,10 @@ export function AnalyticsPage() {
             onChange={(v) => setDateRange(v as [Dayjs | null, Dayjs | null])}
             format="DD.MM.YYYY"
             presets={[
-              { label: 'Bu oy', value: [dayjs().startOf('month'), dayjs()] },
-              { label: "O'tgan oy", value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
-              { label: 'So\'nggi 7 kun', value: [dayjs().subtract(7, 'day'), dayjs()] },
-              { label: "So'nggi 30 kun", value: [dayjs().subtract(30, 'day'), dayjs()] },
+              { label: 'Бу ой', value: [dayjs().startOf('month'), dayjs()] },
+              { label: 'Ўтган ой', value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
+              { label: 'Сўнгги 7 кун', value: [dayjs().subtract(7, 'day'), dayjs()] },
+              { label: 'Сўнгги 30 кун', value: [dayjs().subtract(30, 'day'), dayjs()] },
             ]}
           />
           <Select
@@ -166,15 +166,15 @@ export function AnalyticsPage() {
 function DashboardTab({ data, loading }: { data?: ReturnType<typeof useDashboard>['data']; loading: boolean }) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 6 }} />;
   const kpis = [
-    { label: 'Jami daromad', value: <MoneyDisplay amount={data.sales.totalRevenue} currency="UZS" />, sub: `${data.sales.saleCount} ta sotuv`, tone: 'primary' as const },
-    { label: "To'langan", value: <MoneyDisplay amount={data.sales.paidAmount} currency="UZS" />, sub: 'Naqd va karta', tone: 'success' as const },
-    { label: 'Qarz (sotuvlar)', value: <MoneyDisplay amount={data.sales.outstandingDebt} currency="UZS" />, sub: 'Hali to\'lanmagan', tone: 'danger' as const },
-    { label: 'Jami xarajatlar', value: <MoneyDisplay amount={data.expenses.total} currency="UZS" />, sub: 'Barcha kategoriyalar', tone: 'warning' as const },
-    { label: 'Sof foyda', value: <MoneyDisplay amount={data.profit.netProfit} currency="UZS" />, sub: "To'langan − Xarajatlar", tone: data.profit.netProfit >= 0 ? 'success' as const : 'danger' as const },
-    { label: 'Ombor qiymati', value: <MoneyDisplay amount={data.inventory.stockValueUzs} currency="UZS" />, sub: 'Tan narxlar bo\'yicha', tone: 'muted' as const },
-    { label: 'Mijoz qarzi', value: <MoneyDisplay amount={data.customers.totalDebt} currency="UZS" />, sub: `${data.customers.debtorCount} ta qarzdor`, tone: 'danger' as const },
-    { label: 'Kam qolgan', value: data.inventory.lowStockCount, sub: 'SKU chegaradan past', tone: data.inventory.lowStockCount > 0 ? 'warning' as const : 'success' as const },
-    { label: 'Kutilayotgan transferlar', value: data.transfers.pendingCount, sub: "Ko'rib chiqishni talab qiladi", tone: data.transfers.pendingCount > 0 ? 'warning' as const : 'success' as const },
+    { label: 'Жами даромад', value: <MoneyDisplay amount={data.sales.totalRevenue} currency="UZS" />, sub: `${data.sales.saleCount} та сотув`, tone: 'primary' as const },
+    { label: 'Тўланган', value: <MoneyDisplay amount={data.sales.paidAmount} currency="UZS" />, sub: 'Нақд ва карта', tone: 'success' as const },
+    { label: 'Қарз (сотувлар)', value: <MoneyDisplay amount={data.sales.outstandingDebt} currency="UZS" />, sub: 'Ҳали тўланмаган', tone: 'danger' as const },
+    { label: 'Жами харажатлар', value: <MoneyDisplay amount={data.expenses.total} currency="UZS" />, sub: 'Барча категориялар', tone: 'warning' as const },
+    { label: 'Соф фойда', value: <MoneyDisplay amount={data.profit.netProfit} currency="UZS" />, sub: 'Тўланган − Харажатлар', tone: data.profit.netProfit >= 0 ? 'success' as const : 'danger' as const },
+    { label: 'Омбор қиймати', value: <MoneyDisplay amount={data.inventory.stockValueUzs} currency="UZS" />, sub: 'Тан нарҳлар бўйича', tone: 'muted' as const },
+    { label: 'Мижоз қарзи', value: <MoneyDisplay amount={data.customers.totalDebt} currency="UZS" />, sub: `${data.customers.debtorCount} та қарздор`, tone: 'danger' as const },
+    { label: 'Кам қолган', value: data.inventory.lowStockCount, sub: 'SKU чегарадан паст', tone: data.inventory.lowStockCount > 0 ? 'warning' as const : 'success' as const },
+    { label: 'Кутилаётган трансферлар', value: data.transfers.pendingCount, sub: 'Кўриб чиқишни талаб қилади', tone: data.transfers.pendingCount > 0 ? 'warning' as const : 'success' as const },
   ];
 
   return (
@@ -195,21 +195,21 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Summary row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
-        <KpiCard label="Jami daromad" value={<MoneyDisplay amount={data.summary.totalRevenue} currency="UZS" />} sub={`${data.summary.saleCount} ta sotuv`} tone="primary" />
-        <KpiCard label="O'rtacha sotuv" value={<MoneyDisplay amount={data.summary.avgOrderValue} currency="UZS" />} sub="Bir sotuvga" tone="muted" />
-        <KpiCard label="Qarz" value={<MoneyDisplay amount={data.summary.outstandingDebt} currency="UZS" />} sub="Hali to'lanmagan" tone="danger" />
+        <KpiCard label="Жами даромад" value={<MoneyDisplay amount={data.summary.totalRevenue} currency="UZS" />} sub={`${data.summary.saleCount} та сотув`} tone="primary" />
+        <KpiCard label="Ўртача сотув" value={<MoneyDisplay amount={data.summary.avgOrderValue} currency="UZS" />} sub="Бир сотувга" tone="muted" />
+        <KpiCard label="Қарз" value={<MoneyDisplay amount={data.summary.outstandingDebt} currency="UZS" />} sub="Ҳали тўланмаган" tone="danger" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* By type */}
         <div className="card">
-          <SectionTitle>Sotuv turi bo'yicha</SectionTitle>
+          <SectionTitle>Сотув тури бўйича</SectionTitle>
           {data.byType.map((r) => {
             const pct = (r.revenue / grandTotal) * 100;
             return (
               <div key={r.saleType} style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-                  <span style={{ fontWeight: 500 }}>{SALE_TYPE_LABELS[r.saleType]} ({r.count} ta)</span>
+                  <span style={{ fontWeight: 500 }}>{SALE_TYPE_LABELS[r.saleType]} ({r.count} та)</span>
                   <span className="num"><MoneyDisplay amount={r.revenue} currency="UZS" /></span>
                 </div>
                 <ProgressBar pct={pct} />
@@ -220,7 +220,7 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
 
         {/* By payment method */}
         <div className="card">
-          <SectionTitle>To'lov usuli bo'yicha</SectionTitle>
+          <SectionTitle>Тўлов усули бўйича</SectionTitle>
           {data.byPaymentMethod.map((r) => {
             const pct = (r.amount / grandTotal) * 100;
             return (
@@ -240,7 +240,7 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
       {/* Top products */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13 }}>
-          Top mahsulotlar
+          Топ маҳсулотлар
         </div>
         <Table
           size="small"
@@ -248,16 +248,16 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
           rowKey="productId"
           dataSource={data.topProducts}
           columns={[
-            { title: 'Mahsulot', key: 'name', render: (_, r) => (
+            { title: 'Маҳсулот', key: 'name', render: (_, r) => (
               <div>
                 <div style={{ fontWeight: 600 }}>{r.name}</div>
                 {r.sku && <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{r.sku}</div>}
               </div>
             )},
-            { title: 'Miqdor', key: 'qty', width: 120, align: 'right', render: (_, r) => (
+            { title: 'Миқдор', key: 'qty', width: 120, align: 'right', render: (_, r) => (
               <span className="num">{r.totalQuantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[r.unit as ProductUnit] ?? r.unit}</span>
             )},
-            { title: 'Daromad', key: 'rev', width: 160, align: 'right', render: (_, r) => (
+            { title: 'Даромад', key: 'rev', width: 160, align: 'right', render: (_, r) => (
               <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={r.totalRevenue} currency="UZS" /></span>
             )},
           ]}
@@ -278,7 +278,7 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'flex-start' }}>
       {/* Period chart (bar) */}
       <div className="card">
-        <SectionTitle>Davrlar bo'yicha</SectionTitle>
+        <SectionTitle>Даврлар бўйича</SectionTitle>
         {data.byPeriod.length === 0 ? (
           <Empty />
         ) : (
@@ -301,7 +301,7 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
 
       {/* By category */}
       <div className="card">
-        <SectionTitle>Kategoriyalar</SectionTitle>
+        <SectionTitle>Категориялар</SectionTitle>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {data.byCategory.map((c) => {
             const pct = (c.amount / grandTotal) * 100;
@@ -321,7 +321,7 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
           {data.byCategory.length === 0 && <Empty />}
         </div>
         <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 12, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-          <span style={{ color: 'var(--ink-3)' }}>Jami</span>
+          <span style={{ color: 'var(--ink-3)' }}>Жами</span>
           <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={data.summary.total} currency="UZS" /></span>
         </div>
       </div>
@@ -347,12 +347,12 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
               <MoneyDisplay amount={b.stockValueUzs} currency="UZS" />
             </div>
             <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
-              {b.productCount} ta SKU · {b.totalQuantity.toLocaleString('ru-RU')} dona
+              {b.productCount} та SKU · {b.totalQuantity.toLocaleString('ru-RU')} дона
             </div>
           </div>
         ))}
         {data.stockByBranch.length === 0 && (
-          <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>Ombor ma'lumoti yo'q</div>
+          <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>Омбор маълумоти йўқ</div>
         )}
       </div>
 
@@ -361,10 +361,10 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <WarningOutlined style={{ color: 'var(--warning)' }} />
-            <span style={{ fontWeight: 700, fontSize: 13 }}>Kam qolgan mahsulotlar ({data.lowStock.length})</span>
+            <span style={{ fontWeight: 700, fontSize: 13 }}>Кам қолган маҳсулотлар ({data.lowStock.length})</span>
           </div>
           {data.lowStock.length === 0 ? (
-            <div style={{ padding: '16px', color: 'var(--ink-3)', fontSize: 13 }}>Barcha mahsulotlar yetarli</div>
+            <div style={{ padding: '16px', color: 'var(--ink-3)', fontSize: 13 }}>Барча маҳсулотлар етарли</div>
           ) : (
             <Table
               size="small"
@@ -372,13 +372,13 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
               rowKey={(r) => `${r.productId}-${r.branchId}`}
               dataSource={data.lowStock}
               columns={[
-                { title: 'Mahsulot', key: 'name', render: (_, r) => (
+                { title: 'Маҳсулот', key: 'name', render: (_, r) => (
                   <div>
                     <div style={{ fontWeight: 500 }}>{r.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{r.branchName}</div>
                   </div>
                 )},
-                { title: 'Qoldi / Chegara', key: 'stock', width: 130, align: 'right', render: (_, r) => (
+                { title: 'Қолди / Чегара', key: 'stock', width: 130, align: 'right', render: (_, r) => (
                   <span className="num" style={{ color: 'var(--danger)', fontWeight: 600 }}>
                     {r.currentStock} / {r.threshold} {PRODUCT_UNIT_LABELS[r.unit as ProductUnit] ?? r.unit}
                   </span>
@@ -390,14 +390,14 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
 
         {/* Movement summary */}
         <div className="card">
-          <SectionTitle>Harakat xulosasi</SectionTitle>
+          <SectionTitle>Ҳаракат хулосаси</SectionTitle>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {data.movementSummary.map((m) => (
               <div key={m.type} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
                 <span style={{ fontSize: 13, fontWeight: 500 }}>{MOVEMENT_LABELS[m.type] ?? m.type}</span>
                 <div style={{ textAlign: 'right' }}>
                   <div className="num" style={{ fontWeight: 700 }}>{m.totalQuantity.toLocaleString('ru-RU')}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{m.count} ta operatsiya</div>
+                  <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{m.count} та операция</div>
                 </div>
               </div>
             ))}
@@ -418,22 +418,22 @@ function DebtTab({ data, loading }: { data?: ReturnType<typeof useCustomerDebt>[
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Summary */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
-        <KpiCard label="Umumiy qarz" value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={`${data.summary.debtorCount} ta qarzdor`} tone="danger" />
-        <KpiCard label="Muddati o'tgan" value={<MoneyDisplay amount={data.overdue.totalOverdueDebt} currency="UZS" />} sub={`${data.overdue.overdueCount} ta sotuv`} tone="danger" />
+        <KpiCard label="Умумий қарз" value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={`${data.summary.debtorCount} та қарздор`} tone="danger" />
+        <KpiCard label="Муддати ўтган" value={<MoneyDisplay amount={data.overdue.totalOverdueDebt} currency="UZS" />} sub={`${data.overdue.overdueCount} та сотув`} tone="danger" />
       </div>
 
       {data.overdue.overdueCount > 0 && (
         <Alert
           type="warning"
           showIcon
-          message={`${data.overdue.overdueCount} ta sotuvning muddati o'tib ketgan — mijozlar bilan bog'laning.`}
+          message={`${data.overdue.overdueCount} та сотувнинг муддати ўтиб кетган — мижозлар билан боғланинг.`}
         />
       )}
 
       {/* Top debtors */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13 }}>
-          Eng ko'p qarzdorlar
+          Энг кўп қарздорлар
         </div>
         <Table
           size="small"
@@ -441,16 +441,16 @@ function DebtTab({ data, loading }: { data?: ReturnType<typeof useCustomerDebt>[
           rowKey="id"
           dataSource={data.topDebtors}
           columns={[
-            { title: 'Mijoz', key: 'name', render: (_, c) => (
+            { title: 'Мижоз', key: 'name', render: (_, c) => (
               <div>
                 <div style={{ fontWeight: 600 }}>{c.fullName}</div>
                 {c.phone && <div style={{ fontSize: 11.5, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{c.phone}</div>}
               </div>
             )},
-            { title: 'Filial', key: 'branch', width: 140, render: (_, c) => (
+            { title: 'Филиал', key: 'branch', width: 140, render: (_, c) => (
               <StatusBadge tone="muted">{c.branch.name}</StatusBadge>
             )},
-            { title: 'Qarz', key: 'balance', width: 160, align: 'right', render: (_, c) => (
+            { title: 'Қарз', key: 'balance', width: 160, align: 'right', render: (_, c) => (
               <span className="num" style={{ fontWeight: 700, color: 'var(--danger)' }}>
                 <MoneyDisplay amount={c.balance} currency="UZS" />
               </span>
@@ -497,5 +497,5 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 }
 
 function Empty() {
-  return <div style={{ color: 'var(--ink-3)', fontSize: 13, padding: '8px 0' }}>Ma'lumot yo'q</div>;
+  return <div style={{ color: 'var(--ink-3)', fontSize: 13, padding: '8px 0' }}>Маълумот йўқ</div>;
 }

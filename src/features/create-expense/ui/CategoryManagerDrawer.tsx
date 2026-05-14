@@ -42,7 +42,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
 
   return (
     <Drawer
-      title="Xarajat kategoriyalari"
+      title="Харажат категориялари"
       open={open}
       onClose={onClose}
       width={440}
@@ -53,7 +53,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
         <Input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-          placeholder="Yangi kategoriya nomi"
+          placeholder="Янги категория номи"
           onPressEnter={handleCreate}
           style={{ flex: 1 }}
         />
@@ -64,14 +64,14 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
           disabled={!newName.trim()}
           onClick={handleCreate}
         >
-          Qo'shish
+          Қўшиш
         </Button>
       </div>
 
       {isLoading ? (
         <Skeleton active paragraph={{ rows: 4 }} />
       ) : categories.length === 0 ? (
-        <Empty description="Kategoriyalar yo'q" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description="Категориялар йўқ" image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {categories.map((cat) => (
@@ -105,11 +105,11 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 500 }}>{cat.name}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
-                      {cat._count.expenses} ta xarajat
+                      {cat._count.expenses} та харажат
                     </div>
                   </div>
                   <StatusBadge tone={cat.isActive ? 'success' : 'danger'}>
-                    {cat.isActive ? 'Faol' : 'Nofaol'}
+                    {cat.isActive ? 'Фаол' : 'Нофаол'}
                   </StatusBadge>
                   <Switch
                     size="small"
@@ -119,10 +119,10 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                   />
                   <Button size="small" type="text" icon={<EditOutlined />} onClick={() => startEdit(cat)} />
                   <Popconfirm
-                    title="O'chirilsinmi?"
-                    description={cat._count.expenses > 0 ? "Bu kategoriyaga bog'liq xarajatlar bor. O'chira olmaysiz." : "Kategoriya o'chiriladi."}
-                    okText="Ha"
-                    cancelText="Bekor"
+                    title="Ўчирилсинми?"
+                    description={cat._count.expenses > 0 ? "Бу категорияга боғлиқ харажатлар бор. Ўчира олмайсиз." : "Категория ўчирилади."}
+                    okText="Ҳа"
+                    cancelText="Бекор"
                     okButtonProps={{ danger: true, disabled: cat._count.expenses > 0 }}
                     onConfirm={() => deleteCat.mutate(cat.id)}
                   >

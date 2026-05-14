@@ -1,13 +1,24 @@
 import type { Permission } from '@/shared/config/permissions';
 import { ROUTES } from '@/shared/config/routes';
 
-export interface NavItem {
+export interface NavItemDef {
   key: string;
   path: string;
-  labelKey: string;
+  label: string;
   icon: string;
-  group: string | null;
   permission?: Permission;
+}
+
+export interface NavGroupDef {
+  groupKey: string;
+  groupLabel: string;
+  items: NavItemDef[];
+}
+
+// Legacy shape – kept for AppHeader breadcrumb lookup
+export interface NavItem extends NavItemDef {
+  labelKey: string;
+  group: string | null;
 }
 
 export interface NavGroup {
@@ -15,102 +26,81 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-export const NAV_ITEMS: NavItem[] = [
+export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
-    key: 'dashboard',
-    path: ROUTES.DASHBOARD,
-    labelKey: 'nav.dashboard',
-    icon: 'DashboardOutlined',
-    group: null,
+    groupKey: 'main',
+    groupLabel: 'АСОСИЙ',
+    items: [
+      { key: 'dashboard', path: ROUTES.DASHBOARD, label: 'Асосий', icon: 'DashboardOutlined' },
+    ],
   },
   {
-    key: 'products',
-    path: ROUTES.PRODUCTS,
-    labelKey: 'nav.products',
-    icon: 'InboxOutlined',
-    group: 'nav.catalog',
-    permission: 'products:create',
+    groupKey: 'savdo',
+    groupLabel: 'САВДО',
+    items: [
+      { key: 'sales', path: ROUTES.SALES, label: 'Сотувлар', icon: 'ShoppingCartOutlined', permission: 'sales:view' },
+      { key: 'customers', path: ROUTES.CUSTOMERS, label: 'Мижозлар', icon: 'TeamOutlined', permission: 'customers:create' },
+    ],
   },
   {
-    key: 'customers',
-    path: ROUTES.CUSTOMERS,
-    labelKey: 'nav.customers',
-    icon: 'TeamOutlined',
-    group: 'nav.catalog',
-    permission: 'customers:create',
+    groupKey: 'ombor',
+    groupLabel: 'ОМБОР',
+    items: [
+      { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'InboxOutlined', permission: 'products:create' },
+      { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'AppstoreOutlined', permission: 'category:manage' },
+      { key: 'purchases', path: ROUTES.PURCHASES, label: 'Кирим', icon: 'DropboxOutlined', permission: 'purchases:view' },
+      { key: 'transfers', path: ROUTES.TRANSFERS, label: 'Трансферлар', icon: 'SwapOutlined', permission: 'transfers:view' },
+    ],
   },
   {
-    key: 'sales',
-    path: ROUTES.SALES,
-    labelKey: 'nav.sales',
-    icon: 'ShoppingCartOutlined',
-    group: 'nav.operations',
-    permission: 'sales:view',
+    groupKey: 'moliya',
+    groupLabel: 'МОЛИЯ',
+    items: [
+      { key: 'expenses', path: ROUTES.EXPENSES, label: 'Харажатлар', icon: 'WalletOutlined', permission: 'expenses:view' },
+    ],
   },
   {
-    key: 'purchases',
-    path: ROUTES.PURCHASES,
-    labelKey: 'nav.purchases',
-    icon: 'DropboxOutlined',
-    group: 'nav.operations',
-    permission: 'purchases:view',
+    groupKey: 'tahlil',
+    groupLabel: 'ТАҲЛИЛ',
+    items: [
+      { key: 'analytics', path: ROUTES.ANALYTICS, label: 'Аналитика', icon: 'LineChartOutlined', permission: 'analytics:global' },
+    ],
   },
   {
-    key: 'expenses',
-    path: ROUTES.EXPENSES,
-    labelKey: 'nav.expenses',
-    icon: 'WalletOutlined',
-    group: 'nav.operations',
-    permission: 'expenses:view',
+    groupKey: 'boshqaruv',
+    groupLabel: 'БОШҚАРУВ',
+    items: [
+      { key: 'branches', path: ROUTES.BRANCHES, label: 'Филиаллар', icon: 'BankOutlined', permission: 'branch:create' },
+      { key: 'admins', path: ROUTES.ADMINS, label: 'Администраторлар', icon: 'UserSwitchOutlined', permission: 'admin:create' },
+    ],
   },
   {
-    key: 'transfers',
-    path: ROUTES.TRANSFERS,
-    labelKey: 'nav.transfers',
-    icon: 'SwapOutlined',
-    group: 'nav.operations',
-    permission: 'transfers:view',
-  },
-  {
-    key: 'analytics',
-    path: ROUTES.ANALYTICS,
-    labelKey: 'nav.analytics',
-    icon: 'LineChartOutlined',
-    group: 'nav.insights',
-    permission: 'analytics:global',
-  },
-  {
-    key: 'settings',
-    path: ROUTES.SETTINGS,
-    labelKey: 'nav.settings',
-    icon: 'SettingOutlined',
-    group: 'nav.insights',
-  },
-  {
-    key: 'branches',
-    path: ROUTES.BRANCHES,
-    labelKey: 'nav.branches',
-    icon: 'BankOutlined',
-    group: 'nav.admin',
-    permission: 'branch:create',
-  },
-  {
-    key: 'admins',
-    path: ROUTES.ADMINS,
-    labelKey: 'nav.admins',
-    icon: 'UserSwitchOutlined',
-    group: 'nav.admin',
-    permission: 'admin:create',
-  },
-  {
-    key: 'categories',
-    path: ROUTES.CATEGORIES,
-    labelKey: 'nav.categories',
-    icon: 'AppstoreOutlined',
-    group: 'nav.admin',
-    permission: 'category:manage',
+    groupKey: 'sozlamalar',
+    groupLabel: 'СОЗЛАМАЛАР',
+    items: [
+      { key: 'settings', path: ROUTES.SETTINGS, label: 'Созламалар', icon: 'SettingOutlined' },
+    ],
   },
 ];
+
+// All items flat – for search and favorites lookup
+export const ALL_NAV_ITEMS: NavItemDef[] = NAV_GROUPS_DEF.flatMap((g) => g.items);
+
+export function getVisibleNavGroups(
+  checkCan: (p: Permission) => boolean,
+): NavGroupDef[] {
+  return NAV_GROUPS_DEF.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.permission || checkCan(item.permission)),
+  })).filter((group) => group.items.length > 0);
+}
+
+// Legacy compat – AppHeader uses NAV_ITEMS for breadcrumb label lookup
+export const NAV_ITEMS: NavItem[] = ALL_NAV_ITEMS.map((item) => ({
+  ...item,
+  labelKey: `nav.${item.key}`,
+  group: null,
+}));
 
 export function getVisibleNavItems(
   checkCan: (p: Permission) => boolean,
@@ -118,17 +108,5 @@ export function getVisibleNavItems(
   const filtered = NAV_ITEMS.filter(
     (item) => !item.permission || checkCan(item.permission),
   );
-
-  const groups: NavGroup[] = [];
-  let lastGroup: string | null = '__init__';
-
-  for (const item of filtered) {
-    if (item.group !== lastGroup) {
-      groups.push({ group: item.group, items: [] });
-      lastGroup = item.group;
-    }
-    groups[groups.length - 1]!.items.push(item);
-  }
-
-  return groups;
+  return [{ group: null, items: filtered }];
 }

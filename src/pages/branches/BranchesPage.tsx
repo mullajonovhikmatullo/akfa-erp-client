@@ -36,8 +36,6 @@ export function BranchesPage() {
 
   const branchAdmins = users.filter((u) => u.role === 'branch_admin');
 
-  // Returns whoever is assigned to a branch — branch_admin from the list,
-  // or the superadmin themselves if the branch is their own.
   function getAssignedUser(branchId: string) {
     const admin = branchAdmins.find((u) => u.branchId === branchId);
     if (admin) return admin;
@@ -69,14 +67,14 @@ export function BranchesPage() {
       updateMutation.mutate(
         { id: editTarget.id, data: values },
         {
-          onSuccess: () => { toast.success('Branch updated'); setBranchModalOpen(false); },
-          onError: () => toast.error('Failed to update branch'),
+          onSuccess: () => { toast.success('Филиал янгиланди'); setBranchModalOpen(false); },
+          onError: () => toast.error('Янгилашда хатолик'),
         },
       );
     } else {
       createMutation.mutate(values, {
-        onSuccess: () => { toast.success('Branch created'); setBranchModalOpen(false); },
-        onError: () => toast.error('Failed to create branch'),
+        onSuccess: () => { toast.success('Филиал яратилди'); setBranchModalOpen(false); },
+        onError: () => toast.error('Яратишда хатолик'),
       });
     }
   }
@@ -96,8 +94,8 @@ export function BranchesPage() {
     }
 
     Promise.all(steps)
-      .then(() => { toast.success('Admin assigned'); setAssignTarget(null); })
-      .catch(() => toast.error('Failed to assign admin'));
+      .then(() => { toast.success('Администратор тайинланди'); setAssignTarget(null); })
+      .catch(() => toast.error('Тайинлашда хатолик'));
   }
 
   const columns: ColumnDef<Branch>[] = [
@@ -112,7 +110,7 @@ export function BranchesPage() {
       ),
     },
     {
-      title: 'Branch',
+      title: 'Филиал',
       key: 'name',
       render: (_: unknown, b: Branch) => {
         const isMain = b.name === 'Main Branch';
@@ -139,7 +137,7 @@ export function BranchesPage() {
                     background: '#fef3c7', color: '#92400e',
                     letterSpacing: '.04em', textTransform: 'uppercase',
                   }}>
-                    Main
+                    Асосий
                   </span>
                 )}
               </div>
@@ -150,7 +148,7 @@ export function BranchesPage() {
       },
     },
     {
-      title: 'Phone',
+      title: 'Телефон',
       dataIndex: 'phone',
       width: 150,
       responsiveHide: true,
@@ -158,7 +156,7 @@ export function BranchesPage() {
         v ? <span style={{ fontSize: 13 }}>{v}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span>,
     },
     {
-      title: 'Admin',
+      title: 'Администратор',
       key: 'admin',
       width: 200,
       render: (_: unknown, b: Branch) => {
@@ -169,12 +167,12 @@ export function BranchesPage() {
             <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>@{admin.username}</div>
           </div>
         ) : (
-          <Tag color="warning">Unassigned</Tag>
+          <Tag color="warning">Тайинланмаган</Tag>
         );
       },
     },
     {
-      title: 'Created',
+      title: 'Қўшилган',
       dataIndex: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -188,7 +186,7 @@ export function BranchesPage() {
       fixed: 'right' as const,
       render: (_: unknown, b: Branch) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Assign admin">
+          <Tooltip title="Администратор тайинлаш">
             <Button
               size="small"
               type="text"
@@ -196,7 +194,7 @@ export function BranchesPage() {
               onClick={(e) => { e.stopPropagation(); openAssign(b); }}
             />
           </Tooltip>
-          <Tooltip title="Edit">
+          <Tooltip title="Таҳрирлаш">
             <Button
               size="small"
               type="text"
@@ -205,15 +203,15 @@ export function BranchesPage() {
             />
           </Tooltip>
           <Popconfirm
-            title="Delete branch?"
-            description="All associated data will be affected."
-            okText="Delete"
-            cancelText="Cancel"
+            title="Ўчирилсинми?"
+            description="Барча боғлиқ маълумотлар таъсирланади."
+            okText="Ўчириш"
+            cancelText="Бекор"
             okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
-            onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(b.id, { onSuccess: () => toast.success('Branch deleted'), onError: () => toast.error('Failed to delete') }); }}
+            onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(b.id, { onSuccess: () => toast.success('Филиал ўчирилди'), onError: () => toast.error('Ўчиришда хатолик') }); }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title="Delete">
+            <Tooltip title="Ўчириш">
               <Button
                 size="small"
                 type="text"
@@ -234,31 +232,30 @@ export function BranchesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Branches</h1>
-          <div className="sub">{branches.length} branch{branches.length !== 1 ? 'es' : ''} · {branchAdmins.length} admins</div>
+          <h1>Филиаллар</h1>
+          <div className="sub">{branches.length} та филиал · {branchAdmins.length} та администратор</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Refresh">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            New branch
+            Янги филиал
           </Button>
         </div>
       </div>
 
-      {/* Summary cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Total branches</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Жами филиаллар</div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{branches.length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>With admin</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Администратор бор</div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{branches.filter((b) => getAssignedUser(b.id) !== null).length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Unassigned admins</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Бириктирилмаган</div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((u) => !u.branchId).length}</div>
         </div>
       </div>
@@ -270,58 +267,56 @@ export function BranchesPage() {
           columns={columns}
           loading={isLoading}
           pagination={false}
-          emptyText="No branches found"
+          emptyText="Филиаллар топилмади"
         />
       </div>
 
-      {/* Create / Edit modal */}
       <Modal
-        title={editTarget ? 'Edit branch' : 'New branch'}
+        title={editTarget ? 'Филиални таҳрирлаш' : 'Янги филиал'}
         open={branchModalOpen}
         onCancel={() => setBranchModalOpen(false)}
         onOk={handleBranchSubmit}
-        okText={editTarget ? 'Save' : 'Create'}
+        okText={editTarget ? 'Сақлаш' : 'Яратиш'}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
       >
         <Form form={branchForm} layout="vertical" style={{ marginTop: 16 }}>
-          <Form.Item name="name" label="Branch name" rules={[{ required: true, message: 'Name is required' }]}>
-            <Input placeholder="e.g. Tashkent — Chilonzor" />
+          <Form.Item name="name" label="Филиал номи" rules={[{ required: true, message: 'Номни киритинг' }]}>
+            <Input placeholder="Масалан: Тошкент — Чиланзор" />
           </Form.Item>
-          <Form.Item name="address" label="Address">
-            <Input placeholder="Street, city" />
+          <Form.Item name="address" label="Манзил">
+            <Input placeholder="Кўча, шаҳар" />
           </Form.Item>
-          <Form.Item name="phone" label="Phone">
+          <Form.Item name="phone" label="Телефон">
             <Input placeholder="+998 __ ___ __ __" />
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* Assign admin modal */}
       <Modal
-        title={`Assign admin — ${assignTarget?.name ?? ''}`}
+        title={`Администратор тайинлаш — ${assignTarget?.name ?? ''}`}
         open={!!assignTarget}
         onCancel={() => setAssignTarget(null)}
         onOk={handleAssignSubmit}
-        okText="Assign"
+        okText="Тайинлаш"
         confirmLoading={assignMutation.isPending}
         destroyOnClose
       >
         <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-3)' }}>
-          Select a branch admin to manage this branch. Choosing a different admin will unlink the current one.
+          Ушбу филиални бошқарадиган администраторни танланг. Бошқа администраторни танласангиз, аввалгиси бириктирилмаган бўлади.
         </div>
         <Form form={assignForm} layout="vertical">
-          <Form.Item name="userId" label="Admin">
+          <Form.Item name="userId" label="Администратор">
             <Select
               allowClear
-              placeholder="Select admin…"
+              placeholder="Администратор танланг..."
               options={[
                 ...unassignedAdmins.map((u) => ({ value: u.id, label: `${u.name} (@${u.username})` })),
                 ...branchAdmins
                   .filter((u) => u.branchId && u.branchId !== assignTarget?.id)
                   .map((u) => {
                     const assignedTo = branches.find((b) => b.id === u.branchId);
-                    return { value: u.id, label: `${u.name} (@${u.username}) · ${assignedTo?.name ?? 'other branch'}`, disabled: true };
+                    return { value: u.id, label: `${u.name} (@${u.username}) · ${assignedTo?.name ?? 'бошқа филиал'}`, disabled: true };
                   }),
               ]}
             />

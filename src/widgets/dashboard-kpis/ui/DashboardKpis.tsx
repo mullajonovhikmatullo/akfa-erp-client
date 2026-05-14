@@ -22,35 +22,35 @@ export function DashboardKpis() {
   return (
     <div className="grid-4" style={{ marginBottom: 16 }}>
       <KpiCard
-        label="Today · Revenue"
+        label="Бугун · Даромад"
         value={<MoneyDisplay amount={todayRevenue} currency="UZS" compact />}
-        delta={`${todaySalesCount} sales`}
+        delta={`${todaySalesCount} та сотув`}
         deltaUp
-        hint="Real-time"
+        hint="Жорий"
         sparkline={series.slice(-7).map((d) => d.revenue)}
       />
       <KpiCard
-        label="This month · Revenue"
+        label="Ой · Даромад"
         value={<MoneyDisplay amount={monthRevenue} currency="UZS" compact />}
-        delta={`${monthSalesCount} sales`}
+        delta={`${monthSalesCount} та сотув`}
         deltaUp
-        hint="MTD"
+        hint="ОТБ"
         sparkline={series.map((d) => d.revenue)}
       />
       <KpiCard
-        label="This month · Expenses"
+        label="Ой · Харажатлар"
         value={<MoneyDisplay amount={monthExpenseTotal} currency="UZS" compact />}
-        delta="overhead"
+        delta="умумий харажат"
         deltaUp={false}
-        hint="MTD"
+        hint="ОТБ"
         sparkline={series.map((d) => d.expenses)}
       />
       <KpiCard
-        label="Receivables"
+        label="Дебиторлик"
         value={<MoneyDisplay amount={totalDebt} currency="UZS" compact />}
-        delta={`${debtorCount} debtors`}
+        delta={`${debtorCount} та қарздор`}
         deltaUp={false}
-        hint="Outstanding"
+        hint="Тўланмаган"
       />
     </div>
   );

@@ -19,8 +19,8 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
 
   const balanceLabel =
     !detail ? '' :
-    detail.balance > 0 ? 'Qarzdor' :
-    detail.balance < 0 ? "Ortiqcha to'lov" : 'Hisob-kitob';
+    detail.balance > 0 ? 'Қарздор' :
+    detail.balance < 0 ? 'Ортиқча тўлов' : 'Ҳисоб-китоб';
 
   return (
     <Drawer
@@ -59,9 +59,9 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
               <StatusBadge tone="info">{customer.branch.name}</StatusBadge>
               {customer.isActive ? (
-                <StatusBadge tone="success" dot>Faol</StatusBadge>
+                <StatusBadge tone="success" dot>Фаол</StatusBadge>
               ) : (
-                <StatusBadge tone="danger" dot>Nofaol</StatusBadge>
+                <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
               )}
             </div>
           </div>
@@ -69,7 +69,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
           <div style={{ padding: '20px 24px' }}>
 
             {/* Balance */}
-            <SectionLabel>Balans</SectionLabel>
+            <SectionLabel>Баланс</SectionLabel>
             <div
               style={{
                 padding: '14px 16px',
@@ -82,7 +82,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                 marginBottom: 20,
               }}
             >
-              <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>Joriy balans</span>
+              <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>Жорий баланс</span>
               <div style={{ textAlign: 'right' }}>
                 <div className="num" style={{ fontSize: 18, fontWeight: 700 }}>
                   <MoneyDisplay amount={Math.abs(customer.balance)} currency="UZS" />
@@ -94,12 +94,12 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
             <Divider style={{ margin: '0 0 16px' }} />
 
             {/* Recent sales */}
-            <SectionLabel>So'nggi sotuvlar</SectionLabel>
+            <SectionLabel>Сўнгги сотувлар</SectionLabel>
             {isLoading ? (
               <Skeleton active paragraph={{ rows: 3 }} />
             ) : !detail || detail.recentSales.length === 0 ? (
               <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>
-                Hali sotuv amalga oshirilmagan
+                Ҳали сотув амалга оширилмаган
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -118,7 +118,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                   >
                     <div>
                       <div style={{ fontWeight: 500, fontSize: 13 }}>
-                        {s._count.items} ta mahsulot ·{' '}
+                        {s._count.items} та маҳсулот ·{' '}
                         <Tag style={{ fontSize: 11 }}>{s.saleType}</Tag>
                       </div>
                       <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>
@@ -131,7 +131,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                       </div>
                       {s.debtAmountUzs > 0 && (
                         <div className="num" style={{ fontSize: 11.5, color: 'var(--danger)' }}>
-                          Qarz: <MoneyDisplay amount={s.debtAmountUzs} currency="UZS" />
+                          Қарз: <MoneyDisplay amount={s.debtAmountUzs} currency="UZS" />
                         </div>
                       )}
                     </div>

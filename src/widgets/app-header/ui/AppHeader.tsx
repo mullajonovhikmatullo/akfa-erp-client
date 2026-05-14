@@ -12,22 +12,10 @@ import {
 import { useAuthStore } from '@/entities/user';
 import { useDispatch } from '@/app/store.jsx';
 import { useUIStore } from '@/app/stores/ui.store';
-import { NAV_ITEMS } from '@/widgets/app-sidebar/model/navConfig';
+import { ALL_NAV_ITEMS } from '@/widgets/app-sidebar/model/navConfig';
 import { ROUTES } from '@/shared/config/routes';
 
-// Inline until i18n is wired
-const T: Record<string, string> = {
-  'nav.dashboard': 'Dashboard',
-  'nav.products': 'Products',
-  'nav.customers': 'Customers',
-  'nav.sales': 'Sales',
-  'nav.purchases': 'Purchases',
-  'nav.expenses': 'Expenses',
-  'nav.transfers': 'Transfers',
-  'nav.analytics': 'Analytics',
-  'nav.settings': 'Settings',
-  'common.allBranches': 'All Branches',
-};
+const ALL_BRANCHES_LABEL = 'Барча филиаллар';
 
 interface AppHeaderProps {
   branches: Array<{ id: string; name: string }>;
@@ -56,11 +44,11 @@ export function AppHeader({ branches }: AppHeaderProps) {
   const activeBranch = branches.find((b) => b.id === activeBranchId);
   const userBranch = branches.find((b) => b.id === user?.branchId);
 
-  const currentNav = NAV_ITEMS.find((n) => {
+  const currentNav = ALL_NAV_ITEMS.find((n) => {
     if (n.path === '/') return location.pathname === '/';
     return location.pathname.startsWith(n.path);
   });
-  const pageLabel = T[currentNav?.labelKey ?? ''] ?? 'Dashboard';
+  const pageLabel = currentNav?.label ?? 'Асосий';
 
   const profileMenuItems = [
     {
@@ -70,7 +58,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
         <div style={{ padding: '4px 0', minWidth: 220 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{user?.name}</div>
           <div style={{ fontSize: 11, color: '#64748b', textTransform: 'capitalize', marginTop: 2 }}>
-            {user?.role?.replace('_', ' ')} · {userBranch?.name?.split(' — ')[0] ?? 'All branches'}
+            {user?.role?.replace('_', ' ')} · {userBranch?.name?.split(' — ')[0] ?? 'Барча филиаллар'}
           </div>
         </div>
       ),
@@ -79,13 +67,13 @@ export function AppHeader({ branches }: AppHeaderProps) {
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: 'Settings',
+      label: 'Созламалар',
       onClick: () => navigate(ROUTES.SETTINGS),
     },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: <span style={{ color: '#dc2626' }}>Sign out</span>,
+      label: <span style={{ color: '#dc2626' }}>Чиқиш</span>,
       onClick: () => {
         zustandLogout();
         legacyDispatch({ type: 'auth/logout' });
@@ -120,7 +108,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
             style={{ minWidth: 220 }}
             suffixIcon={<EnvironmentOutlined />}
             options={[
-              { value: '__all__', label: T['common.allBranches'] },
+              { value: '__all__', label: ALL_BRANCHES_LABEL },
               ...branches.map((b) => ({ value: b.id, label: b.name })),
             ]}
           />

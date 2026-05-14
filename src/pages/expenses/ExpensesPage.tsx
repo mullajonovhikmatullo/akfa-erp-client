@@ -51,7 +51,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Sana',
+      title: 'Сана',
       dataIndex: 'expenseDate',
       width: 120,
       render: (v: string) => (
@@ -59,7 +59,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Kategoriya',
+      title: 'Категория',
       key: 'category',
       width: 180,
       render: (_: unknown, e: Expense) => (
@@ -67,7 +67,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Filial',
+      title: 'Филиал',
       key: 'branch',
       width: 150,
       responsiveHide: true,
@@ -76,7 +76,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Izoh',
+      title: 'Изоҳ',
       dataIndex: 'description',
       render: (v: string | null) =>
         v ? (
@@ -86,7 +86,7 @@ export function ExpensesPage() {
         ),
     },
     {
-      title: 'Miqdor',
+      title: 'Миқдор',
       key: 'amount',
       width: 160,
       align: 'right',
@@ -97,7 +97,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Kirituvchi',
+      title: 'Киритувчи',
       key: 'createdBy',
       width: 150,
       responsiveHide: true,
@@ -112,15 +112,15 @@ export function ExpensesPage() {
       fixed: 'right',
       render: (_: unknown, e: Expense) => (
         <Popconfirm
-          title="O'chirilsinmi?"
-          description="Bu xarajat o'chiriladi."
-          okText="Ha"
-          cancelText="Bekor"
+          title="Ўчирилсинми?"
+          description="Бу харажат ўчирилади."
+          okText="Ҳа"
+          cancelText="Бекор"
           okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
           onConfirm={(ev) => { ev?.stopPropagation(); deleteMutation.mutate(e.id); }}
           onPopupClick={(ev) => ev.stopPropagation()}
         >
-          <Tooltip title="O'chirish">
+          <Tooltip title="Ўчириш">
             <Button
               size="small"
               type="text"
@@ -138,22 +138,22 @@ export function ExpensesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Xarajatlar</h1>
+          <h1>Харажатлар</h1>
           <div className="sub">
-            {expenses.length} ta yozuv · {categories.length} ta kategoriya
+            {expenses.length} та ёзув · {categories.length} та категория
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Yangilash">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {isSuper && (
             <Button icon={<AppstoreOutlined />} onClick={() => setManagingCats(true)}>
-              Kategoriyalar
+              Категориялар
             </Button>
           )}
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
-            Xarajat qo'shish
+            Харажат қўшиш
           </Button>
         </div>
       </div>
@@ -174,7 +174,7 @@ export function ExpensesPage() {
                 <div style={{ height: 4, borderRadius: 2, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
                   <div style={{ width: `${pct}%`, height: '100%', background: 'var(--primary)', borderRadius: 2 }} />
                 </div>
-                <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{pct.toFixed(0)}% jami xarajatdan</div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{pct.toFixed(0)}% жами харажатдан</div>
               </div>
             );
           })}
@@ -190,12 +190,12 @@ export function ExpensesPage() {
               value={categoryFilter}
               onChange={setCategoryFilter}
               allowClear
-              placeholder="Barcha kategoriyalar"
+              placeholder="Барча категориялар"
               style={{ minWidth: 220 }}
               options={categories.map((c) => ({ value: c.id, label: c.name }))}
             />
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-              <strong>{expenses.length}</strong> ta natija
+              <strong>{expenses.length}</strong> та натижа
             </span>
           </div>
 
@@ -205,15 +205,15 @@ export function ExpensesPage() {
             columns={columns}
             loading={isLoading}
             pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
-            emptyText="Xarajatlar topilmadi"
+            emptyText="Харажатлар топилмади"
           />
         </div>
 
         {/* Breakdown */}
         <div className="card" style={{ position: 'sticky', top: 76 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Kategoriyalar bo'yicha</div>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Категориялар бўйича</div>
           {byCat.length === 0 ? (
-            <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>Ma'lumot yo'q</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>Маълумот йўқ</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {byCat.map((c) => {
@@ -237,7 +237,7 @@ export function ExpensesPage() {
           )}
           <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-            <span style={{ color: 'var(--ink-3)' }}>Jami</span>
+            <span style={{ color: 'var(--ink-3)' }}>Жами</span>
             <span className="num" style={{ fontWeight: 700 }}>
               <MoneyDisplay amount={grandTotal} currency="UZS" />
             </span>

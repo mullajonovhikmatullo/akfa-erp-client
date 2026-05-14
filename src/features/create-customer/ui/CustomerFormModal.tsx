@@ -20,16 +20,16 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
 
   return (
     <AppModal
-      title={isEdit ? `Tahrirlash · ${customer?.fullName}` : "Yangi mijoz"}
+      title={isEdit ? `Таҳрирлаш · ${customer?.fullName}` : 'Янги мижоз'}
       open={open}
       onClose={onClose}
       width={520}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={isPending}>
-          Bekor qilish
+          Бекор қилиш
         </Button>,
         <Button key="submit" type="primary" loading={isPending} onClick={() => onSubmit()}>
-          {isEdit ? 'Saqlash' : "Qo'shish"}
+          {isEdit ? 'Сақлаш' : 'Қўшиш'}
         </Button>,
       ]}
     >
@@ -41,14 +41,14 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Filial"
+                label="Филиал"
                 required
                 validateStatus={errors.branchId ? 'error' : undefined}
                 help={errors.branchId?.message}
               >
                 <Select
                   {...field}
-                  placeholder="Filialni tanlang"
+                  placeholder="Филиал танланг"
                   options={branches.map((b) => ({ value: b.id, label: b.name }))}
                 />
               </Form.Item>
@@ -61,12 +61,12 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="To'liq ismi"
+              label="Тўлиқ исми"
               required
               validateStatus={errors.fullName ? 'error' : undefined}
               help={errors.fullName?.message}
             >
-              <Input {...field} placeholder="Masalan: Bobur Toshmatov" />
+              <Input {...field} placeholder="Масалан: Бобур Тошматов" />
             </Form.Item>
           )}
         />
@@ -77,7 +77,7 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Telefon (ixtiyoriy)"
+                label="Телефон (ихтиёрий)"
                 validateStatus={errors.phone ? 'error' : undefined}
                 help={errors.phone?.message}
               >
@@ -90,11 +90,11 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Manzil (ixtiyoriy)"
+                label="Манзил (ихтиёрий)"
                 validateStatus={errors.address ? 'error' : undefined}
                 help={errors.address?.message}
               >
-                <Input {...field} placeholder="Toshkent, Chilonzor 5" />
+                <Input {...field} placeholder="Тошкент, Чиланзор 5" />
               </Form.Item>
             )}
           />
@@ -105,12 +105,12 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             name="isActive"
             control={control}
             render={({ field }) => (
-              <Form.Item label="Holat">
+              <Form.Item label="Ҳолат">
                 <Switch
                   checked={field.value}
                   onChange={field.onChange}
-                  checkedChildren="Faol"
-                  unCheckedChildren="Nofaol"
+                  checkedChildren="Фаол"
+                  unCheckedChildren="Нофаол"
                 />
               </Form.Item>
             )}

@@ -22,9 +22,9 @@ import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 
 const STATUS_OPTIONS: { value: TransferStatus; label: string }[] = [
-  { value: 'PENDING', label: 'Kutilmoqda' },
-  { value: 'COMPLETED', label: 'Yakunlangan' },
-  { value: 'CANCELLED', label: 'Bekor qilingan' },
+  { value: 'PENDING', label: 'Кутилмоқда' },
+  { value: 'COMPLETED', label: 'Якунланган' },
+  { value: 'CANCELLED', label: 'Бекор қилинган' },
 ];
 
 const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
@@ -34,9 +34,9 @@ const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
 };
 
 const STATUS_LABEL: Record<TransferStatus, string> = {
-  PENDING: 'Kutilmoqda',
-  COMPLETED: 'Yakunlangan',
-  CANCELLED: 'Bekor qilingan',
+  PENDING: 'Кутилмоқда',
+  COMPLETED: 'Якунланган',
+  CANCELLED: 'Бекор қилинган',
 };
 
 export function TransfersPage() {
@@ -65,7 +65,7 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Sana',
+      title: 'Сана',
       dataIndex: 'createdAt',
       width: 120,
       render: (v: string) => (
@@ -73,7 +73,7 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Yo\'nalish',
+      title: 'Йўналиш',
       key: 'route',
       render: (_: unknown, t: Transfer) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -84,19 +84,19 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Mahsulotlar',
+      title: 'Маҳсулотлар',
       key: 'items',
       width: 90,
       align: 'center',
       responsiveHide: true,
       render: (_: unknown, t: Transfer) => (
         <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
-          {t.items.length} tur
+          {t.items.length} тур
         </span>
       ),
     },
     {
-      title: 'Tan narxi',
+      title: 'Тан нархи',
       key: 'cost',
       width: 160,
       align: 'right',
@@ -110,7 +110,7 @@ export function TransfersPage() {
       },
     },
     {
-      title: 'Holat',
+      title: 'Ҳолат',
       dataIndex: 'status',
       width: 140,
       render: (v: TransferStatus) => (
@@ -118,7 +118,7 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Yaratuvchi',
+      title: 'Яратувчи',
       key: 'initiatedBy',
       width: 140,
       responsiveHide: true,
@@ -137,15 +137,15 @@ export function TransfersPage() {
           <div style={{ display: 'flex', gap: 4 }}>
             {isSuper && (
               <Popconfirm
-                title="Yakunlansinmi?"
-                description="Ombor zahirasi shu zahoti yangilanadi."
-                okText="Ha, yakunla"
-                cancelText="Bekor"
+                title="Якунлансинми?"
+                description="Омбор захираси шу заҳоти янгиланади."
+                okText="Ҳа, якунла"
+                cancelText="Бекор"
                 okButtonProps={{ loading: completeMutation.isPending }}
                 onConfirm={(e) => { e?.stopPropagation(); completeMutation.mutate(t.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title="Yakunlash">
+                <Tooltip title="Якунлаш">
                   <Button
                     size="small"
                     type="text"
@@ -156,15 +156,15 @@ export function TransfersPage() {
               </Popconfirm>
             )}
             <Popconfirm
-              title="Bekor qilinsinmi?"
-              description="Transfer bekor qilinadi, ombor o'zgarmaydi."
-              okText="Ha, bekor qil"
-              cancelText="Yo'q"
+              title="Бекор қилинсинми?"
+              description="Трансфер бекор қилинади, омбор ўзгармайди."
+              okText="Ҳа, бекор қил"
+              cancelText="Йўқ"
               okButtonProps={{ danger: true, loading: cancelMutation.isPending }}
               onConfirm={(e) => { e?.stopPropagation(); cancelMutation.mutate(t.id); }}
               onPopupClick={(e) => e.stopPropagation()}
             >
-              <Tooltip title="Bekor qilish">
+              <Tooltip title="Бекор қилиш">
                 <Button
                   size="small"
                   type="text"
@@ -184,17 +184,17 @@ export function TransfersPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Transferlar</h1>
+          <h1>Трансферлар</h1>
           <div className="sub">
-            {transfers.length} ta transfer · {pendingCount} ta kutilmoqda
+            {transfers.length} та трансфер · {pendingCount} та кутилмоқда
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Yangilash">
+          <Tooltip title="Янгилаш">
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<SwapOutlined />} onClick={() => setCreating(true)}>
-            Yangi transfer
+            Янги трансфер
           </Button>
         </div>
       </div>
@@ -206,12 +206,12 @@ export function TransfersPage() {
             value={statusFilter}
             onChange={setStatusFilter}
             allowClear
-            placeholder="Barcha holatlar"
+            placeholder="Барча ҳолатлар"
             style={{ minWidth: 180 }}
             options={STATUS_OPTIONS}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{transfers.length}</strong> ta natija
+            <strong>{transfers.length}</strong> та натижа
           </span>
         </div>
 
@@ -231,7 +231,7 @@ export function TransfersPage() {
                   dataSource={transfer.items}
                   columns={[
                     {
-                      title: 'Mahsulot',
+                      title: 'Маҳсулот',
                       key: 'name',
                       render: (_, item) => (
                         <div>
@@ -245,7 +245,7 @@ export function TransfersPage() {
                       ),
                     },
                     {
-                      title: 'Miqdor',
+                      title: 'Миқдор',
                       key: 'qty',
                       width: 120,
                       align: 'right',
@@ -256,7 +256,7 @@ export function TransfersPage() {
                       ),
                     },
                     {
-                      title: 'Tan narxi',
+                      title: 'Тан нархи',
                       key: 'unit',
                       width: 150,
                       align: 'right',
@@ -267,7 +267,7 @@ export function TransfersPage() {
                       ),
                     },
                     {
-                      title: 'Jami',
+                      title: 'Жами',
                       key: 'total',
                       width: 150,
                       align: 'right',
@@ -286,14 +286,14 @@ export function TransfersPage() {
                 )}
                 {transfer.completedBy && (
                   <div style={{ marginTop: 4, fontSize: 12, color: 'var(--ink-3)' }}>
-                    Yakunlagan: {transfer.completedBy.fullName} · {formatDate(transfer.completedAt!)}
+                    Якунлаган: {transfer.completedBy.fullName} · {formatDate(transfer.completedAt!)}
                   </div>
                 )}
               </div>
             ),
             rowExpandable: () => true,
           }}
-          emptyText="Transferlar topilmadi"
+          emptyText="Трансферлар топилмади"
         />
       </div>
 

@@ -11,8 +11,8 @@ export function RevenueChartWidget() {
   return (
     <div className="card">
       <div className="card-head">
-        <h3>Revenue &amp; expenses</h3>
-        <span className="meta">14 days · UZS</span>
+        <h3>Даромад ва харажатлар</h3>
+        <span className="meta">14 кун · UZS</span>
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
@@ -37,8 +37,8 @@ export function RevenueChartWidget() {
             formatter={(v) => formatCompactUZS(Number(v))}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Area type="monotone" dataKey="revenue" name="Revenue" stroke="#1e4dd8" strokeWidth={2} fill="url(#gRev)" />
-          <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#dc2626" strokeWidth={2} fill="url(#gExp)" />
+          <Area type="monotone" dataKey="revenue" name="Даромад" stroke="#1e4dd8" strokeWidth={2} fill="url(#gRev)" />
+          <Area type="monotone" dataKey="expenses" name="Харажатлар" stroke="#dc2626" strokeWidth={2} fill="url(#gExp)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

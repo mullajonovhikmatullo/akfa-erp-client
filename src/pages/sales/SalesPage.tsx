@@ -12,8 +12,8 @@ import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 
 const SALE_TYPE_OPTIONS: { value: SaleType; label: string }[] = [
-  { value: 'RETAIL', label: 'Chakana' },
-  { value: 'WHOLESALE', label: 'Ulgurji' },
+  { value: 'RETAIL', label: 'Чакана' },
+  { value: 'WHOLESALE', label: 'Улгуржи' },
 ];
 
 export function SalesPage() {
@@ -39,7 +39,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Sana',
+      title: 'Сана',
       dataIndex: 'createdAt',
       width: 120,
       render: (v: string) => (
@@ -47,7 +47,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Mijoz',
+      title: 'Мижоз',
       key: 'customer',
       render: (_: unknown, s: SaleListItem) =>
         s.customer ? (
@@ -60,11 +60,11 @@ export function SalesPage() {
             )}
           </div>
         ) : (
-          <span style={{ color: 'var(--ink-4)' }}>Anonim</span>
+          <span style={{ color: 'var(--ink-4)' }}>Аноним</span>
         ),
     },
     {
-      title: 'Filial',
+      title: 'Филиал',
       key: 'branch',
       width: 140,
       responsiveHide: true,
@@ -73,7 +73,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Tur',
+      title: 'Тур',
       dataIndex: 'saleType',
       width: 100,
       responsiveHide: true,
@@ -82,19 +82,19 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Mahsulotlar',
+      title: 'Маҳсулотлар',
       key: 'count',
       width: 90,
       align: 'center',
       responsiveHide: true,
       render: (_: unknown, s: SaleListItem) => (
         <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
-          {s._count.items} ta
+          {s._count.items} та
         </span>
       ),
     },
     {
-      title: 'Jami',
+      title: 'Жами',
       key: 'total',
       width: 150,
       align: 'right',
@@ -105,7 +105,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: "To'langan",
+      title: 'Тўланган',
       key: 'paid',
       width: 150,
       align: 'right',
@@ -117,15 +117,15 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Holat',
+      title: 'Ҳолат',
       key: 'status',
       width: 110,
       align: 'center',
       render: (_: unknown, s: SaleListItem) =>
         s.debtAmountUzs > 0 ? (
-          <StatusBadge tone="danger" dot>Qarz bor</StatusBadge>
+          <StatusBadge tone="danger" dot>Қарз бор</StatusBadge>
         ) : (
-          <StatusBadge tone="success" dot>{"To'liq"}</StatusBadge>
+          <StatusBadge tone="success" dot>Тўлиқ</StatusBadge>
         ),
     },
     {
@@ -134,7 +134,7 @@ export function SalesPage() {
       width: 60,
       fixed: 'right',
       render: (_: unknown, s: SaleListItem) => (
-        <Tooltip title="Ko'rish">
+        <Tooltip title="Кўриш">
           <Button
             size="small"
             type="text"
@@ -152,22 +152,22 @@ export function SalesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Sotuvlar</h1>
-          <div className="sub">Yangi sotuv yaratish va sotuv tarixi</div>
+          <h1>Сотувлар</h1>
+          <div className="sub">Янги сотув яратиш ва сотув тарихи</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button
             type={tab === 'new' ? 'primary' : 'default'}
             onClick={() => setTab('new')}
           >
-            + Yangi sotuv
+            + Янги сотув
           </Button>
           <Badge count={debtCount} offset={[-6, 4]}>
             <Button
               type={tab === 'history' ? 'primary' : 'default'}
               onClick={() => setTab('history')}
             >
-              Tarix ({sales.length})
+              Тарих ({sales.length})
             </Button>
           </Badge>
         </div>
@@ -183,7 +183,7 @@ export function SalesPage() {
               value={saleTypeFilter}
               onChange={setSaleTypeFilter}
               allowClear
-              placeholder="Barcha turlar"
+              placeholder="Барча турлар"
               style={{ minWidth: 160 }}
               options={SALE_TYPE_OPTIONS}
             />
@@ -191,18 +191,18 @@ export function SalesPage() {
               value={hasDebt === undefined ? undefined : String(hasDebt)}
               onChange={(v) => setHasDebt(v === undefined ? undefined : v === 'true')}
               allowClear
-              placeholder="To'lov holati"
+              placeholder="Тўлов ҳолати"
               style={{ minWidth: 160 }}
               options={[
-                { value: 'true', label: 'Qarz bor' },
-                { value: 'false', label: "To'liq to'langan" },
+                { value: 'true', label: 'Қарз бор' },
+                { value: 'false', label: 'Тўлиқ тўланган' },
               ]}
             />
-            <Tooltip title="Yangilash">
+            <Tooltip title="Янгилаш">
               <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
             </Tooltip>
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-              <strong>{sales.length}</strong> ta natija
+              <strong>{sales.length}</strong> та натижа
             </span>
           </div>
 
@@ -216,7 +216,7 @@ export function SalesPage() {
               onClick: () => setDrawerSale(s),
               style: { cursor: 'pointer' },
             })}
-            emptyText="Sotuvlar topilmadi"
+            emptyText="Сотувлар топилмади"
           />
         </div>
       )}
