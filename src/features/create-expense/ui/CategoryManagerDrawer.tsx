@@ -9,6 +9,7 @@ import {
 } from '@/entities/expense';
 import { StatusBadge } from '@/shared/ui';
 import type { ExpenseCategory } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 interface CategoryManagerDrawerProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface CategoryManagerDrawerProps {
 }
 
 export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerProps) {
+  const t = useT();
   const { data: categories = [], isLoading } = useExpenseCategories(true);
   const createCat = useCreateExpenseCategory();
   const updateCat = useUpdateExpenseCategory();
@@ -42,7 +44,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
 
   return (
     <Drawer
-      title="Харажат категориялари"
+      title={t('categoryDrawer.title')}
       open={open}
       onClose={onClose}
       width={440}
@@ -53,7 +55,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
         <Input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-          placeholder="Янги категория номи"
+          placeholder={t('categoryDrawer.placeholderNewName')}
           onPressEnter={handleCreate}
           style={{ flex: 1 }}
         />
@@ -64,14 +66,14 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
           disabled={!newName.trim()}
           onClick={handleCreate}
         >
-          Қўшиш
+          {t('common.add')}
         </Button>
       </div>
 
       {isLoading ? (
         <Skeleton active paragraph={{ rows: 4 }} />
       ) : categories.length === 0 ? (
-        <Empty description="Категориялар йўқ" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description={t('categoryDrawer.emptyCategories')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {categories.map((cat) => (
@@ -105,11 +107,11 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 500 }}>{cat.name}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
-                      {cat._count.expenses} та харажат
+                      {cat._count.expenses} {t('categoryDrawer.expenseCountSuffix')}
                     </div>
                   </div>
                   <StatusBadge tone={cat.isActive ? 'success' : 'danger'}>
-                    {cat.isActive ? 'Фаол' : 'Нофаол'}
+                    {cat.isActive ? t('common.active') : t('common.inactive')}
                   </StatusBadge>
                   <Switch
                     size="small"
@@ -119,10 +121,10 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                   />
                   <Button size="small" type="text" icon={<EditOutlined />} onClick={() => startEdit(cat)} />
                   <Popconfirm
-                    title="Ўчирилсинми?"
-                    description={cat._count.expenses > 0 ? "Бу категорияга боғлиқ харажатлар бор. Ўчира олмайсиз." : "Категория ўчирилади."}
-                    okText="Ҳа"
-                    cancelText="Бекор"
+                    title={t('categoryDrawer.popconfirmTitle')}
+                    description={cat._count.expenses > 0 ? t('categoryDrawer.popconfirmHasExpenses') : t('categoryDrawer.popconfirmNoExpenses')}
+                    okText={t('categoryDrawer.okText')}
+                    cancelText={t('categoryDrawer.cancelText')}
                     okButtonProps={{ danger: true, disabled: cat._count.expenses > 0 }}
                     onConfirm={() => deleteCat.mutate(cat.id)}
                   >

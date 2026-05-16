@@ -54,3 +54,7 @@ export const AdminsPage = lazy(() =>
 export const CategoriesPage = lazy(() =>
   import('@/pages/categories/CategoriesPage').then((m) => ({ default: m.CategoriesPage })),
 );
+
+export const ProfilePage = lazy(() =>
+  import('@/pages/profile/ProfilePage').then((m) => ({ default: m.ProfilePage })),
+);

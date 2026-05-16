@@ -21,6 +21,7 @@ import type { CreateCategoryPayload, UpdateCategoryPayload } from '@/entities/pr
 import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
+import { useT } from '@/shared/lib/i18n';
 import type { Category } from '@/shared/types/domain';
 
 type CategoryFormValues = {
@@ -30,6 +31,7 @@ type CategoryFormValues = {
 };
 
 export function CategoriesPage() {
+  const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const { data: categories = [], isLoading, isFetching, refetch } = useCategories();
 
@@ -69,9 +71,9 @@ export function CategoriesPage() {
       updateMutation.mutate(
         { id: editTarget.id, payload },
         {
-          onSuccess: () => { toast.success('Категория янгиланди'); setModalOpen(false); },
+          onSuccess: () => { toast.success(t('categories.updateSuccess')); setModalOpen(false); },
           onError: (e: unknown) =>
-            toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Янгилашда хатолик'),
+            toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.updateError')),
         },
       );
     } else {
@@ -80,9 +82,9 @@ export function CategoriesPage() {
         description: values.description || undefined,
       };
       createMutation.mutate(payload, {
-        onSuccess: () => { toast.success('Категория яратилди'); setModalOpen(false); },
+        onSuccess: () => { toast.success(t('categories.createSuccess')); setModalOpen(false); },
         onError: (e: unknown) =>
-          toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Яратишда хатолик'),
+          toast.error((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.createError')),
       });
     }
   }
@@ -100,7 +102,7 @@ export function CategoriesPage() {
       ),
     },
     {
-      title: 'Номи',
+      title: t('common.name'),
       key: 'name',
       render: (_: unknown, c: Category) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -115,17 +117,17 @@ export function CategoriesPage() {
       ),
     },
     {
-      title: 'Ҳолат',
+      title: t('common.status'),
       key: 'isActive',
       width: 110,
       responsiveHide: true,
       render: (_: unknown, c: Category) =>
         c.isActive
-          ? <StatusBadge tone="success">Фаол</StatusBadge>
-          : <Tag color="default">Нофаол</Tag>,
+          ? <StatusBadge tone="success">{t('common.active')}</StatusBadge>
+          : <Tag color="default">{t('common.inactive')}</Tag>,
     },
     {
-      title: 'Қўшилган',
+      title: t('common.added'),
       key: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -141,7 +143,7 @@ export function CategoriesPage() {
       fixed: 'right' as const,
       render: (_: unknown, c: Category) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Таҳрирлаш">
+          <Tooltip title={t('common.edit')}>
             <Button
               size="small"
               type="text"
@@ -150,22 +152,22 @@ export function CategoriesPage() {
             />
           </Tooltip>
           <Popconfirm
-            title="Категория ўчирилсинми?"
-            description="Фақат маҳсулот бириктирилмаган бўлса мумкин."
-            okText="Ўчириш"
-            cancelText="Бекор"
+            title={t('categories.deleteTitle')}
+            description={t('categories.deleteDesc')}
+            okText={t('common.delete')}
+            cancelText={t('common.cancel')}
             okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
             onConfirm={(e) => {
               e?.stopPropagation();
               deleteMutation.mutate(c.id, {
-                onSuccess: () => toast.success('Категория ўчирилди'),
+                onSuccess: () => toast.success(t('categories.deleteSuccess')),
                 onError: (err: unknown) =>
-                  toast.error((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? 'Ўчиришда хатолик'),
+                  toast.error((err as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.deleteError')),
               });
             }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title="Ўчириш">
+            <Tooltip title={t('common.delete')}>
               <Button
                 size="small"
                 type="text"
@@ -184,21 +186,21 @@ export function CategoriesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Категориялар</h1>
-          <div className="sub">{categories.length} та категория</div>
+          <h1>{t('nav.categories')}</h1>
+          <div className="sub">{categories.length} {t('categories.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <ExcelImportButton<CreateCategoryPayload>
-            entityLabel="Категориялар"
+            entityLabel={t('nav.categories')}
             templateHeaders={['name', 'description']}
             templateExample={['Glass Panels', 'All types of flat glass products']}
             templateFileName="categories_template.xlsx"
             parseRow={(raw, index) => {
               const name = getField(raw, 'name');
-              if (!name) return { index, raw, error: 'Номи киритилмаган' };
+              if (!name) return { index, raw, error: t('categories.parseErrorName') };
               const description = getField(raw, 'description') || undefined;
               return { index, raw, data: { name, description } };
             }}
@@ -206,7 +208,7 @@ export function CategoriesPage() {
             onComplete={() => refetch()}
           />
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            Янги категория
+            {t('categories.newCategory')}
           </Button>
         </div>
       </div>
@@ -214,19 +216,19 @@ export function CategoriesPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Жами
+            {t('common.total')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{categories.length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Фаол
+            {t('common.active')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{active}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Нофаол
+            {t('common.inactive')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700, color: inactive > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{inactive}</div>
         </div>
@@ -238,8 +240,8 @@ export function CategoriesPage() {
           dataSource={categories}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
-          emptyText="Ҳали категориялар йўқ"
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          emptyText={t('categories.empty')}
         />
       </div>
 
@@ -247,13 +249,13 @@ export function CategoriesPage() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <AppstoreOutlined />
-            {editTarget ? `Таҳрирлаш — ${editTarget.name}` : 'Янги категория'}
+            {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('categories.modalCreate')}
           </div>
         }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSubmit}
-        okText={editTarget ? 'Сақлаш' : 'Яратиш'}
+        okText={editTarget ? t('common.save') : t('common.create')}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
         width={440}
@@ -261,15 +263,15 @@ export function CategoriesPage() {
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item
             name="name"
-            label="Номи"
-            rules={[{ required: true, message: 'Номни киритинг' }, { max: 100 }]}
+            label={t('common.name')}
+            rules={[{ required: true, message: t('categories.nameRequired') }, { max: 100 }]}
           >
-            <Input placeholder="Масалан: Шиша панеллар" />
+            <Input placeholder={t('categories.namePlaceholder')} />
           </Form.Item>
 
-          <Form.Item name="description" label="Тасниф">
+          <Form.Item name="description" label={t('common.description')}>
             <Input.TextArea
-              placeholder="Қисқача тасниф"
+              placeholder={t('categories.descPlaceholder')}
               rows={3}
               maxLength={500}
               showCount
@@ -277,8 +279,8 @@ export function CategoriesPage() {
           </Form.Item>
 
           {editTarget && (
-            <Form.Item name="isActive" label="Ҳолат" valuePropName="checked">
-              <Switch checkedChildren="Фаол" unCheckedChildren="Нофаол" />
+            <Form.Item name="isActive" label={t('common.status')} valuePropName="checked">
+              <Switch checkedChildren={t('common.active')} unCheckedChildren={t('common.inactive')} />
             </Form.Item>
           )}
         </Form>

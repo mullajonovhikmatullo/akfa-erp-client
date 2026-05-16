@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from '../api/user.api';
-import type { CreateAdminPayload, UpdateAdminPayload } from '../api/user.api';
+import { useAuthStore } from './auth.store';
+import type { CreateAdminPayload, UpdateAdminPayload, UpdateProfilePayload, ChangePasswordPayload } from '../api/user.api';
 
 export const userKeys = {
   all: ['users'] as const,
@@ -46,5 +47,21 @@ export function useAssignBranch() {
     mutationFn: ({ userId, branchId }: { userId: string; branchId: string | null }) =>
       userApi.assignBranch(userId, branchId),
     onSuccess: () => qc.invalidateQueries({ queryKey: userKeys.all }),
+  });
+}
+
+export function useUpdateProfile() {
+  const setUser = useAuthStore((s) => s.setUser);
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePayload) => userApi.updateProfile(payload),
+    onSuccess: (updatedUser) => {
+      if (updatedUser) setUser(updatedUser);
+    },
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (payload: ChangePasswordPayload) => userApi.changePassword(payload),
   });
 }

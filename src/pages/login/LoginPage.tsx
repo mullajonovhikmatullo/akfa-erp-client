@@ -1,6 +1,9 @@
 import { LoginForm } from '@/features/auth-login';
+import { useT } from '@/shared/lib/i18n';
 
 export function LoginPage() {
+  const t = useT();
+
   return (
     <div className="login-shell">
       <div className="login-art">
@@ -14,14 +17,10 @@ export function LoginPage() {
         </div>
         <div className="stack">
           <div style={{ fontSize: 12, letterSpacing: '.18em', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Корпоратив бошқарув тизими
+            {t('login.systemName')}
           </div>
-          <h2>Барча филиалларни бир панелдан назорат қилинг.</h2>
-          <p>
-            Партия даражасида омборни кузатинг, сотувларни реал вақтда кўринг,
-            икки валютада қарзларни ҳисобланг ва филиаллар ўртасида
-            захираларни осонгина тенгланг.
-          </p>
+          <h2>{t('login.tagline')}</h2>
+          <p>{t('login.description')}</p>
         </div>
         <div style={{ position: 'relative', zIndex: 1, color: '#64748b', fontSize: 12 }}>
           © AKFA ERP
@@ -29,8 +28,8 @@ export function LoginPage() {
       </div>
 
       <div className="login-form">
-        <h1>Тизимга кириш</h1>
-        <p className="lead">Филиал бошқарув панелига кириш.</p>
+        <h1>{t('login.formTitle')}</h1>
+        <p className="lead">{t('login.formLead')}</p>
         <LoginForm />
       </div>
     </div>

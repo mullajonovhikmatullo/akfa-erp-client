@@ -7,6 +7,7 @@ import { useStockInBatch } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
 import { AppModal, MoneyDisplay } from '@/shared/ui';
 import { PRODUCT_UNIT_LABELS, type Product } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 interface StockInModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface CartItem {
 }
 
 export function StockInModal({ open, onClose }: StockInModalProps) {
+  const t = useT();
   const { isSuper, branchId: userBranchId } = useCurrentUser();
   const { data: branches = [] } = useBranches();
   const { data: products = [] } = useProducts({ search: undefined });
@@ -82,13 +84,13 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
 
   return (
     <AppModal
-      title="Омборга кирим"
+      title={t('stockIn.title')}
       open={open}
       onClose={onClose}
       width={760}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={stockInBatch.isPending}>
-          Бекор қилиш
+          {t('common.cancel')}
         </Button>,
         <Button
           key="submit"
@@ -97,7 +99,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          Киримни тасдиқлаш ({cart.length} та)
+          {t('stockIn.confirmBtn')} ({cart.length} {t('common.countSuffix')})
         </Button>,
       ]}
     >
@@ -106,11 +108,11 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
         {/* Branch selector (SUPER_ADMIN only) */}
         {isSuper && (
           <div>
-            <Label>Филиал</Label>
+            <Label>{t('stockIn.labelBranch')}</Label>
             <Select
               value={branchId}
               onChange={setBranchId}
-              placeholder="Филиал танланг"
+              placeholder={t('stockIn.placeholderBranch')}
               style={{ width: 280 }}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
@@ -119,13 +121,13 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
 
         {/* Product search */}
         <div>
-          <Label>Маҳсулот қўшиш</Label>
+          <Label>{t('stockIn.labelAddProduct')}</Label>
           <Select
             showSearch
             optionFilterProp="label"
             onChange={addProduct}
             value={null}
-            placeholder="SKU ёки ном бўйича қидириш"
+            placeholder={t('stockIn.placeholderSearch')}
             style={{ width: '100%' }}
             suffixIcon={<PlusOutlined />}
             options={products
@@ -140,7 +142,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
         {/* Cart table */}
         {cart.length === 0 ? (
           <Empty
-            description="Ҳали маҳсулот қўшилмади"
+            description={t('stockIn.emptyCart')}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             style={{ padding: '16px 0' }}
           />
@@ -153,7 +155,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               dataSource={cart}
               columns={[
                 {
-                  title: 'Маҳсулот',
+                  title: t('stockIn.colProduct'),
                   key: 'product',
                   render: (_, item) => (
                     <div>
@@ -167,7 +169,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: 'Миқдор',
+                  title: t('stockIn.colQty'),
                   key: 'qty',
                   width: 130,
                   render: (_, item) => (
@@ -186,7 +188,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: 'Тан нархи (сўм)',
+                  title: t('stockIn.colCost'),
                   key: 'cost',
                   width: 160,
                   render: (_, item) => (
@@ -202,19 +204,19 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: 'Етказувчи изоҳи',
+                  title: t('stockIn.colSupplierNote'),
                   key: 'note',
                   render: (_, item) => (
                     <Input
                       value={item.supplierNote}
                       onChange={(e) => updateItem(item._key, { supplierNote: e.target.value })}
-                      placeholder="Ихтиёрий..."
+                      placeholder={t('stockIn.placeholderNote')}
                       maxLength={200}
                     />
                   ),
                 },
                 {
-                  title: 'Жами',
+                  title: t('stockIn.colTotal'),
                   key: 'total',
                   width: 130,
                   align: 'right',
@@ -241,7 +243,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               ]}
             />
             <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 13, paddingRight: 32 }}>
-              <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>Жами тан нархи:</span>
+              <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('stockIn.totalCostLabel')}</span>
               <span className="num" style={{ fontWeight: 700 }}>
                 <MoneyDisplay amount={totalCost} currency="UZS" />
               </span>

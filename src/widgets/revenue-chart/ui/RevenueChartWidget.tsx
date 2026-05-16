@@ -2,8 +2,10 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { useCurrentUser } from '@/entities/user';
 import { formatCompactUZS } from '@/shared/lib/formatters';
 import { useDailySeries } from '../model/useDailySeries';
+import { useT } from '@/shared/lib/i18n';
 
 export function RevenueChartWidget() {
+  const t = useT();
   const { isSuper, branchId } = useCurrentUser();
   const branchFilter = isSuper ? null : branchId;
   const data = useDailySeries(branchFilter);
@@ -11,8 +13,8 @@ export function RevenueChartWidget() {
   return (
     <div className="card">
       <div className="card-head">
-        <h3>Даромад ва харажатлар</h3>
-        <span className="meta">14 кун · UZS</span>
+        <h3>{t('dashboard.chartTitle')}</h3>
+        <span className="meta">{t('dashboard.chartMeta')}</span>
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
@@ -37,8 +39,8 @@ export function RevenueChartWidget() {
             formatter={(v) => formatCompactUZS(Number(v))}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Area type="monotone" dataKey="revenue" name="Даромад" stroke="#1e4dd8" strokeWidth={2} fill="url(#gRev)" />
-          <Area type="monotone" dataKey="expenses" name="Харажатлар" stroke="#dc2626" strokeWidth={2} fill="url(#gExp)" />
+          <Area type="monotone" dataKey="revenue" name={t('dashboard.chartRevenue')} stroke="#1e4dd8" strokeWidth={2} fill="url(#gRev)" />
+          <Area type="monotone" dataKey="expenses" name={t('dashboard.chartExpenses')} stroke="#dc2626" strokeWidth={2} fill="url(#gExp)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

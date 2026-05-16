@@ -4,6 +4,7 @@ import { AppModal } from '@/shared/ui';
 import { Button } from 'antd';
 import type { Customer } from '@/shared/types/domain';
 import { useCustomerForm } from '../model/useCustomerForm';
+import { useT } from '@/shared/lib/i18n';
 
 interface CustomerFormModalProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface CustomerFormModalProps {
 }
 
 export function CustomerFormModal({ open, customer, onClose }: CustomerFormModalProps) {
+  const t = useT();
   const { form, onSubmit, isPending, isEdit, isSuper, branches } = useCustomerForm({
     customer,
     onSuccess: onClose,
@@ -20,16 +22,16 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
 
   return (
     <AppModal
-      title={isEdit ? `Таҳрирлаш · ${customer?.fullName}` : 'Янги мижоз'}
+      title={isEdit ? `${t('common.edit')} · ${customer?.fullName}` : t('customerForm.titleCreate')}
       open={open}
       onClose={onClose}
       width={520}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={isPending}>
-          Бекор қилиш
+          {t('common.cancel')}
         </Button>,
         <Button key="submit" type="primary" loading={isPending} onClick={() => onSubmit()}>
-          {isEdit ? 'Сақлаш' : 'Қўшиш'}
+          {isEdit ? t('common.save') : t('common.add')}
         </Button>,
       ]}
     >
@@ -41,14 +43,14 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Филиал"
+                label={t('customerForm.labelBranch')}
                 required
                 validateStatus={errors.branchId ? 'error' : undefined}
                 help={errors.branchId?.message}
               >
                 <Select
                   {...field}
-                  placeholder="Филиал танланг"
+                  placeholder={t('customerForm.placeholderBranch')}
                   options={branches.map((b) => ({ value: b.id, label: b.name }))}
                 />
               </Form.Item>
@@ -61,12 +63,12 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Тўлиқ исми"
+              label={t('customerForm.labelFullName')}
               required
               validateStatus={errors.fullName ? 'error' : undefined}
               help={errors.fullName?.message}
             >
-              <Input {...field} placeholder="Масалан: Бобур Тошматов" />
+              <Input {...field} placeholder={t('customerForm.placeholderFullName')} />
             </Form.Item>
           )}
         />
@@ -77,7 +79,7 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Телефон (ихтиёрий)"
+                label={t('customerForm.labelPhone')}
                 validateStatus={errors.phone ? 'error' : undefined}
                 help={errors.phone?.message}
               >
@@ -90,11 +92,11 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Манзил (ихтиёрий)"
+                label={t('customerForm.labelAddress')}
                 validateStatus={errors.address ? 'error' : undefined}
                 help={errors.address?.message}
               >
-                <Input {...field} placeholder="Тошкент, Чиланзор 5" />
+                <Input {...field} placeholder={t('customerForm.placeholderAddress')} />
               </Form.Item>
             )}
           />
@@ -105,12 +107,12 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             name="isActive"
             control={control}
             render={({ field }) => (
-              <Form.Item label="Ҳолат">
+              <Form.Item label={t('common.status')}>
                 <Switch
                   checked={field.value}
                   onChange={field.onChange}
-                  checkedChildren="Фаол"
-                  unCheckedChildren="Нофаол"
+                  checkedChildren={t('common.active')}
+                  unCheckedChildren={t('common.inactive')}
                 />
               </Form.Item>
             )}

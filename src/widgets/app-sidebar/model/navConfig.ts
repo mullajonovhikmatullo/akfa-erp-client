@@ -12,6 +12,7 @@ export interface NavItemDef {
 export interface NavGroupDef {
   groupKey: string;
   groupLabel: string;
+  groupLabelKey: string;
   items: NavItemDef[];
 }
 
@@ -30,6 +31,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'main',
     groupLabel: 'АСОСИЙ',
+    groupLabelKey: 'nav.group.main',
     items: [
       { key: 'dashboard', path: ROUTES.DASHBOARD, label: 'Асосий', icon: 'DashboardOutlined' },
     ],
@@ -37,6 +39,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'savdo',
     groupLabel: 'САВДО',
+    groupLabelKey: 'nav.group.savdo',
     items: [
       { key: 'sales', path: ROUTES.SALES, label: 'Сотувлар', icon: 'ShoppingCartOutlined', permission: 'sales:view' },
       { key: 'customers', path: ROUTES.CUSTOMERS, label: 'Мижозлар', icon: 'TeamOutlined', permission: 'customers:create' },
@@ -45,6 +48,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'ombor',
     groupLabel: 'ОМБОР',
+    groupLabelKey: 'nav.group.ombor',
     items: [
       { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'InboxOutlined', permission: 'products:create' },
       { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'AppstoreOutlined', permission: 'category:manage' },
@@ -55,6 +59,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'moliya',
     groupLabel: 'МОЛИЯ',
+    groupLabelKey: 'nav.group.moliya',
     items: [
       { key: 'expenses', path: ROUTES.EXPENSES, label: 'Харажатлар', icon: 'WalletOutlined', permission: 'expenses:view' },
     ],
@@ -62,6 +67,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'tahlil',
     groupLabel: 'ТАҲЛИЛ',
+    groupLabelKey: 'nav.group.tahlil',
     items: [
       { key: 'analytics', path: ROUTES.ANALYTICS, label: 'Аналитика', icon: 'LineChartOutlined', permission: 'analytics:global' },
     ],
@@ -69,6 +75,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'boshqaruv',
     groupLabel: 'БОШҚАРУВ',
+    groupLabelKey: 'nav.group.boshqaruv',
     items: [
       { key: 'branches', path: ROUTES.BRANCHES, label: 'Филиаллар', icon: 'BankOutlined', permission: 'branch:create' },
       { key: 'admins', path: ROUTES.ADMINS, label: 'Администраторлар', icon: 'UserSwitchOutlined', permission: 'admin:create' },
@@ -77,6 +84,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
   {
     groupKey: 'sozlamalar',
     groupLabel: 'СОЗЛАМАЛАР',
+    groupLabelKey: 'nav.group.sozlamalar',
     items: [
       { key: 'settings', path: ROUTES.SETTINGS, label: 'Созламалар', icon: 'SettingOutlined' },
     ],

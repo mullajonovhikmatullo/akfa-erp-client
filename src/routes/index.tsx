@@ -18,6 +18,7 @@ import {
   BranchesPage,
   AdminsPage,
   CategoriesPage,
+  ProfilePage,
 } from './LazyRoutes';
 
 const PageLoader = () => (
@@ -51,6 +52,7 @@ export function AppRouter() {
               <Route path={ROUTES.EXPENSES} element={<ExpensesPage />} />
               <Route path={ROUTES.TRANSFERS} element={<TransfersPage />} />
               <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+              <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
 
               {/* Super admin only */}
               <Route element={<RoleRoute permission="analytics:global" />}>

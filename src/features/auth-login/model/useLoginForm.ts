@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
@@ -7,15 +8,19 @@ import { isAxiosError } from 'axios';
 import { useAuthStore } from '@/entities/user';
 import { userApi } from '@/entities/user';
 import { ROUTES } from '@/shared/config/routes';
-import { loginSchema, type LoginFormValues } from '../validation/loginSchema';
+import { createLoginSchema, type LoginFormValues } from '../validation/loginSchema';
+import { useT } from '@/shared/lib/i18n';
 
 export function useLoginForm() {
+  const t = useT();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const login = useAuthStore((s) => s.login);
 
+  const schema = useMemo(() => createLoginSchema(t), [t]);
+
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(schema),
     defaultValues: { username: '', password: '' },
     mode: 'onSubmit',
     reValidateMode: 'onChange',
@@ -27,7 +32,7 @@ export function useLoginForm() {
       login(user, accessToken);
       const from = searchParams.get('from') ?? ROUTES.DASHBOARD;
       navigate(from, { replace: true });
-      toast.success(`Хуш келибсиз, ${user.name.split(' ')[0]}!`);
+      toast.success(`${t('login.welcomeToast')}, ${user.name.split(' ')[0]}!`);
     },
     onError: (error: unknown) => {
       if (isAxiosError(error)) {
@@ -37,31 +42,30 @@ export function useLoginForm() {
         if (status === 401) {
           form.setError('root', {
             type: 'credentials',
-            message: 'Фойдаланувчи номи ёки парол нотўғри.',
+            message: t('login.errorCredentials'),
           });
-          // Highlight both fields without extra text under them
           form.setError('username', { type: 'credentials', message: '' });
           form.setError('password', { type: 'credentials', message: '' });
         } else if (status === 403) {
           form.setError('root', {
             type: 'disabled',
-            message: 'Ҳисобингиз блокланган. Администратор билан боғланинг.',
+            message: t('login.errorDisabled'),
           });
         } else if (!error.response) {
           form.setError('root', {
             type: 'network',
-            message: 'Сервер билан боғланиб бўлмади. Интернет алоқангизни текширинг.',
+            message: t('login.errorNetwork'),
           });
         } else {
           form.setError('root', {
             type: 'server',
-            message: message || 'Кутилмаган хатолик юз берди. Қайтадан уриниб кўринг.',
+            message: message || t('login.errorServer'),
           });
         }
       } else {
         form.setError('root', {
           type: 'unknown',
-          message: 'Кутилмаган хатолик юз берди. Қайтадан уриниб кўринг.',
+          message: t('login.errorServer'),
         });
       }
     },
@@ -72,7 +76,6 @@ export function useLoginForm() {
     mutate(values);
   });
 
-  // Clear root + field credential errors as soon as user edits an input
   const clearCredentialErrors = () => {
     if (form.formState.errors.root?.type === 'credentials') {
       form.clearErrors('root');

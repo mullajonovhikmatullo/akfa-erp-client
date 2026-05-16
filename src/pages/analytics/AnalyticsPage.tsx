@@ -20,24 +20,13 @@ import { MoneyDisplay, StatusBadge } from '@/shared/ui';
 import { SALE_TYPE_LABELS, PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ProductUnit } from '@/shared/types/domain';
 import { formatDate } from '@/shared/lib/formatters';
+import { useT } from '@/shared/lib/i18n';
 
 type Tab = 'dashboard' | 'sales' | 'expenses' | 'inventory' | 'debt';
-
-const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
-  { value: 'day', label: 'Кунлик' },
-  { value: 'week', label: 'Ҳафталик' },
-  { value: 'month', label: 'Ойлик' },
-];
-
-const MOVEMENT_LABELS: Record<string, string> = {
-  STOCK_IN: 'Кирим',
-  STOCK_OUT: 'Чиқим (сотув)',
-  ADJUSTMENT: 'Тузатиш',
-  TRANSFER_IN: 'Трансфер кирим',
-  TRANSFER_OUT: 'Трансфер чиқим',
-};
+type TFunc = (key: string) => string;
 
 export function AnalyticsPage() {
+  const t = useT();
   const [tab, setTab] = useState<Tab>('dashboard');
   const [period, setPeriod] = useState<AnalyticsPeriod>('day');
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
@@ -73,20 +62,26 @@ export function AnalyticsPage() {
     inventoryReport.isFetching ||
     customerDebt.isFetching;
 
+  const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
+    { value: 'day', label: t('analytics.periodDay') },
+    { value: 'week', label: t('analytics.periodWeek') },
+    { value: 'month', label: t('analytics.periodMonth') },
+  ];
+
   const TABS: { key: Tab; label: string }[] = [
-    { key: 'dashboard', label: 'Асосий' },
-    { key: 'sales', label: 'Сотувлар' },
-    { key: 'expenses', label: 'Харажатлар' },
-    { key: 'inventory', label: 'Омбор' },
-    { key: 'debt', label: 'Дебиторлик' },
+    { key: 'dashboard', label: t('analytics.tabDashboard') },
+    { key: 'sales', label: t('analytics.tabSales') },
+    { key: 'expenses', label: t('analytics.tabExpenses') },
+    { key: 'inventory', label: t('analytics.tabInventory') },
+    { key: 'debt', label: t('analytics.tabDebt') },
   ];
 
   return (
     <>
       <div className="page-head">
         <div>
-          <h1>Таҳлил</h1>
-          <div className="sub">Сотув, харажат ва омбор кўрсаткичлари</div>
+          <h1>{t('analytics.title')}</h1>
+          <div className="sub">{t('analytics.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <DatePicker.RangePicker
@@ -94,10 +89,10 @@ export function AnalyticsPage() {
             onChange={(v) => setDateRange(v as [Dayjs | null, Dayjs | null])}
             format="DD.MM.YYYY"
             presets={[
-              { label: 'Бу ой', value: [dayjs().startOf('month'), dayjs()] },
-              { label: 'Ўтган ой', value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
-              { label: 'Сўнгги 7 кун', value: [dayjs().subtract(7, 'day'), dayjs()] },
-              { label: 'Сўнгги 30 кун', value: [dayjs().subtract(30, 'day'), dayjs()] },
+              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
+              { label: t('analytics.lastMonth'), value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
+              { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day'), dayjs()] },
+              { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day'), dayjs()] },
             ]}
           />
           <Select
@@ -112,50 +107,50 @@ export function AnalyticsPage() {
 
       {/* Tab bar */}
       <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 0 }}>
-        {TABS.map((t) => (
+        {TABS.map((tabItem) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tabItem.key}
+            onClick={() => setTab(tabItem.key)}
             style={{
               padding: '8px 16px',
               border: 'none',
               background: 'none',
               cursor: 'pointer',
               fontSize: 13,
-              fontWeight: tab === t.key ? 700 : 400,
-              color: tab === t.key ? 'var(--primary)' : 'var(--ink-3)',
-              borderBottom: tab === t.key ? '2px solid var(--primary)' : '2px solid transparent',
+              fontWeight: tab === tabItem.key ? 700 : 400,
+              color: tab === tabItem.key ? 'var(--primary)' : 'var(--ink-3)',
+              borderBottom: tab === tabItem.key ? '2px solid var(--primary)' : '2px solid transparent',
               marginBottom: -1,
             }}
           >
-            {t.label}
+            {tabItem.label}
           </button>
         ))}
       </div>
 
       {/* ── Dashboard ─────────────────────────────────────────── */}
       {tab === 'dashboard' && (
-        <DashboardTab data={dashboard.data} loading={dashboard.isLoading} />
+        <DashboardTab data={dashboard.data} loading={dashboard.isLoading} t={t} />
       )}
 
       {/* ── Sales ─────────────────────────────────────────────── */}
       {tab === 'sales' && (
-        <SalesTab data={salesReport.data} loading={salesReport.isLoading} />
+        <SalesTab data={salesReport.data} loading={salesReport.isLoading} t={t} />
       )}
 
       {/* ── Expenses ──────────────────────────────────────────── */}
       {tab === 'expenses' && (
-        <ExpensesTab data={expenseReport.data} loading={expenseReport.isLoading} />
+        <ExpensesTab data={expenseReport.data} loading={expenseReport.isLoading} t={t} />
       )}
 
       {/* ── Inventory ─────────────────────────────────────────── */}
       {tab === 'inventory' && (
-        <InventoryTab data={inventoryReport.data} loading={inventoryReport.isLoading} />
+        <InventoryTab data={inventoryReport.data} loading={inventoryReport.isLoading} t={t} />
       )}
 
       {/* ── Customer Debt ─────────────────────────────────────── */}
       {tab === 'debt' && (
-        <DebtTab data={customerDebt.data} loading={customerDebt.isLoading} />
+        <DebtTab data={customerDebt.data} loading={customerDebt.isLoading} t={t} />
       )}
     </>
   );
@@ -163,18 +158,18 @@ export function AnalyticsPage() {
 
 // ─── Dashboard Tab ────────────────────────────────────────────────────────────
 
-function DashboardTab({ data, loading }: { data?: ReturnType<typeof useDashboard>['data']; loading: boolean }) {
+function DashboardTab({ data, loading, t }: { data?: ReturnType<typeof useDashboard>['data']; loading: boolean; t: TFunc }) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 6 }} />;
   const kpis = [
-    { label: 'Жами даромад', value: <MoneyDisplay amount={data.sales.totalRevenue} currency="UZS" />, sub: `${data.sales.saleCount} та сотув`, tone: 'primary' as const },
-    { label: 'Тўланган', value: <MoneyDisplay amount={data.sales.paidAmount} currency="UZS" />, sub: 'Нақд ва карта', tone: 'success' as const },
-    { label: 'Қарз (сотувлар)', value: <MoneyDisplay amount={data.sales.outstandingDebt} currency="UZS" />, sub: 'Ҳали тўланмаган', tone: 'danger' as const },
-    { label: 'Жами харажатлар', value: <MoneyDisplay amount={data.expenses.total} currency="UZS" />, sub: 'Барча категориялар', tone: 'warning' as const },
-    { label: 'Соф фойда', value: <MoneyDisplay amount={data.profit.netProfit} currency="UZS" />, sub: 'Тўланган − Харажатлар', tone: data.profit.netProfit >= 0 ? 'success' as const : 'danger' as const },
-    { label: 'Омбор қиймати', value: <MoneyDisplay amount={data.inventory.stockValueUzs} currency="UZS" />, sub: 'Тан нарҳлар бўйича', tone: 'muted' as const },
-    { label: 'Мижоз қарзи', value: <MoneyDisplay amount={data.customers.totalDebt} currency="UZS" />, sub: `${data.customers.debtorCount} та қарздор`, tone: 'danger' as const },
-    { label: 'Кам қолган', value: data.inventory.lowStockCount, sub: 'SKU чегарадан паст', tone: data.inventory.lowStockCount > 0 ? 'warning' as const : 'success' as const },
-    { label: 'Кутилаётган трансферлар', value: data.transfers.pendingCount, sub: 'Кўриб чиқишни талаб қилади', tone: data.transfers.pendingCount > 0 ? 'warning' as const : 'success' as const },
+    { label: t('analytics.kpiRevenue'), value: <MoneyDisplay amount={data.sales.totalRevenue} currency="UZS" />, sub: `${data.sales.saleCount} ${t('analytics.saleSuffix')}`, tone: 'primary' as const },
+    { label: t('analytics.kpiPaid'), value: <MoneyDisplay amount={data.sales.paidAmount} currency="UZS" />, sub: t('analytics.subCashCard'), tone: 'success' as const },
+    { label: t('analytics.kpiSaleDebt'), value: <MoneyDisplay amount={data.sales.outstandingDebt} currency="UZS" />, sub: t('analytics.subUnpaid'), tone: 'danger' as const },
+    { label: t('analytics.kpiExpenses'), value: <MoneyDisplay amount={data.expenses.total} currency="UZS" />, sub: t('analytics.subAllCategories'), tone: 'warning' as const },
+    { label: t('analytics.kpiNetProfit'), value: <MoneyDisplay amount={data.profit.netProfit} currency="UZS" />, sub: t('analytics.subProfitFormula'), tone: data.profit.netProfit >= 0 ? 'success' as const : 'danger' as const },
+    { label: t('analytics.kpiStockValue'), value: <MoneyDisplay amount={data.inventory.stockValueUzs} currency="UZS" />, sub: t('analytics.subAtCost'), tone: 'muted' as const },
+    { label: t('analytics.kpiCustomerDebt'), value: <MoneyDisplay amount={data.customers.totalDebt} currency="UZS" />, sub: `${data.customers.debtorCount} ${t('analytics.debtorSuffix')}`, tone: 'danger' as const },
+    { label: t('analytics.kpiLowStock'), value: data.inventory.lowStockCount, sub: t('analytics.subLowStock'), tone: data.inventory.lowStockCount > 0 ? 'warning' as const : 'success' as const },
+    { label: t('analytics.kpiPendingTransfers'), value: data.transfers.pendingCount, sub: t('analytics.subNeedReview'), tone: data.transfers.pendingCount > 0 ? 'warning' as const : 'success' as const },
   ];
 
   return (
@@ -186,7 +181,7 @@ function DashboardTab({ data, loading }: { data?: ReturnType<typeof useDashboard
 
 // ─── Sales Tab ────────────────────────────────────────────────────────────────
 
-function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>['data']; loading: boolean }) {
+function SalesTab({ data, loading, t }: { data?: ReturnType<typeof useSalesReport>['data']; loading: boolean; t: TFunc }) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 8 }} />;
 
   const grandTotal = data.summary.totalRevenue || 1;
@@ -195,21 +190,21 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Summary row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
-        <KpiCard label="Жами даромад" value={<MoneyDisplay amount={data.summary.totalRevenue} currency="UZS" />} sub={`${data.summary.saleCount} та сотув`} tone="primary" />
-        <KpiCard label="Ўртача сотув" value={<MoneyDisplay amount={data.summary.avgOrderValue} currency="UZS" />} sub="Бир сотувга" tone="muted" />
-        <KpiCard label="Қарз" value={<MoneyDisplay amount={data.summary.outstandingDebt} currency="UZS" />} sub="Ҳали тўланмаган" tone="danger" />
+        <KpiCard label={t('analytics.kpiRevenue')} value={<MoneyDisplay amount={data.summary.totalRevenue} currency="UZS" />} sub={`${data.summary.saleCount} ${t('analytics.saleSuffix')}`} tone="primary" />
+        <KpiCard label={t('analytics.avgSale')} value={<MoneyDisplay amount={data.summary.avgOrderValue} currency="UZS" />} sub={t('analytics.subPerSale')} tone="muted" />
+        <KpiCard label={t('analytics.kpiDebtShort')} value={<MoneyDisplay amount={data.summary.outstandingDebt} currency="UZS" />} sub={t('analytics.subUnpaid')} tone="danger" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* By type */}
         <div className="card">
-          <SectionTitle>Сотув тури бўйича</SectionTitle>
+          <SectionTitle>{t('analytics.byType')}</SectionTitle>
           {data.byType.map((r) => {
             const pct = (r.revenue / grandTotal) * 100;
             return (
               <div key={r.saleType} style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-                  <span style={{ fontWeight: 500 }}>{SALE_TYPE_LABELS[r.saleType]} ({r.count} та)</span>
+                  <span style={{ fontWeight: 500 }}>{SALE_TYPE_LABELS[r.saleType]} ({r.count} {t('common.countSuffix')})</span>
                   <span className="num"><MoneyDisplay amount={r.revenue} currency="UZS" /></span>
                 </div>
                 <ProgressBar pct={pct} />
@@ -220,7 +215,7 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
 
         {/* By payment method */}
         <div className="card">
-          <SectionTitle>Тўлов усули бўйича</SectionTitle>
+          <SectionTitle>{t('analytics.byPayment')}</SectionTitle>
           {data.byPaymentMethod.map((r) => {
             const pct = (r.amount / grandTotal) * 100;
             return (
@@ -233,14 +228,14 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
               </div>
             );
           })}
-          {data.byPaymentMethod.length === 0 && <Empty />}
+          {data.byPaymentMethod.length === 0 && <Empty t={t} />}
         </div>
       </div>
 
       {/* Top products */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13 }}>
-          Топ маҳсулотлар
+          {t('analytics.topProducts')}
         </div>
         <Table
           size="small"
@@ -248,16 +243,16 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
           rowKey="productId"
           dataSource={data.topProducts}
           columns={[
-            { title: 'Маҳсулот', key: 'name', render: (_, r) => (
+            { title: t('analytics.colProduct'), key: 'name', render: (_, r) => (
               <div>
                 <div style={{ fontWeight: 600 }}>{r.name}</div>
                 {r.sku && <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{r.sku}</div>}
               </div>
             )},
-            { title: 'Миқдор', key: 'qty', width: 120, align: 'right', render: (_, r) => (
+            { title: t('analytics.colQty'), key: 'qty', width: 120, align: 'right', render: (_, r) => (
               <span className="num">{r.totalQuantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[r.unit as ProductUnit] ?? r.unit}</span>
             )},
-            { title: 'Даромад', key: 'rev', width: 160, align: 'right', render: (_, r) => (
+            { title: t('analytics.colRevenue'), key: 'rev', width: 160, align: 'right', render: (_, r) => (
               <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={r.totalRevenue} currency="UZS" /></span>
             )},
           ]}
@@ -269,7 +264,7 @@ function SalesTab({ data, loading }: { data?: ReturnType<typeof useSalesReport>[
 
 // ─── Expenses Tab ─────────────────────────────────────────────────────────────
 
-function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseReport>['data']; loading: boolean }) {
+function ExpensesTab({ data, loading, t }: { data?: ReturnType<typeof useExpenseReport>['data']; loading: boolean; t: TFunc }) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 6 }} />;
 
   const grandTotal = data.summary.total || 1;
@@ -278,9 +273,9 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'flex-start' }}>
       {/* Period chart (bar) */}
       <div className="card">
-        <SectionTitle>Даврлар бўйича</SectionTitle>
+        <SectionTitle>{t('analytics.byPeriod')}</SectionTitle>
         {data.byPeriod.length === 0 ? (
-          <Empty />
+          <Empty t={t} />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {data.byPeriod.map((r, i) => {
@@ -301,7 +296,7 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
 
       {/* By category */}
       <div className="card">
-        <SectionTitle>Категориялар</SectionTitle>
+        <SectionTitle>{t('nav.categories')}</SectionTitle>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {data.byCategory.map((c) => {
             const pct = (c.amount / grandTotal) * 100;
@@ -318,10 +313,10 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
               </div>
             );
           })}
-          {data.byCategory.length === 0 && <Empty />}
+          {data.byCategory.length === 0 && <Empty t={t} />}
         </div>
         <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 12, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-          <span style={{ color: 'var(--ink-3)' }}>Жами</span>
+          <span style={{ color: 'var(--ink-3)' }}>{t('common.total')}</span>
           <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={data.summary.total} currency="UZS" /></span>
         </div>
       </div>
@@ -331,7 +326,7 @@ function ExpensesTab({ data, loading }: { data?: ReturnType<typeof useExpenseRep
 
 // ─── Inventory Tab ────────────────────────────────────────────────────────────
 
-function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventoryReport>['data']; loading: boolean }) {
+function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInventoryReport>['data']; loading: boolean; t: TFunc }) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 8 }} />;
 
   return (
@@ -347,12 +342,12 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
               <MoneyDisplay amount={b.stockValueUzs} currency="UZS" />
             </div>
             <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
-              {b.productCount} та SKU · {b.totalQuantity.toLocaleString('ru-RU')} дона
+              {b.productCount} {t('analytics.skuSuffix')} · {b.totalQuantity.toLocaleString('ru-RU')} {t('analytics.pieceSuffix')}
             </div>
           </div>
         ))}
         {data.stockByBranch.length === 0 && (
-          <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>Омбор маълумоти йўқ</div>
+          <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>{t('analytics.noInventoryData')}</div>
         )}
       </div>
 
@@ -361,10 +356,10 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
             <WarningOutlined style={{ color: 'var(--warning)' }} />
-            <span style={{ fontWeight: 700, fontSize: 13 }}>Кам қолган маҳсулотлар ({data.lowStock.length})</span>
+            <span style={{ fontWeight: 700, fontSize: 13 }}>{t('analytics.lowStockItems')} ({data.lowStock.length})</span>
           </div>
           {data.lowStock.length === 0 ? (
-            <div style={{ padding: '16px', color: 'var(--ink-3)', fontSize: 13 }}>Барча маҳсулотлар етарли</div>
+            <div style={{ padding: '16px', color: 'var(--ink-3)', fontSize: 13 }}>{t('analytics.allSufficient')}</div>
           ) : (
             <Table
               size="small"
@@ -372,13 +367,13 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
               rowKey={(r) => `${r.productId}-${r.branchId}`}
               dataSource={data.lowStock}
               columns={[
-                { title: 'Маҳсулот', key: 'name', render: (_, r) => (
+                { title: t('analytics.colProduct'), key: 'name', render: (_, r) => (
                   <div>
                     <div style={{ fontWeight: 500 }}>{r.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{r.branchName}</div>
                   </div>
                 )},
-                { title: 'Қолди / Чегара', key: 'stock', width: 130, align: 'right', render: (_, r) => (
+                { title: t('analytics.colRemaining'), key: 'stock', width: 130, align: 'right', render: (_, r) => (
                   <span className="num" style={{ color: 'var(--danger)', fontWeight: 600 }}>
                     {r.currentStock} / {r.threshold} {PRODUCT_UNIT_LABELS[r.unit as ProductUnit] ?? r.unit}
                   </span>
@@ -390,18 +385,27 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
 
         {/* Movement summary */}
         <div className="card">
-          <SectionTitle>Ҳаракат хулосаси</SectionTitle>
+          <SectionTitle>{t('analytics.movementSummary')}</SectionTitle>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {data.movementSummary.map((m) => (
-              <div key={m.type} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>{MOVEMENT_LABELS[m.type] ?? m.type}</span>
-                <div style={{ textAlign: 'right' }}>
-                  <div className="num" style={{ fontWeight: 700 }}>{m.totalQuantity.toLocaleString('ru-RU')}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{m.count} та операция</div>
+            {data.movementSummary.map((m) => {
+              const MOVEMENT_LABELS: Record<string, string> = {
+                STOCK_IN: t('analytics.movStockIn'),
+                STOCK_OUT: t('analytics.movStockOut'),
+                ADJUSTMENT: t('analytics.movAdjust'),
+                TRANSFER_IN: t('analytics.movTransferIn'),
+                TRANSFER_OUT: t('analytics.movTransferOut'),
+              };
+              return (
+                <div key={m.type} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
+                  <span style={{ fontSize: 13, fontWeight: 500 }}>{MOVEMENT_LABELS[m.type] ?? m.type}</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className="num" style={{ fontWeight: 700 }}>{m.totalQuantity.toLocaleString('ru-RU')}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{m.count} {t('analytics.operationSuffix')}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {data.movementSummary.length === 0 && <Empty />}
+              );
+            })}
+            {data.movementSummary.length === 0 && <Empty t={t} />}
           </div>
         </div>
       </div>
@@ -411,29 +415,29 @@ function InventoryTab({ data, loading }: { data?: ReturnType<typeof useInventory
 
 // ─── Debt Tab ─────────────────────────────────────────────────────────────────
 
-function DebtTab({ data, loading }: { data?: ReturnType<typeof useCustomerDebt>['data']; loading: boolean }) {
+function DebtTab({ data, loading, t }: { data?: ReturnType<typeof useCustomerDebt>['data']; loading: boolean; t: TFunc }) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 6 }} />;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Summary */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
-        <KpiCard label="Умумий қарз" value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={`${data.summary.debtorCount} та қарздор`} tone="danger" />
-        <KpiCard label="Муддати ўтган" value={<MoneyDisplay amount={data.overdue.totalOverdueDebt} currency="UZS" />} sub={`${data.overdue.overdueCount} та сотув`} tone="danger" />
+        <KpiCard label={t('analytics.totalDebt')} value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={`${data.summary.debtorCount} ${t('analytics.debtorSuffix')}`} tone="danger" />
+        <KpiCard label={t('analytics.overdueDebt')} value={<MoneyDisplay amount={data.overdue.totalOverdueDebt} currency="UZS" />} sub={`${data.overdue.overdueCount} ${t('analytics.saleSuffix')}`} tone="danger" />
       </div>
 
       {data.overdue.overdueCount > 0 && (
         <Alert
           type="warning"
           showIcon
-          message={`${data.overdue.overdueCount} та сотувнинг муддати ўтиб кетган — мижозлар билан боғланинг.`}
+          message={`${data.overdue.overdueCount} ${t('analytics.alertOverdueSuffix')}`}
         />
       )}
 
       {/* Top debtors */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13 }}>
-          Энг кўп қарздорлар
+          {t('analytics.topDebtors')}
         </div>
         <Table
           size="small"
@@ -441,16 +445,16 @@ function DebtTab({ data, loading }: { data?: ReturnType<typeof useCustomerDebt>[
           rowKey="id"
           dataSource={data.topDebtors}
           columns={[
-            { title: 'Мижоз', key: 'name', render: (_, c) => (
+            { title: t('analytics.colCustomer'), key: 'name', render: (_, c) => (
               <div>
                 <div style={{ fontWeight: 600 }}>{c.fullName}</div>
                 {c.phone && <div style={{ fontSize: 11.5, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{c.phone}</div>}
               </div>
             )},
-            { title: 'Филиал', key: 'branch', width: 140, render: (_, c) => (
+            { title: t('analytics.colBranch'), key: 'branch', width: 140, render: (_, c) => (
               <StatusBadge tone="muted">{c.branch.name}</StatusBadge>
             )},
-            { title: 'Қарз', key: 'balance', width: 160, align: 'right', render: (_, c) => (
+            { title: t('analytics.colDebt'), key: 'balance', width: 160, align: 'right', render: (_, c) => (
               <span className="num" style={{ fontWeight: 700, color: 'var(--danger)' }}>
                 <MoneyDisplay amount={c.balance} currency="UZS" />
               </span>
@@ -496,6 +500,6 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Empty() {
-  return <div style={{ color: 'var(--ink-3)', fontSize: 13, padding: '8px 0' }}>Маълумот йўқ</div>;
+function Empty({ t }: { t: TFunc }) {
+  return <div style={{ color: 'var(--ink-3)', fontSize: 13, padding: '8px 0' }}>{t('common.noData')}</div>;
 }

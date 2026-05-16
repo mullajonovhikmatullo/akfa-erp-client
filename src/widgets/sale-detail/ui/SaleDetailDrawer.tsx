@@ -11,6 +11,7 @@ import {
   type SaleListItem,
 } from '@/shared/types/domain';
 import { formatDate } from '@/shared/lib/formatters';
+import { useT } from '@/shared/lib/i18n';
 
 interface SaleDetailDrawerProps {
   sale: SaleListItem | null;
@@ -22,6 +23,7 @@ const PAYMENT_OPTIONS = (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[])
   .map((k) => ({ value: k, label: PAYMENT_METHOD_LABELS[k] }));
 
 export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
+  const t = useT();
   const { data: detail, isLoading } = useSaleDetail(sale?.id ?? null);
   const addPayment = useAddPayment();
   const [showPayForm, setShowPayForm] = useState(false);
@@ -61,7 +63,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 8px' }}>
               <h2 style={{ margin: 0, fontSize: 18 }}>
-                {sale.customer?.fullName ?? 'Аноним мижоз'}
+                {sale.customer?.fullName ?? t('sales.drawerAnonymous')}
               </h2>
               <StatusBadge tone={sale.saleType === 'RETAIL' ? 'muted' : 'info'}>
                 {SALE_TYPE_LABELS[sale.saleType]}
@@ -79,11 +81,11 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
           <div style={{ padding: '20px 24px' }}>
 
             {/* Financials */}
-            <SectionLabel>Тўлов</SectionLabel>
+            <SectionLabel>{t('sales.drawerPaymentSection')}</SectionLabel>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
-              <StatBox label="Жами" value={<MoneyDisplay amount={sale.totalAmountUzs} currency="UZS" />} />
-              <StatBox label="Тўланган" value={<MoneyDisplay amount={sale.paidAmountUzs} currency="UZS" />} tone="success" />
-              <StatBox label="Қарз" value={<MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />} tone={sale.debtAmountUzs > 0 ? 'danger' : 'muted'} />
+              <StatBox label={t('sales.drawerTotal')} value={<MoneyDisplay amount={sale.totalAmountUzs} currency="UZS" />} />
+              <StatBox label={t('sales.drawerPaid')} value={<MoneyDisplay amount={sale.paidAmountUzs} currency="UZS" />} tone="success" />
+              <StatBox label={t('sales.drawerDebt')} value={<MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />} tone={sale.debtAmountUzs > 0 ? 'danger' : 'muted'} />
             </div>
 
             {/* Add payment */}
@@ -91,7 +93,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
               <div style={{ marginBottom: 16 }}>
                 {showPayForm ? (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                    <Form.Item label="Миқдор (сўм)" style={{ flex: 1, minWidth: 140, margin: 0 }}>
+                    <Form.Item label={t('sales.drawerAmountLabel')} style={{ flex: 1, minWidth: 140, margin: 0 }}>
                       <InputNumber
                         value={payAmount}
                         onChange={(v) => setPayAmount(v ?? 0)}
@@ -103,7 +105,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
                         parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
                       />
                     </Form.Item>
-                    <Form.Item label="Усул" style={{ flex: 1, minWidth: 140, margin: 0 }}>
+                    <Form.Item label={t('sales.drawerMethodLabel')} style={{ flex: 1, minWidth: 140, margin: 0 }}>
                       <Select
                         value={payMethod}
                         onChange={setPayMethod}
@@ -117,13 +119,13 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
                       disabled={payAmount <= 0}
                       onClick={handleAddPayment}
                     >
-                      Қабул қилиш
+                      {t('sales.drawerAccept')}
                     </Button>
-                    <Button onClick={() => setShowPayForm(false)}>Бекор</Button>
+                    <Button onClick={() => setShowPayForm(false)}>{t('sales.drawerCancelShort')}</Button>
                   </div>
                 ) : (
                   <Button icon={<PlusOutlined />} onClick={() => setShowPayForm(true)}>
-                    Тўлов қабул қилиш
+                    {t('sales.drawerAddPayment')}
                   </Button>
                 )}
               </div>
@@ -132,7 +134,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
             <Divider style={{ margin: '0 0 16px' }} />
 
             {/* Items */}
-            <SectionLabel>Маҳсулотлар ({sale._count.items} та)</SectionLabel>
+            <SectionLabel>{t('sales.drawerItemsSection')} ({sale._count.items} {t('sales.drawerItemsSuffix')})</SectionLabel>
             {isLoading ? (
               <Skeleton active paragraph={{ rows: 3 }} />
             ) : (
@@ -176,7 +178,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
             {sale._count.payments > 0 && (
               <>
                 <Divider style={{ margin: '0 0 16px' }} />
-                <SectionLabel>Тўловлар тарихи ({sale._count.payments} та)</SectionLabel>
+                <SectionLabel>{t('sales.drawerPaymentsSection')} ({sale._count.payments} {t('sales.drawerItemsSuffix')})</SectionLabel>
                 {isLoading ? (
                   <Skeleton active paragraph={{ rows: 2 }} />
                 ) : (

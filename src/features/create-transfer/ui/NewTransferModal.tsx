@@ -7,6 +7,7 @@ import { useCreateTransfer } from '@/entities/transfer';
 import { useCurrentUser } from '@/entities/user';
 import { AppModal, MoneyDisplay } from '@/shared/ui';
 import { PRODUCT_UNIT_LABELS, type Product } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 interface NewTransferModalProps {
   open: boolean;
@@ -22,6 +23,7 @@ interface CartItem {
 }
 
 export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
+  const t = useT();
   const { isSuper, branchId: userBranchId } = useCurrentUser();
   const { data: branches = [] } = useBranches();
   const { data: products = [] } = useProducts({ search: undefined });
@@ -93,13 +95,13 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
   return (
     <AppModal
-      title="Янги трансфер"
+      title={t('transferModal.title')}
       open={open}
       onClose={onClose}
       width={680}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={createTransfer.isPending}>
-          Бекор қилиш
+          {t('common.cancel')}
         </Button>,
         <Button
           key="submit"
@@ -108,34 +110,34 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          Трансфер яратиш
+          {t('transferModal.submitBtn')}
         </Button>,
       ]}
     >
       {/* Branch row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
         <div>
-          <Label>Қаердан</Label>
+          <Label>{t('transferModal.labelFrom')}</Label>
           {isSuper ? (
             <Select
               value={fromBranchId}
               onChange={setFromBranchId}
-              placeholder="Филиал танланг"
+              placeholder={t('transferModal.placeholderBranch')}
               style={{ width: '100%' }}
               options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
             />
           ) : (
             <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
-              {branches.find((b) => b.id === userBranchId)?.name ?? 'Сизнинг филиалингиз'}
+              {branches.find((b) => b.id === userBranchId)?.name ?? t('transferModal.yourBranch')}
             </div>
           )}
         </div>
         <div>
-          <Label>Қаерга</Label>
+          <Label>{t('transferModal.labelTo')}</Label>
           <Select
             value={toBranchId}
             onChange={setToBranchId}
-            placeholder="Филиал танланг"
+            placeholder={t('transferModal.placeholderBranch')}
             style={{ width: '100%' }}
             options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
           />
@@ -144,13 +146,13 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
       {/* Product selector */}
       <div style={{ marginBottom: 12 }}>
-        <Label>Маҳсулот қўшиш</Label>
+        <Label>{t('transferModal.labelAddProduct')}</Label>
         <Select
           showSearch
           optionFilterProp="label"
           onChange={addProduct}
           value={null}
-          placeholder="SKU ёки ном бўйича қидириш"
+          placeholder={t('transferModal.placeholderSearch')}
           style={{ width: '100%' }}
           suffixIcon={<PlusOutlined />}
           options={products
@@ -165,14 +167,14 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
       {/* Cart */}
       {cart.length === 0 ? (
         <Empty
-          description="Ҳали маҳсулот қўшилмади"
+          description={t('transferModal.emptyCart')}
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           style={{ padding: '16px 0' }}
         />
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 140px 100px 28px', gap: 8, padding: '6px 8px', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>
-            <div>Маҳсулот</div><div>Миқдор</div><div>Тан нархи</div><div style={{ textAlign: 'right' }}>Жами</div><div />
+            <div>{t('transferModal.colProduct')}</div><div>{t('transferModal.colQty')}</div><div>{t('transferModal.colCost')}</div><div style={{ textAlign: 'right' }}>{t('transferModal.colTotal')}</div><div />
           </div>
           {cart.map((item) => (
             <div key={item._key} style={{ display: 'grid', gridTemplateColumns: '1fr 110px 140px 100px 28px', gap: 8, alignItems: 'center', padding: '7px 8px', borderBottom: '1px solid var(--border)' }}>
@@ -206,7 +208,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 8px 0', fontSize: 13 }}>
-            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>Жами тан нархи:</span>
+            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('transferModal.totalCostLabel')}</span>
             <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={totalCost} currency="UZS" /></span>
           </div>
         </>
@@ -214,12 +216,12 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
       {/* Note */}
       <div style={{ marginTop: 12 }}>
-        <Label>Изоҳ (ихтиёрий)</Label>
+        <Label>{t('transferModal.labelNote')}</Label>
         <Input.TextArea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={2}
-          placeholder="Трансфер ҳақида қўшимча маълумот..."
+          placeholder={t('transferModal.placeholderNote')}
           maxLength={500}
         />
       </div>

@@ -11,6 +11,7 @@ import * as icons from '@ant-design/icons';
 import clsx from 'clsx';
 import { useAuthStore } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
+import { useT } from '@/shared/lib/i18n';
 import {
   getVisibleNavGroups,
   ALL_NAV_ITEMS,
@@ -59,12 +60,14 @@ function NavItem({
   onClick?: () => void;
 }) {
   const location = useLocation();
+  const t = useT();
   const isActive =
     item.path === '/'
       ? location.pathname === '/'
       : location.pathname.startsWith(item.path);
 
   const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[item.icon];
+  const label = t(`nav.${item.key}`);
 
   const inner = (
     <NavLink
@@ -77,13 +80,13 @@ function NavItem({
       </span>
       {!collapsed && (
         <>
-          <span className="sb-item__label">{item.label}</span>
+          <span className="sb-item__label">{label}</span>
           <button
             className={clsx('sb-item__star', isFav && 'sb-item__star--on')}
             type="button"
             tabIndex={-1}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(item.key); }}
-            aria-label={isFav ? 'Sevimlilardan olib tashlash' : 'Sevimlilarga qo\'shish'}
+            aria-label={isFav ? 'Sevimlilardan olib tashlash' : "Sevimlilarga qo'shish"}
           >
             {isFav ? <StarFilled /> : <StarOutlined />}
           </button>
@@ -94,7 +97,7 @@ function NavItem({
 
   if (collapsed) {
     return (
-      <Tooltip title={item.label} placement="right" mouseEnterDelay={0.15}>
+      <Tooltip title={label} placement="right" mouseEnterDelay={0.15}>
         {inner}
       </Tooltip>
     );
@@ -122,6 +125,8 @@ function AccordionGroup({
   onItemClick?: () => void;
 }) {
   const { ref, style } = useAccordionHeight(isOpen);
+  const t = useT();
+  const groupLabel = t(group.groupLabelKey);
 
   if (collapsed) {
     return (
@@ -144,7 +149,7 @@ function AccordionGroup({
   return (
     <div className={clsx('sb-group', isOpen && 'sb-group--open')}>
       <button className="sb-group__header" type="button" onClick={onToggle}>
-        <span className="sb-group__label">{group.groupLabel}</span>
+        <span className="sb-group__label">{groupLabel}</span>
         <RightOutlined className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
       </button>
       <div className="sb-group__items" style={style}>
@@ -177,6 +182,7 @@ function FavoritesSection({
   onToggleFav: (key: string) => void;
   onItemClick?: () => void;
 }) {
+  const t = useT();
   const favItems = useMemo(
     () => ALL_NAV_ITEMS.filter((item) => favKeys.includes(item.key)),
     [favKeys],
@@ -206,7 +212,7 @@ function FavoritesSection({
     <div className="sb-fav-section">
       <div className="sb-fav-section__header">
         <PushpinFilled className="sb-fav-section__pin" />
-        <span>ТЕЗКОР КИРИШ</span>
+        <span>{t('header.quickAccess')}</span>
       </div>
       <div className="sb-group__items-inner">
         {favItems.map((item) => (

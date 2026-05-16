@@ -5,21 +5,23 @@ import { formatDate } from '@/shared/lib/formatters';
 import { SALE_TYPE_LABELS } from '@/shared/types/domain';
 import { ROUTES } from '@/shared/config/routes';
 import type { SaleListItem } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 export function RecentSalesWidget() {
+  const t = useT();
   const navigate = useNavigate();
   const { data: sales = [] } = useSales({ limit: 6 });
 
   return (
     <div className="card">
       <div className="card-head">
-        <h3>Сўнгги сотувлар</h3>
+        <h3>{t('dashboard.recentSalesTitle')}</h3>
         <button
           className="link-btn"
           onClick={() => navigate(ROUTES.SALES)}
           style={{ fontSize: 12, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          Барчасини кўриш →
+          {t('dashboard.viewAll')}
         </button>
       </div>
       <div className="col" style={{ gap: 8 }}>
@@ -34,7 +36,7 @@ export function RecentSalesWidget() {
                 {s.customer?.fullName ?? '—'}
               </div>
               <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
-                #{s.id.slice(-6).toUpperCase()} · {s._count.items} та · {formatDate(s.createdAt)}
+                #{s.id.slice(-6).toUpperCase()} · {s._count.items} {t('dashboard.itemCountSuffix')} · {formatDate(s.createdAt)}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>

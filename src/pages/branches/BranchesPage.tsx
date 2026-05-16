@@ -13,11 +13,13 @@ import { useBranches, useCreateBranch, useUpdateBranch, useDeleteBranch } from '
 import { useUsers, useAssignBranch, useCurrentUser } from '@/entities/user';
 import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { useT } from '@/shared/lib/i18n';
 import type { Branch } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import type { BranchPayload } from '@/entities/branch';
 
 export function BranchesPage() {
+  const t = useT();
   const { data: branches = [], isLoading, isFetching, refetch } = useBranches();
   const { data: users = [] } = useUsers();
   const { user: currentUser, isSuper } = useCurrentUser();
@@ -67,14 +69,14 @@ export function BranchesPage() {
       updateMutation.mutate(
         { id: editTarget.id, data: values },
         {
-          onSuccess: () => { toast.success('Филиал янгиланди'); setBranchModalOpen(false); },
-          onError: () => toast.error('Янгилашда хатолик'),
+          onSuccess: () => { toast.success(t('branches.updateSuccess')); setBranchModalOpen(false); },
+          onError: () => toast.error(t('branches.updateError')),
         },
       );
     } else {
       createMutation.mutate(values, {
-        onSuccess: () => { toast.success('Филиал яратилди'); setBranchModalOpen(false); },
-        onError: () => toast.error('Яратишда хатолик'),
+        onSuccess: () => { toast.success(t('branches.createSuccess')); setBranchModalOpen(false); },
+        onError: () => toast.error(t('branches.createError')),
       });
     }
   }
@@ -94,8 +96,8 @@ export function BranchesPage() {
     }
 
     Promise.all(steps)
-      .then(() => { toast.success('Администратор тайинланди'); setAssignTarget(null); })
-      .catch(() => toast.error('Тайинлашда хатолик'));
+      .then(() => { toast.success(t('branches.assignSuccess')); setAssignTarget(null); })
+      .catch(() => toast.error(t('branches.assignError')));
   }
 
   const columns: ColumnDef<Branch>[] = [
@@ -110,7 +112,7 @@ export function BranchesPage() {
       ),
     },
     {
-      title: 'Филиал',
+      title: t('nav.branches'),
       key: 'name',
       render: (_: unknown, b: Branch) => {
         const isMain = b.name === 'Main Branch';
@@ -137,7 +139,7 @@ export function BranchesPage() {
                     background: '#fef3c7', color: '#92400e',
                     letterSpacing: '.04em', textTransform: 'uppercase',
                   }}>
-                    Асосий
+                    {t('branches.mainBadge')}
                   </span>
                 )}
               </div>
@@ -148,7 +150,7 @@ export function BranchesPage() {
       },
     },
     {
-      title: 'Телефон',
+      title: t('common.phone'),
       dataIndex: 'phone',
       width: 150,
       responsiveHide: true,
@@ -156,7 +158,7 @@ export function BranchesPage() {
         v ? <span style={{ fontSize: 13 }}>{v}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span>,
     },
     {
-      title: 'Администратор',
+      title: t('admins.colAdmin'),
       key: 'admin',
       width: 200,
       render: (_: unknown, b: Branch) => {
@@ -167,12 +169,12 @@ export function BranchesPage() {
             <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>@{admin.username}</div>
           </div>
         ) : (
-          <Tag color="warning">Тайинланмаган</Tag>
+          <Tag color="warning">{t('common.unassigned')}</Tag>
         );
       },
     },
     {
-      title: 'Қўшилган',
+      title: t('common.added'),
       dataIndex: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -186,7 +188,7 @@ export function BranchesPage() {
       fixed: 'right' as const,
       render: (_: unknown, b: Branch) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Администратор тайинлаш">
+          <Tooltip title={t('branches.assignTooltip')}>
             <Button
               size="small"
               type="text"
@@ -194,7 +196,7 @@ export function BranchesPage() {
               onClick={(e) => { e.stopPropagation(); openAssign(b); }}
             />
           </Tooltip>
-          <Tooltip title="Таҳрирлаш">
+          <Tooltip title={t('common.edit')}>
             <Button
               size="small"
               type="text"
@@ -203,15 +205,15 @@ export function BranchesPage() {
             />
           </Tooltip>
           <Popconfirm
-            title="Ўчирилсинми?"
-            description="Барча боғлиқ маълумотлар таъсирланади."
-            okText="Ўчириш"
-            cancelText="Бекор"
+            title={t('common.deleteTitle')}
+            description={t('branches.deleteDesc')}
+            okText={t('common.delete')}
+            cancelText={t('common.cancel')}
             okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
-            onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(b.id, { onSuccess: () => toast.success('Филиал ўчирилди'), onError: () => toast.error('Ўчиришда хатолик') }); }}
+            onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(b.id, { onSuccess: () => toast.success(t('branches.deleteSuccess')), onError: () => toast.error(t('branches.deleteError')) }); }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title="Ўчириш">
+            <Tooltip title={t('common.delete')}>
               <Button
                 size="small"
                 type="text"
@@ -232,30 +234,30 @@ export function BranchesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Филиаллар</h1>
-          <div className="sub">{branches.length} та филиал · {branchAdmins.length} та администратор</div>
+          <h1>{t('nav.branches')}</h1>
+          <div className="sub">{branches.length} {t('branches.statSuffix')} · {branchAdmins.length} {t('admins.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            Янги филиал
+            {t('branches.newBranch')}
           </Button>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Жами филиаллар</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{t('branches.statTotal')}</div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{branches.length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Администратор бор</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{t('branches.statWithAdmin')}</div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{branches.filter((b) => getAssignedUser(b.id) !== null).length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>Бириктирилмаган</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{t('branches.statUnassigned')}</div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((u) => !u.branchId).length}</div>
         </div>
       </div>
@@ -267,56 +269,56 @@ export function BranchesPage() {
           columns={columns}
           loading={isLoading}
           pagination={false}
-          emptyText="Филиаллар топилмади"
+          emptyText={t('branches.empty')}
         />
       </div>
 
       <Modal
-        title={editTarget ? 'Филиални таҳрирлаш' : 'Янги филиал'}
+        title={editTarget ? t('branches.modalEdit') : t('branches.modalCreate')}
         open={branchModalOpen}
         onCancel={() => setBranchModalOpen(false)}
         onOk={handleBranchSubmit}
-        okText={editTarget ? 'Сақлаш' : 'Яратиш'}
+        okText={editTarget ? t('common.save') : t('common.create')}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
       >
         <Form form={branchForm} layout="vertical" style={{ marginTop: 16 }}>
-          <Form.Item name="name" label="Филиал номи" rules={[{ required: true, message: 'Номни киритинг' }]}>
-            <Input placeholder="Масалан: Тошкент — Чиланзор" />
+          <Form.Item name="name" label={t('branches.labelName')} rules={[{ required: true, message: t('branches.nameRequired') }]}>
+            <Input placeholder={t('branches.namePlaceholder')} />
           </Form.Item>
-          <Form.Item name="address" label="Манзил">
-            <Input placeholder="Кўча, шаҳар" />
+          <Form.Item name="address" label={t('branches.labelAddress')}>
+            <Input placeholder={t('branches.addressPlaceholder')} />
           </Form.Item>
-          <Form.Item name="phone" label="Телефон">
-            <Input placeholder="+998 __ ___ __ __" />
+          <Form.Item name="phone" label={t('common.phone')}>
+            <Input placeholder={t('branches.phonePlaceholder')} />
           </Form.Item>
         </Form>
       </Modal>
 
       <Modal
-        title={`Администратор тайинлаш — ${assignTarget?.name ?? ''}`}
+        title={`${t('branches.assignTitle')} — ${assignTarget?.name ?? ''}`}
         open={!!assignTarget}
         onCancel={() => setAssignTarget(null)}
         onOk={handleAssignSubmit}
-        okText="Тайинлаш"
+        okText={t('branches.assignBtn')}
         confirmLoading={assignMutation.isPending}
         destroyOnClose
       >
         <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-3)' }}>
-          Ушбу филиални бошқарадиган администраторни танланг. Бошқа администраторни танласангиз, аввалгиси бириктирилмаган бўлади.
+          {t('branches.assignHint')}
         </div>
         <Form form={assignForm} layout="vertical">
-          <Form.Item name="userId" label="Администратор">
+          <Form.Item name="userId" label={t('branches.assignLabel')}>
             <Select
               allowClear
-              placeholder="Администратор танланг..."
+              placeholder={t('branches.assignPlaceholder')}
               options={[
                 ...unassignedAdmins.map((u) => ({ value: u.id, label: `${u.name} (@${u.username})` })),
                 ...branchAdmins
                   .filter((u) => u.branchId && u.branchId !== assignTarget?.id)
                   .map((u) => {
                     const assignedTo = branches.find((b) => b.id === u.branchId);
-                    return { value: u.id, label: `${u.name} (@${u.username}) · ${assignedTo?.name ?? 'бошқа филиал'}`, disabled: true };
+                    return { value: u.id, label: `${u.name} (@${u.username}) · ${assignedTo?.name ?? t('common.otherBranch')}`, disabled: true };
                   }),
               ]}
             />

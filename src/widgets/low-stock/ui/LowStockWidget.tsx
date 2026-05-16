@@ -5,8 +5,10 @@ import { useInventoryReport } from '@/entities/analytics';
 import { StatusBadge } from '@/shared/ui';
 import { ROUTES } from '@/shared/config/routes';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 export function LowStockWidget() {
+  const t = useT();
   const navigate = useNavigate();
   const { data } = useInventoryReport();
   const lowStock = (data?.lowStock ?? []).slice(0, 5);
@@ -14,20 +16,20 @@ export function LowStockWidget() {
   return (
     <div className="card">
       <div className="card-head">
-        <h3>Кам қолган маҳсулотлар</h3>
+        <h3>{t('dashboard.lowStockTitle')}</h3>
         <button
           className="link-btn"
           onClick={() => navigate(ROUTES.PRODUCTS)}
           style={{ fontSize: 12, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}
         >
-          Бошқариш →
+          {t('dashboard.manage')}
         </button>
       </div>
 
       {lowStock.length === 0 ? (
         <div style={{ padding: '32px 24px', textAlign: 'center', color: 'var(--ink-3)', border: '1px dashed var(--border)', borderRadius: 10, background: 'var(--surface-2)' }}>
-          <div style={{ fontWeight: 600, color: 'var(--ink-2)', marginBottom: 4 }}>Яхши ҳолатда</div>
-          <div style={{ fontSize: 12.5 }}>Чегарадан паст маҳсулот йўқ.</div>
+          <div style={{ fontWeight: 600, color: 'var(--ink-2)', marginBottom: 4 }}>{t('dashboard.stockOkTitle')}</div>
+          <div style={{ fontSize: 12.5 }}>{t('dashboard.stockOkDesc')}</div>
         </div>
       ) : (
         <div className="col" style={{ gap: 8 }}>
@@ -42,7 +44,7 @@ export function LowStockWidget() {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div className="num" style={{ fontWeight: 700, color: 'var(--danger)' }}>{p.currentStock} {unit}</div>
-                  <StatusBadge tone="danger">чегара: {p.threshold}</StatusBadge>
+                  <StatusBadge tone="danger">{t('dashboard.thresholdLabel')}: {p.threshold}</StatusBadge>
                 </div>
               </div>
             );
@@ -51,13 +53,13 @@ export function LowStockWidget() {
       )}
 
       <div style={{ marginTop: 12, fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', textTransform: 'uppercase', letterSpacing: '.06em', margin: '8px 0 12px' }}>
-        Тезкор амаллар
+        {t('dashboard.quickActions')}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <Button icon={<SwapOutlined />} onClick={() => navigate(ROUTES.TRANSFERS)}>Янги трансфер</Button>
-        <Button icon={<WalletOutlined />} onClick={() => navigate(ROUTES.EXPENSES)}>Харажат киритиш</Button>
-        <Button icon={<TeamOutlined />} onClick={() => navigate(ROUTES.CUSTOMERS)}>Мижоз қўшиш</Button>
-        <Button icon={<InboxOutlined />} onClick={() => navigate(ROUTES.PRODUCTS)}>Маҳсулот қўшиш</Button>
+        <Button icon={<SwapOutlined />} onClick={() => navigate(ROUTES.TRANSFERS)}>{t('dashboard.newTransfer')}</Button>
+        <Button icon={<WalletOutlined />} onClick={() => navigate(ROUTES.EXPENSES)}>{t('dashboard.addExpense')}</Button>
+        <Button icon={<TeamOutlined />} onClick={() => navigate(ROUTES.CUSTOMERS)}>{t('dashboard.addCustomer')}</Button>
+        <Button icon={<InboxOutlined />} onClick={() => navigate(ROUTES.PRODUCTS)}>{t('dashboard.addProduct')}</Button>
       </div>
     </div>
   );

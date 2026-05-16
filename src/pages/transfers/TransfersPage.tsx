@@ -20,12 +20,7 @@ import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
-
-const STATUS_OPTIONS: { value: TransferStatus; label: string }[] = [
-  { value: 'PENDING', label: 'Кутилмоқда' },
-  { value: 'COMPLETED', label: 'Якунланган' },
-  { value: 'CANCELLED', label: 'Бекор қилинган' },
-];
+import { useT } from '@/shared/lib/i18n';
 
 const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
   PENDING: 'warning',
@@ -33,13 +28,8 @@ const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
   CANCELLED: 'danger',
 };
 
-const STATUS_LABEL: Record<TransferStatus, string> = {
-  PENDING: 'Кутилмоқда',
-  COMPLETED: 'Якунланган',
-  CANCELLED: 'Бекор қилинган',
-};
-
 export function TransfersPage() {
+  const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const { isSuper } = useCurrentUser();
   const [creating, setCreating] = useState(false);
@@ -53,7 +43,19 @@ export function TransfersPage() {
   const completeMutation = useCompleteTransfer();
   const cancelMutation = useCancelTransfer();
 
-  const pendingCount = transfers.filter((t) => t.status === 'PENDING').length;
+  const pendingCount = transfers.filter((tr) => tr.status === 'PENDING').length;
+
+  const STATUS_OPTIONS: { value: TransferStatus; label: string }[] = [
+    { value: 'PENDING', label: t('transfers.statusPendingLabel') },
+    { value: 'COMPLETED', label: t('transfers.statusCompleted') },
+    { value: 'CANCELLED', label: t('transfers.statusCancelled') },
+  ];
+
+  const STATUS_LABEL: Record<TransferStatus, string> = {
+    PENDING: t('transfers.statusPendingLabel'),
+    COMPLETED: t('transfers.statusCompleted'),
+    CANCELLED: t('transfers.statusCancelled'),
+  };
 
   const columns: ColumnDef<Transfer>[] = [
     {
@@ -65,7 +67,7 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Сана',
+      title: t('common.date'),
       dataIndex: 'createdAt',
       width: 120,
       render: (v: string) => (
@@ -73,35 +75,35 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Йўналиш',
+      title: t('transfers.colRoute'),
       key: 'route',
-      render: (_: unknown, t: Transfer) => (
+      render: (_: unknown, tr: Transfer) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <StatusBadge tone="info">{t.fromBranch.name}</StatusBadge>
+          <StatusBadge tone="info">{tr.fromBranch.name}</StatusBadge>
           <ArrowRightOutlined style={{ color: 'var(--ink-4)', fontSize: 11 }} />
-          <StatusBadge tone="muted">{t.toBranch.name}</StatusBadge>
+          <StatusBadge tone="muted">{tr.toBranch.name}</StatusBadge>
         </div>
       ),
     },
     {
-      title: 'Маҳсулотлар',
+      title: t('nav.products'),
       key: 'items',
       width: 90,
       align: 'center',
       responsiveHide: true,
-      render: (_: unknown, t: Transfer) => (
+      render: (_: unknown, tr: Transfer) => (
         <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
-          {t.items.length} тур
+          {tr.items.length} {t('transfers.itemTypeSuffix')}
         </span>
       ),
     },
     {
-      title: 'Тан нархи',
+      title: t('transfers.colCost'),
       key: 'cost',
       width: 160,
       align: 'right',
-      render: (_: unknown, t: Transfer) => {
-        const total = t.items.reduce((sum, i) => sum + i.totalCostUzs, 0);
+      render: (_: unknown, tr: Transfer) => {
+        const total = tr.items.reduce((sum, i) => sum + i.totalCostUzs, 0);
         return (
           <span className="num" style={{ fontWeight: 700 }}>
             <MoneyDisplay amount={total} currency="UZS" />
@@ -110,7 +112,7 @@ export function TransfersPage() {
       },
     },
     {
-      title: 'Ҳолат',
+      title: t('common.status'),
       dataIndex: 'status',
       width: 140,
       render: (v: TransferStatus) => (
@@ -118,12 +120,12 @@ export function TransfersPage() {
       ),
     },
     {
-      title: 'Яратувчи',
+      title: t('transfers.colCreatedBy'),
       key: 'initiatedBy',
       width: 140,
       responsiveHide: true,
-      render: (_: unknown, t: Transfer) => (
-        <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{t.initiatedBy.fullName}</span>
+      render: (_: unknown, tr: Transfer) => (
+        <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{tr.initiatedBy.fullName}</span>
       ),
     },
     {
@@ -131,21 +133,21 @@ export function TransfersPage() {
       key: 'actions',
       width: 100,
       fixed: 'right',
-      render: (_: unknown, t: Transfer) => {
-        if (t.status !== 'PENDING') return null;
+      render: (_: unknown, tr: Transfer) => {
+        if (tr.status !== 'PENDING') return null;
         return (
           <div style={{ display: 'flex', gap: 4 }}>
             {isSuper && (
               <Popconfirm
-                title="Якунлансинми?"
-                description="Омбор захираси шу заҳоти янгиланади."
-                okText="Ҳа, якунла"
-                cancelText="Бекор"
+                title={t('transfers.completeTitle')}
+                description={t('transfers.completeDesc')}
+                okText={t('transfers.completeOk')}
+                cancelText={t('common.cancel')}
                 okButtonProps={{ loading: completeMutation.isPending }}
-                onConfirm={(e) => { e?.stopPropagation(); completeMutation.mutate(t.id); }}
+                onConfirm={(e) => { e?.stopPropagation(); completeMutation.mutate(tr.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title="Якунлаш">
+                <Tooltip title={t('transfers.completeTooltip')}>
                   <Button
                     size="small"
                     type="text"
@@ -156,15 +158,15 @@ export function TransfersPage() {
               </Popconfirm>
             )}
             <Popconfirm
-              title="Бекор қилинсинми?"
-              description="Трансфер бекор қилинади, омбор ўзгармайди."
-              okText="Ҳа, бекор қил"
-              cancelText="Йўқ"
+              title={t('transfers.cancelTitle')}
+              description={t('transfers.cancelDesc')}
+              okText={t('transfers.cancelOk')}
+              cancelText={t('common.no')}
               okButtonProps={{ danger: true, loading: cancelMutation.isPending }}
-              onConfirm={(e) => { e?.stopPropagation(); cancelMutation.mutate(t.id); }}
+              onConfirm={(e) => { e?.stopPropagation(); cancelMutation.mutate(tr.id); }}
               onPopupClick={(e) => e.stopPropagation()}
             >
-              <Tooltip title="Бекор қилиш">
+              <Tooltip title={t('transfers.cancelTooltip')}>
                 <Button
                   size="small"
                   type="text"
@@ -184,17 +186,17 @@ export function TransfersPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Трансферлар</h1>
+          <h1>{t('nav.transfers')}</h1>
           <div className="sub">
-            {transfers.length} та трансфер · {pendingCount} та кутилмоқда
+            {transfers.length} {t('transfers.subtitleSuffix')} · {pendingCount} {t('transfers.statusPending')}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<SwapOutlined />} onClick={() => setCreating(true)}>
-            Янги трансфер
+            {t('transfers.newTransfer')}
           </Button>
         </div>
       </div>
@@ -206,12 +208,12 @@ export function TransfersPage() {
             value={statusFilter}
             onChange={setStatusFilter}
             allowClear
-            placeholder="Барча ҳолатлар"
+            placeholder={t('transfers.filterAll')}
             style={{ minWidth: 180 }}
             options={STATUS_OPTIONS}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{transfers.length}</strong> та натижа
+            <strong>{transfers.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
@@ -220,84 +222,90 @@ export function TransfersPage() {
           dataSource={transfers}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           expandable={{
             expandedRowRender: (transfer) => (
-              <div style={{ padding: '8px 0 8px 48px' }}>
-                <Table
-                  size="small"
-                  pagination={false}
-                  rowKey="id"
-                  dataSource={transfer.items}
-                  columns={[
-                    {
-                      title: 'Маҳсулот',
-                      key: 'name',
-                      render: (_, item) => (
-                        <div>
-                          <span style={{ fontWeight: 500 }}>{item.product.name}</span>
-                          {item.product.sku && (
-                            <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
-                              {item.product.sku}
-                            </span>
-                          )}
-                        </div>
-                      ),
-                    },
-                    {
-                      title: 'Миқдор',
-                      key: 'qty',
-                      width: 120,
-                      align: 'right',
-                      render: (_, item) => (
-                        <span className="num">
-                          {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[item.product.unit]}
-                        </span>
-                      ),
-                    },
-                    {
-                      title: 'Тан нархи',
-                      key: 'unit',
-                      width: 150,
-                      align: 'right',
-                      render: (_, item) => (
-                        <span className="num">
-                          <MoneyDisplay amount={item.unitCostUzs} currency="UZS" />
-                        </span>
-                      ),
-                    },
-                    {
-                      title: 'Жами',
-                      key: 'total',
-                      width: 150,
-                      align: 'right',
-                      render: (_, item) => (
-                        <span className="num" style={{ fontWeight: 700 }}>
-                          <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
-                        </span>
-                      ),
-                    },
-                  ]}
-                />
-                {transfer.note && (
-                  <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>
-                    "{transfer.note}"
-                  </div>
-                )}
-                {transfer.completedBy && (
-                  <div style={{ marginTop: 4, fontSize: 12, color: 'var(--ink-3)' }}>
-                    Якунлаган: {transfer.completedBy.fullName} · {formatDate(transfer.completedAt!)}
-                  </div>
-                )}
-              </div>
+              <ExpandedTransferRow transfer={transfer} t={t} />
             ),
             rowExpandable: () => true,
           }}
-          emptyText="Трансферлар топилмади"
+          emptyText={t('transfers.empty')}
         />
       </div>
 
       <NewTransferModal open={creating} onClose={() => setCreating(false)} />
     </>
+  );
+}
+
+function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (key: string) => string }) {
+  return (
+    <div style={{ padding: '8px 0 8px 48px' }}>
+      <Table
+        size="small"
+        pagination={false}
+        rowKey="id"
+        dataSource={transfer.items}
+        columns={[
+          {
+            title: t('transfers.colProduct'),
+            key: 'name',
+            render: (_, item) => (
+              <div>
+                <span style={{ fontWeight: 500 }}>{item.product.name}</span>
+                {item.product.sku && (
+                  <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
+                    {item.product.sku}
+                  </span>
+                )}
+              </div>
+            ),
+          },
+          {
+            title: t('transfers.colQty'),
+            key: 'qty',
+            width: 120,
+            align: 'right',
+            render: (_, item) => (
+              <span className="num">
+                {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[item.product.unit]}
+              </span>
+            ),
+          },
+          {
+            title: t('transfers.colCost'),
+            key: 'unit',
+            width: 150,
+            align: 'right',
+            render: (_, item) => (
+              <span className="num">
+                <MoneyDisplay amount={item.unitCostUzs} currency="UZS" />
+              </span>
+            ),
+          },
+          {
+            title: t('transfers.colTotal'),
+            key: 'total',
+            width: 150,
+            align: 'right',
+            render: (_, item) => (
+              <span className="num" style={{ fontWeight: 700 }}>
+                <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
+              </span>
+            ),
+          },
+        ]}
+      />
+      {transfer.note && (
+        <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>
+          "{transfer.note}"
+        </div>
+      )}
+      {transfer.completedBy && (
+        <div style={{ marginTop: 4, fontSize: 12, color: 'var(--ink-3)' }}>
+          {t('transfers.completedByLabel')}: {transfer.completedBy.fullName} · {formatDate(transfer.completedAt!)}
+        </div>
+      )}
+    </div>
   );
 }

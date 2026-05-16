@@ -764,3 +764,123 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
   }
   .sb-root--collapsed .sb-item--active::before { display: block; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+html.dark {
+  color-scheme: dark;
+
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface-2: #243047;
+  --border: #334155;
+  --border-strong: #475569;
+  --ink: #f1f5f9;
+  --ink-1: #f1f5f9;
+  --ink-2: #e2e8f0;
+  --ink-3: #94a3b8;
+  --ink-4: #64748b;
+  --primary: #4f7cff;
+  --primary-2: #6b8fff;
+  --primary-soft: rgba(79,124,255,.15);
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --metallic: #64748b;
+  --steel: #94a3b8;
+  --grid: rgba(255,255,255,.03);
+}
+
+/* ─── Dark sidebar ───────────────────────────────────────────────────────── */
+html.dark .sb-root {
+  --sb-bg:            #1e293b;
+  --sb-bg-2:          #243047;
+  --sb-hover:         rgba(255,255,255,.05);
+  --sb-active-bg:     rgba(79,124,255,.12);
+  --sb-active-bar:    #4f7cff;
+  --sb-text:          #cbd5e1;
+  --sb-text-dim:      #64748b;
+  --sb-text-active:   #f1f5f9;
+  --sb-text-header:   #475569;
+  --sb-divider:       #334155;
+}
+
+html.dark .sb-brand__name { color: #f1f5f9; }
+html.dark .sb-brand__sub  { color: #4f7cff; }
+html.dark .sb-item:hover  { color: #f1f5f9; }
+
+/* ─── Dark topbar ────────────────────────────────────────────────────────── */
+html.dark .topbar .profile-trigger {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+html.dark .topbar .profile-trigger:hover {
+  background: var(--border);
+}
+
+/* ─── Dark tables ────────────────────────────────────────────────────────── */
+html.dark .ant-table-thead > tr > th {
+  background: #1a2236 !important;
+  color: var(--ink-3) !important;
+  border-bottom-color: var(--border) !important;
+}
+html.dark .ant-table-tbody > tr > td {
+  border-bottom-color: var(--border) !important;
+}
+html.dark .ant-table-tbody > tr:hover > td {
+  background: rgba(79,124,255,.05) !important;
+}
+html.dark .ant-table-tbody > tr:last-child > td { border-bottom: none !important; }
+
+/* ─── Dark tag pills ─────────────────────────────────────────────────────── */
+html.dark .tagpill {
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border-color: var(--border);
+}
+html.dark .tagpill.success { background: rgba(34,197,94,.1); color: #4ade80; border-color: rgba(34,197,94,.25); }
+html.dark .tagpill.danger  { background: rgba(239,68,68,.1); color: #f87171; border-color: rgba(239,68,68,.25); }
+html.dark .tagpill.warn    { background: rgba(245,158,11,.1); color: #fbbf24; border-color: rgba(245,158,11,.25); }
+html.dark .tagpill.info    { background: rgba(79,124,255,.1); color: #93c5fd; border-color: rgba(79,124,255,.25); }
+
+/* ─── Dark KPI & cards ───────────────────────────────────────────────────── */
+html.dark .kpi .accent {
+  background: radial-gradient(circle at 30% 30%, rgba(79,124,255,.1), rgba(79,124,255,0) 70%);
+}
+
+/* ─── Dark login cards ───────────────────────────────────────────────────── */
+html.dark .role-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+html.dark .role-card:hover {
+  border-color: var(--primary);
+  background: var(--surface-2);
+}
+html.dark .role-card.selected {
+  border-color: var(--primary);
+  background: rgba(79,124,255,.08);
+  box-shadow: 0 0 0 3px rgba(79,124,255,.12);
+}
+html.dark .role-card .icon {
+  background: rgba(79,124,255,.15);
+  color: var(--primary);
+}
+
+/* ─── Dark sidebar toggle ────────────────────────────────────────────────── */
+html.dark .sidebar-toggle {
+  border-color: var(--border);
+  color: var(--ink-3);
+}
+html.dark .sidebar-toggle:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--border-strong);
+}
+
+/* ─── Dark scrollbars ────────────────────────────────────────────────────── */
+html.dark ::-webkit-scrollbar-thumb { background: #334155; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+html.dark .sb-nav::-webkit-scrollbar-thumb { background: #334155; }

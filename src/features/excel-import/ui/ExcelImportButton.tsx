@@ -3,6 +3,7 @@ import { Button, Modal, Table, Progress, Alert, Tag, Tooltip } from 'antd';
 import { UploadOutlined, DownloadOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { toast } from 'sonner';
 import { parseExcelFile, downloadTemplate } from '../lib/parseExcel';
+import { useT } from '@/shared/lib/i18n';
 
 export interface ParsedRow<T> {
   index: number;
@@ -34,6 +35,7 @@ export function ExcelImportButton<T>({
   onComplete,
   disabled,
 }: ExcelImportButtonProps<T>) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [phase, setPhase] = useState<Phase>('idle');
@@ -51,16 +53,15 @@ export function ExcelImportButton<T>({
 
     try {
       const raw = await parseExcelFile(file);
-      if (raw.length === 0) { toast.error('Excel файл бўш'); return; }
+      if (raw.length === 0) { toast.error(t('excel.emptyFile')); return; }
       const parsed = raw.map((r, i) => parseRow(r, i));
       setRows(parsed);
       setProgress(0);
       setResults({ added: 0, failed: 0 });
       setPhase('preview');
     } catch {
-      toast.error('Файлни ўқишда хато юз берди');
+      toast.error(t('excel.readError'));
     }
-    // reset input so same file can be re-selected
     e.target.value = '';
   }
 
@@ -150,28 +151,28 @@ export function ExcelImportButton<T>({
         footer={
           phase === 'preview' ? [
             <Button key="tpl" icon={<DownloadOutlined />} onClick={() => downloadTemplate(templateHeaders, templateExample, templateFileName)}>
-              Шаблон юклаб олиш
+              {t('excel.downloadTemplate')}
             </Button>,
-            <Button key="cancel" onClick={handleClose}>Бекор қилиш</Button>,
+            <Button key="cancel" onClick={handleClose}>{t('common.cancel')}</Button>,
             <Button
               key="import"
               type="primary"
               disabled={validRows.length === 0}
               onClick={startImport}
             >
-              {validRows.length} та қаторни импорт қилиш
+              {validRows.length} {t('excel.importRowsSuffix')}
             </Button>,
           ] : phase === 'done' ? [
-            <Button key="close" type="primary" onClick={handleClose}>Ёпиш</Button>,
+            <Button key="close" type="primary" onClick={handleClose}>{t('excel.close')}</Button>,
           ] : null
         }
       >
         {phase === 'preview' && (
           <>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-              <Tag color="success">{validRows.length} та тўғри</Tag>
+              <Tag color="success">{validRows.length} {t('excel.validSuffix')}</Tag>
               {invalidRows.length > 0 && (
-                <Tag color="error">{invalidRows.length} та хатолик (импорт қилинмайди)</Tag>
+                <Tag color="error">{invalidRows.length} {t('excel.invalidSuffix')}</Tag>
               )}
             </div>
             <Table
@@ -191,7 +192,7 @@ export function ExcelImportButton<T>({
           <div style={{ padding: '24px 0', textAlign: 'center' }}>
             <Progress percent={progress} status="active" />
             <div style={{ marginTop: 12, color: 'var(--ink-3)', fontSize: 13 }}>
-              Импорт қилинмоқда... {Math.round(progress * validRows.length / 100)} / {validRows.length}
+              {t('excel.importing')} {Math.round(progress * validRows.length / 100)} / {validRows.length}
             </div>
           </div>
         )}
@@ -202,8 +203,8 @@ export function ExcelImportButton<T>({
               type={results.failed === 0 ? 'success' : 'warning'}
               message={
                 <span>
-                  <b>{results.added}</b> та муваффақиятли қўшилди
-                  {results.failed > 0 && <>, <b>{results.failed}</b> та хато</>}
+                  <b>{results.added}</b> {t('excel.addedSuffix')}
+                  {results.failed > 0 && <>, <b>{results.failed}</b> {t('excel.failedSuffix')}</>}
                 </span>
               }
               showIcon

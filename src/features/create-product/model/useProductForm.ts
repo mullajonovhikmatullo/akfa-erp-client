@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateProduct, useUpdateProduct } from '@/entities/product';
-import { productSchema, type ProductFormValues } from '../validation/productSchema';
+import { createProductSchema, type ProductFormValues } from '../validation/productSchema';
 import type { Product } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 interface UseProductFormOptions {
   product?: Product | null;
@@ -11,10 +12,13 @@ interface UseProductFormOptions {
 }
 
 export function useProductForm({ product, onSuccess }: UseProductFormOptions = {}) {
+  const t = useT();
   const isEdit = Boolean(product);
 
+  const schema = useMemo(() => createProductSchema(t), [t]);
+
   const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: '',
       description: '',

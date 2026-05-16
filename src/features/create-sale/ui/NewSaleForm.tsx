@@ -1,4 +1,4 @@
-import { useState, useId } from 'react';
+import { useState } from 'react';
 import { Button, Select, InputNumber, Radio, Alert, Tooltip, Empty } from 'antd';
 import { DeleteOutlined, CheckOutlined, PlusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
@@ -13,11 +13,7 @@ import {
   type PaymentMethod,
   type Product,
 } from '@/shared/types/domain';
-
-const PAYMENT_OPTIONS = (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((k) => ({
-  value: k,
-  label: PAYMENT_METHOD_LABELS[k],
-}));
+import { useT } from '@/shared/lib/i18n';
 
 interface CartItem {
   _key: string;
@@ -27,6 +23,7 @@ interface CartItem {
 }
 
 export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
+  const t = useT();
   const { isSuper, branchId: userBranchId } = useCurrentUser();
 
   const { data: products = [] } = useProducts({ search: undefined });
@@ -40,6 +37,11 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const [paidAmountUzs, setPaidAmountUzs] = useState<number>(0);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
+
+  const PAYMENT_OPTIONS = (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((k) => ({
+    value: k,
+    label: PAYMENT_METHOD_LABELS[k],
+  }));
 
   const addToCart = (productId: string) => {
     const product = products.find((p) => p.id === productId);
@@ -102,25 +104,25 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         {/* Controls row */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
           <div>
-            <Label>Сотув тури</Label>
+            <Label>{t('newSale.typeLabel')}</Label>
             <Radio.Group
               value={saleType}
               onChange={(e) => setSaleType(e.target.value)}
               style={{ display: 'flex' }}
             >
-              <Radio.Button value="RETAIL" style={{ flex: 1, textAlign: 'center' }}>Чакана</Radio.Button>
-              <Radio.Button value="WHOLESALE" style={{ flex: 1, textAlign: 'center' }}>Улгуржи</Radio.Button>
+              <Radio.Button value="RETAIL" style={{ flex: 1, textAlign: 'center' }}>{t('sales.typeRetail')}</Radio.Button>
+              <Radio.Button value="WHOLESALE" style={{ flex: 1, textAlign: 'center' }}>{t('sales.typeWholesale')}</Radio.Button>
             </Radio.Group>
           </div>
           <div>
-            <Label>Мижоз (ихтиёрий)</Label>
+            <Label>{t('newSale.customerOptional')}</Label>
             <Select
               showSearch
               allowClear
               optionFilterProp="label"
               value={customerId}
               onChange={setCustomerId}
-              placeholder="Мижозни танланг"
+              placeholder={t('newSale.customerPlaceholder')}
               style={{ width: '100%' }}
               options={customers.map((c) => ({
                 value: c.id,
@@ -137,7 +139,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             optionFilterProp="label"
             value={selectedProductId}
             onChange={addToCart}
-            placeholder="+ Маҳсулот қидириш ва қўшиш (SKU ёки ном)"
+            placeholder={t('newSale.productSearchPlaceholder')}
             style={{ width: '100%' }}
             suffixIcon={<PlusOutlined />}
             options={products
@@ -152,7 +154,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         {/* Cart items */}
         {cart.length === 0 ? (
           <Empty
-            description="Ҳали маҳсулот қўшилмади"
+            description={t('newSale.emptyCart')}
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             style={{ padding: '24px 0' }}
           />
@@ -174,10 +176,10 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                 marginBottom: 6,
               }}
             >
-              <div>Маҳсулот</div>
-              <div>Миқдор</div>
-              <div style={{ textAlign: 'right' }}>Бирлик нархи</div>
-              <div style={{ textAlign: 'right' }}>Жами</div>
+              <div>{t('newSale.colProduct')}</div>
+              <div>{t('newSale.colQty')}</div>
+              <div style={{ textAlign: 'right' }}>{t('newSale.colUnitPrice')}</div>
+              <div style={{ textAlign: 'right' }}>{t('newSale.colTotal')}</div>
               <div />
             </div>
 
@@ -230,12 +232,15 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
 
       {/* Right: Summary */}
       <div className="card" style={{ position: 'sticky', top: 76 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Сотув хулосаси</div>
+        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t('newSale.summary')}</div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Row label="Маҳсулотлар" value={`${cart.length} тур · ${cart.reduce((s, i) => s + i.quantity, 0).toLocaleString('ru-RU')} дона`} />
           <Row
-            label="Жами сумма"
+            label={t('newSale.rowProducts')}
+            value={`${cart.length} ${t('newSale.typeSuffix')} · ${cart.reduce((s, i) => s + i.quantity, 0).toLocaleString('ru-RU')} ${t('newSale.qtySuffix')}`}
+          />
+          <Row
+            label={t('newSale.rowTotal')}
             value={<span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={subtotal} currency="UZS" /></span>}
           />
         </div>
@@ -244,7 +249,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <Label>Тўлов усули</Label>
+            <Label>{t('newSale.paymentMethod')}</Label>
             <Select
               value={paymentMethod}
               onChange={setPaymentMethod}
@@ -253,7 +258,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             />
           </div>
           <div>
-            <Label>Тўланган (сўм)</Label>
+            <Label>{t('newSale.paidAmount')}</Label>
             <InputNumber
               value={paidAmountUzs}
               onChange={(v) => setPaidAmountUzs(v ?? 0)}
@@ -276,7 +281,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                <span style={{ color: 'var(--ink-3)' }}>Қарз</span>
+                <span style={{ color: 'var(--ink-3)' }}>{t('sales.drawerDebt')}</span>
                 <span className="num" style={{ fontWeight: 700, color: debtAmount > 0 ? 'var(--danger)' : 'var(--success)' }}>
                   <MoneyDisplay amount={debtAmount} currency="UZS" />
                 </span>
@@ -289,7 +294,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
           <Alert
             type="warning"
             showIcon
-            message="Қарз учун мижоз танлаш керак"
+            message={t('newSale.debtNeedsCustomer')}
             style={{ marginTop: 12 }}
           />
         )}
@@ -304,7 +309,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
           style={{ marginTop: 16 }}
           onClick={handleSubmit}
         >
-          Сотувни тасдиқлаш
+          {t('newSale.confirmSale')}
         </Button>
       </div>
     </div>

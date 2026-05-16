@@ -4,6 +4,7 @@ import { useProductInventory } from '@/entities/product';
 import { StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { Product } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 interface ProductDetailDrawerProps {
   product: Product | null;
@@ -11,6 +12,7 @@ interface ProductDetailDrawerProps {
 }
 
 export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerProps) {
+  const t = useT();
   const { data: inventory = [], isLoading: stockLoading } = useProductInventory(
     product?.id ?? null,
   );
@@ -45,9 +47,9 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
               <StatusBadge tone="info">{product.category.name}</StatusBadge>
               <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[product.unit]}</StatusBadge>
               {product.isActive ? (
-                <StatusBadge tone="success" dot>Фаол</StatusBadge>
+                <StatusBadge tone="success" dot>{t('common.active')}</StatusBadge>
               ) : (
-                <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
+                <StatusBadge tone="danger" dot>{t('common.inactive')}</StatusBadge>
               )}
             </div>
           </div>
@@ -55,27 +57,27 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
           <div style={{ padding: '20px 24px' }}>
 
             {/* Pricing */}
-            <SectionLabel>Нарҳлар</SectionLabel>
+            <SectionLabel>{t('products.drawerPricingSection')}</SectionLabel>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-              <PriceBox label="Чакана (сўм)" amount={product.retailPriceUzs} currency="UZS" />
-              <PriceBox label="Улгуржи (сўм)" amount={product.wholesalePriceUzs} currency="UZS" />
+              <PriceBox label={t('products.drawerRetailUzs')} amount={product.retailPriceUzs} currency="UZS" />
+              <PriceBox label={t('products.drawerWholesaleUzs')} amount={product.wholesalePriceUzs} currency="UZS" />
               {product.retailPriceUsd != null && (
-                <PriceBox label="Чакана (USD)" amount={product.retailPriceUsd} currency="USD" />
+                <PriceBox label={t('products.drawerRetailUsd')} amount={product.retailPriceUsd} currency="USD" />
               )}
               {product.wholesalePriceUsd != null && (
-                <PriceBox label="Улгуржи (USD)" amount={product.wholesalePriceUsd} currency="USD" />
+                <PriceBox label={t('products.drawerWholesaleUsd')} amount={product.wholesalePriceUsd} currency="USD" />
               )}
             </div>
 
             <Divider style={{ margin: '0 0 16px' }} />
 
             {/* Stock by branch */}
-            <SectionLabel>Филиаллар бўйича қолдиқ</SectionLabel>
+            <SectionLabel>{t('products.drawerStockSection')}</SectionLabel>
             {stockLoading ? (
               <Skeleton active paragraph={{ rows: 2 }} />
             ) : inventory.length === 0 ? (
               <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>
-                Ҳали қолдиқ маълумоти йўқ
+                {t('products.drawerNoStock')}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

@@ -3,11 +3,13 @@ import { persist, devtools } from 'zustand/middleware';
 import type { Currency } from '@/shared/types';
 
 type Density = 'compact' | 'default' | 'spacious';
-type Lang = 'en' | 'ru' | 'uz';
+export type Theme = 'light' | 'dark' | 'system';
+export type Lang = 'uz-cy' | 'uz-la' | 'ru' | 'en';
 
 interface UIState {
   activeBranchId: string;
   lang: Lang;
+  theme: Theme;
   density: Density;
   sidebarCollapsed: boolean;
   mobileSidebarOpen: boolean;
@@ -20,6 +22,7 @@ interface UIState {
 interface UIActions {
   setActiveBranch: (id: string) => void;
   setLang: (lang: Lang) => void;
+  setTheme: (theme: Theme) => void;
   setDensity: (density: Density) => void;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
@@ -36,7 +39,8 @@ export const useUIStore = create<UIStore>()(
     persist(
       (set) => ({
         activeBranchId: '__all__',
-        lang: 'en',
+        lang: 'uz-cy',
+        theme: 'light',
         density: 'default',
         sidebarCollapsed: false,
         mobileSidebarOpen: false,
@@ -47,6 +51,7 @@ export const useUIStore = create<UIStore>()(
 
         setActiveBranch: (id) => set({ activeBranchId: id }, false, 'ui/setActiveBranch'),
         setLang: (lang) => set({ lang }, false, 'ui/setLang'),
+        setTheme: (theme) => set({ theme }, false, 'ui/setTheme'),
         setDensity: (density) => set({ density }, false, 'ui/setDensity'),
         toggleSidebar: () =>
           set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed }), false, 'ui/toggleSidebar'),
@@ -73,6 +78,7 @@ export const useUIStore = create<UIStore>()(
         name: 'akfa-ui',
         partialize: (s) => ({
           lang: s.lang,
+          theme: s.theme,
           density: s.density,
           displayCurrency: s.displayCurrency,
           exchangeRate: s.exchangeRate,

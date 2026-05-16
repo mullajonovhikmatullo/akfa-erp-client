@@ -24,6 +24,17 @@ export interface UpdateAdminPayload {
   isActive?: boolean;
 }
 
+export interface UpdateProfilePayload {
+  fullName?: string;
+  username?: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 const normalizeRole = (role: unknown): 'super_admin' | 'branch_admin' =>
   role === 'SUPER_ADMIN' || role === 'super_admin' ? 'super_admin' : 'branch_admin';
 
@@ -70,4 +81,10 @@ export const userApi = {
     apiClient
       .patch(`/admins/${userId}`, { branchId })
       .then(parseUser),
+
+  updateProfile: (payload: UpdateProfilePayload) =>
+    apiClient.patch<ApiResponse<User>>('/auth/profile', payload).then((r) => r.data.data),
+
+  changePassword: (payload: ChangePasswordPayload) =>
+    apiClient.post('/auth/change-password', payload).then((r) => r.data),
 };

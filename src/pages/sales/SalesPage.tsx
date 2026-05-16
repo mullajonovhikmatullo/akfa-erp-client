@@ -10,13 +10,10 @@ import { SALE_TYPE_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
-
-const SALE_TYPE_OPTIONS: { value: SaleType; label: string }[] = [
-  { value: 'RETAIL', label: 'Чакана' },
-  { value: 'WHOLESALE', label: 'Улгуржи' },
-];
+import { useT } from '@/shared/lib/i18n';
 
 export function SalesPage() {
+  const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const [tab, setTab] = useState<'new' | 'history'>('new');
   const [drawerSale, setDrawerSale] = useState<SaleListItem | null>(null);
@@ -29,6 +26,11 @@ export function SalesPage() {
     limit: 100,
   });
 
+  const SALE_TYPE_OPTIONS: { value: SaleType; label: string }[] = [
+    { value: 'RETAIL', label: t('sales.typeRetail') },
+    { value: 'WHOLESALE', label: t('sales.typeWholesale') },
+  ];
+
   const columns: ColumnDef<SaleListItem>[] = [
     {
       title: '#',
@@ -39,7 +41,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Сана',
+      title: t('common.date'),
       dataIndex: 'createdAt',
       width: 120,
       render: (v: string) => (
@@ -47,7 +49,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Мижоз',
+      title: t('nav.customers'),
       key: 'customer',
       render: (_: unknown, s: SaleListItem) =>
         s.customer ? (
@@ -60,11 +62,11 @@ export function SalesPage() {
             )}
           </div>
         ) : (
-          <span style={{ color: 'var(--ink-4)' }}>Аноним</span>
+          <span style={{ color: 'var(--ink-4)' }}>{t('sales.anonymous')}</span>
         ),
     },
     {
-      title: 'Филиал',
+      title: t('common.branch'),
       key: 'branch',
       width: 140,
       responsiveHide: true,
@@ -73,7 +75,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Тур',
+      title: t('sales.colType'),
       dataIndex: 'saleType',
       width: 100,
       responsiveHide: true,
@@ -82,19 +84,19 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Маҳсулотлар',
+      title: t('nav.products'),
       key: 'count',
       width: 90,
       align: 'center',
       responsiveHide: true,
       render: (_: unknown, s: SaleListItem) => (
         <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
-          {s._count.items} та
+          {s._count.items} {t('common.countSuffix')}
         </span>
       ),
     },
     {
-      title: 'Жами',
+      title: t('common.total'),
       key: 'total',
       width: 150,
       align: 'right',
@@ -105,7 +107,7 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Тўланган',
+      title: t('sales.colPaid'),
       key: 'paid',
       width: 150,
       align: 'right',
@@ -117,15 +119,15 @@ export function SalesPage() {
       ),
     },
     {
-      title: 'Ҳолат',
+      title: t('common.status'),
       key: 'status',
       width: 110,
       align: 'center',
       render: (_: unknown, s: SaleListItem) =>
         s.debtAmountUzs > 0 ? (
-          <StatusBadge tone="danger" dot>Қарз бор</StatusBadge>
+          <StatusBadge tone="danger" dot>{t('sales.hasDebt')}</StatusBadge>
         ) : (
-          <StatusBadge tone="success" dot>Тўлиқ</StatusBadge>
+          <StatusBadge tone="success" dot>{t('sales.fullyPaid')}</StatusBadge>
         ),
     },
     {
@@ -134,7 +136,7 @@ export function SalesPage() {
       width: 60,
       fixed: 'right',
       render: (_: unknown, s: SaleListItem) => (
-        <Tooltip title="Кўриш">
+        <Tooltip title={t('common.view')}>
           <Button
             size="small"
             type="text"
@@ -152,22 +154,22 @@ export function SalesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Сотувлар</h1>
-          <div className="sub">Янги сотув яратиш ва сотув тарихи</div>
+          <h1>{t('nav.sales')}</h1>
+          <div className="sub">{t('sales.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Button
             type={tab === 'new' ? 'primary' : 'default'}
             onClick={() => setTab('new')}
           >
-            + Янги сотув
+            + {t('dashboard.newSale')}
           </Button>
           <Badge count={debtCount} offset={[-6, 4]}>
             <Button
               type={tab === 'history' ? 'primary' : 'default'}
               onClick={() => setTab('history')}
             >
-              Тарих ({sales.length})
+              {t('sales.historyBtn')} ({sales.length})
             </Button>
           </Badge>
         </div>
@@ -183,7 +185,7 @@ export function SalesPage() {
               value={saleTypeFilter}
               onChange={setSaleTypeFilter}
               allowClear
-              placeholder="Барча турлар"
+              placeholder={t('sales.filterAllTypes')}
               style={{ minWidth: 160 }}
               options={SALE_TYPE_OPTIONS}
             />
@@ -191,18 +193,18 @@ export function SalesPage() {
               value={hasDebt === undefined ? undefined : String(hasDebt)}
               onChange={(v) => setHasDebt(v === undefined ? undefined : v === 'true')}
               allowClear
-              placeholder="Тўлов ҳолати"
+              placeholder={t('sales.filterPayment')}
               style={{ minWidth: 160 }}
               options={[
-                { value: 'true', label: 'Қарз бор' },
-                { value: 'false', label: 'Тўлиқ тўланган' },
+                { value: 'true', label: t('sales.hasDebt') },
+                { value: 'false', label: t('sales.filterPaid') },
               ]}
             />
-            <Tooltip title="Янгилаш">
+            <Tooltip title={t('common.refresh')}>
               <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
             </Tooltip>
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-              <strong>{sales.length}</strong> та натижа
+              <strong>{sales.length}</strong> {t('common.resultsSuffix')}
             </span>
           </div>
 
@@ -211,12 +213,12 @@ export function SalesPage() {
             dataSource={sales}
             columns={columns}
             loading={isLoading}
-            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
+            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
             onRow={(s) => ({
               onClick: () => setDrawerSale(s),
               style: { cursor: 'pointer' },
             })}
-            emptyText="Сотувлар топилмади"
+            emptyText={t('sales.empty')}
           />
         </div>
       )}

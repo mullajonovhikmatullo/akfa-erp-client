@@ -26,8 +26,10 @@ import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
+import { useT } from '@/shared/lib/i18n';
 
 export function ProductsPage() {
+  const t = useT();
   const { can } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('products:create');
@@ -68,7 +70,7 @@ export function ProductsPage() {
         ),
     },
     {
-      title: 'Маҳсулот',
+      title: t('nav.products'),
       key: 'name',
       render: (_: unknown, p: Product) => (
         <div>
@@ -78,14 +80,14 @@ export function ProductsPage() {
       ),
     },
     {
-      title: 'Ўлчов',
+      title: t('products.colUnit'),
       dataIndex: 'unit',
       width: 90,
       responsiveHide: true,
       render: (v: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[v]}</StatusBadge>,
     },
     {
-      title: 'Чакана нарх',
+      title: t('products.colRetail'),
       key: 'retail',
       width: 150,
       align: 'right',
@@ -96,7 +98,7 @@ export function ProductsPage() {
       ),
     },
     {
-      title: 'Улгуржи нарх',
+      title: t('products.colWholesale'),
       key: 'wholesale',
       width: 150,
       align: 'right',
@@ -108,20 +110,20 @@ export function ProductsPage() {
       ),
     },
     {
-      title: 'Ҳолат',
+      title: t('common.status'),
       dataIndex: 'isActive',
       width: 100,
       align: 'center',
       responsiveHide: true,
       render: (v: boolean) =>
         v ? (
-          <StatusBadge tone="success" dot>Фаол</StatusBadge>
+          <StatusBadge tone="success" dot>{t('common.active')}</StatusBadge>
         ) : (
-          <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
+          <StatusBadge tone="danger" dot>{t('common.inactive')}</StatusBadge>
         ),
     },
     {
-      title: 'Қўшилган',
+      title: t('common.added'),
       dataIndex: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -136,7 +138,7 @@ export function ProductsPage() {
       fixed: 'right',
       render: (_: unknown, p: Product) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Кўриш">
+          <Tooltip title={t('common.view')}>
             <Button
               size="small"
               type="text"
@@ -146,7 +148,7 @@ export function ProductsPage() {
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title="Таҳрирлаш">
+              <Tooltip title={t('common.edit')}>
                 <Button
                   size="small"
                   type="text"
@@ -155,15 +157,15 @@ export function ProductsPage() {
                 />
               </Tooltip>
               <Popconfirm
-                title="Ўчирилсинми?"
-                description={`"${p.name}" маҳсулотини ўчирасизми?`}
-                okText="Ҳа, ўчир"
-                cancelText="Бекор"
+                title={t('common.deleteTitle')}
+                description={`"${p.name}" ${t('products.deleteDesc')}`}
+                okText={t('common.yesDelete')}
+                cancelText={t('common.cancel')}
                 okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
                 onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(p.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title="Ўчириш">
+                <Tooltip title={t('common.delete')}>
                   <Button
                     size="small"
                     type="text"
@@ -184,19 +186,19 @@ export function ProductsPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Маҳсулотлар</h1>
+          <h1>{t('nav.products')}</h1>
           <div className="sub">
-            {products.length} та SKU · филиаллар бўйича омбор бошқаруви
+            {products.length} SKU · {t('products.subtitleSuffix')}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
             <>
               <ExcelImportButton<CreateProductPayload>
-                entityLabel="Маҳсулотлар"
+                entityLabel={t('nav.products')}
                 templateHeaders={['name', 'sku', 'unit', 'category', 'retailPriceUzs', 'wholesalePriceUzs']}
                 templateExample={['Float Glass 4mm', 'FG-4MM', 'SQUARE_METER', 'Glass Panels', '85000', '75000']}
                 templateFileName="products_template.xlsx"
@@ -246,7 +248,7 @@ export function ProductsPage() {
                 icon={<PlusOutlined />}
                 onClick={() => setEditProduct(null)}
               >
-                Янги маҳсулот
+                {t('products.newProduct')}
               </Button>
             </>
           )}
@@ -258,7 +260,7 @@ export function ProductsPage() {
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
           <Input
             prefix={<SearchOutlined />}
-            placeholder="SKU ёки ном бўйича қидириш"
+            placeholder={t('products.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
@@ -268,12 +270,12 @@ export function ProductsPage() {
             value={categoryId}
             onChange={setCategoryId}
             allowClear
-            placeholder="Барча категориялар"
+            placeholder={t('products.filterAllCategories')}
             style={{ minWidth: 220 }}
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{products.length}</strong> та натижа
+            <strong>{products.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
@@ -283,12 +285,12 @@ export function ProductsPage() {
           dataSource={products}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           onRow={(p) => ({
             onClick: () => setDrawerProduct(p),
             style: { cursor: 'pointer' },
           })}
-          emptyText="Маҳсулотлар топилмади"
+          emptyText={t('products.empty')}
         />
       </div>
 

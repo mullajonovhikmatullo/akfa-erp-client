@@ -14,8 +14,10 @@ import type { Expense } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
+import { useT } from '@/shared/lib/i18n';
 
 export function ExpensesPage() {
+  const t = useT();
   const { isSuper } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
 
@@ -51,7 +53,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Сана',
+      title: t('common.date'),
       dataIndex: 'expenseDate',
       width: 120,
       render: (v: string) => (
@@ -59,7 +61,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Категория',
+      title: t('nav.categories'),
       key: 'category',
       width: 180,
       render: (_: unknown, e: Expense) => (
@@ -67,7 +69,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Филиал',
+      title: t('common.branch'),
       key: 'branch',
       width: 150,
       responsiveHide: true,
@@ -76,7 +78,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Изоҳ',
+      title: t('expenses.colNote'),
       dataIndex: 'description',
       render: (v: string | null) =>
         v ? (
@@ -86,7 +88,7 @@ export function ExpensesPage() {
         ),
     },
     {
-      title: 'Миқдор',
+      title: t('expenses.colAmount'),
       key: 'amount',
       width: 160,
       align: 'right',
@@ -97,7 +99,7 @@ export function ExpensesPage() {
       ),
     },
     {
-      title: 'Киритувчи',
+      title: t('common.enteredBy'),
       key: 'createdBy',
       width: 150,
       responsiveHide: true,
@@ -112,15 +114,15 @@ export function ExpensesPage() {
       fixed: 'right',
       render: (_: unknown, e: Expense) => (
         <Popconfirm
-          title="Ўчирилсинми?"
-          description="Бу харажат ўчирилади."
-          okText="Ҳа"
-          cancelText="Бекор"
+          title={t('common.deleteTitle')}
+          description={t('expenses.deleteDesc')}
+          okText={t('common.yes')}
+          cancelText={t('common.cancel')}
           okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
           onConfirm={(ev) => { ev?.stopPropagation(); deleteMutation.mutate(e.id); }}
           onPopupClick={(ev) => ev.stopPropagation()}
         >
-          <Tooltip title="Ўчириш">
+          <Tooltip title={t('common.delete')}>
             <Button
               size="small"
               type="text"
@@ -138,22 +140,22 @@ export function ExpensesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Харажатлар</h1>
+          <h1>{t('nav.expenses')}</h1>
           <div className="sub">
-            {expenses.length} та ёзув · {categories.length} та категория
+            {expenses.length} {t('expenses.subtitleRecords')} · {categories.length} {t('expenses.subtitleCategories')}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {isSuper && (
             <Button icon={<AppstoreOutlined />} onClick={() => setManagingCats(true)}>
-              Категориялар
+              {t('nav.categories')}
             </Button>
           )}
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
-            Харажат қўшиш
+            {t('expenses.newExpense')}
           </Button>
         </div>
       </div>
@@ -174,7 +176,7 @@ export function ExpensesPage() {
                 <div style={{ height: 4, borderRadius: 2, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
                   <div style={{ width: `${pct}%`, height: '100%', background: 'var(--primary)', borderRadius: 2 }} />
                 </div>
-                <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{pct.toFixed(0)}% жами харажатдан</div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{pct.toFixed(0)}% {t('expenses.pctSuffix')}</div>
               </div>
             );
           })}
@@ -190,12 +192,12 @@ export function ExpensesPage() {
               value={categoryFilter}
               onChange={setCategoryFilter}
               allowClear
-              placeholder="Барча категориялар"
+              placeholder={t('expenses.filterAll')}
               style={{ minWidth: 220 }}
               options={categories.map((c) => ({ value: c.id, label: c.name }))}
             />
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-              <strong>{expenses.length}</strong> та натижа
+              <strong>{expenses.length}</strong> {t('common.resultsSuffix')}
             </span>
           </div>
 
@@ -204,16 +206,16 @@ export function ExpensesPage() {
             dataSource={expenses}
             columns={columns}
             loading={isLoading}
-            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
-            emptyText="Харажатлар топилмади"
+            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+            emptyText={t('expenses.empty')}
           />
         </div>
 
         {/* Breakdown */}
         <div className="card" style={{ position: 'sticky', top: 76 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>Категориялар бўйича</div>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t('expenses.breakdown')}</div>
           {byCat.length === 0 ? (
-            <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>Маълумот йўқ</div>
+            <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>{t('common.noData')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {byCat.map((c) => {
@@ -237,7 +239,7 @@ export function ExpensesPage() {
           )}
           <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-            <span style={{ color: 'var(--ink-3)' }}>Жами</span>
+            <span style={{ color: 'var(--ink-3)' }}>{t('common.total')}</span>
             <span className="num" style={{ fontWeight: 700 }}>
               <MoneyDisplay amount={grandTotal} currency="UZS" />
             </span>

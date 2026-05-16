@@ -1,11 +1,12 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useCreateCustomer, useUpdateCustomer } from '@/entities/customer';
 import { useCurrentUser } from '@/entities/user';
 import { useBranches } from '@/entities/branch';
-import { customerSchema, type CustomerFormValues } from '../validation/customerSchema';
+import { createCustomerSchema, type CustomerFormValues } from '../validation/customerSchema';
 import type { Customer } from '@/shared/types/domain';
+import { useT } from '@/shared/lib/i18n';
 
 interface UseCustomerFormOptions {
   customer?: Customer | null;
@@ -13,12 +14,15 @@ interface UseCustomerFormOptions {
 }
 
 export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions) {
+  const t = useT();
   const isEdit = Boolean(customer?.id);
   const { isSuper, branchId } = useCurrentUser();
   const { data: branches = [] } = useBranches();
 
+  const schema = useMemo(() => createCustomerSchema(t), [t]);
+
   const form = useForm<CustomerFormValues>({
-    resolver: zodResolver(customerSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       fullName: '',
       phone: '',

@@ -3,6 +3,7 @@ import { useCustomerDetail } from '@/entities/customer';
 import { StatusBadge, MoneyDisplay } from '@/shared/ui';
 import type { Customer } from '@/shared/types/domain';
 import { formatDate } from '@/shared/lib/formatters';
+import { useT } from '@/shared/lib/i18n';
 
 interface CustomerDetailDrawerProps {
   customer: Customer | null;
@@ -10,6 +11,7 @@ interface CustomerDetailDrawerProps {
 }
 
 export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawerProps) {
+  const t = useT();
   const { data: detail, isLoading } = useCustomerDetail(customer?.id ?? null);
 
   const balanceTone =
@@ -19,8 +21,8 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
 
   const balanceLabel =
     !detail ? '' :
-    detail.balance > 0 ? 'Қарздор' :
-    detail.balance < 0 ? 'Ортиқча тўлов' : 'Ҳисоб-китоб';
+    detail.balance > 0 ? t('customers.balanceDebt') :
+    detail.balance < 0 ? t('customers.drawerBalanceCreditFull') : t('customers.drawerBalanceSettled');
 
   return (
     <Drawer
@@ -59,9 +61,9 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
               <StatusBadge tone="info">{customer.branch.name}</StatusBadge>
               {customer.isActive ? (
-                <StatusBadge tone="success" dot>Фаол</StatusBadge>
+                <StatusBadge tone="success" dot>{t('common.active')}</StatusBadge>
               ) : (
-                <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
+                <StatusBadge tone="danger" dot>{t('common.inactive')}</StatusBadge>
               )}
             </div>
           </div>
@@ -69,7 +71,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
           <div style={{ padding: '20px 24px' }}>
 
             {/* Balance */}
-            <SectionLabel>Баланс</SectionLabel>
+            <SectionLabel>{t('customers.colBalance')}</SectionLabel>
             <div
               style={{
                 padding: '14px 16px',
@@ -82,7 +84,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                 marginBottom: 20,
               }}
             >
-              <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>Жорий баланс</span>
+              <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>{t('customers.drawerCurrentBalance')}</span>
               <div style={{ textAlign: 'right' }}>
                 <div className="num" style={{ fontSize: 18, fontWeight: 700 }}>
                   <MoneyDisplay amount={Math.abs(customer.balance)} currency="UZS" />
@@ -94,12 +96,12 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
             <Divider style={{ margin: '0 0 16px' }} />
 
             {/* Recent sales */}
-            <SectionLabel>Сўнгги сотувлар</SectionLabel>
+            <SectionLabel>{t('customers.drawerRecentSales')}</SectionLabel>
             {isLoading ? (
               <Skeleton active paragraph={{ rows: 3 }} />
             ) : !detail || detail.recentSales.length === 0 ? (
               <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>
-                Ҳали сотув амалга оширилмаган
+                {t('customers.drawerNoSales')}
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -118,7 +120,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                   >
                     <div>
                       <div style={{ fontWeight: 500, fontSize: 13 }}>
-                        {s._count.items} та маҳсулот ·{' '}
+                        {s._count.items} {t('customers.drawerProductsSuffix')} ·{' '}
                         <Tag style={{ fontSize: 11 }}>{s.saleType}</Tag>
                       </div>
                       <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>
@@ -131,7 +133,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                       </div>
                       {s.debtAmountUzs > 0 && (
                         <div className="num" style={{ fontSize: 11.5, color: 'var(--danger)' }}>
-                          Қарз: <MoneyDisplay amount={s.debtAmountUzs} currency="UZS" />
+                          {t('sales.drawerDebt')}: <MoneyDisplay amount={s.debtAmountUzs} currency="UZS" />
                         </div>
                       )}
                     </div>

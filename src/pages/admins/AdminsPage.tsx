@@ -14,6 +14,7 @@ import { useBranches } from '@/entities/branch';
 import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
+import { useT } from '@/shared/lib/i18n';
 import type { User } from '@/shared/types/domain';
 import type { CreateAdminPayload, UpdateAdminPayload } from '@/entities/user';
 
@@ -25,6 +26,7 @@ type AdminFormValues = {
 };
 
 export function AdminsPage() {
+  const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const { data: users = [], isLoading, isFetching, refetch } = useUsers();
   const { data: branches = [] } = useBranches();
@@ -67,8 +69,8 @@ export function AdminsPage() {
       updateMutation.mutate(
         { id: editTarget.id, data: payload },
         {
-          onSuccess: () => { toast.success('Администратор янгиланди'); setModalOpen(false); },
-          onError: () => toast.error('Янгилашда хатолик'),
+          onSuccess: () => { toast.success(t('admins.updateSuccess')); setModalOpen(false); },
+          onError: () => toast.error(t('admins.updateError')),
         },
       );
     } else {
@@ -79,8 +81,8 @@ export function AdminsPage() {
         branchId: values.branchId!,
       };
       createMutation.mutate(payload, {
-        onSuccess: () => { toast.success('Администратор яратилди'); setModalOpen(false); },
-        onError: () => toast.error('Яратишда хатолик'),
+        onSuccess: () => { toast.success(t('admins.createSuccess')); setModalOpen(false); },
+        onError: () => toast.error(t('admins.createError')),
       });
     }
   }
@@ -98,7 +100,7 @@ export function AdminsPage() {
       ),
     },
     {
-      title: 'Администратор',
+      title: t('admins.colAdmin'),
       key: 'name',
       render: (_: unknown, u: User) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -111,26 +113,26 @@ export function AdminsPage() {
       ),
     },
     {
-      title: 'Тайинланган филиал',
+      title: t('admins.colAssignedBranch'),
       key: 'branch',
       width: 220,
       render: (_: unknown, u: User) => {
         const branch = getBranch(u.branchId);
         return branch
           ? <StatusBadge tone="info">{branch.name}</StatusBadge>
-          : <Tag color="warning">Тайинланмаган</Tag>;
+          : <Tag color="warning">{t('common.unassigned')}</Tag>;
       },
     },
     {
-      title: 'Роль',
+      title: t('admins.colRole'),
       key: 'role',
       width: 140,
       render: () => (
-        <StatusBadge tone="muted">Филиал админи</StatusBadge>
+        <StatusBadge tone="muted">{t('admins.roleBranchAdmin')}</StatusBadge>
       ),
     },
     {
-      title: 'Қўшилган',
+      title: t('common.added'),
       key: 'createdAt',
       width: 120,
       responsiveHide: true,
@@ -146,7 +148,7 @@ export function AdminsPage() {
       fixed: 'right' as const,
       render: (_: unknown, u: User) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Таҳрирлаш">
+          <Tooltip title={t('common.edit')}>
             <Button
               size="small"
               type="text"
@@ -155,21 +157,21 @@ export function AdminsPage() {
             />
           </Tooltip>
           <Popconfirm
-            title="Ўчирилсинми?"
-            description="Ушбу фойдаланувчи тизимга кира олмайди."
-            okText="Ўчириш"
-            cancelText="Бекор"
+            title={t('common.deleteTitle')}
+            description={t('admins.deleteDesc')}
+            okText={t('common.delete')}
+            cancelText={t('common.cancel')}
             okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
             onConfirm={(e) => {
               e?.stopPropagation();
               deleteMutation.mutate(u.id, {
-                onSuccess: () => toast.success('Администратор ўчирилди'),
-                onError: () => toast.error('Ўчиришда хатолик'),
+                onSuccess: () => toast.success(t('admins.deleteSuccess')),
+                onError: () => toast.error(t('admins.deleteError')),
               });
             }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title="Ўчириш">
+            <Tooltip title={t('common.delete')}>
               <Button
                 size="small"
                 type="text"
@@ -191,15 +193,15 @@ export function AdminsPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Администраторлар</h1>
-          <div className="sub">{admins.length} та филиал администратори</div>
+          <h1>{t('admins.title')}</h1>
+          <div className="sub">{admins.length} {t('admins.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
-            Янги администратор
+            {t('admins.newAdmin')}
           </Button>
         </div>
       </div>
@@ -207,19 +209,19 @@ export function AdminsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Жами
+            {t('common.total')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{admins.length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Тайинланган
+            {t('admins.statAssigned')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{assigned}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Тайинланмаган
+            {t('admins.statUnassigned')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700, color: unassigned > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>
             {unassigned}
@@ -227,7 +229,7 @@ export function AdminsPage() {
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-            Бириктирилган филиаллар
+            {t('admins.statBranches')}
           </div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>
             {assigned} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-3)' }}>/ {branches.length}</span>
@@ -241,8 +243,8 @@ export function AdminsPage() {
           dataSource={admins}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} та`, pageSizeOptions: ['10', '25', '50'] }}
-          emptyText="Ҳали администраторлар йўқ"
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          emptyText={t('admins.empty')}
         />
       </div>
 
@@ -250,13 +252,13 @@ export function AdminsPage() {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <UserSwitchOutlined />
-            {editTarget ? `Таҳрирлаш — ${editTarget.name}` : 'Янги филиал администратори'}
+            {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('admins.modalCreate')}
           </div>
         }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSubmit}
-        okText={editTarget ? 'Сақлаш' : 'Яратиш'}
+        okText={editTarget ? t('common.save') : t('common.create')}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
         width={480}
@@ -264,33 +266,33 @@ export function AdminsPage() {
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item
             name="name"
-            label="Тўлиқ исм"
-            rules={[{ required: true, message: 'Исмни киритинг' }]}
+            label={t('profile.fullName')}
+            rules={[{ required: true, message: t('admins.nameRequired') }]}
           >
-            <Input placeholder="Масалан: Дилшод Раҳимов" />
+            <Input placeholder={t('profile.fullNamePlaceholder')} />
           </Form.Item>
 
           {!editTarget && (
             <Form.Item
               name="username"
-              label="Фойдаланувчи номи"
+              label={t('profile.username')}
               rules={[
-                { required: true, message: 'Фойдаланувчи номини киритинг' },
-                { pattern: /^[a-zA-Z0-9_]+$/, message: 'Ҳарф, рақам ва _ белгисидан иборат бўлиши керак' },
+                { required: true, message: t('admins.usernameRequired') },
+                { pattern: /^[a-zA-Z0-9_]+$/, message: t('admins.usernamePattern') },
               ]}
             >
-              <Input placeholder="Масалан: dilshod_r" prefix="@" />
+              <Input placeholder={t('profile.usernamePlaceholder')} prefix="@" />
             </Form.Item>
           )}
 
           {!editTarget && (
             <Form.Item
               name="password"
-              label="Парол"
-              rules={[{ required: true, message: 'Паролни киритинг' }, { min: 6, message: 'Камида 6 та белги' }]}
+              label={t('admins.labelPassword')}
+              rules={[{ required: true, message: t('admins.passwordRequired') }, { min: 6, message: t('pwd.minLen') }]}
             >
               <Input.Password
-                placeholder="Камида 6 та белги"
+                placeholder={t('pwd.minLen')}
                 prefix={<LockOutlined style={{ color: 'var(--ink-3)' }} />}
               />
             </Form.Item>
@@ -298,12 +300,12 @@ export function AdminsPage() {
 
           <Form.Item
             name="branchId"
-            label="Филиалга тайинлаш"
-            rules={editTarget ? [] : [{ required: true, message: 'Филиал танланг' }]}
+            label={t('admins.labelBranch')}
+            rules={editTarget ? [] : [{ required: true, message: t('admins.branchRequired') }]}
           >
             <Select
               allowClear={!!editTarget}
-              placeholder="Филиал танланг"
+              placeholder={t('admins.branchPlaceholder')}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>

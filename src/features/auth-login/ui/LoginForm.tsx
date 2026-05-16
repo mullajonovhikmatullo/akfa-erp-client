@@ -2,8 +2,10 @@ import { Controller } from 'react-hook-form';
 import { Form, Input, Button, Alert } from 'antd';
 import { UserOutlined, LockOutlined, WarningOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useLoginForm } from '../model/useLoginForm';
+import { useT } from '@/shared/lib/i18n';
 
 export function LoginForm() {
+  const t = useT();
   const { form, onSubmit, isLoading, clearCredentialErrors, sessionExpired } = useLoginForm();
   const {
     control,
@@ -20,7 +22,7 @@ export function LoginForm() {
         <Alert
           icon={<ClockCircleOutlined />}
           type="warning"
-          message="Сессия муддати тугади. Қайта киринг."
+          message={t('login.sessionExpired')}
           showIcon
           style={{ marginBottom: 20, borderRadius: 8 }}
         />
@@ -36,7 +38,6 @@ export function LoginForm() {
         />
       )}
 
-      {/* Shared Form context keeps label column width identical for both fields */}
       <Form layout="vertical" component="div">
 
         <Controller
@@ -44,7 +45,7 @@ export function LoginForm() {
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Фойдаланувчи номи"
+              label={t('login.usernameLabel')}
               required
               validateStatus={errors.username || isCredentialError ? 'error' : undefined}
               help={errors.username?.message || undefined}
@@ -54,7 +55,7 @@ export function LoginForm() {
                 {...field}
                 size="large"
                 prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
-                placeholder="Фойдаланувчи номини киритинг"
+                placeholder={t('login.usernamePlaceholder')}
                 autoComplete="username"
                 autoFocus
                 disabled={isLoading}
@@ -69,7 +70,7 @@ export function LoginForm() {
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Парол"
+              label={t('login.passwordLabel')}
               required
               validateStatus={errors.password || isCredentialError ? 'error' : undefined}
               help={errors.password?.message || undefined}
@@ -79,7 +80,7 @@ export function LoginForm() {
                 {...field}
                 size="large"
                 prefix={<LockOutlined style={{ color: '#94a3b8' }} />}
-                placeholder="Паролни киритинг"
+                placeholder={t('login.passwordPlaceholder')}
                 autoComplete="current-password"
                 disabled={isLoading}
                 onChange={(e) => { field.onChange(e); clearCredentialErrors(); }}
@@ -98,7 +99,7 @@ export function LoginForm() {
         loading={isLoading}
         style={{ marginTop: 8, height: 44, fontWeight: 600, fontSize: 15 }}
       >
-        {isLoading ? 'Кириш...' : 'Кириш'}
+        {isLoading ? t('login.signingIn') : t('login.signIn')}
       </Button>
     </form>
   );

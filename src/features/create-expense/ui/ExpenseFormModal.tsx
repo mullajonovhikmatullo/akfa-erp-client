@@ -1,10 +1,12 @@
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, InputNumber, Select, Input, DatePicker, Button } from 'antd';
 import dayjs from 'dayjs';
 import { useCreateExpense, useExpenseCategories } from '@/entities/expense';
 import { AppModal } from '@/shared/ui';
-import { expenseSchema, type ExpenseFormValues } from '../validation/expenseSchema';
+import { createExpenseSchema, type ExpenseFormValues } from '../validation/expenseSchema';
+import { useT } from '@/shared/lib/i18n';
 
 interface ExpenseFormModalProps {
   open: boolean;
@@ -12,11 +14,13 @@ interface ExpenseFormModalProps {
 }
 
 export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
+  const t = useT();
+  const schema = useMemo(() => createExpenseSchema(t), [t]);
   const { data: categories = [], isLoading: catsLoading } = useExpenseCategories();
   const createExpense = useCreateExpense();
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ExpenseFormValues>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(schema),
     defaultValues: { categoryId: '', amount: undefined as unknown as number, description: '', expenseDate: '' },
   });
 
@@ -39,16 +43,16 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
 
   return (
     <AppModal
-      title="Харажат қайд қилиш"
+      title={t('expenseForm.title')}
       open={open}
       onClose={onClose}
       width={480}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={createExpense.isPending}>
-          Бекор қилиш
+          {t('common.cancel')}
         </Button>,
         <Button key="submit" type="primary" loading={createExpense.isPending} onClick={onSubmit}>
-          Сақлаш
+          {t('common.save')}
         </Button>,
       ]}
     >
@@ -59,7 +63,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
           control={control}
           render={({ field }) => (
             <Form.Item
-              label="Категория"
+              label={t('expenseForm.labelCategory')}
               required
               validateStatus={errors.categoryId ? 'error' : undefined}
               help={errors.categoryId?.message}
@@ -67,7 +71,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
               <Select
                 {...field}
                 loading={catsLoading}
-                placeholder="Категория танланг"
+                placeholder={t('expenseForm.placeholderCategory')}
                 options={categories.map((c) => ({ value: c.id, label: c.name }))}
               />
             </Form.Item>
@@ -80,7 +84,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
             control={control}
             render={({ field }) => (
               <Form.Item
-                label="Миқдор (сўм)"
+                label={t('expenseForm.labelAmount')}
                 required
                 validateStatus={errors.amount ? 'error' : undefined}
                 help={errors.amount?.message}
@@ -101,7 +105,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
             name="expenseDate"
             control={control}
             render={({ field }) => (
-              <Form.Item label="Сана (ихтиёрий)">
+              <Form.Item label={t('expenseForm.labelDate')}>
                 <DatePicker
                   style={{ width: '100%' }}
                   value={field.value ? dayjs(field.value) : null}
@@ -118,8 +122,8 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
           name="description"
           control={control}
           render={({ field }) => (
-            <Form.Item label="Изоҳ (ихтиёрий)">
-              <Input.TextArea {...field} rows={2} placeholder="Қисқача тасниф..." />
+            <Form.Item label={t('expenseForm.labelNote')}>
+              <Input.TextArea {...field} rows={2} placeholder={t('expenseForm.placeholderNote')} />
             </Form.Item>
           )}
         />

@@ -14,9 +14,8 @@ export function ProtectedRoute() {
   // Redirect if Zustand user is gone OR the token itself is missing/cleared
   const hasToken = Boolean(tokenStore.get());
   if (!user || !hasToken) {
-    // Don't add ?from for root path — that's the default after login anyway
-    const isRoot = location.pathname === '/' || location.pathname === ROUTES.DASHBOARD;
-    const from = isRoot ? '' : `?from=${encodeURIComponent(location.pathname)}`;
+    const noFromPaths = ['/', ROUTES.DASHBOARD, ROUTES.PROFILE];
+    const from = noFromPaths.includes(location.pathname) ? '' : `?from=${encodeURIComponent(location.pathname)}`;
     return <Navigate to={`${ROUTES.LOGIN}${from}`} replace />;
   }
 

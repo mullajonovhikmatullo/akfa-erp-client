@@ -25,8 +25,10 @@ import type { Customer } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
+import { useT } from '@/shared/lib/i18n';
 
 export function CustomersPage() {
+  const t = useT();
   const { can, isSuper, branchId } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('customers:create');
@@ -54,7 +56,7 @@ export function CustomersPage() {
       ),
     },
     {
-      title: 'Мижоз',
+      title: t('nav.customers'),
       key: 'fullName',
       render: (_: unknown, c: Customer) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -78,7 +80,7 @@ export function CustomersPage() {
       ),
     },
     {
-      title: 'Телефон',
+      title: t('common.phone'),
       dataIndex: 'phone',
       width: 170,
       responsiveHide: true,
@@ -90,7 +92,7 @@ export function CustomersPage() {
         ),
     },
     {
-      title: 'Филиал',
+      title: t('common.branch'),
       key: 'branch',
       width: 150,
       responsiveHide: true,
@@ -99,13 +101,13 @@ export function CustomersPage() {
       ),
     },
     {
-      title: 'Баланс',
+      title: t('customers.colBalance'),
       key: 'balance',
       width: 180,
       align: 'right',
       render: (_: unknown, c: Customer) => {
         const tone = c.balance > 0 ? 'danger' : c.balance < 0 ? 'success' : 'muted';
-        const label = c.balance > 0 ? 'Қарздор' : c.balance < 0 ? 'Ортиқча' : 'Тенг';
+        const label = c.balance > 0 ? t('customers.balanceDebt') : c.balance < 0 ? t('customers.balanceCredit') : t('customers.balanceZero');
         return (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
             <span className="num" style={{ fontWeight: 700 }}>
@@ -117,20 +119,20 @@ export function CustomersPage() {
       },
     },
     {
-      title: 'Ҳолат',
+      title: t('common.status'),
       dataIndex: 'isActive',
       width: 90,
       align: 'center',
       responsiveHide: true,
       render: (v: boolean) =>
         v ? (
-          <StatusBadge tone="success" dot>Фаол</StatusBadge>
+          <StatusBadge tone="success" dot>{t('common.active')}</StatusBadge>
         ) : (
-          <StatusBadge tone="danger" dot>Нофаол</StatusBadge>
+          <StatusBadge tone="danger" dot>{t('common.inactive')}</StatusBadge>
         ),
     },
     {
-      title: 'Қўшилган',
+      title: t('common.added'),
       dataIndex: 'createdAt',
       width: 110,
       responsiveHide: true,
@@ -145,7 +147,7 @@ export function CustomersPage() {
       fixed: 'right',
       render: (_: unknown, c: Customer) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title="Кўриш">
+          <Tooltip title={t('common.view')}>
             <Button
               size="small"
               type="text"
@@ -155,7 +157,7 @@ export function CustomersPage() {
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title="Таҳрирлаш">
+              <Tooltip title={t('common.edit')}>
                 <Button
                   size="small"
                   type="text"
@@ -164,15 +166,15 @@ export function CustomersPage() {
                 />
               </Tooltip>
               <Popconfirm
-                title="Ўчирилсинми?"
-                description={`"${c.fullName}" мижозни нофаол қиласизми?`}
-                okText="Ҳа, ўчир"
-                cancelText="Бекор"
+                title={t('common.deleteTitle')}
+                description={`"${c.fullName}" ${t('customers.deactivateDesc')}`}
+                okText={t('common.yesDelete')}
+                cancelText={t('common.cancel')}
                 okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
                 onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(c.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title="Нофаол қилиш">
+                <Tooltip title={t('customers.deactivateTooltip')}>
                   <Button
                     size="small"
                     type="text"
@@ -193,19 +195,19 @@ export function CustomersPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Мижозлар</h1>
+          <h1>{t('nav.customers')}</h1>
           <div className="sub">
-            {customers.length} та мижоз · баланс ва тўлов тарихи
+            {customers.length} {t('customers.subtitleSuffix')}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
             <>
               <ExcelImportButton<CreateCustomerPayload>
-                entityLabel="Мижозлар"
+                entityLabel={t('nav.customers')}
                 templateHeaders={['fullName', 'phone', 'address']}
                 templateExample={['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor']}
                 templateFileName="customers_template.xlsx"
@@ -225,7 +227,7 @@ export function CustomersPage() {
                 icon={<PlusOutlined />}
                 onClick={() => setEditCustomer(null)}
               >
-                Янги мижоз
+                {t('customers.newCustomer')}
               </Button>
             </>
           )}
@@ -235,21 +237,21 @@ export function CustomersPage() {
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
         <KpiBox
-          label="Умумий қарз"
+          label={t('customers.kpiTotalDebt')}
           value={<MoneyDisplay amount={totalDebt} currency="UZS" />}
-          hint={`${customers.filter((c) => c.balance > 0).length} та мижоз`}
+          hint={`${customers.filter((c) => c.balance > 0).length} ${t('customers.subtitleSuffix2')}`}
           tone="danger"
         />
         <KpiBox
-          label="Ортиқча тўловлар"
+          label={t('customers.kpiCredit')}
           value={<MoneyDisplay amount={totalCredit} currency="UZS" />}
-          hint={`${customers.filter((c) => c.balance < 0).length} та мижоз`}
+          hint={`${customers.filter((c) => c.balance < 0).length} ${t('customers.subtitleSuffix2')}`}
           tone="success"
         />
         <KpiBox
-          label="Соф дебиторлик"
+          label={t('customers.kpiNet')}
           value={<MoneyDisplay amount={totalDebt - totalCredit} currency="UZS" />}
-          hint={`${customers.length} та жами`}
+          hint={`${customers.length} ${t('common.total')}`}
           tone="muted"
         />
       </div>
@@ -259,14 +261,14 @@ export function CustomersPage() {
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
           <Input
             prefix={<SearchOutlined />}
-            placeholder="Исм ёки телефон бўйича қидириш"
+            placeholder={t('customers.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             allowClear
             style={{ maxWidth: 320 }}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{customers.length}</strong> та натижа
+            <strong>{customers.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
@@ -275,12 +277,12 @@ export function CustomersPage() {
           dataSource={customers}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           onRow={(c) => ({
             onClick: () => setDrawerCustomer(c),
             style: { cursor: 'pointer' },
           })}
-          emptyText="Мижозлар топилмади"
+          emptyText={t('customers.empty')}
         />
       </div>
 

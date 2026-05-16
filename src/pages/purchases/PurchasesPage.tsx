@@ -10,8 +10,10 @@ import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
+import { useT } from '@/shared/lib/i18n';
 
 export function PurchasesPage() {
+  const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const [creating, setCreating] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
@@ -50,7 +52,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Сана',
+      title: t('common.date'),
       dataIndex: 'receivedAt',
       width: 120,
       render: (v: string) => (
@@ -58,7 +60,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Маҳсулот',
+      title: t('nav.products'),
       key: 'product',
       render: (_: unknown, b: StockBatch) => (
         <div>
@@ -72,7 +74,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Филиал',
+      title: t('common.branch'),
       key: 'branch',
       width: 150,
       responsiveHide: true,
@@ -81,7 +83,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Миқдор',
+      title: t('purchases.colQty'),
       key: 'qty',
       width: 160,
       align: 'right',
@@ -95,15 +97,15 @@ export function PurchasesPage() {
             </div>
             <div style={{ fontSize: 11.5, color: depleted ? 'var(--ink-4)' : 'var(--success)' }}>
               {depleted
-                ? 'Тугаган'
-                : `${b.remainingQty.toLocaleString('ru-RU')} ${unit} қолди`}
+                ? t('purchases.depleted')
+                : `${b.remainingQty.toLocaleString('ru-RU')} ${unit} ${t('purchases.remaining')}`}
             </div>
           </div>
         );
       },
     },
     {
-      title: 'Тан нархи',
+      title: t('purchases.colCost'),
       key: 'cost',
       width: 150,
       align: 'right',
@@ -121,7 +123,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Жами тан нархи',
+      title: t('purchases.colTotalCost'),
       key: 'totalCost',
       width: 160,
       responsiveHide: true,
@@ -133,7 +135,7 @@ export function PurchasesPage() {
       ),
     },
     {
-      title: 'Етказувчи изоҳи',
+      title: t('purchases.colSupplierNote'),
       dataIndex: 'supplierNote',
       responsiveHide: true,
       render: (v: string | null) =>
@@ -144,7 +146,7 @@ export function PurchasesPage() {
         ),
     },
     {
-      title: 'Киритувчи',
+      title: t('common.enteredBy'),
       key: 'createdBy',
       width: 140,
       responsiveHide: true,
@@ -158,29 +160,29 @@ export function PurchasesPage() {
     <>
       <div className="page-head">
         <div>
-          <h1>Кирим</h1>
+          <h1>{t('nav.purchases')}</h1>
           <div className="sub">
-            {totalBatches} та партия · {activeBatches} та фаол
+            {totalBatches} {t('purchases.subtitleBatches')} · {activeBatches} {t('purchases.subtitleActive')}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title="Янгилаш">
+          <Tooltip title={t('common.refresh')}>
             <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
           </Tooltip>
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
-            Кирим қилиш
+            {t('purchases.newPurchase')}
           </Button>
         </div>
       </div>
 
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
-        <KpiBox label="Жами партиялар" value={totalBatches} hint="барча вақт" />
-        <KpiBox label="Фаол партиялар" value={activeBatches} hint="қолдиғи > 0" tone="success" />
+        <KpiBox label={t('purchases.kpiTotal')} value={totalBatches} hint={t('purchases.kpiTotalHint')} />
+        <KpiBox label={t('purchases.kpiActive')} value={activeBatches} hint={t('purchases.kpiActiveHint')} tone="success" />
         <KpiBox
-          label="Жами кирим қиймати"
+          label={t('purchases.kpiValue')}
           value={<MoneyDisplay amount={totalCost} currency="UZS" />}
-          hint="тан нархлар бўйича"
+          hint={t('purchases.kpiValueHint')}
         />
       </div>
 
@@ -191,15 +193,15 @@ export function PurchasesPage() {
             value={depletedFilter === undefined ? undefined : String(depletedFilter)}
             onChange={(v) => setDepletedFilter(v === undefined ? undefined : v === 'true')}
             allowClear
-            placeholder="Барча партиялар"
+            placeholder={t('purchases.filterAll')}
             style={{ minWidth: 180 }}
             options={[
-              { value: 'false', label: 'Фаол (қолдиғи бор)' },
-              { value: 'true', label: 'Тугаган' },
+              { value: 'false', label: t('purchases.filterActive') },
+              { value: 'true', label: t('purchases.depleted') },
             ]}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{depletedFiltered.length}</strong> та натижа
+            <strong>{depletedFiltered.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
@@ -208,8 +210,8 @@ export function PurchasesPage() {
           dataSource={depletedFiltered}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (t) => `${t} ta`, pageSizeOptions: ['10', '25', '50'] }}
-          emptyText="Кирим партиялари топилмади"
+          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          emptyText={t('purchases.empty')}
         />
       </div>
 
