@@ -9,11 +9,25 @@ export interface CreateCategoryPayload {
 
 export type UpdateCategoryPayload = Partial<CreateCategoryPayload> & { isActive?: boolean };
 
+export interface CategoryPage {
+  items: Category[];
+  total: number;
+  totalActive: number;
+  totalInactive: number;
+}
+
 export const categoryApi = {
   list: (isActive?: boolean) =>
     apiClient
       .get<ApiResponse<Category[]>>('/products/categories', {
         params: isActive !== undefined ? { isActive } : undefined,
+      })
+      .then((r) => r.data.data),
+
+  listPaginated: (params: { page: number; pageSize: number }) =>
+    apiClient
+      .get<ApiResponse<CategoryPage>>('/products/categories', {
+        params,
       })
       .then((r) => r.data.data),
 

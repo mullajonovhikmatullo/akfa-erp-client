@@ -1,5 +1,5 @@
 import { Controller } from 'react-hook-form';
-import { Form, Input, InputNumber, Select, Switch, Modal, Button } from 'antd';
+import { Form, Input, InputNumber, Select, Switch, Button, Segmented } from 'antd';
 import { useCategories } from '@/entities/product';
 import { AppModal } from '@/shared/ui';
 import type { Product, ProductUnit } from '@/shared/types/domain';
@@ -28,11 +28,25 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
     product,
     onSuccess: onClose,
   });
-  const { control, formState: { errors }, watch } = form;
+  const { control, formState: { errors }, watch, setValue } = form;
 
   const { data: categories = [], isLoading: catsLoading } = useCategories(true);
 
+  const priceCurrency = watch('priceCurrency');
   const retailUzs = watch('retailPriceUzs');
+  const retailUsd = watch('retailPriceUsd');
+
+  const handleCurrencyChange = (val: string | number) => {
+    const currency = val as 'UZS' | 'USD';
+    setValue('priceCurrency', currency, { shouldValidate: false });
+    if (currency === 'UZS') {
+      setValue('retailPriceUsd', undefined);
+      setValue('wholesalePriceUsd', undefined);
+    } else {
+      setValue('retailPriceUzs', undefined);
+      setValue('wholesalePriceUzs', undefined);
+    }
+  };
 
   return (
     <AppModal
@@ -119,98 +133,124 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
           />
         </div>
 
-        {/* Row 3: UZS prices */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {/* Currency tab selector */}
+        <Form.Item style={{ marginBottom: 8 }}>
           <Controller
-            name="retailPriceUzs"
+            name="priceCurrency"
             control={control}
             render={({ field }) => (
-              <Form.Item
-                label={t('productForm.labelRetailUzs')}
-                required
-                validateStatus={errors.retailPriceUzs ? 'error' : undefined}
-                help={errors.retailPriceUzs?.message}
-              >
-                <InputNumber
-                  {...field}
-                  style={{ width: '100%' }}
-                  min={0}
-                  step={1000}
-                  formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
-                />
-              </Form.Item>
+              <Segmented
+                value={field.value}
+                onChange={handleCurrencyChange}
+                options={[
+                  { label: t('productForm.tabSom'), value: 'UZS' },
+                  { label: t('productForm.tabDollar'), value: 'USD' },
+                ]}
+                block
+              />
             )}
           />
-          <Controller
-            name="wholesalePriceUzs"
-            control={control}
-            render={({ field }) => (
-              <Form.Item
-                label={t('productForm.labelWholesaleUzs')}
-                required
-                validateStatus={errors.wholesalePriceUzs ? 'error' : undefined}
-                help={errors.wholesalePriceUzs?.message}
-              >
-                <InputNumber
-                  {...field}
-                  style={{ width: '100%' }}
-                  min={0}
-                  max={retailUzs || undefined}
-                  step={1000}
-                  formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
-                />
-              </Form.Item>
-            )}
-          />
-        </div>
+        </Form.Item>
 
-        {/* Row 4: USD prices (optional) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Controller
-            name="retailPriceUsd"
-            control={control}
-            render={({ field }) => (
-              <Form.Item
-                label={t('productForm.labelRetailUsd')}
-                validateStatus={errors.retailPriceUsd ? 'error' : undefined}
-                help={errors.retailPriceUsd?.message}
-              >
-                <InputNumber
-                  {...field}
-                  value={field.value ?? undefined}
-                  style={{ width: '100%' }}
-                  min={0}
-                  step={0.5}
-                  precision={2}
-                  prefix="$"
-                />
-              </Form.Item>
-            )}
-          />
-          <Controller
-            name="wholesalePriceUsd"
-            control={control}
-            render={({ field }) => (
-              <Form.Item
-                label={t('productForm.labelWholesaleUsd')}
-                validateStatus={errors.wholesalePriceUsd ? 'error' : undefined}
-                help={errors.wholesalePriceUsd?.message}
-              >
-                <InputNumber
-                  {...field}
-                  value={field.value ?? undefined}
-                  style={{ width: '100%' }}
-                  min={0}
-                  step={0.5}
-                  precision={2}
-                  prefix="$"
-                />
-              </Form.Item>
-            )}
-          />
-        </div>
+        {/* Price fields — UZS tab */}
+        {priceCurrency === 'UZS' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Controller
+              name="retailPriceUzs"
+              control={control}
+              render={({ field }) => (
+                <Form.Item
+                  label={t('productForm.labelRetailUzs')}
+                  required
+                  validateStatus={errors.retailPriceUzs ? 'error' : undefined}
+                  help={errors.retailPriceUzs?.message}
+                >
+                  <InputNumber
+                    {...field}
+                    style={{ width: '100%' }}
+                    min={0}
+                    step={1000}
+                    formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                    parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+                  />
+                </Form.Item>
+              )}
+            />
+            <Controller
+              name="wholesalePriceUzs"
+              control={control}
+              render={({ field }) => (
+                <Form.Item
+                  label={t('productForm.labelWholesaleUzs')}
+                  required
+                  validateStatus={errors.wholesalePriceUzs ? 'error' : undefined}
+                  help={errors.wholesalePriceUzs?.message}
+                >
+                  <InputNumber
+                    {...field}
+                    style={{ width: '100%' }}
+                    min={0}
+                    max={retailUzs || undefined}
+                    step={1000}
+                    formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                    parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+                  />
+                </Form.Item>
+              )}
+            />
+          </div>
+        )}
+
+        {/* Price fields — USD tab */}
+        {priceCurrency === 'USD' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Controller
+              name="retailPriceUsd"
+              control={control}
+              render={({ field }) => (
+                <Form.Item
+                  label={t('productForm.labelRetailUsd')}
+                  required
+                  validateStatus={errors.retailPriceUsd ? 'error' : undefined}
+                  help={errors.retailPriceUsd?.message}
+                >
+                  <InputNumber
+                    {...field}
+                    value={field.value ?? undefined}
+                    style={{ width: '100%' }}
+                    min={0}
+                    step={0.5}
+                    precision={2}
+                    prefix="$"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Controller
+              name="wholesalePriceUsd"
+              control={control}
+              render={({ field }) => (
+                <Form.Item
+                  label={t('productForm.labelWholesaleUsd')}
+                  required
+                  validateStatus={errors.wholesalePriceUsd ? 'error' : undefined}
+                  help={errors.wholesalePriceUsd?.message}
+                >
+                  <InputNumber
+                    {...field}
+                    value={field.value ?? undefined}
+                    style={{ width: '100%' }}
+                    min={0}
+                    max={retailUsd || undefined}
+                    step={0.5}
+                    precision={2}
+                    prefix="$"
+                  />
+                </Form.Item>
+              )}
+            />
+          </div>
+        )}
 
         {/* Description */}
         <Controller

@@ -33,11 +33,24 @@ export interface CreateProductPayload {
 
 export type UpdateProductPayload = Partial<CreateProductPayload> & { isActive?: boolean };
 
+export interface ProductPage {
+  items: Product[];
+  total: number;
+}
+
 export const productApi = {
   list: (params?: ProductListParams) =>
     apiClient
       .get<ApiResponse<Record<string, unknown>[]>>('/products', { params })
       .then((r) => r.data.data.map(parseProduct)),
+
+  listPaginated: (params: ProductListParams & { page: number; pageSize: number }) =>
+    apiClient
+      .get<ApiResponse<{ items: Record<string, unknown>[]; total: number }>>('/products', { params })
+      .then((r) => ({
+        items: r.data.data.items.map(parseProduct),
+        total: r.data.data.total,
+      })),
 
   getById: (id: string) =>
     apiClient

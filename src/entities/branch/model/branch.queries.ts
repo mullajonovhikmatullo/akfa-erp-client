@@ -15,6 +15,14 @@ export function useBranches() {
   });
 }
 
+export function useBranchesPage(page: number, pageSize: number) {
+  return useQuery({
+    queryKey: [...branchKeys.list(), 'paginated', page, pageSize] as const,
+    queryFn: () => branchApi.listPaginated({ page, pageSize }),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useCreateBranch() {
   const qc = useQueryClient();
   return useMutation({

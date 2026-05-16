@@ -29,6 +29,14 @@ export interface BatchFilters {
   depleted?: boolean;
 }
 
+export interface BatchPage {
+  items: StockBatch[];
+  total: number;
+  totalBatches: number;
+  totalActive: number;
+  totalCostUzs: number;
+}
+
 export const inventoryApi = {
   stockIn: (payload: StockInPayload) =>
     apiClient.post('/inventory/stock-in', payload).then((r) => parseBatch(r.data.data)),
@@ -37,4 +45,24 @@ export const inventoryApi = {
     apiClient.get('/inventory/batches', { params }).then((r) =>
       (r.data.data as Raw[]).map(parseBatch),
     ),
+
+  listBatchesPaginated: (
+    params: BatchFilters & { page: number; pageSize: number }
+  ): Promise<BatchPage> =>
+    apiClient.get('/inventory/batches', { params }).then((r) => {
+      const body = r.data.data as {
+        items: Raw[];
+        total: number;
+        totalBatches: number;
+        totalActive: number;
+        totalCostUzs: number;
+      };
+      return {
+        items: body.items.map(parseBatch),
+        total: body.total,
+        totalBatches: body.totalBatches,
+        totalActive: body.totalActive,
+        totalCostUzs: body.totalCostUzs,
+      };
+    }),
 };

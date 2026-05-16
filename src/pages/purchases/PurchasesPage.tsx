@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Button, Select, Tooltip } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import { useStockBatches } from '@/entities/inventory';
-import { useCategories } from '@/entities/product';
+import { useStockBatchesPage } from '@/entities/inventory';
 import { StockInModal } from '@/features/stock-in';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import type { StockBatch } from '@/shared/types/domain';
@@ -16,31 +15,21 @@ export function PurchasesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const [creating, setCreating] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
   const [depletedFilter, setDepletedFilter] = useState<boolean | undefined>();
 
-  const { data: batches = [], isLoading, isFetching, refetch } = useStockBatches();
-  const { data: categories = [] } = useCategories();
+  const { data: result, isLoading, isFetching, refetch } = useStockBatchesPage(
+    page, pageSize, { depleted: depletedFilter }
+  );
+  const batches = result?.items ?? [];
+  const total = result?.total ?? 0;
+  const totalBatches = result?.totalBatches ?? 0;
+  const activeBatches = result?.totalActive ?? 0;
+  const totalCost = result?.totalCostUzs ?? 0;
 
-  // client-side filter by category
-  const filtered = categoryFilter
-    ? batches.filter((b) => {
-        // product doesn't carry categoryId directly — skip filter if no match
-        return true;
-      })
-    : batches;
-
-  const depletedFiltered =
-    depletedFilter === undefined
-      ? filtered
-      : depletedFilter
-      ? filtered.filter((b) => b.remainingQty === 0)
-      : filtered.filter((b) => b.remainingQty > 0);
-
-  // KPIs
-  const totalBatches = batches.length;
-  const activeBatches = batches.filter((b) => b.remainingQty > 0).length;
-  const totalCost = batches.reduce((sum, b) => sum + b.initialQty * b.costPriceUzs, 0);
+  function handleDepletedChange(v: string | undefined) {
+    setDepletedFilter(v === undefined ? undefined : v === 'true');
+    onPageChange(1, pageSize);
+  }
 
   const columns: ColumnDef<StockBatch>[] = [
     {
@@ -191,7 +180,7 @@ export function PurchasesPage() {
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
           <Select
             value={depletedFilter === undefined ? undefined : String(depletedFilter)}
-            onChange={(v) => setDepletedFilter(v === undefined ? undefined : v === 'true')}
+            onChange={handleDepletedChange}
             allowClear
             placeholder={t('purchases.filterAll')}
             style={{ minWidth: 180 }}
@@ -201,16 +190,16 @@ export function PurchasesPage() {
             ]}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{depletedFiltered.length}</strong> {t('common.resultsSuffix')}
+            <strong>{total}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
         <DataTable<StockBatch>
           rowKey="id"
-          dataSource={depletedFiltered}
+          dataSource={batches}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText={t('purchases.empty')}
         />
       </div>

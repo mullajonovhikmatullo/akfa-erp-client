@@ -9,7 +9,7 @@ import {
   LockOutlined,
 } from '@ant-design/icons';
 import { toast } from 'sonner';
-import { useUsers, useCreateAdmin, useUpdateAdmin, useDeleteAdmin } from '@/entities/user';
+import { useAdminsPage, useCreateAdmin, useUpdateAdmin, useDeleteAdmin } from '@/entities/user';
 import { useBranches } from '@/entities/branch';
 import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
@@ -28,7 +28,9 @@ type AdminFormValues = {
 export function AdminsPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
-  const { data: users = [], isLoading, isFetching, refetch } = useUsers();
+  const { data: result, isLoading, isFetching, refetch } = useAdminsPage(page, pageSize);
+  const admins = result?.items ?? [];
+  const total = result?.total ?? 0;
   const { data: branches = [] } = useBranches();
 
   const createMutation = useCreateAdmin();
@@ -38,8 +40,6 @@ export function AdminsPage() {
   const [form] = Form.useForm<AdminFormValues>();
   const [editTarget, setEditTarget] = useState<User | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-
-  const admins = users.filter((u) => u.role === 'branch_admin');
 
   function openCreate() {
     setEditTarget(null);
@@ -186,15 +186,15 @@ export function AdminsPage() {
     },
   ];
 
-  const unassigned = admins.filter((u) => !u.branchId).length;
-  const assigned = admins.filter((u) => !!u.branchId).length;
+  const assigned = result?.totalAssigned ?? 0;
+  const unassigned = result?.totalUnassigned ?? 0;
 
   return (
     <>
       <div className="page-head">
         <div>
           <h1>{t('admins.title')}</h1>
-          <div className="sub">{admins.length} {t('admins.subtitleSuffix')}</div>
+          <div className="sub">{total} {t('admins.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
@@ -211,7 +211,7 @@ export function AdminsPage() {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.total')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{admins.length}</div>
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{total}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
@@ -243,7 +243,7 @@ export function AdminsPage() {
           dataSource={admins}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText={t('admins.empty')}
         />
       </div>

@@ -7,12 +7,22 @@ export interface BranchPayload {
   phone?: string | null;
 }
 
+export interface BranchPage {
+  items: Branch[];
+  total: number;
+}
+
 export const branchApi = {
   list: () =>
     apiClient.get('/branches').then((r) => {
       const body = r.data;
       return (Array.isArray(body) ? body : body.data) as Branch[];
     }),
+
+  listPaginated: (params: { page: number; pageSize: number }) =>
+    apiClient
+      .get<BranchPage>('/branches', { params })
+      .then((r) => r.data),
   create: (data: BranchPayload) =>
     apiClient.post('/branches', data).then((r) => {
       const body = r.data;

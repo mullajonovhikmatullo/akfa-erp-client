@@ -37,6 +37,12 @@ export interface SaleFilters {
   limit?: number;
 }
 
+export interface SalePage {
+  items: SaleListItem[];
+  total: number;
+  totalWithDebt: number;
+}
+
 export interface CreateSalePayload {
   branchId?: string;
   customerId?: string;
@@ -63,6 +69,16 @@ export const saleApi = {
     apiClient.get('/sales', { params }).then((r) =>
       (r.data.data as Raw[]).map(parseSale),
     ),
+
+  listPaginated: (params: SaleFilters & { page: number; pageSize: number }): Promise<SalePage> =>
+    apiClient.get('/sales', { params }).then((r) => {
+      const body = r.data.data as { items: Raw[]; total: number; totalWithDebt: number };
+      return {
+        items: body.items.map(parseSale),
+        total: body.total,
+        totalWithDebt: body.totalWithDebt,
+      };
+    }),
 
   getById: (id: string) =>
     apiClient.get(`/sales/${id}`).then((r) => parseSaleDetail(r.data.data)),

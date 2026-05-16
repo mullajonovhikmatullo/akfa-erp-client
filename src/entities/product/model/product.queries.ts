@@ -24,6 +24,13 @@ export function useProducts(filters?: ProductListParams) {
   });
 }
 
+export function useProductsPage(params: ProductListParams & { page: number; pageSize: number }) {
+  return useQuery({
+    queryKey: [...productKeys.all, 'paginated', params] as const,
+    queryFn: () => productApi.listPaginated(params),
+  });
+}
+
 export function useProductDetail(id: string | null) {
   return useQuery({
     queryKey: productKeys.detail(id ?? ''),
@@ -90,6 +97,14 @@ export function useCategories(isActive?: boolean) {
   return useQuery({
     queryKey: [...categoryKeys.list(), isActive] as const,
     queryFn: () => categoryApi.list(isActive),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCategoriesPage(page: number, pageSize: number) {
+  return useQuery({
+    queryKey: [...categoryKeys.list(), 'paginated', page, pageSize] as const,
+    queryFn: () => categoryApi.listPaginated({ page, pageSize }),
     staleTime: 1000 * 60 * 5,
   });
 }

@@ -9,10 +9,11 @@ import {
   BankOutlined,
 } from '@ant-design/icons';
 import { toast } from 'sonner';
-import { useBranches, useCreateBranch, useUpdateBranch, useDeleteBranch } from '@/entities/branch';
+import { useBranchesPage, useCreateBranch, useUpdateBranch, useDeleteBranch } from '@/entities/branch';
 import { useUsers, useAssignBranch, useCurrentUser } from '@/entities/user';
 import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 import type { Branch } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
@@ -20,7 +21,10 @@ import type { BranchPayload } from '@/entities/branch';
 
 export function BranchesPage() {
   const t = useT();
-  const { data: branches = [], isLoading, isFetching, refetch } = useBranches();
+  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
+  const { data: result, isLoading, isFetching, refetch } = useBranchesPage(page, pageSize);
+  const branches = result?.items ?? [];
+  const total = result?.total ?? 0;
   const { data: users = [] } = useUsers();
   const { user: currentUser, isSuper } = useCurrentUser();
 
@@ -107,7 +111,7 @@ export function BranchesPage() {
       width: 48,
       render: (_: unknown, __: Branch, index: number) => (
         <span style={{ fontSize: 12, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>
-          {index + 1}
+          {rowIndex(index)}
         </span>
       ),
     },
@@ -235,7 +239,7 @@ export function BranchesPage() {
       <div className="page-head">
         <div>
           <h1>{t('nav.branches')}</h1>
-          <div className="sub">{branches.length} {t('branches.statSuffix')} · {branchAdmins.length} {t('admins.subtitleSuffix')}</div>
+          <div className="sub">{total} {t('branches.statSuffix')} · {branchAdmins.length} {t('admins.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
@@ -250,11 +254,11 @@ export function BranchesPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{t('branches.statTotal')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{branches.length}</div>
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{total}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{t('branches.statWithAdmin')}</div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{branches.filter((b) => getAssignedUser(b.id) !== null).length}</div>
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((u) => !!u.branchId).length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{t('branches.statUnassigned')}</div>
@@ -268,7 +272,7 @@ export function BranchesPage() {
           dataSource={branches}
           columns={columns}
           loading={isLoading}
-          pagination={false}
+          pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText={t('branches.empty')}
         />
       </div>

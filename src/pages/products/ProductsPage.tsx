@@ -9,7 +9,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import {
-  useProducts,
+  useProductsPage,
   useCategories,
   useDeleteProduct,
   productApi,
@@ -40,10 +40,14 @@ export function ProductsPage() {
   const [editProduct, setEditProduct] = useState<Product | null | undefined>(undefined);
   // undefined = modal closed, null = new product, Product = edit
 
-  const { data: products = [], isLoading, isFetching, refetch } = useProducts({
+  const { data: result, isLoading, isFetching, refetch } = useProductsPage({
+    page,
+    pageSize,
     search: search || undefined,
     categoryId,
   });
+  const products = result?.items ?? [];
+  const total = result?.total ?? 0;
 
   const { data: categories = [] } = useCategories();
   const deleteMutation = useDeleteProduct();
@@ -262,20 +266,20 @@ export function ProductsPage() {
             prefix={<SearchOutlined />}
             placeholder={t('products.searchPlaceholder')}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); onPageChange(1, pageSize); }}
             allowClear
             style={{ maxWidth: 300 }}
           />
           <Select
             value={categoryId}
-            onChange={setCategoryId}
+            onChange={(v) => { setCategoryId(v); onPageChange(1, pageSize); }}
             allowClear
             placeholder={t('products.filterAllCategories')}
             style={{ minWidth: 220 }}
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{products.length}</strong> {t('common.resultsSuffix')}
+            <strong>{total}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
@@ -285,7 +289,7 @@ export function ProductsPage() {
           dataSource={products}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           onRow={(p) => ({
             onClick: () => setDrawerProduct(p),
             style: { cursor: 'pointer' },

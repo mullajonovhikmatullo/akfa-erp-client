@@ -6,6 +6,8 @@ import { customerKeys } from '@/entities/customer';
 export const saleKeys = {
   all: ['sales'] as const,
   list: (filters?: SaleFilters) => [...saleKeys.all, 'list', filters] as const,
+  paginated: (page: number, pageSize: number, filters?: SaleFilters) =>
+    [...saleKeys.all, 'paginated', page, pageSize, filters] as const,
   detail: (id: string) => [...saleKeys.all, 'detail', id] as const,
 };
 
@@ -13,6 +15,14 @@ export function useSales(filters?: SaleFilters) {
   return useQuery({
     queryKey: saleKeys.list(filters),
     queryFn: () => saleApi.list(filters),
+  });
+}
+
+export function useSalesPage(page: number, pageSize: number, filters?: SaleFilters) {
+  return useQuery({
+    queryKey: saleKeys.paginated(page, pageSize, filters),
+    queryFn: () => saleApi.listPaginated({ ...filters, page, pageSize }),
+    staleTime: 2 * 60 * 1000,
   });
 }
 

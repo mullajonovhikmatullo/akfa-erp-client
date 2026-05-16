@@ -16,6 +16,14 @@ export function useUsers() {
   });
 }
 
+export function useAdminsPage(page: number, pageSize: number) {
+  return useQuery({
+    queryKey: [...userKeys.list(), 'paginated', page, pageSize] as const,
+    queryFn: () => userApi.listPaginated({ page, pageSize }),
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
 export function useCreateAdmin() {
   const qc = useQueryClient();
   return useMutation({

@@ -5,12 +5,22 @@ import { inventoryApi, type StockInPayload, type BatchFilters } from '../api/inv
 export const inventoryKeys = {
   all: ['inventory'] as const,
   batches: (filters?: BatchFilters) => [...inventoryKeys.all, 'batches', filters] as const,
+  batchesPaginated: (page: number, pageSize: number, filters?: BatchFilters) =>
+    [...inventoryKeys.all, 'batches', 'paginated', page, pageSize, filters] as const,
 };
 
 export function useStockBatches(filters?: BatchFilters) {
   return useQuery({
     queryKey: inventoryKeys.batches(filters),
     queryFn: () => inventoryApi.listBatches(filters),
+  });
+}
+
+export function useStockBatchesPage(page: number, pageSize: number, filters?: BatchFilters) {
+  return useQuery({
+    queryKey: inventoryKeys.batchesPaginated(page, pageSize, filters),
+    queryFn: () => inventoryApi.listBatchesPaginated({ ...filters, page, pageSize }),
+    staleTime: 2 * 60 * 1000,
   });
 }
 

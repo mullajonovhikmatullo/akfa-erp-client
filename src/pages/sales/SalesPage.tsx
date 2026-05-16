@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Select, Tooltip, Badge } from 'antd';
 import { ReloadOutlined, EyeOutlined } from '@ant-design/icons';
-import { useSales } from '@/entities/sale';
+import { useSalesPage } from '@/entities/sale';
 import { NewSaleForm } from '@/features/create-sale';
 import { SaleDetailDrawer } from '@/widgets/sale-detail';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
@@ -20,11 +20,13 @@ export function SalesPage() {
   const [saleTypeFilter, setSaleTypeFilter] = useState<SaleType | undefined>();
   const [hasDebt, setHasDebt] = useState<boolean | undefined>();
 
-  const { data: sales = [], isLoading, isFetching, refetch } = useSales({
+  const { data: result, isLoading, isFetching, refetch } = useSalesPage(page, pageSize, {
     saleType: saleTypeFilter,
     hasDebt,
-    limit: 100,
   });
+  const sales = result?.items ?? [];
+  const total = result?.total ?? 0;
+  const totalWithDebt = result?.totalWithDebt ?? 0;
 
   const SALE_TYPE_OPTIONS: { value: SaleType; label: string }[] = [
     { value: 'RETAIL', label: t('sales.typeRetail') },
@@ -148,7 +150,17 @@ export function SalesPage() {
     },
   ];
 
-  const debtCount = sales.filter((s) => s.debtAmountUzs > 0).length;
+  const debtCount = totalWithDebt;
+
+  function handleSaleTypeChange(v: SaleType | undefined) {
+    setSaleTypeFilter(v);
+    onPageChange(1, pageSize);
+  }
+
+  function handleHasDebtChange(v: string | undefined) {
+    setHasDebt(v === undefined ? undefined : v === 'true');
+    onPageChange(1, pageSize);
+  }
 
   return (
     <>
@@ -169,7 +181,7 @@ export function SalesPage() {
               type={tab === 'history' ? 'primary' : 'default'}
               onClick={() => setTab('history')}
             >
-              {t('sales.historyBtn')} ({sales.length})
+              {t('sales.historyBtn')} ({total})
             </Button>
           </Badge>
         </div>
@@ -183,7 +195,7 @@ export function SalesPage() {
           <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
             <Select
               value={saleTypeFilter}
-              onChange={setSaleTypeFilter}
+              onChange={handleSaleTypeChange}
               allowClear
               placeholder={t('sales.filterAllTypes')}
               style={{ minWidth: 160 }}
@@ -191,7 +203,7 @@ export function SalesPage() {
             />
             <Select
               value={hasDebt === undefined ? undefined : String(hasDebt)}
-              onChange={(v) => setHasDebt(v === undefined ? undefined : v === 'true')}
+              onChange={handleHasDebtChange}
               allowClear
               placeholder={t('sales.filterPayment')}
               style={{ minWidth: 160 }}
@@ -204,7 +216,7 @@ export function SalesPage() {
               <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
             </Tooltip>
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-              <strong>{sales.length}</strong> {t('common.resultsSuffix')}
+              <strong>{total}</strong> {t('common.resultsSuffix')}
             </span>
           </div>
 
@@ -213,7 +225,7 @@ export function SalesPage() {
             dataSource={sales}
             columns={columns}
             loading={isLoading}
-            pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+            pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
             onRow={(s) => ({
               onClick: () => setDrawerSale(s),
               style: { cursor: 'pointer' },

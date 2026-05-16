@@ -56,6 +56,13 @@ const parseUser = (r: { data: unknown }) => {
   return normalizeUser(raw);
 };
 
+export interface AdminPage {
+  items: User[];
+  total: number;
+  totalAssigned: number;
+  totalUnassigned: number;
+}
+
 export const userApi = {
   login: (payload: LoginPayload) =>
     apiClient
@@ -67,6 +74,16 @@ export const userApi = {
 
   list: () =>
     apiClient.get('/admins').then(parseUsers),
+
+  listPaginated: (params: { page: number; pageSize: number }): Promise<AdminPage> =>
+    apiClient
+      .get<ApiResponse<{ items: Record<string, unknown>[]; total: number; totalAssigned: number; totalUnassigned: number }>>('/admins', { params })
+      .then((r) => ({
+        items: r.data.data.items.map(normalizeUser),
+        total: r.data.data.total,
+        totalAssigned: r.data.data.totalAssigned,
+        totalUnassigned: r.data.data.totalUnassigned,
+      })),
 
   create: (payload: CreateAdminPayload) =>
     apiClient.post('/admins', payload).then(parseUser),

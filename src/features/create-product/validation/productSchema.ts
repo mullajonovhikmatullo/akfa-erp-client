@@ -23,15 +23,35 @@ export const createProductSchema = (t: (k: string) => string) => {
         .or(z.literal('')),
       unit: z.enum(UNITS, { error: t('validation.unitRequired') }),
       categoryId: z.string().uuid(t('validation.categoryRequired')),
-      retailPriceUzs: priceField,
-      wholesalePriceUzs: priceField,
+      priceCurrency: z.enum(['UZS', 'USD']),
+      retailPriceUzs: priceField.optional(),
+      wholesalePriceUzs: priceField.optional(),
       retailPriceUsd: priceField.optional(),
       wholesalePriceUsd: priceField.optional(),
       isActive: z.boolean().optional(),
     })
-    .refine((d) => d.wholesalePriceUzs <= d.retailPriceUzs, {
-      message: t('validation.wholesaleExceedsRetail'),
-      path: ['wholesalePriceUzs'],
+    .superRefine((d, ctx) => {
+      if (d.priceCurrency === 'UZS') {
+        if (d.retailPriceUzs === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['retailPriceUzs'] });
+        }
+        if (d.wholesalePriceUzs === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['wholesalePriceUzs'] });
+        }
+        if (d.retailPriceUzs !== undefined && d.wholesalePriceUzs !== undefined && d.wholesalePriceUzs > d.retailPriceUzs) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.wholesaleExceedsRetail'), path: ['wholesalePriceUzs'] });
+        }
+      } else {
+        if (d.retailPriceUsd === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['retailPriceUsd'] });
+        }
+        if (d.wholesalePriceUsd === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['wholesalePriceUsd'] });
+        }
+        if (d.retailPriceUsd !== undefined && d.wholesalePriceUsd !== undefined && d.wholesalePriceUsd > d.retailPriceUsd) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.wholesaleExceedsRetail'), path: ['wholesalePriceUsd'] });
+        }
+      }
     });
 };
 

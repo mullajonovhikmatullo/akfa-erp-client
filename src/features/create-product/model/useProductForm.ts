@@ -25,6 +25,7 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
       sku: '',
       unit: 'PIECE',
       categoryId: '',
+      priceCurrency: 'UZS',
       retailPriceUzs: 0,
       wholesalePriceUzs: 0,
       retailPriceUsd: undefined,
@@ -36,22 +37,25 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
   // Populate form when editing
   useEffect(() => {
     if (product) {
+      const hasUsdOnly = !product.retailPriceUzs && !!product.retailPriceUsd;
       form.reset({
         name: product.name,
         description: product.description ?? '',
         sku: product.sku ?? '',
         unit: product.unit,
         categoryId: product.category.id,
-        retailPriceUzs: product.retailPriceUzs,
-        wholesalePriceUzs: product.wholesalePriceUzs,
-        retailPriceUsd: product.retailPriceUsd ?? undefined,
-        wholesalePriceUsd: product.wholesalePriceUsd ?? undefined,
+        priceCurrency: hasUsdOnly ? 'USD' : 'UZS',
+        retailPriceUzs: hasUsdOnly ? undefined : product.retailPriceUzs,
+        wholesalePriceUzs: hasUsdOnly ? undefined : product.wholesalePriceUzs,
+        retailPriceUsd: hasUsdOnly ? (product.retailPriceUsd ?? undefined) : undefined,
+        wholesalePriceUsd: hasUsdOnly ? (product.wholesalePriceUsd ?? undefined) : undefined,
         isActive: product.isActive,
       });
     } else {
       form.reset({
         name: '', description: '', sku: '', unit: 'PIECE',
-        categoryId: '', retailPriceUzs: 0, wholesalePriceUzs: 0,
+        categoryId: '', priceCurrency: 'UZS',
+        retailPriceUzs: 0, wholesalePriceUzs: 0,
         retailPriceUsd: undefined, wholesalePriceUsd: undefined, isActive: true,
       });
     }
@@ -62,13 +66,16 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = form.handleSubmit((values) => {
-    // Strip empty optional strings → undefined so backend doesn't complain
+    const { priceCurrency, ...rest } = values;
+
     const payload = {
-      ...values,
+      ...rest,
       sku: values.sku || undefined,
       description: values.description || undefined,
-      retailPriceUsd: values.retailPriceUsd || undefined,
-      wholesalePriceUsd: values.wholesalePriceUsd || undefined,
+      retailPriceUzs: priceCurrency === 'USD' ? 0 : values.retailPriceUzs!,
+      wholesalePriceUzs: priceCurrency === 'USD' ? 0 : values.wholesalePriceUzs!,
+      retailPriceUsd: priceCurrency === 'USD' ? values.retailPriceUsd : undefined,
+      wholesalePriceUsd: priceCurrency === 'USD' ? values.wholesalePriceUsd : undefined,
     };
 
     if (isEdit && product) {

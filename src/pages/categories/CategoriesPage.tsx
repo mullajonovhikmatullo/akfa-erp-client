@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { ExcelImportButton } from '@/features/excel-import';
 import { getField } from '@/features/excel-import/lib/parseExcel';
 import {
-  useCategories,
+  useCategoriesPage,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
@@ -33,7 +33,9 @@ type CategoryFormValues = {
 export function CategoriesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
-  const { data: categories = [], isLoading, isFetching, refetch } = useCategories();
+  const { data: result, isLoading, isFetching, refetch } = useCategoriesPage(page, pageSize);
+  const categories = result?.items ?? [];
+  const total = result?.total ?? 0;
 
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
@@ -89,8 +91,8 @@ export function CategoriesPage() {
     }
   }
 
-  const active = categories.filter((c) => c.isActive).length;
-  const inactive = categories.filter((c) => !c.isActive).length;
+  const active = result?.totalActive ?? 0;
+  const inactive = result?.totalInactive ?? 0;
 
   const columns = [
     {
@@ -187,7 +189,7 @@ export function CategoriesPage() {
       <div className="page-head">
         <div>
           <h1>{t('nav.categories')}</h1>
-          <div className="sub">{categories.length} {t('categories.subtitleSuffix')}</div>
+          <div className="sub">{total} {t('categories.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
@@ -240,7 +242,7 @@ export function CategoriesPage() {
           dataSource={categories}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText={t('categories.empty')}
         />
       </div>

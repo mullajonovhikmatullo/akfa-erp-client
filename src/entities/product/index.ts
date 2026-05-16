@@ -4,12 +4,14 @@ export { categoryApi } from './api/category.api';
 export type { CreateCategoryPayload, UpdateCategoryPayload } from './api/category.api';
 export {
   useProducts,
+  useProductsPage,
   useProductDetail,
   useProductInventory,
   useCreateProduct,
   useUpdateProduct,
   useDeleteProduct,
   useCategories,
+  useCategoriesPage,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
