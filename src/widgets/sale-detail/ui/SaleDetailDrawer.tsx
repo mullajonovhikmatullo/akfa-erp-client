@@ -59,7 +59,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
           {/* Header */}
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
             <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace', letterSpacing: '.04em' }}>
-              #{sale.id.split('-')[0].toUpperCase()}
+              #{(sale.id.split('-')[0] ?? '').toUpperCase()}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 8px' }}>
               <h2 style={{ margin: 0, fontSize: 18 }}>
