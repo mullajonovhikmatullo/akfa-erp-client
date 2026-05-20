@@ -9,6 +9,7 @@ export const createCustomerSchema = (t: (k: string) => string) =>
       .optional()
       .or(z.literal('')),
     address: z.string().max(300).optional().or(z.literal('')),
+    balance: z.number().min(0).optional(),
     isActive: z.boolean().optional(),
     branchId: z.string().uuid().optional(),
   });

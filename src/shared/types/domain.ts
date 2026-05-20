@@ -70,8 +70,8 @@ export interface Product {
   description: string | null;
   sku: string | null;
   unit: ProductUnit;
-  categoryId: string;
-  category: { id: string; name: string };
+  categoryId: string | null;
+  category: { id: string; name: string } | null;
   retailPriceUzs: number;
   wholesalePriceUzs: number;
   retailPriceUsd: number | null;

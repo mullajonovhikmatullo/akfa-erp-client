@@ -22,7 +22,7 @@ export const createProductSchema = (t: (k: string) => string) => {
         .optional()
         .or(z.literal('')),
       unit: z.enum(UNITS, { error: t('validation.unitRequired') }),
-      categoryId: z.string().uuid(t('validation.categoryRequired')),
+      categoryId: z.string().uuid(t('validation.categoryRequired')).optional().or(z.literal('')),
       priceCurrency: z.enum(['UZS', 'USD']),
       retailPriceUzs: priceField.optional(),
       wholesalePriceUzs: priceField.optional(),

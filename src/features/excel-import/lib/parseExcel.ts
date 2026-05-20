@@ -24,9 +24,8 @@ export function parseExcelFile(file: File): Promise<Record<string, string>[]> {
   });
 }
 
-export function downloadTemplate(headers: string[], exampleRow: string[], fileName: string) {
-  const ws = XLSX.utils.aoa_to_sheet([headers, exampleRow]);
-  // Bold header row
+export function downloadTemplate(headers: string[], exampleRows: string[][], fileName: string) {
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...exampleRows]);
   headers.forEach((_, i) => {
     const cell = XLSX.utils.encode_cell({ r: 0, c: i });
     if (ws[cell]) ws[cell].s = { font: { bold: true } };

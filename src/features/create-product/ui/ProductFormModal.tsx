@@ -104,7 +104,6 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
             render={({ field }) => (
               <Form.Item
                 label={t('productForm.labelCategory')}
-                required
                 validateStatus={errors.categoryId ? 'error' : undefined}
                 help={errors.categoryId?.message}
               >

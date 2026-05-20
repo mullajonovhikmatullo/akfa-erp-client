@@ -7,10 +7,12 @@ interface MoneyDisplayProps {
   currency?: Currency;
   compact?: boolean;
   colorize?: boolean;
+  noConvert?: boolean;
 }
 
 /**
  * Converts to display currency (from ui store) and formats.
+ * Pass `noConvert` to skip conversion and show the amount in its stored currency.
  * Use `colorize` to show red for negative values.
  */
 export function MoneyDisplay({
@@ -18,19 +20,21 @@ export function MoneyDisplay({
   currency = 'UZS',
   compact = false,
   colorize = false,
+  noConvert = false,
 }: MoneyDisplayProps) {
   const displayCurrency = useUIStore((s) => s.displayCurrency);
   const rate = useUIStore((s) => s.exchangeRate);
 
   let converted = amount;
-  if (currency !== displayCurrency) {
+  const effectiveCurrency = noConvert ? currency : displayCurrency;
+  if (!noConvert && currency !== displayCurrency) {
     converted =
       currency === 'USD'
         ? amount * rate
         : amount / rate;
   }
 
-  const formatted = formatMoney(converted, displayCurrency, compact);
+  const formatted = formatMoney(converted, effectiveCurrency, compact);
   const color = colorize ? (amount < 0 ? 'var(--danger)' : amount > 0 ? 'var(--success)' : undefined) : undefined;
 
   return (

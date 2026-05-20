@@ -79,7 +79,7 @@ export function ProductsPage() {
       render: (_: unknown, p: Product) => (
         <div>
           <div style={{ fontWeight: 600 }}>{p.name}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{p.category.name}</div>
+          {p.category && <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{p.category.name}</div>}
         </div>
       ),
     },
@@ -95,11 +95,18 @@ export function ProductsPage() {
       key: 'retail',
       width: 150,
       align: 'right',
-      render: (_: unknown, p: Product) => (
-        <span className="num" style={{ fontWeight: 600 }}>
-          <MoneyDisplay amount={p.retailPriceUzs} currency="UZS" />
-        </span>
-      ),
+      render: (_: unknown, p: Product) => {
+        const isUsd = !p.retailPriceUzs && !!p.retailPriceUsd;
+        return (
+          <span className="num" style={{ fontWeight: 600 }}>
+            <MoneyDisplay
+              amount={isUsd ? p.retailPriceUsd! : p.retailPriceUzs}
+              currency={isUsd ? 'USD' : 'UZS'}
+              noConvert={isUsd}
+            />
+          </span>
+        );
+      },
     },
     {
       title: t('products.colWholesale'),
@@ -107,11 +114,18 @@ export function ProductsPage() {
       width: 150,
       align: 'right',
       responsiveHide: true,
-      render: (_: unknown, p: Product) => (
-        <span className="num">
-          <MoneyDisplay amount={p.wholesalePriceUzs} currency="UZS" />
-        </span>
-      ),
+      render: (_: unknown, p: Product) => {
+        const isUsd = !p.wholesalePriceUzs && !!p.wholesalePriceUsd;
+        return (
+          <span className="num">
+            <MoneyDisplay
+              amount={isUsd ? p.wholesalePriceUsd! : p.wholesalePriceUzs}
+              currency={isUsd ? 'USD' : 'UZS'}
+              noConvert={isUsd}
+            />
+          </span>
+        );
+      },
     },
     {
       title: t('common.status'),
@@ -203,44 +217,70 @@ export function ProductsPage() {
             <>
               <ExcelImportButton<CreateProductPayload>
                 entityLabel={t('nav.products')}
-                templateHeaders={['name', 'sku', 'unit', 'category', 'retailPriceUzs', 'wholesalePriceUzs']}
-                templateExample={['Float Glass 4mm', 'FG-4MM', 'SQUARE_METER', 'Glass Panels', '85000', '75000']}
+                templateHeaders={['name', 'description', 'sku', 'unit', 'currency', 'retailPrice', 'wholesalePrice']}
+                templateExamples={[
+                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', 'PIECE', "SO'M", '85000', '75000'],
+                  ['Mahsulot B', '', 'PRF-002', 'KG', 'USD', '12.50', '10.00'],
+                ]}
                 templateFileName="products_template.xlsx"
+                hints={[
+                  {
+                    label: t('excel.hintsCurrency'),
+                    items: ["SO'M", 'USD'],
+                  },
+                  {
+                    label: t('excel.hintsUnits'),
+                    items: ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'],
+                  },
+                ]}
                 parseRow={(raw, index) => {
                   const name = getField(raw, 'name');
-                  if (!name) return { index, raw, error: 'name is required' };
+                  if (!name) return { index, raw, error: "Nomi kiritilishi shart" };
 
                   const unitRaw = getField(raw, 'unit').toUpperCase();
                   const validUnits = ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'];
-                  if (!validUnits.includes(unitRaw)) {
-                    return { index, raw, error: `unit must be one of: ${validUnits.join(', ')}` };
+                  if (!unitRaw || !validUnits.includes(unitRaw)) {
+                    const suggestion = validUnits.find((u) =>
+                      u === unitRaw + 'S' || u === 'S' + unitRaw ||
+                      unitRaw === u + 'S' || unitRaw === 'S' + u ||
+                      u.includes(unitRaw) || unitRaw.includes(u)
+                    );
+                    const hint = suggestion
+                      ? ` — balki "${suggestion}" demoqchimisiz?`
+                      : `. To'g'ri qiymatlar: ${validUnits.join(', ')}`;
+                    return { index, raw, error: `"${unitRaw}" noto'g'ri o'lchov birligi${hint}` };
                   }
 
-                  const categoryName = getField(raw, 'category');
-                  if (!categoryName) return { index, raw, error: 'category is required' };
-                  const cat = categories.find(
-                    (c) => c.name.toLowerCase() === categoryName.toLowerCase(),
-                  );
-                  if (!cat) return { index, raw, error: `Category "${categoryName}" not found` };
-
-                  const retailPriceUzs = Number(getField(raw, 'retailPriceUzs'));
-                  if (isNaN(retailPriceUzs) || retailPriceUzs < 0) {
-                    return { index, raw, error: 'retailPriceUzs must be a valid number' };
-                  }
-                  const wholesalePriceUzs = Number(getField(raw, 'wholesalePriceUzs'));
-                  if (isNaN(wholesalePriceUzs) || wholesalePriceUzs < 0) {
-                    return { index, raw, error: 'wholesalePriceUzs must be a valid number' };
+                  const currencyRaw = getField(raw, 'currency').toUpperCase().replace(/['\s]/g, '');
+                  const isUsd = currencyRaw === 'USD' || currencyRaw === '$';
+                  const isUzs = currencyRaw === 'SOM' || currencyRaw === 'UZS';
+                  if (!isUsd && !isUzs) {
+                    return { index, raw, error: "Valyuta noto'g'ri. SO'M yoki USD kiriting" };
                   }
 
+                  const retailPrice = Number(getField(raw, 'retailPrice'));
+                  if (isNaN(retailPrice) || retailPrice < 0) {
+                    return { index, raw, error: "Chakana narxi noto'g'ri kiritilgan" };
+                  }
+                  const wholesalePrice = Number(getField(raw, 'wholesalePrice'));
+                  if (isNaN(wholesalePrice) || wholesalePrice < 0) {
+                    return { index, raw, error: "Ulgurji narxi noto'g'ri kiritilgan" };
+                  }
+                  if (wholesalePrice > retailPrice) {
+                    return { index, raw, error: "Ulgurji narxi chakana narxdan oshmasligi kerak" };
+                  }
+
+                  const description = getField(raw, 'description') || undefined;
                   const sku = getField(raw, 'sku') || undefined;
                   return {
                     index, raw,
                     data: {
-                      name, sku,
+                      name, description, sku,
                       unit: unitRaw as CreateProductPayload['unit'],
-                      categoryId: cat.id,
-                      retailPriceUzs,
-                      wholesalePriceUzs,
+                      retailPriceUzs: isUzs ? retailPrice : 0,
+                      wholesalePriceUzs: isUzs ? wholesalePrice : 0,
+                      retailPriceUsd: isUsd ? retailPrice : undefined,
+                      wholesalePriceUsd: isUsd ? wholesalePrice : undefined,
                     },
                   };
                 }}

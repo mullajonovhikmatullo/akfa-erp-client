@@ -44,7 +44,7 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
               </p>
             )}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-              <StatusBadge tone="info">{product.category.name}</StatusBadge>
+              {product.category && <StatusBadge tone="info">{product.category.name}</StatusBadge>}
               <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[product.unit]}</StatusBadge>
               {product.isActive ? (
                 <StatusBadge tone="success" dot>{t('common.active')}</StatusBadge>
@@ -59,8 +59,12 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
             {/* Pricing */}
             <SectionLabel>{t('products.drawerPricingSection')}</SectionLabel>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-              <PriceBox label={t('products.drawerRetailUzs')} amount={product.retailPriceUzs} currency="UZS" />
-              <PriceBox label={t('products.drawerWholesaleUzs')} amount={product.wholesalePriceUzs} currency="UZS" />
+              {product.retailPriceUzs > 0 && (
+                <PriceBox label={t('products.drawerRetailUzs')} amount={product.retailPriceUzs} currency="UZS" />
+              )}
+              {product.wholesalePriceUzs > 0 && (
+                <PriceBox label={t('products.drawerWholesaleUzs')} amount={product.wholesalePriceUzs} currency="UZS" />
+              )}
               {product.retailPriceUsd != null && (
                 <PriceBox label={t('products.drawerRetailUsd')} amount={product.retailPriceUsd} currency="USD" />
               )}
@@ -122,7 +126,7 @@ function PriceBox({ label, amount, currency }: { label: string; amount: number; 
     <div style={{ padding: '12px 14px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
       <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4 }}>{label}</div>
       <div className="num" style={{ fontSize: 16, fontWeight: 700 }}>
-        <MoneyDisplay amount={amount} currency={currency} />
+        <MoneyDisplay amount={amount} currency={currency} noConvert />
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ const parseProduct = (raw: Record<string, unknown>): Product => ({
   wholesalePriceUzs: Number(raw.wholesalePriceUzs),
   retailPriceUsd: raw.retailPriceUsd != null ? Number(raw.retailPriceUsd) : null,
   wholesalePriceUsd: raw.wholesalePriceUsd != null ? Number(raw.wholesalePriceUsd) : null,
-  categoryId: (raw.category as { id: string }).id,
+  categoryId: raw.category ? (raw.category as { id: string }).id : null,
 });
 
 export interface ProductListParams {
@@ -24,7 +24,7 @@ export interface CreateProductPayload {
   description?: string;
   sku?: string;
   unit: ProductUnit;
-  categoryId: string;
+  categoryId?: string;
   retailPriceUzs: number;
   wholesalePriceUzs: number;
   retailPriceUsd?: number;

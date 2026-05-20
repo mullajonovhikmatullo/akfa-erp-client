@@ -208,16 +208,27 @@ export function CustomersPage() {
             <>
               <ExcelImportButton<CreateCustomerPayload>
                 entityLabel={t('nav.customers')}
-                templateHeaders={['fullName', 'phone', 'address']}
-                templateExample={['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor']}
+                templateHeaders={['fullName', 'phone', 'address', 'balance']}
+                templateExamples={[
+                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0'],
+                  ['Nilufar Tosheva', '+998912345678', '', '150000'],
+                ]}
                 templateFileName="customers_template.xlsx"
                 parseRow={(raw, index) => {
                   const fullName = getField(raw, 'fullName');
                   if (!fullName) return { index, raw, error: 'fullName is required' };
                   const phone = getField(raw, 'phone') || undefined;
                   const address = getField(raw, 'address') || undefined;
+                  const balanceRaw = getField(raw, 'balance');
+                  const balance = balanceRaw ? Number(balanceRaw) : undefined;
+                  if (balance !== undefined && isNaN(balance)) {
+                    return { index, raw, error: "Balance noto'g'ri kiritilgan (son bo'lishi kerak)" };
+                  }
+                  if (balance !== undefined && balance < 0) {
+                    return { index, raw, error: "Balance manfiy bo'lishi mumkin emas" };
+                  }
                   const resolvedBranchId = isSuper ? (branchId ?? undefined) : (branchId ?? undefined);
-                  return { index, raw, data: { fullName, phone, address, branchId: resolvedBranchId } };
+                  return { index, raw, data: { fullName, phone, address, branchId: resolvedBranchId, balance } };
                 }}
                 createFn={(data) => customerApi.create(data)}
                 onComplete={() => refetch()}

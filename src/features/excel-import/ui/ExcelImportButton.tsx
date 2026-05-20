@@ -1,9 +1,17 @@
-import { useRef, useState } from 'react';
-import { Button, Modal, Table, Progress, Alert, Tag, Tooltip } from 'antd';
-import { UploadOutlined, DownloadOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Button, Modal, Table, Progress, Alert, Tag, Tooltip, Upload } from 'antd';
+import {
+  UploadOutlined,
+  DownloadOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  InboxOutlined,
+} from '@ant-design/icons';
+import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import { parseExcelFile, downloadTemplate } from '../lib/parseExcel';
+import { parseExcelFile, downloadTemplate, getField } from '../lib/parseExcel';
 import { useT } from '@/shared/lib/i18n';
+import type { ApiError } from '@/shared/types/api';
 
 export interface ParsedRow<T> {
   index: number;
@@ -15,73 +23,88 @@ export interface ParsedRow<T> {
 export interface ExcelImportButtonProps<T> {
   entityLabel: string;
   templateHeaders: string[];
-  templateExample: string[];
+  templateExamples: string[][];
   templateFileName: string;
   parseRow: (raw: Record<string, string>, index: number) => ParsedRow<T>;
   createFn: (data: T) => Promise<unknown>;
   onComplete?: () => void;
   disabled?: boolean;
+  hints?: { label: string; items: string[] }[];
 }
 
-type Phase = 'idle' | 'preview' | 'importing' | 'done';
+type Phase = 'idle' | 'setup' | 'preview' | 'importing' | 'done';
+
+interface FailedRow {
+  rowNum: number;
+  label: string;
+  message: string;
+}
+
+function extractError(err: unknown): string {
+  const data = (err as AxiosError<ApiError>)?.response?.data;
+  if (data?.message) return data.message;
+  return (err as Error)?.message ?? 'Noma\'lum xato';
+}
 
 export function ExcelImportButton<T>({
   entityLabel,
   templateHeaders,
-  templateExample,
+  templateExamples,
   templateFileName,
   parseRow,
   createFn,
   onComplete,
   disabled,
+  hints,
 }: ExcelImportButtonProps<T>) {
   const t = useT();
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const [phase, setPhase] = useState<Phase>('idle');
   const [rows, setRows] = useState<ParsedRow<T>[]>([]);
   const [progress, setProgress] = useState(0);
-  const [results, setResults] = useState<{ added: number; failed: number }>({ added: 0, failed: 0 });
+  const [results, setResults] = useState<{ added: number; failedRows: FailedRow[] }>({
+    added: 0,
+    failedRows: [],
+  });
 
   const validRows = rows.filter((r) => !r.error);
   const invalidRows = rows.filter((r) => r.error);
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (inputRef.current) inputRef.current.value = '';
-    if (!file) return;
-
+  async function processFile(file: File) {
     try {
       const raw = await parseExcelFile(file);
       if (raw.length === 0) { toast.error(t('excel.emptyFile')); return; }
       const parsed = raw.map((r, i) => parseRow(r, i));
       setRows(parsed);
       setProgress(0);
-      setResults({ added: 0, failed: 0 });
+      setResults({ added: 0, failedRows: [] });
       setPhase('preview');
     } catch {
       toast.error(t('excel.readError'));
     }
-    e.target.value = '';
   }
 
   async function startImport() {
     if (validRows.length === 0) return;
     setPhase('importing');
     let added = 0;
-    let failed = 0;
+    const failedRows: FailedRow[] = [];
 
     for (const [i, row] of validRows.entries()) {
       try {
         await createFn(row.data!);
         added++;
-      } catch {
-        failed++;
+      } catch (err) {
+        failedRows.push({
+          rowNum: row.index + 1,
+          label: (templateHeaders[0] ? row.raw[templateHeaders[0]] : undefined) ?? `#${row.index + 1}`,
+          message: extractError(err),
+        });
       }
       setProgress(Math.round(((i + 1) / validRows.length) * 100));
     }
 
-    setResults({ added, failed });
+    setResults({ added, failedRows });
     setPhase('done');
     onComplete?.();
   }
@@ -105,7 +128,7 @@ export function ExcelImportButton<T>({
       key: h,
       ellipsis: true,
       render: (_: unknown, r: ParsedRow<T>) => (
-        <span style={{ fontSize: 12 }}>{r.raw[h] ?? ''}</span>
+        <span style={{ fontSize: 12 }}>{getField(r.raw, h)}</span>
       ),
     })),
     {
@@ -123,37 +146,57 @@ export function ExcelImportButton<T>({
     },
   ];
 
+  const failedColumns = [
+    {
+      title: '#',
+      dataIndex: 'rowNum',
+      width: 48,
+      render: (v: number) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{v}</span>,
+    },
+    {
+      title: 'Mahsulot',
+      dataIndex: 'label',
+      ellipsis: true,
+      render: (v: string) => <span style={{ fontSize: 12, fontWeight: 500 }}>{v}</span>,
+    },
+    {
+      title: 'Xato sababi',
+      dataIndex: 'message',
+      render: (v: string) => (
+        <span style={{ fontSize: 12, color: '#ef4444' }}>{v}</span>
+      ),
+    },
+  ];
+
   return (
     <>
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".xlsx,.xls"
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
-
       <Button
         icon={<UploadOutlined />}
         disabled={disabled}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => setPhase('setup')}
       >
-        Import Excel
+        {t('excel.importButton')}
       </Button>
 
       <Modal
-        title={`${entityLabel} — Excel import`}
+        title={`${entityLabel} — ${t('excel.modalTitle')}`}
         open={phase !== 'idle'}
         onCancel={phase !== 'importing' ? handleClose : undefined}
         closable={phase !== 'importing'}
         maskClosable={false}
         width={760}
         footer={
-          phase === 'preview' ? [
-            <Button key="tpl" icon={<DownloadOutlined />} onClick={() => downloadTemplate(templateHeaders, templateExample, templateFileName)}>
+          phase === 'setup' ? [
+            <Button key="cancel" onClick={handleClose}>{t('common.cancel')}</Button>,
+          ] : phase === 'preview' ? [
+            <Button
+              key="tpl"
+              icon={<DownloadOutlined />}
+              onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName)}
+            >
               {t('excel.downloadTemplate')}
             </Button>,
-            <Button key="cancel" onClick={handleClose}>{t('common.cancel')}</Button>,
+            <Button key="back" onClick={() => setPhase('setup')}>{t('common.back')}</Button>,
             <Button
               key="import"
               type="primary"
@@ -167,6 +210,58 @@ export function ExcelImportButton<T>({
           ] : null
         }
       >
+        {/* ── Setup ── */}
+        {phase === 'setup' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 16px', borderRadius: 8,
+              background: 'var(--surface-2, #f9fafb)',
+              border: '1px solid var(--border)',
+            }}>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{t('excel.templateTitle')}</div>
+                <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{t('excel.templateDesc')}</div>
+              </div>
+              <Button
+                icon={<DownloadOutlined />}
+                onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName)}
+              >
+                {t('excel.downloadTemplate')}
+              </Button>
+            </div>
+
+            <Upload.Dragger
+              accept=".xlsx,.xls"
+              showUploadList={false}
+              multiple={false}
+              beforeUpload={(file) => { processFile(file); return false; }}
+            >
+              <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+              <p className="ant-upload-text">{t('excel.dropzoneTitle')}</p>
+              <p className="ant-upload-hint">{t('excel.dropzoneHint')}</p>
+            </Upload.Dragger>
+
+            {hints && hints.length > 0 && (
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                {hints.map((hint) => (
+                  <div key={hint.label} style={{ flex: '1 1 200px' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+                      {hint.label}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {hint.items.map((item) => (
+                        <Tag key={item} style={{ fontSize: 11, margin: 0 }}>{item}</Tag>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Preview ── */}
         {phase === 'preview' && (
           <>
             <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
@@ -188,6 +283,7 @@ export function ExcelImportButton<T>({
           </>
         )}
 
+        {/* ── Importing ── */}
         {phase === 'importing' && (
           <div style={{ padding: '24px 0', textAlign: 'center' }}>
             <Progress percent={progress} status="active" />
@@ -197,18 +293,31 @@ export function ExcelImportButton<T>({
           </div>
         )}
 
+        {/* ── Done ── */}
         {phase === 'done' && (
-          <div style={{ padding: '8px 0' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Alert
-              type={results.failed === 0 ? 'success' : 'warning'}
+              type={results.failedRows.length === 0 ? 'success' : results.added === 0 ? 'error' : 'warning'}
               message={
                 <span>
                   <b>{results.added}</b> {t('excel.addedSuffix')}
-                  {results.failed > 0 && <>, <b>{results.failed}</b> {t('excel.failedSuffix')}</>}
+                  {results.failedRows.length > 0 && (
+                    <>, <b>{results.failedRows.length}</b> {t('excel.failedSuffix')}</>
+                  )}
                 </span>
               }
               showIcon
             />
+            {results.failedRows.length > 0 && (
+              <Table
+                dataSource={results.failedRows}
+                columns={failedColumns}
+                rowKey="rowNum"
+                size="small"
+                pagination={false}
+                scroll={{ y: 260 }}
+              />
+            )}
           </div>
         )}
       </Modal>

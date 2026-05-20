@@ -1,5 +1,5 @@
 import { Controller } from 'react-hook-form';
-import { Form, Input, Switch, Select } from 'antd';
+import { Form, Input, Switch, Select, InputNumber } from 'antd';
 import { AppModal } from '@/shared/ui';
 import { Button } from 'antd';
 import type { Customer } from '@/shared/types/domain';
@@ -101,6 +101,30 @@ export function CustomerFormModal({ open, customer, onClose }: CustomerFormModal
             )}
           />
         </div>
+
+        {!isEdit && (
+          <Controller
+            name="balance"
+            control={control}
+            render={({ field }) => (
+              <Form.Item
+                label={t('customerForm.labelBalance')}
+                validateStatus={errors.balance ? 'error' : undefined}
+                help={errors.balance?.message}
+              >
+                <InputNumber
+                  {...field}
+                  min={0}
+                  step={1000}
+                  style={{ width: '100%' }}
+                  formatter={(v) => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : ''}
+                  parser={(v) => Number(v?.replace(/\s/g, '') ?? 0)}
+                  addonAfter="so'm"
+                />
+              </Form.Item>
+            )}
+          />
+        )}
 
         {isEdit && (
           <Controller

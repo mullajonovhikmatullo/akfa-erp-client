@@ -198,7 +198,7 @@ export function CategoriesPage() {
           <ExcelImportButton<CreateCategoryPayload>
             entityLabel={t('nav.categories')}
             templateHeaders={['name', 'description']}
-            templateExample={['Glass Panels', 'All types of flat glass products']}
+            templateExamples={[['Glass Panels', 'All types of flat glass products']]}
             templateFileName="categories_template.xlsx"
             parseRow={(raw, index) => {
               const name = getField(raw, 'name');

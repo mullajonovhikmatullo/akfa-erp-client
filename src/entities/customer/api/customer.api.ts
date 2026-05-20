@@ -18,6 +18,7 @@ export interface CreateCustomerPayload {
   phone?: string | null;
   address?: string | null;
   branchId?: string;
+  balance?: number;
 }
 
 export interface UpdateCustomerPayload {
