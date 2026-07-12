@@ -145,20 +145,18 @@ export function CategoriesPage() {
       fixed: 'right' as const,
       render: (_: unknown, c: Category) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title={t('common.edit')}>
-            <Button
-              size="small"
-              type="text"
-              icon={<EditOutlined />}
-              onClick={(e) => { e.stopPropagation(); openEdit(c); }}
-            />
-          </Tooltip>
+          <Button
+            size="small"
+            type="text"
+            icon={<EditOutlined />}
+            onClick={(e) => { e.stopPropagation(); openEdit(c); }}
+          />
           <Popconfirm
             title={t('categories.deleteTitle')}
             description={t('categories.deleteDesc')}
             okText={t('common.delete')}
             cancelText={t('common.cancel')}
-            okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+            okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === c.id }}
             onConfirm={(e) => {
               e?.stopPropagation();
               deleteMutation.mutate(c.id, {
@@ -169,15 +167,14 @@ export function CategoriesPage() {
             }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title={t('common.delete')}>
-              <Button
-                size="small"
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </Tooltip>
+            <Button
+              size="small"
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              loading={deleteMutation.isPending && deleteMutation.variables === c.id}
+              onClick={(e) => e.stopPropagation()}
+            />
           </Popconfirm>
         </div>
       ),

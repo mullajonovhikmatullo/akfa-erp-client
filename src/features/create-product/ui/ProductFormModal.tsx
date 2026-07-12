@@ -1,6 +1,9 @@
+import { useEffect, useMemo } from 'react';
 import { Controller } from 'react-hook-form';
 import { Form, Input, InputNumber, Select, Switch, Button, Segmented } from 'antd';
 import { useCategories } from '@/entities/product';
+import { useBranches } from '@/entities/branch';
+import { useCurrentUser } from '@/entities/user';
 import { AppModal } from '@/shared/ui';
 import type { Product, ProductUnit } from '@/shared/types/domain';
 import { useProductForm } from '../model/useProductForm';
@@ -18,11 +21,6 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
   const UNIT_OPTIONS: { value: ProductUnit; label: string }[] = [
     { value: 'KG', label: t('units.KG') },
     { value: 'PIECE', label: t('units.PIECE') },
-    { value: 'PACK', label: t('units.PACK') },
-    { value: 'METER', label: t('units.METER') },
-    { value: 'SQUARE_METER', label: t('units.SQUARE_METER') },
-    { value: 'LITER', label: t('units.LITER') },
-    { value: 'SET', label: t('units.SET') },
   ];
   const { form, onSubmit, isPending, isEdit } = useProductForm({
     product,
@@ -31,18 +29,41 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
   const { control, formState: { errors }, watch, setValue } = form;
 
   const { data: categories = [], isLoading: catsLoading } = useCategories(true);
+  const { data: branches = [], isLoading: branchesLoading } = useBranches();
+  const { isSuper } = useCurrentUser();
 
   const priceCurrency = watch('priceCurrency');
   const retailUzs = watch('retailPriceUzs');
+  const wholesaleUzs = watch('wholesalePriceUzs');
   const retailUsd = watch('retailPriceUsd');
+  const wholesaleUsd = watch('wholesalePriceUsd');
+  const branchId = watch('branchId');
+
+  const defaultBranchId = useMemo(() => {
+    const mainBranch = branches.find((b) => /main|asosiy|глав/i.test(b.name));
+    const firstBranch = [...branches].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aTime - bTime;
+    })[0];
+    return mainBranch?.id ?? firstBranch?.id;
+  }, [branches]);
+
+  useEffect(() => {
+    if (open && !isEdit && isSuper && defaultBranchId && !branchId) {
+      setValue('branchId', defaultBranchId, { shouldValidate: true });
+    }
+  }, [open, isEdit, isSuper, defaultBranchId, branchId, setValue]);
 
   const handleCurrencyChange = (val: string | number) => {
     const currency = val as 'UZS' | 'USD';
     setValue('priceCurrency', currency, { shouldValidate: false });
     if (currency === 'UZS') {
+      setValue('costPriceUsd', undefined);
       setValue('retailPriceUsd', undefined);
       setValue('wholesalePriceUsd', undefined);
     } else {
+      setValue('costPriceUzs', undefined);
       setValue('retailPriceUzs', undefined);
       setValue('wholesalePriceUzs', undefined);
     }
@@ -132,6 +153,28 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
           />
         </div>
 
+        {!isEdit && isSuper && (
+          <Controller
+            name="branchId"
+            control={control}
+            render={({ field }) => (
+              <Form.Item
+                label={t('productForm.labelBranch')}
+                required
+                validateStatus={errors.branchId ? 'error' : undefined}
+                help={errors.branchId?.message}
+              >
+                <Select
+                  {...field}
+                  loading={branchesLoading}
+                  options={branches.map((b) => ({ value: b.id, label: b.name }))}
+                  placeholder={t('productForm.placeholderBranch')}
+                />
+              </Form.Item>
+            )}
+          />
+        )}
+
         {/* Currency tab selector */}
         <Form.Item style={{ marginBottom: 8 }}>
           <Controller
@@ -153,21 +196,22 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
 
         {/* Price fields — UZS tab */}
         {priceCurrency === 'UZS' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             <Controller
-              name="retailPriceUzs"
+              name="costPriceUzs"
               control={control}
               render={({ field }) => (
                 <Form.Item
-                  label={t('productForm.labelRetailUzs')}
+                  label={t('productForm.labelCostUzs')}
                   required
-                  validateStatus={errors.retailPriceUzs ? 'error' : undefined}
-                  help={errors.retailPriceUzs?.message}
+                  validateStatus={errors.costPriceUzs ? 'error' : undefined}
+                  help={errors.costPriceUzs?.message}
                 >
                   <InputNumber
                     {...field}
                     style={{ width: '100%' }}
                     min={0}
+                    max={wholesaleUzs || undefined}
                     step={1000}
                     formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
                     parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
@@ -197,27 +241,49 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                 </Form.Item>
               )}
             />
+            <Controller
+              name="retailPriceUzs"
+              control={control}
+              render={({ field }) => (
+                <Form.Item
+                  label={t('productForm.labelRetailUzs')}
+                  required
+                  validateStatus={errors.retailPriceUzs ? 'error' : undefined}
+                  help={errors.retailPriceUzs?.message}
+                >
+                  <InputNumber
+                    {...field}
+                    style={{ width: '100%' }}
+                    min={0}
+                    step={1000}
+                    formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                    parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+                  />
+                </Form.Item>
+              )}
+            />
           </div>
         )}
 
         {/* Price fields — USD tab */}
         {priceCurrency === 'USD' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             <Controller
-              name="retailPriceUsd"
+              name="costPriceUsd"
               control={control}
               render={({ field }) => (
                 <Form.Item
-                  label={t('productForm.labelRetailUsd')}
+                  label={t('productForm.labelCostUsd')}
                   required
-                  validateStatus={errors.retailPriceUsd ? 'error' : undefined}
-                  help={errors.retailPriceUsd?.message}
+                  validateStatus={errors.costPriceUsd ? 'error' : undefined}
+                  help={errors.costPriceUsd?.message}
                 >
                   <InputNumber
                     {...field}
                     value={field.value ?? undefined}
                     style={{ width: '100%' }}
                     min={0}
+                    max={wholesaleUsd || undefined}
                     step={0.5}
                     precision={2}
                     prefix="$"
@@ -241,6 +307,28 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                     style={{ width: '100%' }}
                     min={0}
                     max={retailUsd || undefined}
+                    step={0.5}
+                    precision={2}
+                    prefix="$"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Controller
+              name="retailPriceUsd"
+              control={control}
+              render={({ field }) => (
+                <Form.Item
+                  label={t('productForm.labelRetailUsd')}
+                  required
+                  validateStatus={errors.retailPriceUsd ? 'error' : undefined}
+                  help={errors.retailPriceUsd?.message}
+                >
+                  <InputNumber
+                    {...field}
+                    value={field.value ?? undefined}
+                    style={{ width: '100%' }}
+                    min={0}
                     step={0.5}
                     precision={2}
                     prefix="$"

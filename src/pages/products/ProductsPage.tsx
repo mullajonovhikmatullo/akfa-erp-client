@@ -45,6 +45,7 @@ export function ProductsPage() {
     pageSize,
     search: search || undefined,
     categoryId,
+    isActive: true,
   });
   const products = result?.items ?? [];
   const total = result?.total ?? 0;
@@ -91,16 +92,17 @@ export function ProductsPage() {
       render: (v: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[v]}</StatusBadge>,
     },
     {
-      title: t('products.colRetail'),
-      key: 'retail',
+      title: t('products.colCost'),
+      key: 'cost',
       width: 150,
       align: 'right',
+      responsiveHide: true,
       render: (_: unknown, p: Product) => {
-        const isUsd = !p.retailPriceUzs && !!p.retailPriceUsd;
+        const isUsd = !p.costPriceUzs && !!p.costPriceUsd;
         return (
-          <span className="num" style={{ fontWeight: 600 }}>
+          <span className="num">
             <MoneyDisplay
-              amount={isUsd ? p.retailPriceUsd! : p.retailPriceUzs}
+              amount={isUsd ? p.costPriceUsd! : p.costPriceUzs}
               currency={isUsd ? 'USD' : 'UZS'}
               noConvert={isUsd}
             />
@@ -117,9 +119,27 @@ export function ProductsPage() {
       render: (_: unknown, p: Product) => {
         const isUsd = !p.wholesalePriceUzs && !!p.wholesalePriceUsd;
         return (
-          <span className="num">
+          <span className="num" style={{ fontWeight: 600 }}>
             <MoneyDisplay
               amount={isUsd ? p.wholesalePriceUsd! : p.wholesalePriceUzs}
+              currency={isUsd ? 'USD' : 'UZS'}
+              noConvert={isUsd}
+            />
+          </span>
+        );
+      },
+    },
+    {
+      title: t('products.colRetail'),
+      key: 'retail',
+      width: 150,
+      align: 'right',
+      render: (_: unknown, p: Product) => {
+        const isUsd = !p.retailPriceUzs && !!p.retailPriceUsd;
+        return (
+          <span className="num" style={{ fontWeight: 600 }}>
+            <MoneyDisplay
+              amount={isUsd ? p.retailPriceUsd! : p.retailPriceUzs}
               currency={isUsd ? 'USD' : 'UZS'}
               noConvert={isUsd}
             />
@@ -166,32 +186,29 @@ export function ProductsPage() {
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title={t('common.edit')}>
-                <Button
-                  size="small"
-                  type="text"
-                  icon={<EditOutlined />}
-                  onClick={(e) => { e.stopPropagation(); setEditProduct(p); }}
-                />
-              </Tooltip>
+              <Button
+                size="small"
+                type="text"
+                icon={<EditOutlined />}
+                onClick={(e) => { e.stopPropagation(); setEditProduct(p); }}
+              />
               <Popconfirm
                 title={t('common.deleteTitle')}
                 description={`"${p.name}" ${t('products.deleteDesc')}`}
                 okText={t('common.yesDelete')}
                 cancelText={t('common.cancel')}
-                okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+                okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === p.id }}
                 onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(p.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title={t('common.delete')}>
-                  <Button
-                    size="small"
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </Tooltip>
+                <Button
+                  size="small"
+                  type="text"
+                  danger
+                  icon={<DeleteOutlined />}
+                  loading={deleteMutation.isPending && deleteMutation.variables === p.id}
+                  onClick={(e) => e.stopPropagation()}
+                />
               </Popconfirm>
             </>
           )}
@@ -217,10 +234,10 @@ export function ProductsPage() {
             <>
               <ExcelImportButton<CreateProductPayload>
                 entityLabel={t('nav.products')}
-                templateHeaders={['name', 'description', 'sku', 'unit', 'currency', 'retailPrice', 'wholesalePrice']}
+                templateHeaders={['name', 'description', 'sku', 'unit', 'currency', 'costPrice', 'wholesalePrice', 'retailPrice']}
                 templateExamples={[
-                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', 'PIECE', "SO'M", '85000', '75000'],
-                  ['Mahsulot B', '', 'PRF-002', 'KG', 'USD', '12.50', '10.00'],
+                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', 'PIECE', "SO'M", '65000', '75000', '85000'],
+                  ['Mahsulot B', '', 'PRF-002', 'KG', 'USD', '9.00', '10.00', '12.50'],
                 ]}
                 templateFileName="products_template.xlsx"
                 hints={[
@@ -230,7 +247,7 @@ export function ProductsPage() {
                   },
                   {
                     label: t('excel.hintsUnits'),
-                    items: ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'],
+                    items: ['KG', 'PIECE'],
                   },
                 ]}
                 parseRow={(raw, index) => {
@@ -238,7 +255,7 @@ export function ProductsPage() {
                   if (!name) return { index, raw, error: "Nomi kiritilishi shart" };
 
                   const unitRaw = getField(raw, 'unit').toUpperCase();
-                  const validUnits = ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'];
+                  const validUnits = ['KG', 'PIECE'];
                   if (!unitRaw || !validUnits.includes(unitRaw)) {
                     const suggestion = validUnits.find((u) =>
                       u === unitRaw + 'S' || u === 'S' + unitRaw ||
@@ -258,16 +275,23 @@ export function ProductsPage() {
                     return { index, raw, error: "Valyuta noto'g'ri. SO'M yoki USD kiriting" };
                   }
 
-                  const retailPrice = Number(getField(raw, 'retailPrice'));
-                  if (isNaN(retailPrice) || retailPrice < 0) {
-                    return { index, raw, error: "Chakana narxi noto'g'ri kiritilgan" };
+                  const costPrice = Number(getField(raw, 'costPrice'));
+                  if (isNaN(costPrice) || costPrice < 0) {
+                    return { index, raw, error: "Tan narxi noto'g'ri kiritilgan" };
                   }
                   const wholesalePrice = Number(getField(raw, 'wholesalePrice'));
                   if (isNaN(wholesalePrice) || wholesalePrice < 0) {
                     return { index, raw, error: "Ulgurji narxi noto'g'ri kiritilgan" };
                   }
+                  const retailPrice = Number(getField(raw, 'retailPrice'));
+                  if (isNaN(retailPrice) || retailPrice < 0) {
+                    return { index, raw, error: "Dona/KG narxi noto'g'ri kiritilgan" };
+                  }
+                  if (costPrice > wholesalePrice) {
+                    return { index, raw, error: "Tan narxi ulgurji narxdan oshmasligi kerak" };
+                  }
                   if (wholesalePrice > retailPrice) {
-                    return { index, raw, error: "Ulgurji narxi chakana narxdan oshmasligi kerak" };
+                    return { index, raw, error: "Ulgurji narxi dona/KG narxdan oshmasligi kerak" };
                   }
 
                   const description = getField(raw, 'description') || undefined;
@@ -277,8 +301,10 @@ export function ProductsPage() {
                     data: {
                       name, description, sku,
                       unit: unitRaw as CreateProductPayload['unit'],
+                      costPriceUzs: isUzs ? costPrice : 0,
                       retailPriceUzs: isUzs ? retailPrice : 0,
                       wholesalePriceUzs: isUzs ? wholesalePrice : 0,
+                      costPriceUsd: isUsd ? costPrice : undefined,
                       retailPriceUsd: isUsd ? retailPrice : undefined,
                       wholesalePriceUsd: isUsd ? wholesalePrice : undefined,
                     },

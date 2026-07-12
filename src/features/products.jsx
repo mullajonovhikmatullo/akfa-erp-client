@@ -81,7 +81,7 @@ const ProductsFeature = () => {
           <h1>{t("nav.products")}</h1>
           <div className="sub">{products.length} SKUs across {branches.length} branches · batch-level inventory</div>
         </div>
-        <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={() => setEditing({ id: `p-${Math.random().toString(36).slice(2,7)}`, sku: "", name: "", categoryId: "c-prof", unit: "piece", costPrice: 0, retailPrice: 0, wholesalePrice: 0, currency: "UZS", batches: [] })}>
+        <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={() => setEditing({ id: `p-${Math.random().toString(36).slice(2,7)}`, sku: "", name: "", categoryId: "c-prof", unit: "PIECE", costPrice: 0, retailPrice: 0, wholesalePrice: 0, currency: "UZS", batches: [] })}>
           New product
         </antd.Button>
       </div>
@@ -146,7 +146,7 @@ const ProductFormModal = ({ product, onClose }) => {
             <antd.Select options={categories.map(c => ({ value: c.id, label: c.name }))} />
           </antd.Form.Item>
           <antd.Form.Item name="unit" label="Unit">
-            <antd.Select options={["piece","meter","kg","pack","m²"].map(u => ({ value: u, label: u }))} />
+            <antd.Select options={["PIECE","KG"].map(u => ({ value: u, label: u }))} />
           </antd.Form.Item>
         </div>
         <div className="grid-3">

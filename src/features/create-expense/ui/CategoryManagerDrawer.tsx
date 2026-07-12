@@ -125,10 +125,20 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                     description={cat._count.expenses > 0 ? t('categoryDrawer.popconfirmHasExpenses') : t('categoryDrawer.popconfirmNoExpenses')}
                     okText={t('categoryDrawer.okText')}
                     cancelText={t('categoryDrawer.cancelText')}
-                    okButtonProps={{ danger: true, disabled: cat._count.expenses > 0 }}
+                    okButtonProps={{
+                      danger: true,
+                      disabled: cat._count.expenses > 0,
+                      loading: deleteCat.isPending && deleteCat.variables === cat.id,
+                    }}
                     onConfirm={() => deleteCat.mutate(cat.id)}
                   >
-                    <Button size="small" type="text" danger icon={<DeleteOutlined />} />
+                    <Button
+                      size="small"
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      loading={deleteCat.isPending && deleteCat.variables === cat.id}
+                    />
                   </Popconfirm>
                 </>
               )}

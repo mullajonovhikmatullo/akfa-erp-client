@@ -5,8 +5,10 @@ import type { Product, InventoryRecord, ProductUnit } from '@/shared/types/domai
 // Prisma Decimal serializes to string — parse to number at the API boundary
 const parseProduct = (raw: Record<string, unknown>): Product => ({
   ...(raw as unknown as Product),
+  costPriceUzs: Number(raw.costPriceUzs),
   retailPriceUzs: Number(raw.retailPriceUzs),
   wholesalePriceUzs: Number(raw.wholesalePriceUzs),
+  costPriceUsd: raw.costPriceUsd != null ? Number(raw.costPriceUsd) : null,
   retailPriceUsd: raw.retailPriceUsd != null ? Number(raw.retailPriceUsd) : null,
   wholesalePriceUsd: raw.wholesalePriceUsd != null ? Number(raw.wholesalePriceUsd) : null,
   categoryId: raw.category ? (raw.category as { id: string }).id : null,
@@ -25,8 +27,11 @@ export interface CreateProductPayload {
   sku?: string;
   unit: ProductUnit;
   categoryId?: string;
+  branchId?: string;
+  costPriceUzs: number;
   retailPriceUzs: number;
   wholesalePriceUzs: number;
+  costPriceUsd?: number;
   retailPriceUsd?: number;
   wholesalePriceUsd?: number;
 }

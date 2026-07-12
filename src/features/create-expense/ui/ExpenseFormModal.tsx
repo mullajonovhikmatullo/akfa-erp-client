@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, InputNumber, Select, Input, DatePicker, Button } from 'antd';
@@ -13,6 +13,13 @@ interface ExpenseFormModalProps {
   onClose: () => void;
 }
 
+const getDefaultValues = (): ExpenseFormValues => ({
+  categoryId: '',
+  amount: 0,
+  description: '',
+  expenseDate: dayjs().toISOString(),
+});
+
 export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
   const t = useT();
   const schema = useMemo(() => createExpenseSchema(t), [t]);
@@ -21,8 +28,12 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<ExpenseFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { categoryId: '', amount: undefined as unknown as number, description: '', expenseDate: '' },
+    defaultValues: getDefaultValues(),
   });
+
+  useEffect(() => {
+    if (open) reset(getDefaultValues());
+  }, [open, reset]);
 
   const onSubmit = handleSubmit((values) => {
     createExpense.mutate(
@@ -34,7 +45,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
       },
       {
         onSuccess: () => {
-          reset();
+          reset(getDefaultValues());
           onClose();
         },
       },
@@ -92,10 +103,22 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
                 <InputNumber
                   {...field}
                   style={{ width: '100%' }}
-                  min={0.01}
+                  min={0}
                   step={10000}
+                  precision={0}
+                  onFocus={(event) => event.target.select()}
+                  onKeyDown={(event) => {
+                    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+                    const isShortcut = event.metaKey || event.ctrlKey;
+                    if (isShortcut || allowedKeys.includes(event.key)) return;
+                    if (!/^\d$/.test(event.key)) event.preventDefault();
+                  }}
+                  onPaste={(event) => {
+                    const text = event.clipboardData.getData('text');
+                    if (!/^\d+$/.test(text.replace(/\s/g, ''))) event.preventDefault();
+                  }}
                   formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+                  parser={(v) => Math.trunc(Number(v?.replace(/\s/g, '')) || 0) as unknown as 0}
                 />
               </Form.Item>
             )}

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const UNITS = ['KG', 'PIECE', 'PACK', 'METER', 'SQUARE_METER', 'LITER', 'SET'] as const;
+const UNITS = ['KG', 'PIECE'] as const;
 
 export const createProductSchema = (t: (k: string) => string) => {
   const priceField = z
@@ -23,15 +23,21 @@ export const createProductSchema = (t: (k: string) => string) => {
         .or(z.literal('')),
       unit: z.enum(UNITS, { error: t('validation.unitRequired') }),
       categoryId: z.string().uuid(t('validation.categoryRequired')).optional().or(z.literal('')),
+      branchId: z.string().uuid(t('productForm.placeholderBranch')).optional().or(z.literal('')),
       priceCurrency: z.enum(['UZS', 'USD']),
+      costPriceUzs: priceField.optional(),
       retailPriceUzs: priceField.optional(),
       wholesalePriceUzs: priceField.optional(),
+      costPriceUsd: priceField.optional(),
       retailPriceUsd: priceField.optional(),
       wholesalePriceUsd: priceField.optional(),
       isActive: z.boolean().optional(),
     })
     .superRefine((d, ctx) => {
       if (d.priceCurrency === 'UZS') {
+        if (d.costPriceUzs === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['costPriceUzs'] });
+        }
         if (d.retailPriceUzs === undefined) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['retailPriceUzs'] });
         }
@@ -41,7 +47,13 @@ export const createProductSchema = (t: (k: string) => string) => {
         if (d.retailPriceUzs !== undefined && d.wholesalePriceUzs !== undefined && d.wholesalePriceUzs > d.retailPriceUzs) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.wholesaleExceedsRetail'), path: ['wholesalePriceUzs'] });
         }
+        if (d.costPriceUzs !== undefined && d.wholesalePriceUzs !== undefined && d.costPriceUzs > d.wholesalePriceUzs) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.costExceedsWholesale'), path: ['costPriceUzs'] });
+        }
       } else {
+        if (d.costPriceUsd === undefined) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['costPriceUsd'] });
+        }
         if (d.retailPriceUsd === undefined) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.priceInvalidType'), path: ['retailPriceUsd'] });
         }
@@ -50,6 +62,9 @@ export const createProductSchema = (t: (k: string) => string) => {
         }
         if (d.retailPriceUsd !== undefined && d.wholesalePriceUsd !== undefined && d.wholesalePriceUsd > d.retailPriceUsd) {
           ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.wholesaleExceedsRetail'), path: ['wholesalePriceUsd'] });
+        }
+        if (d.costPriceUsd !== undefined && d.wholesalePriceUsd !== undefined && d.costPriceUsd > d.wholesalePriceUsd) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t('validation.costExceedsWholesale'), path: ['costPriceUsd'] });
         }
       }
     });

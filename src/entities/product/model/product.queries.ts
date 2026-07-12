@@ -82,8 +82,8 @@ export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: productApi.remove,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: productKeys.all });
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: productKeys.all });
       toast.success("Mahsulot o'chirildi");
     },
     onError: () => {

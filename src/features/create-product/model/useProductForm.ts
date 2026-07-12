@@ -25,9 +25,12 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
       sku: '',
       unit: 'PIECE',
       categoryId: '',
+      branchId: '',
       priceCurrency: 'UZS',
+      costPriceUzs: 0,
       retailPriceUzs: 0,
       wholesalePriceUzs: 0,
+      costPriceUsd: undefined,
       retailPriceUsd: undefined,
       wholesalePriceUsd: undefined,
       isActive: true,
@@ -44,9 +47,12 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
         sku: product.sku ?? '',
         unit: product.unit,
         categoryId: product.category?.id ?? '',
+        branchId: '',
         priceCurrency: hasUsdOnly ? 'USD' : 'UZS',
+        costPriceUzs: hasUsdOnly ? undefined : product.costPriceUzs,
         retailPriceUzs: hasUsdOnly ? undefined : product.retailPriceUzs,
         wholesalePriceUzs: hasUsdOnly ? undefined : product.wholesalePriceUzs,
+        costPriceUsd: hasUsdOnly ? (product.costPriceUsd ?? undefined) : undefined,
         retailPriceUsd: hasUsdOnly ? (product.retailPriceUsd ?? undefined) : undefined,
         wholesalePriceUsd: hasUsdOnly ? (product.wholesalePriceUsd ?? undefined) : undefined,
         isActive: product.isActive,
@@ -54,9 +60,9 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
     } else {
       form.reset({
         name: '', description: '', sku: '', unit: 'PIECE',
-        categoryId: '', priceCurrency: 'UZS',
-        retailPriceUzs: 0, wholesalePriceUzs: 0,
-        retailPriceUsd: undefined, wholesalePriceUsd: undefined, isActive: true,
+        categoryId: '', branchId: '', priceCurrency: 'UZS',
+        costPriceUzs: 0, retailPriceUzs: 0, wholesalePriceUzs: 0,
+        costPriceUsd: undefined, retailPriceUsd: undefined, wholesalePriceUsd: undefined, isActive: true,
       });
     }
   }, [product]);
@@ -66,15 +72,18 @@ export function useProductForm({ product, onSuccess }: UseProductFormOptions = {
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = form.handleSubmit((values) => {
-    const { priceCurrency, ...rest } = values;
+    const { priceCurrency, branchId, ...rest } = values;
 
     const payload = {
       ...rest,
+      ...(isEdit ? {} : { branchId: branchId || undefined }),
       sku: values.sku || undefined,
       description: values.description || undefined,
       categoryId: values.categoryId || undefined,
+      costPriceUzs: priceCurrency === 'USD' ? 0 : values.costPriceUzs!,
       retailPriceUzs: priceCurrency === 'USD' ? 0 : values.retailPriceUzs!,
       wholesalePriceUzs: priceCurrency === 'USD' ? 0 : values.wholesalePriceUzs!,
+      costPriceUsd: priceCurrency === 'USD' ? values.costPriceUsd : undefined,
       retailPriceUsd: priceCurrency === 'USD' ? values.retailPriceUsd : undefined,
       wholesalePriceUsd: priceCurrency === 'USD' ? values.wholesalePriceUsd : undefined,
     };

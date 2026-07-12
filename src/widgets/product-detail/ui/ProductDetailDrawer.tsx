@@ -58,18 +58,24 @@ export function ProductDetailDrawer({ product, onClose }: ProductDetailDrawerPro
 
             {/* Pricing */}
             <SectionLabel>{t('products.drawerPricingSection')}</SectionLabel>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-              {product.retailPriceUzs > 0 && (
-                <PriceBox label={t('products.drawerRetailUzs')} amount={product.retailPriceUzs} currency="UZS" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: 10, marginBottom: 20 }}>
+              {product.costPriceUzs > 0 && (
+                <PriceBox label={t('products.drawerCostUzs')} amount={product.costPriceUzs} currency="UZS" />
               )}
               {product.wholesalePriceUzs > 0 && (
                 <PriceBox label={t('products.drawerWholesaleUzs')} amount={product.wholesalePriceUzs} currency="UZS" />
               )}
-              {product.retailPriceUsd != null && (
-                <PriceBox label={t('products.drawerRetailUsd')} amount={product.retailPriceUsd} currency="USD" />
+              {product.retailPriceUzs > 0 && (
+                <PriceBox label={t('products.drawerRetailUzs')} amount={product.retailPriceUzs} currency="UZS" />
+              )}
+              {product.costPriceUsd != null && (
+                <PriceBox label={t('products.drawerCostUsd')} amount={product.costPriceUsd} currency="USD" />
               )}
               {product.wholesalePriceUsd != null && (
                 <PriceBox label={t('products.drawerWholesaleUsd')} amount={product.wholesalePriceUsd} currency="USD" />
+              )}
+              {product.retailPriceUsd != null && (
+                <PriceBox label={t('products.drawerRetailUsd')} amount={product.retailPriceUsd} currency="USD" />
               )}
             </div>
 

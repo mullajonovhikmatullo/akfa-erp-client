@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Select, InputNumber, Radio, Alert, Tooltip, Empty } from 'antd';
-import { DeleteOutlined, CheckOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, CheckOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
 import { useCustomers } from '@/entities/customer';
 import { useCreateSale } from '@/entities/sale';
+import { useStockBatches } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
-import { MoneyDisplay, StatusBadge } from '@/shared/ui';
+import { MoneyDisplay } from '@/shared/ui';
 import {
-  PRODUCT_UNIT_LABELS,
   PAYMENT_METHOD_LABELS,
   type SaleType,
   type PaymentMethod,
@@ -22,12 +22,22 @@ interface CartItem {
   quantity: number;
 }
 
+const MIN_QTY = 0.0001;
+
 export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const t = useT();
-  const { isSuper, branchId: userBranchId } = useCurrentUser();
+  const { branchId: userBranchId } = useCurrentUser();
 
-  const { data: products = [] } = useProducts({ search: undefined });
-  const { data: customers = [] } = useCustomers({ isActive: true });
+  const branchFilter = userBranchId ?? undefined;
+  const { data: products = [] } = useProducts({ isActive: true });
+  const { data: batches = [] } = useStockBatches(
+    branchFilter ? { branchId: branchFilter, depleted: false } : undefined,
+    { enabled: Boolean(branchFilter) },
+  );
+  const { data: customers = [] } = useCustomers({
+    isActive: true,
+    ...(branchFilter ? { branchId: branchFilter } : {}),
+  });
 
   const createSale = useCreateSale();
 
@@ -37,6 +47,22 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const [paidAmountUzs, setPaidAmountUzs] = useState<number>(0);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
+  const [productSelectKey, setProductSelectKey] = useState(0);
+
+  const stockByProductId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const batch of batches) {
+      const current = map.get(batch.product.id) ?? 0;
+      map.set(batch.product.id, current + batch.remainingQty);
+    }
+    return map;
+  }, [batches]);
+
+  const sellableProducts = useMemo(
+    () => products.filter((p) => p.isActive && (stockByProductId.get(p.id) ?? 0) > 0),
+    [products, stockByProductId],
+  );
+  const selectedProductIds = useMemo(() => new Set(cart.map((item) => item.productId)), [cart]);
 
   const PAYMENT_OPTIONS = (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((k) => ({
     value: k,
@@ -44,26 +70,45 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   }));
 
   const addToCart = (productId: string) => {
-    const product = products.find((p) => p.id === productId);
+    const product = sellableProducts.find((p) => p.id === productId);
     if (!product) return;
+    const stock = stockByProductId.get(productId) ?? 0;
+    if (stock <= 0) return;
     setCart((prev) => {
       const existing = prev.find((i) => i.productId === productId);
       if (existing) {
-        return prev.map((i) =>
-          i.productId === productId ? { ...i, quantity: i.quantity + 1 } : i,
-        );
+        return prev;
       }
-      return [...prev, { _key: `${productId}-${Date.now()}`, productId, product, quantity: 1 }];
+      return [...prev, { _key: `${productId}-${Date.now()}`, productId, product, quantity: Math.min(1, stock) }];
     });
     setSelectedProductId(undefined);
+    setProductSelectKey((key) => key + 1);
   };
 
   const updateQty = (key: string, quantity: number) => {
-    setCart((prev) => prev.map((i) => (i._key === key ? { ...i, quantity } : i)));
+    setCart((prev) =>
+      prev.map((i) => {
+        if (i._key !== key) return i;
+        const stock = stockByProductId.get(i.productId) ?? 0;
+        return { ...i, quantity: Math.min(Math.max(quantity, MIN_QTY), stock) };
+      }),
+    );
+  };
+
+  const changeQty = (key: string, delta: number) => {
+    const item = cart.find((i) => i._key === key);
+    if (!item) return;
+    if (delta < 0 && item.quantity <= 1) {
+      removeItem(key);
+      return;
+    }
+    updateQty(key, item.quantity + delta);
   };
 
   const removeItem = (key: string) => {
     setCart((prev) => prev.filter((i) => i._key !== key));
+    setSelectedProductId(undefined);
+    setProductSelectKey((current) => current + 1);
   };
 
   const unitPrice = (p: Product) =>
@@ -72,8 +117,13 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const subtotal = cart.reduce((sum, i) => sum + i.quantity * unitPrice(i.product), 0);
   const debtAmount = Math.max(0, subtotal - paidAmountUzs);
   const needsCustomer = debtAmount > 0;
+  const fullPaidAmount = Number(subtotal.toFixed(2));
 
-  const canSubmit = cart.length > 0 && (!needsCustomer || customerId);
+  const canSubmit = Boolean(userBranchId) && cart.length > 0 && (!needsCustomer || customerId);
+
+  useEffect(() => {
+    setPaidAmountUzs((current) => (current > fullPaidAmount ? fullPaidAmount : current));
+  }, [fullPaidAmount]);
 
   const handleSubmit = () => {
     createSale.mutate(
@@ -135,19 +185,40 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         {/* Product selector */}
         <div style={{ marginBottom: 14 }}>
           <Select
+            key={productSelectKey}
             showSearch
-            optionFilterProp="label"
+            optionFilterProp="searchText"
             value={selectedProductId}
             onChange={addToCart}
             placeholder={t('newSale.productSearchPlaceholder')}
             style={{ width: '100%' }}
             suffixIcon={<PlusOutlined />}
-            options={products
-              .filter((p) => p.isActive)
-              .map((p) => ({
-                value: p.id,
-                label: [p.sku, p.name].filter(Boolean).join(' · '),
-              }))}
+            options={sellableProducts
+              .filter((p) => !selectedProductIds.has(p.id))
+              .map((p) => {
+                const stock = stockByProductId.get(p.id) ?? 0;
+                return {
+                  value: p.id,
+                  searchText: [p.sku, p.name].filter(Boolean).join(' '),
+                  label: (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.name}
+                        </div>
+                        {p.sku && (
+                          <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
+                            {p.sku}
+                          </div>
+                        )}
+                      </div>
+                      <span style={{ flexShrink: 0, fontSize: 12, color: 'var(--ink-3)' }}>
+                        {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${p.unit}`)}
+                      </span>
+                    </div>
+                  ),
+                };
+              })}
           />
         </div>
 
@@ -164,7 +235,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 110px 140px 80px 28px',
+                gridTemplateColumns: '1fr 132px 130px 80px 28px',
                 gap: 8,
                 padding: '6px 10px',
                 fontSize: 11,
@@ -188,7 +259,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                 key={item._key}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 110px 140px 80px 28px',
+                  gridTemplateColumns: '1fr 132px 130px 80px 28px',
                   gap: 8,
                   alignItems: 'center',
                   padding: '8px 10px',
@@ -203,13 +274,12 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                     </div>
                   )}
                 </div>
-                <InputNumber
+                <QuantityStepper
                   value={item.quantity}
-                  onChange={(v) => updateQty(item._key, v ?? 1)}
-                  min={0.0001}
-                  step={1}
-                  style={{ width: '100%' }}
-                  addonAfter={<span style={{ fontSize: 11 }}>{PRODUCT_UNIT_LABELS[item.product.unit]}</span>}
+                  max={stockByProductId.get(item.productId) ?? 0}
+                  onMinus={() => changeQty(item._key, -1)}
+                  onPlus={() => changeQty(item._key, 1)}
+                  onChange={(value) => updateQty(item._key, value)}
                 />
                 <div className="num" style={{ textAlign: 'right', fontSize: 13 }}>
                   <MoneyDisplay amount={unitPrice(item.product)} currency="UZS" />
@@ -259,16 +329,27 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
           </div>
           <div>
             <Label>{t('newSale.paidAmount')}</Label>
-            <InputNumber
-              value={paidAmountUzs}
-              onChange={(v) => setPaidAmountUzs(v ?? 0)}
-              style={{ width: '100%' }}
-              min={0}
-              max={subtotal}
-              step={10000}
-              formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-              parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
-            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+              <InputNumber
+                value={paidAmountUzs}
+                onChange={(v) => setPaidAmountUzs(v ?? 0)}
+                style={{ width: '100%' }}
+                min={0}
+                max={subtotal}
+                step={10000}
+                formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+              />
+              <Tooltip title={t('newSale.markFullPaidTooltip')}>
+                <Button
+                  icon={<CheckCircleOutlined />}
+                  disabled={fullPaidAmount <= 0 || paidAmountUzs === fullPaidAmount}
+                  onClick={() => setPaidAmountUzs(fullPaidAmount)}
+                >
+                  {t('newSale.markFullPaid')}
+                </Button>
+              </Tooltip>
+            </div>
           </div>
 
           {subtotal > 0 && (
@@ -329,6 +410,45 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
       <span style={{ color: 'var(--ink-3)' }}>{label}</span>
       <span>{value}</span>
+    </div>
+  );
+}
+
+function QuantityStepper({
+  value,
+  max,
+  onMinus,
+  onPlus,
+  onChange,
+}: {
+  value: number;
+  max: number;
+  onMinus: () => void;
+  onPlus: () => void;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '32px minmax(48px, 1fr) 32px', gap: 4, alignItems: 'center' }}>
+      <Button
+        icon={<MinusOutlined />}
+        onClick={onMinus}
+        style={{ width: 32, height: 32, padding: 0 }}
+      />
+      <InputNumber
+        value={value}
+        onChange={(v) => onChange(v ?? 1)}
+        min={MIN_QTY}
+        max={max || undefined}
+        step={1}
+        controls={false}
+        style={{ width: '100%' }}
+      />
+      <Button
+        icon={<PlusOutlined />}
+        disabled={max > 0 && value >= max}
+        onClick={onPlus}
+        style={{ width: 32, height: 32, padding: 0 }}
+      />
     </div>
   );
 }

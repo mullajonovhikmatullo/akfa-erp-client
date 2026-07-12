@@ -52,16 +52,11 @@ export interface StockBatch {
   createdBy: { id: string; fullName: string };
 }
 
-export type ProductUnit = 'KG' | 'PIECE' | 'PACK' | 'METER' | 'SQUARE_METER' | 'LITER' | 'SET';
+export type ProductUnit = 'KG' | 'PIECE';
 
 export const PRODUCT_UNIT_LABELS: Record<ProductUnit, string> = {
   KG: 'kg',
-  PIECE: 'pcs',
-  PACK: 'pack',
-  METER: 'm',
-  SQUARE_METER: 'm²',
-  LITER: 'L',
-  SET: 'set',
+  PIECE: 'dona',
 };
 
 export interface Product {
@@ -72,8 +67,10 @@ export interface Product {
   unit: ProductUnit;
   categoryId: string | null;
   category: { id: string; name: string } | null;
+  costPriceUzs: number;
   retailPriceUzs: number;
   wholesalePriceUzs: number;
+  costPriceUsd: number | null;
   retailPriceUsd: number | null;
   wholesalePriceUsd: number | null;
   isActive: boolean;

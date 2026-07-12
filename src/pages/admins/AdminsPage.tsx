@@ -148,20 +148,18 @@ export function AdminsPage() {
       fixed: 'right' as const,
       render: (_: unknown, u: User) => (
         <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title={t('common.edit')}>
-            <Button
-              size="small"
-              type="text"
-              icon={<EditOutlined />}
-              onClick={(e) => { e.stopPropagation(); openEdit(u); }}
-            />
-          </Tooltip>
+          <Button
+            size="small"
+            type="text"
+            icon={<EditOutlined />}
+            onClick={(e) => { e.stopPropagation(); openEdit(u); }}
+          />
           <Popconfirm
             title={t('common.deleteTitle')}
             description={t('admins.deleteDesc')}
             okText={t('common.delete')}
             cancelText={t('common.cancel')}
-            okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+            okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === u.id }}
             onConfirm={(e) => {
               e?.stopPropagation();
               deleteMutation.mutate(u.id, {
@@ -171,15 +169,14 @@ export function AdminsPage() {
             }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title={t('common.delete')}>
-              <Button
-                size="small"
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </Tooltip>
+            <Button
+              size="small"
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              loading={deleteMutation.isPending && deleteMutation.variables === u.id}
+              onClick={(e) => e.stopPropagation()}
+            />
           </Popconfirm>
         </div>
       ),

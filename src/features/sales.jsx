@@ -10,7 +10,7 @@
  * - on submit: deduct stock, create sale, update customer balance
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
@@ -97,6 +97,7 @@ const NewSaleFlow = () => {
   const [currency, setCurrency] = useState("UZS");
   const [paid, setPaid] = useState(0);
   const [items, setItems] = useState([]);
+  const selectedProductIds = useMemo(() => new Set(items.map(it => it.productId)), [items]);
 
   const customer = customers.find(c => c.id === customerId);
 
@@ -110,7 +111,9 @@ const NewSaleFlow = () => {
       price = p.currency === "USD" ? basePrice * rate : basePrice / rate;
       price = Math.round(price);
     }
-    setItems(arr => [...arr, { id: Math.random().toString(36).slice(2,7), productId, qty: 1, unit: p.unit, price }]);
+    setItems(arr => arr.some(it => it.productId === productId)
+      ? arr
+      : [...arr, { id: Math.random().toString(36).slice(2,7), productId, qty: 1, unit: p.unit, price }]);
   };
   const updateItem = (id, patch) => setItems(arr => arr.map(it => it.id === id ? { ...it, ...patch } : it));
   const removeItem = (id) => setItems(arr => arr.filter(it => it.id !== id));
@@ -183,10 +186,12 @@ const NewSaleFlow = () => {
             style={{ width: "100%" }}
             value={null}
             onChange={addItem}
-            options={products.map(p => ({
-              value: p.id,
-              label: `${p.sku} · ${p.name} · ${stockOf(p.id)} ${p.unit} on hand`,
-            }))}
+            options={products
+              .filter(p => !selectedProductIds.has(p.id))
+              .map(p => ({
+                value: p.id,
+                label: `${p.sku} · ${p.name} · ${stockOf(p.id)} ${p.unit} on hand`,
+              }))}
             suffixIcon={<icons.PlusOutlined />}
           />
         </div>
@@ -210,7 +215,7 @@ const NewSaleFlow = () => {
                   </div>
                   <antd.InputNumber min={0.1} step={1} value={it.qty} onChange={v => updateItem(it.id, { qty: v || 0 })} style={{ width: "100%" }} />
                   <antd.Select value={it.unit} onChange={v => updateItem(it.id, { unit: v })}
-                    options={["piece","meter","kg","pack","m²"].map(u => ({ value: u, label: u }))} style={{ width: "100%" }} size="small" />
+                    options={["PIECE","KG"].map(u => ({ value: u, label: u }))} style={{ width: "100%" }} size="small" />
                   <antd.InputNumber min={0} step={1000} value={it.price} onChange={v => updateItem(it.id, { price: v || 0 })} style={{ width: "100%" }} formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} />
                   <div className={over ? "num" : "num"} style={{ color: over ? "var(--danger)" : "var(--ink-2)" }}>
                     {onHand} {p?.unit} {over && <TagPill tone="danger">over</TagPill>}

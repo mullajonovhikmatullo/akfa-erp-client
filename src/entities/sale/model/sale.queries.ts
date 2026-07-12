@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { saleApi, type SaleFilters, type CreateSalePayload, type AddPaymentPayload } from '../api/sale.api';
 import { customerKeys } from '@/entities/customer';
+import { inventoryKeys } from '@/entities/inventory';
+import { useT } from '@/shared/lib/i18n';
 
 export const saleKeys = {
   all: ['sales'] as const,
@@ -36,42 +38,46 @@ export function useSaleDetail(id: string | null) {
 
 export function useCreateSale() {
   const qc = useQueryClient();
+  const t = useT();
   return useMutation({
     mutationFn: (payload: CreateSalePayload) => saleApi.create(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: saleKeys.all });
       qc.invalidateQueries({ queryKey: customerKeys.all });
-      toast.success("Sotuv muvaffaqiyatli amalga oshirildi");
+      qc.invalidateQueries({ queryKey: inventoryKeys.all });
+      toast.success(t('sales.createSuccess'));
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Sotuvda xatolik');
+      toast.error(msg ?? t('sales.createError'));
     },
   });
 }
 
 export function useAddPayment() {
   const qc = useQueryClient();
+  const t = useT();
   return useMutation({
     mutationFn: ({ saleId, payload }: { saleId: string; payload: AddPaymentPayload }) =>
       saleApi.addPayment(saleId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: saleKeys.all });
       qc.invalidateQueries({ queryKey: customerKeys.all });
-      toast.success("To'lov qabul qilindi");
+      toast.success(t('sales.paymentSuccess'));
     },
-    onError: () => toast.error("To'lovda xatolik"),
+    onError: () => toast.error(t('sales.paymentError')),
   });
 }
 
 export function useSetDebtDeadline() {
   const qc = useQueryClient();
+  const t = useT();
   return useMutation({
     mutationFn: ({ saleId, debtDueDate }: { saleId: string; debtDueDate: string | null }) =>
       saleApi.setDebtDeadline(saleId, debtDueDate),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: saleKeys.all });
-      toast.success('Muddat yangilandi');
+      toast.success(t('sales.debtDeadlineSuccess'));
     },
   });
 }

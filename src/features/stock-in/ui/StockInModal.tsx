@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Select, InputNumber, Input, Empty, Table } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
@@ -27,13 +27,32 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
   const t = useT();
   const { isSuper, branchId: userBranchId } = useCurrentUser();
   const { data: branches = [] } = useBranches();
-  const { data: products = [] } = useProducts({ search: undefined });
+  const { data: products = [] } = useProducts({ isActive: true });
   const stockInBatch = useStockInBatch();
+
+  const defaultBranchId = useMemo(() => {
+    const mainBranch = branches.find((b) => /main|asosiy|глав/i.test(b.name));
+    const firstBranch = [...branches].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aTime - bTime;
+    })[0];
+    return mainBranch?.id ?? firstBranch?.id;
+  }, [branches]);
 
   const [branchId, setBranchId] = useState<string | undefined>(
     isSuper ? undefined : (userBranchId ?? undefined),
   );
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    if (isSuper && open && defaultBranchId && !branchId) {
+      setBranchId(defaultBranchId);
+    }
+    if (!isSuper) {
+      setBranchId(userBranchId ?? undefined);
+    }
+  }, [branchId, defaultBranchId, isSuper, open, userBranchId]);
 
   const addProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
@@ -47,7 +66,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
           productId,
           product,
           quantity: 1,
-          costPriceUzs: product.wholesalePriceUzs,
+          costPriceUzs: product.costPriceUzs,
           supplierNote: '',
         },
       ];
@@ -61,7 +80,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
     setCart((prev) => prev.filter((i) => i._key !== key));
 
   const totalCost = cart.reduce((sum, i) => sum + i.quantity * i.costPriceUzs, 0);
-  const canSubmit = cart.length > 0 && (isSuper ? !!branchId : true);
+  const canSubmit = cart.length > 0 && (isSuper ? !!branchId : !!userBranchId);
 
   const handleSubmit = () => {
     stockInBatch.mutate(
@@ -75,7 +94,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
       {
         onSuccess: () => {
           setCart([]);
-          if (isSuper) setBranchId(undefined);
+          if (isSuper) setBranchId(defaultBranchId);
           onClose();
         },
       },

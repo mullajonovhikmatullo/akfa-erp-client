@@ -11,6 +11,9 @@ import {
 export const expenseKeys = {
   all: ['expenses'] as const,
   list: (filters?: ExpenseFilters) => [...expenseKeys.all, 'list', filters] as const,
+  categorySummaryRoot: () => [...expenseKeys.all, 'categorySummary'] as const,
+  categorySummary: (filters?: ExpenseFilters) => [...expenseKeys.categorySummaryRoot(), filters] as const,
+  categoriesRoot: () => [...expenseKeys.all, 'categories'] as const,
   categories: (includeInactive?: boolean) => [...expenseKeys.all, 'categories', includeInactive] as const,
 };
 
@@ -25,6 +28,13 @@ export function useExpenseCategories(includeInactive?: boolean) {
   return useQuery({
     queryKey: expenseKeys.categories(includeInactive),
     queryFn: () => expenseApi.listCategories(includeInactive),
+  });
+}
+
+export function useExpenseCategorySummary(filters?: ExpenseFilters) {
+  return useQuery({
+    queryKey: expenseKeys.categorySummary(filters),
+    queryFn: () => expenseApi.categorySummary(filters),
   });
 }
 
@@ -47,8 +57,8 @@ export function useDeleteExpense() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => expenseApi.remove(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.all });
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: expenseKeys.all });
       toast.success("Xarajat o'chirildi");
     },
     onError: (err: unknown) => {
@@ -63,7 +73,7 @@ export function useCreateExpenseCategory() {
   return useMutation({
     mutationFn: (payload: CreateExpenseCategoryPayload) => expenseApi.createCategory(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.categories() });
+      qc.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() });
       toast.success("Kategoriya qo'shildi");
     },
     onError: (err: unknown) => {
@@ -79,7 +89,8 @@ export function useUpdateExpenseCategory() {
     mutationFn: ({ id, payload }: { id: string; payload: UpdateExpenseCategoryPayload }) =>
       expenseApi.updateCategory(id, payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.categories() });
+      qc.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() });
+      qc.invalidateQueries({ queryKey: expenseKeys.categorySummaryRoot() });
       toast.success('Kategoriya yangilandi');
     },
   });
@@ -89,8 +100,11 @@ export function useDeleteExpenseCategory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => expenseApi.deleteCategory(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.categories() });
+    onSuccess: async () => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() }),
+        qc.invalidateQueries({ queryKey: expenseKeys.categorySummaryRoot() }),
+      ]);
       toast.success("Kategoriya o'chirildi");
     },
     onError: (err: unknown) => {

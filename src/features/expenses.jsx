@@ -333,16 +333,14 @@ const CategoryManagerDrawer = ({ open, onClose }) => {
                   </div>
                 </div>
                 <antd.Button size="small" type="text" icon={<icons.EditOutlined />} onClick={() => openEdit(cat)} />
-                <antd.Tooltip title={cat.id === "other" ? "The fallback category can't be removed" : "Delete"}>
-                  <antd.Button
-                    size="small"
-                    type="text"
-                    danger
-                    icon={<icons.DeleteOutlined />}
-                    disabled={cat.id === "other"}
-                    onClick={() => remove(cat)}
-                  />
-                </antd.Tooltip>
+                <antd.Button
+                  size="small"
+                  type="text"
+                  danger
+                  icon={<icons.DeleteOutlined />}
+                  disabled={cat.id === "other"}
+                  onClick={() => remove(cat)}
+                />
               </div>
             );
           })}

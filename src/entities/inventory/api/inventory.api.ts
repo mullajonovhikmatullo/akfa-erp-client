@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/client';
-import type { StockBatch, ProductUnit } from '@/shared/types/domain';
+import type { InventoryRecord, StockBatch, ProductUnit } from '@/shared/types/domain';
 
 type Raw = Record<string, unknown>;
 
@@ -11,6 +11,14 @@ const parseBatch = (raw: Raw): StockBatch => ({
   costPriceUsd: raw.costPriceUsd != null ? Number(raw.costPriceUsd) : null,
   product: {
     ...(raw.product as { id: string; name: string; sku: string | null; unit: ProductUnit }),
+  },
+});
+
+const parseInventoryRecord = (raw: Raw): InventoryRecord => ({
+  ...(raw as unknown as InventoryRecord),
+  quantity: Number(raw.quantity),
+  product: {
+    ...(raw.product as InventoryRecord['product']),
   },
 });
 
@@ -29,6 +37,13 @@ export interface BatchFilters {
   depleted?: boolean;
 }
 
+export interface InventoryFilters {
+  branchId?: string;
+  productId?: string;
+  categoryId?: string;
+  lowStock?: boolean;
+}
+
 export interface BatchPage {
   items: StockBatch[];
   total: number;
@@ -40,6 +55,16 @@ export interface BatchPage {
 export const inventoryApi = {
   stockIn: (payload: StockInPayload) =>
     apiClient.post('/inventory/stock-in', payload).then((r) => parseBatch(r.data.data)),
+
+  stockInBatch: (payload: StockInPayload[]) =>
+    apiClient.post('/inventory/stock-in/batch', payload).then((r) =>
+      (r.data.data as Raw[]).map(parseBatch),
+    ),
+
+  listCurrent: (params?: InventoryFilters) =>
+    apiClient.get('/inventory', { params }).then((r) =>
+      (r.data.data as Raw[]).map(parseInventoryRecord),
+    ),
 
   listBatches: (params?: BatchFilters) =>
     apiClient.get('/inventory/batches', { params }).then((r) =>

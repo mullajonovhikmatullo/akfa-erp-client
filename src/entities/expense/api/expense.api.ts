@@ -16,6 +16,20 @@ export interface ExpenseFilters {
   limit?: number;
 }
 
+export interface ExpenseCategorySummaryItem {
+  categoryId: string;
+  categoryName: string;
+  amount: number;
+  count: number;
+  isOther?: boolean;
+}
+
+export interface ExpenseCategorySummaryData {
+  total: number;
+  categories: ExpenseCategorySummaryItem[];
+  kpiCategories: ExpenseCategorySummaryItem[];
+}
+
 export interface CreateExpensePayload {
   branchId?: string;
   categoryId: string;
@@ -48,6 +62,11 @@ export const expenseApi = {
     apiClient.post('/expenses', payload).then((r) => parseExpense(r.data.data)),
 
   remove: (id: string) => apiClient.delete(`/expenses/${id}`),
+
+  categorySummary: (params?: ExpenseFilters) =>
+    apiClient
+      .get('/expenses/summary/categories', { params })
+      .then((r) => r.data.data as ExpenseCategorySummaryData),
 
   // Categories
   listCategories: (includeInactive?: boolean) =>

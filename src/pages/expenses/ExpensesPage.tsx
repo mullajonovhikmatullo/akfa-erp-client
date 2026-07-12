@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { Button, Select, Popconfirm, Tooltip } from 'antd';
+import { Button, DatePicker, Select, Popconfirm, Tooltip } from 'antd';
 import {
   PlusOutlined,
   DeleteOutlined,
   AppstoreOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
-import { useExpenses, useExpenseCategories, useDeleteExpense } from '@/entities/expense';
+import dayjs, { type Dayjs } from 'dayjs';
+import {
+  useExpenses,
+  useExpenseCategories,
+  useExpenseCategorySummary,
+  useDeleteExpense,
+} from '@/entities/expense';
 import { ExpenseFormModal, CategoryManagerDrawer } from '@/features/create-expense';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { useCurrentUser } from '@/entities/user';
@@ -16,32 +22,69 @@ import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
+const KPI_CATEGORY_LIMIT = 5;
+
 export function ExpensesPage() {
   const t = useT();
   const { isSuper } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
 
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null]);
   const [creating, setCreating] = useState(false);
   const [managingCats, setManagingCats] = useState(false);
+  const dateFilters = {
+    from: dateRange[0]?.startOf('day').toISOString(),
+    to: dateRange[1]?.endOf('day').toISOString(),
+  };
 
   const { data: expenses = [], isLoading, isFetching, refetch } = useExpenses({
     categoryId: categoryFilter,
+    ...dateFilters,
     limit: 200,
+  });
+  const {
+    data: categorySummary,
+    isFetching: isSummaryFetching,
+    refetch: refetchCategorySummary,
+  } = useExpenseCategorySummary({
+    categoryId: categoryFilter,
+    ...dateFilters,
+    limit: KPI_CATEGORY_LIMIT,
   });
 
   const { data: categories = [] } = useExpenseCategories();
   const deleteMutation = useDeleteExpense();
 
   // Breakdown by category
-  const grandTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const byCat = categories
+  const fallbackGrandTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const fallbackByCat = categories
     .map((c) => ({
       ...c,
       total: expenses.filter((e) => e.category.id === c.id).reduce((sum, e) => sum + e.amount, 0),
     }))
     .filter((c) => c.total > 0)
     .sort((a, b) => b.total - a.total);
+  const grandTotal = categorySummary?.total ?? fallbackGrandTotal;
+  const byCat = categorySummary?.categories.map((c) => ({
+    id: c.categoryId,
+    name: c.categoryName,
+    total: c.amount,
+  })) ?? fallbackByCat;
+  const kpiCats = categorySummary?.kpiCategories.map((c) => ({
+    id: c.isOther ? 'other-expense-categories' : c.categoryId,
+    name: c.isOther ? t('common.other') : c.categoryName,
+    total: c.amount,
+  })) ?? (byCat.length > KPI_CATEGORY_LIMIT
+    ? [
+      ...byCat.slice(0, KPI_CATEGORY_LIMIT - 1),
+      {
+        id: 'other-expense-categories',
+        name: t('common.other'),
+        total: byCat.slice(KPI_CATEGORY_LIMIT - 1).reduce((sum, c) => sum + c.total, 0),
+      },
+    ]
+    : byCat);
 
   const columns: ColumnDef<Expense>[] = [
     {
@@ -118,19 +161,18 @@ export function ExpensesPage() {
           description={t('expenses.deleteDesc')}
           okText={t('common.yes')}
           cancelText={t('common.cancel')}
-          okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+          okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === e.id }}
           onConfirm={(ev) => { ev?.stopPropagation(); deleteMutation.mutate(e.id); }}
           onPopupClick={(ev) => ev.stopPropagation()}
         >
-          <Tooltip title={t('common.delete')}>
-            <Button
-              size="small"
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={(ev) => ev.stopPropagation()}
-            />
-          </Tooltip>
+          <Button
+            size="small"
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            loading={deleteMutation.isPending && deleteMutation.variables === e.id}
+            onClick={(ev) => ev.stopPropagation()}
+          />
         </Popconfirm>
       ),
     },
@@ -145,9 +187,28 @@ export function ExpensesPage() {
             {expenses.length} {t('expenses.subtitleRecords')} · {categories.length} {t('expenses.subtitleCategories')}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <DatePicker.RangePicker
+            value={dateRange}
+            onChange={(v) => setDateRange(v ? [v[0], v[1]] : [null, null])}
+            format="DD.MM.YYYY"
+            placeholder={[t('common.startDate'), t('common.endDate')]}
+            presets={[
+              { label: t('common.today'), value: [dayjs().startOf('day'), dayjs().endOf('day')] },
+              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs().endOf('day')] },
+              { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
+              { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
+            ]}
+            style={{ minWidth: 240 }}
+          />
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button
+              icon={<ReloadOutlined spin={isFetching || isSummaryFetching} />}
+              onClick={() => {
+                refetch();
+                refetchCategorySummary();
+              }}
+            />
           </Tooltip>
           {isSuper && (
             <Button icon={<AppstoreOutlined />} onClick={() => setManagingCats(true)}>
@@ -161,12 +222,31 @@ export function ExpensesPage() {
       </div>
 
       {/* Top KPI cards */}
-      {byCat.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
-          {byCat.slice(0, 4).map((c) => {
+      {kpiCats.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 12,
+            marginBottom: 16,
+            overflowX: 'auto',
+            paddingBottom: 4,
+            scrollSnapType: 'x proximity',
+          }}
+        >
+          {kpiCats.map((c) => {
             const pct = grandTotal > 0 ? (c.total / grandTotal) * 100 : 0;
             return (
-              <div key={c.id} className="card" style={{ padding: '14px 16px' }}>
+              <div
+                key={c.id}
+                className="card"
+                style={{
+                  padding: '14px 16px',
+                  flex: '1 0 190px',
+                  minWidth: 190,
+                  maxWidth: 240,
+                  scrollSnapAlign: 'start',
+                }}
+              >
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
                   {c.name}
                 </div>

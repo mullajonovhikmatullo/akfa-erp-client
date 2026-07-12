@@ -52,8 +52,8 @@ export function useDeactivateCustomer() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => customerApi.remove(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: customerKeys.all });
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: customerKeys.all });
       toast.success("Mijoz o'chirildi");
     },
     onError: (err: unknown) => {

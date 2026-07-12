@@ -157,32 +157,29 @@ export function CustomersPage() {
           </Tooltip>
           {canManage && (
             <>
-              <Tooltip title={t('common.edit')}>
-                <Button
-                  size="small"
-                  type="text"
-                  icon={<EditOutlined />}
-                  onClick={(e) => { e.stopPropagation(); setEditCustomer(c); }}
-                />
-              </Tooltip>
+              <Button
+                size="small"
+                type="text"
+                icon={<EditOutlined />}
+                onClick={(e) => { e.stopPropagation(); setEditCustomer(c); }}
+              />
               <Popconfirm
                 title={t('common.deleteTitle')}
                 description={`"${c.fullName}" ${t('customers.deactivateDesc')}`}
                 okText={t('common.yesDelete')}
                 cancelText={t('common.cancel')}
-                okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+                okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === c.id }}
                 onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(c.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title={t('customers.deactivateTooltip')}>
-                  <Button
-                    size="small"
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </Tooltip>
+                <Button
+                  size="small"
+                  type="text"
+                  danger
+                  icon={<DeleteOutlined />}
+                  loading={deleteMutation.isPending && deleteMutation.variables === c.id}
+                  onClick={(e) => e.stopPropagation()}
+                />
               </Popconfirm>
             </>
           )}

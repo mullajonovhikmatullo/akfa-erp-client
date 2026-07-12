@@ -188,7 +188,7 @@ export function SalesPage() {
       </div>
 
       {tab === 'new' ? (
-        <NewSaleForm onSuccess={() => setTab('history')} />
+        <NewSaleForm />
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {/* Toolbar */}

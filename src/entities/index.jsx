@@ -25,47 +25,47 @@ const CATEGORIES = [
   { id: "c-seal",  name: "Seals & Gaskets",color: "#475569" },
 ];
 
-const UNITS = ["piece", "meter", "kg", "pack", "m²"];
+const UNITS = ["PIECE", "KG"];
 
 const PRODUCTS = [
-  { id: "p-001", sku: "PRF-A60-WHT", name: "Profile A60 — White RAL9016", categoryId: "c-prof", unit: "meter",
+  { id: "p-001", sku: "PRF-A60-WHT", name: "Profile A60 — White RAL9016", categoryId: "c-prof", unit: "PIECE",
     costPrice: 42000, retailPrice: 58000, wholesalePrice: 51000, currency: "UZS",
     batches: [
       { id: "b-1", supplier: "AKFA Plant",   qty: 480, costPrice: 41000, date: "2026-03-12" },
       { id: "b-2", supplier: "AKFA Plant",   qty: 220, costPrice: 43500, date: "2026-04-21" },
     ] },
-  { id: "p-002", sku: "PRF-A70-BRZ", name: "Profile A70 — Bronze Anodized", categoryId: "c-prof", unit: "meter",
+  { id: "p-002", sku: "PRF-A70-BRZ", name: "Profile A70 — Bronze Anodized", categoryId: "c-prof", unit: "PIECE",
     costPrice: 56000, retailPrice: 78000, wholesalePrice: 69500, currency: "UZS",
     batches: [
       { id: "b-3", supplier: "AKFA Plant",   qty: 310, costPrice: 55500, date: "2026-03-28" },
     ] },
-  { id: "p-003", sku: "GLS-DBL-4M",  name: "Double-Glazed Unit 4mm 1.2×1.4", categoryId: "c-glass", unit: "piece",
+  { id: "p-003", sku: "GLS-DBL-4M",  name: "Double-Glazed Unit 4mm 1.2×1.4", categoryId: "c-glass", unit: "PIECE",
     costPrice: 38, retailPrice: 56, wholesalePrice: 49, currency: "USD",
     batches: [
       { id: "b-4", supplier: "Glass Co.",    qty: 64,  costPrice: 37, date: "2026-04-02" },
       { id: "b-5", supplier: "Glass Co.",    qty: 40,  costPrice: 39, date: "2026-04-22" },
     ] },
-  { id: "p-004", sku: "HW-HNG-SS",   name: "Stainless Hinge Set",            categoryId: "c-hw",   unit: "pack",
+  { id: "p-004", sku: "HW-HNG-SS",   name: "Stainless Hinge Set",            categoryId: "c-hw",   unit: "PIECE",
     costPrice: 65000, retailPrice: 92000, wholesalePrice: 80000, currency: "UZS",
     batches: [
       { id: "b-6", supplier: "Metro Hardware", qty: 120, costPrice: 64000, date: "2026-03-05" },
     ] },
-  { id: "p-005", sku: "SEAL-EPDM-6", name: "EPDM Sealing Strip 6mm",         categoryId: "c-seal", unit: "meter",
+  { id: "p-005", sku: "SEAL-EPDM-6", name: "EPDM Sealing Strip 6mm",         categoryId: "c-seal", unit: "KG",
     costPrice: 3200,  retailPrice: 5400,  wholesalePrice: 4500,  currency: "UZS",
     batches: [
       { id: "b-7", supplier: "RubberPro",    qty: 1400, costPrice: 3100, date: "2026-04-11" },
     ] },
-  { id: "p-006", sku: "ACC-HND-ALU", name: "Aluminum Window Handle",         categoryId: "c-acc",  unit: "piece",
+  { id: "p-006", sku: "ACC-HND-ALU", name: "Aluminum Window Handle",         categoryId: "c-acc",  unit: "PIECE",
     costPrice: 18000, retailPrice: 32000, wholesalePrice: 26000, currency: "UZS",
     batches: [
       { id: "b-8", supplier: "AKFA Plant",   qty: 220, costPrice: 17500, date: "2026-04-18" },
     ] },
-  { id: "p-007", sku: "GLS-TMP-6M",  name: "Tempered Glass 6mm 1×1m",        categoryId: "c-glass",unit: "piece",
+  { id: "p-007", sku: "GLS-TMP-6M",  name: "Tempered Glass 6mm 1×1m",        categoryId: "c-glass",unit: "PIECE",
     costPrice: 22, retailPrice: 38, wholesalePrice: 31, currency: "USD",
     batches: [
       { id: "b-9", supplier: "Glass Co.",    qty: 88, costPrice: 22, date: "2026-04-15" },
     ] },
-  { id: "p-008", sku: "PRF-SLD-WHT", name: "Sliding Track Profile — White",  categoryId: "c-prof", unit: "meter",
+  { id: "p-008", sku: "PRF-SLD-WHT", name: "Sliding Track Profile — White",  categoryId: "c-prof", unit: "PIECE",
     costPrice: 38000, retailPrice: 54000, wholesalePrice: 47500, currency: "UZS",
     batches: [
       { id: "b-10", supplier: "AKFA Plant",  qty: 260, costPrice: 38000, date: "2026-03-30" },
@@ -94,38 +94,38 @@ const daysAgo = (n) => dayjs().subtract(n, "day").format("YYYY-MM-DD");
 const SALES = [
   { id: "s-1024", date: daysAgo(0),  branchId: "br-main",  customerId: "cu-001", priceMode: "wholesale", currency: "UZS",
     items: [
-      { productId: "p-001", qty: 60, unit: "meter", price: 51000 },
-      { productId: "p-005", qty: 80, unit: "meter", price: 4500  },
+      { productId: "p-001", qty: 60, unit: "PIECE", price: 51000 },
+      { productId: "p-005", qty: 80, unit: "KG", price: 4500  },
     ], paid: 2_500_000 },
   { id: "s-1023", date: daysAgo(0),  branchId: "br-samar", customerId: "cu-002", priceMode: "retail",    currency: "UZS",
-    items: [ { productId: "p-006", qty: 4, unit: "piece", price: 32000 } ], paid: 128_000 },
+    items: [ { productId: "p-006", qty: 4, unit: "PIECE", price: 32000 } ], paid: 128_000 },
   { id: "s-1022", date: daysAgo(1),  branchId: "br-main",  customerId: "cu-003", priceMode: "wholesale", currency: "UZS",
     items: [
-      { productId: "p-002", qty: 24, unit: "meter", price: 69500 },
-      { productId: "p-004", qty: 6,  unit: "pack",  price: 80000 },
+      { productId: "p-002", qty: 24, unit: "PIECE", price: 69500 },
+      { productId: "p-004", qty: 6,  unit: "PIECE",  price: 80000 },
     ], paid: 1_500_000 },
   { id: "s-1021", date: daysAgo(2),  branchId: "br-main",  customerId: "cu-005", priceMode: "wholesale", currency: "UZS",
-    items: [ { productId: "p-008", qty: 40, unit: "meter", price: 47500 } ], paid: 1_900_000 },
+    items: [ { productId: "p-008", qty: 40, unit: "PIECE", price: 47500 } ], paid: 1_900_000 },
   { id: "s-1020", date: daysAgo(3),  branchId: "br-samar", customerId: "cu-006", priceMode: "retail",    currency: "UZS",
-    items: [ { productId: "p-005", qty: 12, unit: "meter", price: 5400 } ], paid: 64_800 },
+    items: [ { productId: "p-005", qty: 12, unit: "KG", price: 5400 } ], paid: 64_800 },
   { id: "s-1019", date: daysAgo(4),  branchId: "br-main",  customerId: "cu-001", priceMode: "wholesale", currency: "UZS",
-    items: [ { productId: "p-001", qty: 30, unit: "meter", price: 51000 } ], paid: 1_530_000 },
+    items: [ { productId: "p-001", qty: 30, unit: "PIECE", price: 51000 } ], paid: 1_530_000 },
   { id: "s-1018", date: daysAgo(5),  branchId: "br-samar", customerId: "cu-007", priceMode: "retail",    currency: "UZS",
-    items: [ { productId: "p-006", qty: 2, unit: "piece", price: 32000 } ], paid: 64_000 },
+    items: [ { productId: "p-006", qty: 2, unit: "PIECE", price: 32000 } ], paid: 64_000 },
   { id: "s-1017", date: daysAgo(6),  branchId: "br-main",  customerId: "cu-003", priceMode: "wholesale", currency: "UZS",
-    items: [ { productId: "p-002", qty: 18, unit: "meter", price: 69500 } ], paid: 1_251_000 },
+    items: [ { productId: "p-002", qty: 18, unit: "PIECE", price: 69500 } ], paid: 1_251_000 },
 ];
 
 const PURCHASES = [
   { id: "po-501", date: daysAgo(2),  branchId: "br-main",  supplier: "AKFA Plant", currency: "UZS",
     items: [
-      { productId: "p-001", qty: 220, unit: "meter", costPrice: 43500 },
-      { productId: "p-008", qty: 60,  unit: "meter", costPrice: 38000 },
+      { productId: "p-001", qty: 220, unit: "PIECE", costPrice: 43500 },
+      { productId: "p-008", qty: 60,  unit: "PIECE", costPrice: 38000 },
     ] },
   { id: "po-500", date: daysAgo(8),  branchId: "br-main",  supplier: "Glass Co.",  currency: "USD",
-    items: [ { productId: "p-003", qty: 40, unit: "piece", costPrice: 39 } ] },
+    items: [ { productId: "p-003", qty: 40, unit: "PIECE", costPrice: 39 } ] },
   { id: "po-499", date: daysAgo(12), branchId: "br-samar", supplier: "RubberPro",  currency: "UZS",
-    items: [ { productId: "p-005", qty: 600, unit: "meter", costPrice: 3100 } ] },
+    items: [ { productId: "p-005", qty: 600, unit: "KG", costPrice: 3100 } ] },
 ];
 
 const EXPENSES = [
@@ -140,11 +140,11 @@ const EXPENSES = [
 
 const TRANSFERS = [
   { id: "t-204", date: daysAgo(1), fromBranchId: "br-main", toBranchId: "br-samar", status: "received",
-    items: [ { productId: "p-001", qty: 80, unit: "meter" }, { productId: "p-005", qty: 200, unit: "meter" } ] },
+    items: [ { productId: "p-001", qty: 80, unit: "PIECE" }, { productId: "p-005", qty: 200, unit: "KG" } ] },
   { id: "t-203", date: daysAgo(4), fromBranchId: "br-main", toBranchId: "br-samar", status: "in_transit",
-    items: [ { productId: "p-003", qty: 12, unit: "piece" } ] },
+    items: [ { productId: "p-003", qty: 12, unit: "PIECE" } ] },
   { id: "t-202", date: daysAgo(9), fromBranchId: "br-samar", toBranchId: "br-main",  status: "received",
-    items: [ { productId: "p-006", qty: 10, unit: "piece" } ] },
+    items: [ { productId: "p-006", qty: 10, unit: "PIECE" } ] },
 ];
 
 const EXPENSE_CATEGORIES = [

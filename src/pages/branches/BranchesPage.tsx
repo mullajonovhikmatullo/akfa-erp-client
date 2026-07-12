@@ -200,32 +200,29 @@ export function BranchesPage() {
               onClick={(e) => { e.stopPropagation(); openAssign(b); }}
             />
           </Tooltip>
-          <Tooltip title={t('common.edit')}>
-            <Button
-              size="small"
-              type="text"
-              icon={<EditOutlined />}
-              onClick={(e) => { e.stopPropagation(); openEdit(b); }}
-            />
-          </Tooltip>
+          <Button
+            size="small"
+            type="text"
+            icon={<EditOutlined />}
+            onClick={(e) => { e.stopPropagation(); openEdit(b); }}
+          />
           <Popconfirm
             title={t('common.deleteTitle')}
             description={t('branches.deleteDesc')}
             okText={t('common.delete')}
             cancelText={t('common.cancel')}
-            okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+            okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === b.id }}
             onConfirm={(e) => { e?.stopPropagation(); deleteMutation.mutate(b.id, { onSuccess: () => toast.success(t('branches.deleteSuccess')), onError: () => toast.error(t('branches.deleteError')) }); }}
             onPopupClick={(e) => e.stopPropagation()}
           >
-            <Tooltip title={t('common.delete')}>
-              <Button
-                size="small"
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </Tooltip>
+            <Button
+              size="small"
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              loading={deleteMutation.isPending && deleteMutation.variables === b.id}
+              onClick={(e) => e.stopPropagation()}
+            />
           </Popconfirm>
         </div>
       ),
