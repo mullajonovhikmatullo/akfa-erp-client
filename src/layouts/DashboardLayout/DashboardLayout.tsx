@@ -4,18 +4,29 @@ import clsx from 'clsx';
 import { useUIStore } from '@/app/stores/ui.store';
 import { AppSidebar } from '@/widgets/app-sidebar';
 import { AppHeader } from '@/widgets/app-header';
-
-import { useSel } from '@/app/store.jsx';
+import { useBranches } from '@/entities/branch';
+import { useAuthStore } from '@/entities/user';
 
 export function DashboardLayout() {
+  const user = useAuthStore((s) => s.user);
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
   const mobileSidebarOpen = useUIStore((s) => s.mobileSidebarOpen);
   const closeMobileSidebar = useUIStore((s) => s.closeMobileSidebar);
-  const branches = useSel((s: { branches: Array<{ id: string; name: string }> }) => s.branches);
+  const activeBranchId = useUIStore((s) => s.activeBranchId);
+  const setActiveBranch = useUIStore((s) => s.setActiveBranch);
+  const { data: branches = [] } = useBranches();
   const location = useLocation();
 
   // Close mobile sidebar on route change
   useEffect(() => { closeMobileSidebar(); }, [location.pathname, closeMobileSidebar]);
+
+  useEffect(() => {
+    if (!user?.branchId) return;
+    const hasUserBranch = branches.some((branch) => branch.id === user.branchId);
+    if (hasUserBranch && activeBranchId !== user.branchId) {
+      setActiveBranch(user.branchId);
+    }
+  }, [activeBranchId, branches, setActiveBranch, user?.branchId]);
 
   return (
     <div className={clsx('app-shell', sidebarCollapsed && 'app-shell--collapsed')}>

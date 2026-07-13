@@ -14,7 +14,7 @@ import {
   GlobalOutlined,
 } from '@ant-design/icons';
 import { useAuthStore } from '@/entities/user';
-import { useDispatch } from '@/app/store.jsx';
+import { useDispatch, useSel } from '@/app/store.jsx';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useT } from '@/shared/lib/i18n';
 import { ALL_NAV_ITEMS } from '@/widgets/app-sidebar/model/navConfig';
@@ -44,7 +44,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
   const isSuper = useAuthStore((s) => s.isSuper)();
 
   const activeBranchId = useUIStore((s) => s.activeBranchId);
-  const exchangeRate = useUIStore((s) => s.exchangeRate);
+  const exchangeRate = useSel((s: { settings: { exchangeRate: number } }) => s.settings.exchangeRate);
   const setActiveBranch = useUIStore((s) => s.setActiveBranch);
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
@@ -69,6 +69,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
 
   const activeBranch = branches.find((b) => b.id === activeBranchId);
   const userBranch = branches.find((b) => b.id === user?.branchId);
+  const branchSelectValue = activeBranch ? activeBranchId : '__all__';
 
   const currentNav = ALL_NAV_ITEMS.find((n) => {
     if (n.path === '/') return location.pathname === '/';
@@ -170,7 +171,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
 
         {isSuper ? (
           <Select
-            value={activeBranchId}
+            value={branchSelectValue}
             onChange={setActiveBranch}
             className="topbar-hide-mobile"
             style={{ minWidth: 220 }}

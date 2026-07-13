@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
 import { SwapOutlined, WalletOutlined, TeamOutlined, InboxOutlined } from '@ant-design/icons';
 import { useInventoryReport } from '@/entities/analytics';
+import { useSel } from '@/app/store.jsx';
 import { StatusBadge } from '@/shared/ui';
 import { ROUTES } from '@/shared/config/routes';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
@@ -10,7 +11,8 @@ import { useT } from '@/shared/lib/i18n';
 export function LowStockWidget() {
   const t = useT();
   const navigate = useNavigate();
-  const { data } = useInventoryReport();
+  const lowStockThreshold = useSel((s: { settings: { lowStockThreshold: number } }) => s.settings.lowStockThreshold);
+  const { data } = useInventoryReport({ lowStockThreshold });
   const lowStock = (data?.lowStock ?? []).slice(0, 5);
 
   return (

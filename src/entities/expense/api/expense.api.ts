@@ -6,6 +6,9 @@ type Raw = Record<string, unknown>;
 const parseExpense = (raw: Raw): Expense => ({
   ...(raw as unknown as Expense),
   amount: Number(raw.amount),
+  currency: (raw.currency as Expense['currency']) ?? 'UZS',
+  amountUsd: Number(raw.amountUsd ?? 0),
+  usdToUzsRate: raw.usdToUzsRate != null ? Number(raw.usdToUzsRate) : null,
 });
 
 export interface ExpenseFilters {
@@ -34,6 +37,9 @@ export interface CreateExpensePayload {
   branchId?: string;
   categoryId: string;
   amount: number;
+  currency?: Expense['currency'];
+  amountUsd?: number;
+  usdToUzsRate?: number;
   description?: string;
   expenseDate?: string;
 }

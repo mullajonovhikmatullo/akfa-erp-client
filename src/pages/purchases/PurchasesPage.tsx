@@ -25,6 +25,7 @@ export function PurchasesPage() {
   const totalBatches = result?.totalBatches ?? 0;
   const activeBatches = result?.totalActive ?? 0;
   const totalCost = result?.totalCostUzs ?? 0;
+  const totalRemainingValue = result?.totalRemainingValueUzs ?? 0;
 
   function handleDepletedChange(v: string | undefined) {
     setDepletedFilter(v === undefined ? undefined : v === 'true');
@@ -165,13 +166,19 @@ export function PurchasesPage() {
       </div>
 
       {/* KPI row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 12, marginBottom: 16 }}>
         <KpiBox label={t('purchases.kpiTotal')} value={totalBatches} hint={t('purchases.kpiTotalHint')} />
         <KpiBox label={t('purchases.kpiActive')} value={activeBatches} hint={t('purchases.kpiActiveHint')} tone="success" />
         <KpiBox
           label={t('purchases.kpiValue')}
           value={<MoneyDisplay amount={totalCost} currency="UZS" />}
           hint={t('purchases.kpiValueHint')}
+        />
+        <KpiBox
+          label={t('purchases.kpiRemainingValue')}
+          value={<MoneyDisplay amount={totalRemainingValue} currency="UZS" />}
+          hint={t('purchases.kpiRemainingValueHint')}
+          tone="success"
         />
       </div>
 

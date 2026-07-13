@@ -133,12 +133,19 @@ export function ExpensesPage() {
     {
       title: t('expenses.colAmount'),
       key: 'amount',
-      width: 160,
+      width: 190,
       align: 'right',
       render: (_: unknown, e: Expense) => (
-        <span className="num" style={{ fontWeight: 700 }}>
-          <MoneyDisplay amount={e.amount} currency="UZS" />
-        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+          <span className="num" style={{ fontWeight: 700 }}>
+            <MoneyDisplay amount={e.currency === 'USD' ? e.amountUsd : e.amount} currency={e.currency} />
+          </span>
+          {e.currency === 'USD' && (
+            <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
+              <MoneyDisplay amount={e.amount} currency="UZS" /> · {e.usdToUzsRate?.toLocaleString('ru-RU')} UZS
+            </span>
+          )}
+        </div>
       ),
     },
     {

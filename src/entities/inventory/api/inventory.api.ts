@@ -50,6 +50,7 @@ export interface BatchPage {
   totalBatches: number;
   totalActive: number;
   totalCostUzs: number;
+  totalRemainingValueUzs: number;
 }
 
 export const inventoryApi = {
@@ -81,6 +82,7 @@ export const inventoryApi = {
         totalBatches: number;
         totalActive: number;
         totalCostUzs: number;
+        totalRemainingValueUzs: number;
       };
       return {
         items: body.items.map(parseBatch),
@@ -88,6 +90,7 @@ export const inventoryApi = {
         totalBatches: body.totalBatches,
         totalActive: body.totalActive,
         totalCostUzs: body.totalCostUzs,
+        totalRemainingValueUzs: body.totalRemainingValueUzs ?? 0,
       };
     }),
 };

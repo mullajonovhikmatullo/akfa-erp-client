@@ -2,7 +2,6 @@ import { useMemo, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Empty, Skeleton } from 'antd';
 import {
-  BarChartOutlined,
   CreditCardOutlined,
   DollarOutlined,
   DropboxOutlined,
@@ -12,6 +11,7 @@ import {
   PlusOutlined,
   ReloadOutlined,
   ShoppingCartOutlined,
+  SwapOutlined,
   TeamOutlined,
   WalletOutlined,
   WarningOutlined,
@@ -38,6 +38,7 @@ import {
   type AnalyticsQuery,
 } from '@/entities/analytics';
 import { useCurrentUser } from '@/entities/user';
+import { useSel } from '@/app/store.jsx';
 import { ROUTES } from '@/shared/config/routes';
 import { formatCompactUZS, formatDate } from '@/shared/lib/formatters';
 import { useT } from '@/shared/lib/i18n';
@@ -71,12 +72,14 @@ export function DashboardPage() {
   const t = useT();
   const navigate = useNavigate();
   const { user, isSuper, branchId } = useCurrentUser();
+  const lowStockThreshold = useSel((s: { settings: { lowStockThreshold: number } }) => s.settings.lowStockThreshold);
   const firstName = user?.name?.split(' ')[0] ?? 'Admin';
   const branchParam = !isSuper && branchId ? { branchId } : {};
 
   const now = dayjs();
   const todayQuery: AnalyticsQuery = {
     ...branchParam,
+    lowStockThreshold,
     from: now.startOf('day').toISOString(),
     to: now.endOf('day').toISOString(),
     period: 'day',
@@ -84,6 +87,7 @@ export function DashboardPage() {
   };
   const monthQuery: AnalyticsQuery = {
     ...branchParam,
+    lowStockThreshold,
     from: now.startOf('month').toISOString(),
     to: now.endOf('day').toISOString(),
     period: 'day',
@@ -91,6 +95,7 @@ export function DashboardPage() {
   };
   const trendQuery: AnalyticsQuery = {
     ...branchParam,
+    lowStockThreshold,
     from: now.subtract(13, 'day').startOf('day').toISOString(),
     to: now.endOf('day').toISOString(),
     period: 'day',
@@ -205,7 +210,7 @@ export function DashboardPage() {
       </div>
 
       {isLoading ? (
-        <Skeleton active paragraph={{ rows: 12 }} />
+        <DashboardSkeleton />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
@@ -346,7 +351,13 @@ export function DashboardPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-            <ListPanel title={t('dashboard.topDebtors')} empty={topDebtors.length === 0} emptyText={t('dashboard.noDebtors')}>
+            <ListPanel
+              title={t('dashboard.topDebtors')}
+              action={t('dashboard.allDebtors')}
+              onAction={() => navigate(`${ROUTES.CUSTOMERS}?balance=debt`)}
+              empty={topDebtors.length === 0}
+              emptyText={t('dashboard.noDebtors')}
+            >
               {topDebtors.map((customer) => (
                 <ListRow
                   key={customer.id}
@@ -363,9 +374,9 @@ export function DashboardPage() {
                 <h3>{t('dashboard.operationalSnapshot')}</h3>
                 <span className="meta">{t('dashboard.currentData')}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10 }}>
-                <SnapshotTile icon={<InboxOutlined />} label={t('dashboard.lowStockTitle')} value={month.data?.inventory.lowStockCount ?? 0} tone={(month.data?.inventory.lowStockCount ?? 0) > 0 ? 'warning' : 'success'} />
-                <SnapshotTile icon={<BarChartOutlined />} label={t('dashboard.pendingTransfers')} value={month.data?.transfers.pendingCount ?? 0} tone={(month.data?.transfers.pendingCount ?? 0) > 0 ? 'warning' : 'success'} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <SnapshotTile icon={<InboxOutlined />} label={t('dashboard.lowStockShort')} value={month.data?.inventory.lowStockCount ?? 0} tone={(month.data?.inventory.lowStockCount ?? 0) > 0 ? 'warning' : 'success'} />
+                <SnapshotTile icon={<SwapOutlined />} label={t('dashboard.pendingTransfers')} value={month.data?.transfers.pendingCount ?? 0} tone={(month.data?.transfers.pendingCount ?? 0) > 0 ? 'warning' : 'success'} />
                 <SnapshotTile icon={<DollarOutlined />} label={t('dashboard.netProfit')} value={<MoneyDisplay amount={month.data?.profit.netProfit ?? 0} currency="UZS" compact />} tone={(month.data?.profit.netProfit ?? 0) >= 0 ? 'success' : 'danger'} />
                 <SnapshotTile icon={<FileTextOutlined />} label={t('dashboard.debtorCount')} value={debt.data?.summary.debtorCount ?? 0} tone={(debt.data?.summary.debtorCount ?? 0) > 0 ? 'danger' : 'success'} />
               </div>
@@ -374,6 +385,77 @@ export function DashboardPage() {
         </div>
       )}
     </>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="kpi" style={{ minHeight: 126 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+              <Skeleton.Input active size="small" style={{ width: 110 }} />
+              <Skeleton.Avatar active size={24} shape="square" />
+            </div>
+            <div style={{ marginTop: 18 }}>
+              <Skeleton.Input active size="default" style={{ width: 150 }} />
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <Skeleton.Input active size="small" style={{ width: 120 }} />
+            </div>
+            <div className="accent" />
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+        <SkeletonPanel height={310} rows={3} />
+        <SkeletonPanel height={220} rows={5} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="card" style={{ padding: '14px 16px' }}>
+            <Skeleton.Input active size="small" style={{ width: 120 }} />
+            <div style={{ marginTop: 10 }}>
+              <Skeleton.Input active size="default" style={{ width: 145 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+        <SkeletonPanel height={260} rows={2} />
+        <SkeletonPanel height={260} rows={5} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+        <SkeletonPanel height={220} rows={4} />
+        <SkeletonPanel height={220} rows={4} />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonPanel({ height, rows }: { height: number; rows: number }) {
+  return (
+    <div className="card">
+      <div className="card-head">
+        <Skeleton.Input active size="small" style={{ width: 150 }} />
+        <Skeleton.Input active size="small" style={{ width: 90 }} />
+      </div>
+      <div style={{ minHeight: height, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
+        {Array.from({ length: rows }).map((_, index) => (
+          <Skeleton.Input
+            key={index}
+            active
+            size={index === 0 ? 'default' : 'small'}
+            style={{ width: `${Math.max(46, 86 - index * 9)}%` }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -554,12 +636,37 @@ function ListRow({ icon, title, meta, right }: { icon: ReactNode; title: string;
 
 function SnapshotTile({ icon, label, value, tone }: { icon: ReactNode; label: string; value: ReactNode; tone: Tone }) {
   return (
-    <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 12, minHeight: 86 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, color: 'var(--ink-3)', fontSize: 12 }}>
-        <span>{label}</span>
-        <span style={{ color: COLORS[tone] }}>{icon}</span>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '34px 1fr auto',
+        alignItems: 'center',
+        gap: 10,
+        border: '1px solid var(--border)',
+        borderRadius: 8,
+        padding: '10px 12px',
+        background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
+      }}
+    >
+      <span
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 8,
+          background: `${COLORS[tone]}12`,
+          color: COLORS[tone],
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 16,
+        }}
+      >
+        {icon}
+      </span>
+      <div style={{ minWidth: 0, color: 'var(--ink-2)', fontSize: 13, fontWeight: 650, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {label}
       </div>
-      <div className="num" style={{ marginTop: 8, fontSize: 20, fontWeight: 800, color: COLORS[tone] }}>{value}</div>
+      <div className="num" style={{ fontSize: 18, fontWeight: 800, color: COLORS[tone], textAlign: 'right' }}>{value}</div>
     </div>
   );
 }

@@ -170,6 +170,9 @@ export interface Expense {
   expenseDate: string;
   createdAt: string;
   amount: number;
+  currency: Currency;
+  amountUsd: number;
+  usdToUzsRate: number | null;
   description: string | null;
   category: { id: string; name: string; description: string | null };
   branch: { id: string; name: string };

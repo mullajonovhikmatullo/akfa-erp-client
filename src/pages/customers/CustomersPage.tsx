@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Button, Input, Popconfirm, Tooltip } from 'antd';
+import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Button, Input, Popconfirm, Select, Tooltip } from 'antd';
 import {
   PlusOutlined,
   SearchOutlined,
@@ -29,11 +30,13 @@ import { useT } from '@/shared/lib/i18n';
 
 export function CustomersPage() {
   const t = useT();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { can, isSuper, branchId } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('customers:create');
 
   const [search, setSearch] = useState('');
+  const [balanceFilter, setBalanceFilter] = useState<BalanceFilter>(() => getInitialBalanceFilter(searchParams.get('balance')));
   const [drawerCustomer, setDrawerCustomer] = useState<Customer | null>(null);
   const [editCustomer, setEditCustomer] = useState<Customer | null | undefined>(undefined);
 
@@ -45,6 +48,23 @@ export function CustomersPage() {
 
   const totalDebt = customers.reduce((sum, c) => sum + (c.balance > 0 ? c.balance : 0), 0);
   const totalCredit = customers.reduce((sum, c) => sum + (c.balance < 0 ? -c.balance : 0), 0);
+  const filteredCustomers = useMemo(() => customers.filter((customer) => {
+    if (balanceFilter === 'debt') return customer.balance > 0;
+    if (balanceFilter === 'credit') return customer.balance < 0;
+    if (balanceFilter === 'zero') return customer.balance === 0;
+    return true;
+  }), [balanceFilter, customers]);
+
+  const handleBalanceFilterChange = (value: BalanceFilter) => {
+    setBalanceFilter(value);
+    const next = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      next.delete('balance');
+    } else {
+      next.set('balance', value);
+    }
+    setSearchParams(next, { replace: true });
+  };
 
   const columns: ColumnDef<Customer>[] = [
     {
@@ -194,7 +214,7 @@ export function CustomersPage() {
         <div>
           <h1>{t('nav.customers')}</h1>
           <div className="sub">
-            {customers.length} {t('customers.subtitleSuffix')}
+            {filteredCustomers.length} {t('customers.subtitleSuffix')}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -275,14 +295,25 @@ export function CustomersPage() {
             allowClear
             style={{ maxWidth: 320 }}
           />
+          <Select<BalanceFilter>
+            value={balanceFilter}
+            onChange={handleBalanceFilterChange}
+            style={{ width: 190 }}
+            options={[
+              { value: 'all', label: t('customers.filterAllBalances') },
+              { value: 'debt', label: t('customers.filterDebt') },
+              { value: 'credit', label: t('customers.filterCredit') },
+              { value: 'zero', label: t('customers.filterZero') },
+            ]}
+          />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{customers.length}</strong> {t('common.resultsSuffix')}
+            <strong>{filteredCustomers.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
         <DataTable<Customer>
           rowKey="id"
-          dataSource={customers}
+          dataSource={filteredCustomers}
           columns={columns}
           loading={isLoading}
           pagination={{ current: page, pageSize, onChange: onPageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
@@ -306,6 +337,13 @@ export function CustomersPage() {
       />
     </>
   );
+}
+
+type BalanceFilter = 'all' | 'debt' | 'credit' | 'zero';
+
+function getInitialBalanceFilter(value: string | null): BalanceFilter {
+  if (value === 'debt' || value === 'credit' || value === 'zero') return value;
+  return 'all';
 }
 
 function KpiBox({

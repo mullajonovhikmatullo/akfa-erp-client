@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Select, Popconfirm, Tooltip, Table } from 'antd';
+import { Button, Select, Popconfirm, Tooltip, Table, Modal, Alert } from 'antd';
 import {
   SwapOutlined,
   CheckCircleOutlined,
@@ -16,7 +16,6 @@ import { NewTransferModal } from '@/features/create-transfer';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { useCurrentUser } from '@/entities/user';
 import type { Transfer, TransferStatus } from '@/shared/types/domain';
-import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
@@ -31,9 +30,10 @@ const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
 export function TransfersPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
-  const { isSuper } = useCurrentUser();
+  const { isSuper, branchId: userBranchId, user } = useCurrentUser();
   const [creating, setCreating] = useState(false);
   const [statusFilter, setStatusFilter] = useState<TransferStatus | undefined>();
+  const [confirmingTransfer, setConfirmingTransfer] = useState<Transfer | null>(null);
 
   const { data: transfers = [], isLoading, isFetching, refetch } = useTransfers({
     status: statusFilter,
@@ -44,6 +44,7 @@ export function TransfersPage() {
   const cancelMutation = useCancelTransfer();
 
   const pendingCount = transfers.filter((tr) => tr.status === 'PENDING').length;
+  const confirmingTotal = confirmingTransfer?.items.reduce((sum, item) => sum + item.totalCostUzs, 0) ?? 0;
 
   const STATUS_OPTIONS: { value: TransferStatus; label: string }[] = [
     { value: 'PENDING', label: t('transfers.statusPendingLabel') },
@@ -135,38 +136,32 @@ export function TransfersPage() {
       fixed: 'right',
       render: (_: unknown, tr: Transfer) => {
         if (tr.status !== 'PENDING') return null;
+        const isReceiverBranch = tr.toBranch.id === userBranchId;
+        const canComplete = !isSuper && isReceiverBranch;
+        const canCancel = isSuper || (!isReceiverBranch && tr.initiatedBy.id === user?.id);
         return (
           <div style={{ display: 'flex', gap: 4 }}>
-            {isSuper && (
+            {canComplete && (
+              <Button
+                size="small"
+                type="text"
+                icon={<CheckCircleOutlined style={{ color: 'var(--success)' }} />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmingTransfer(tr);
+                }}
+              />
+            )}
+            {canCancel && (
               <Popconfirm
-                title={t('transfers.completeTitle')}
-                description={t('transfers.completeDesc')}
-                okText={t('transfers.completeOk')}
-                cancelText={t('common.cancel')}
-                okButtonProps={{ loading: completeMutation.isPending }}
-                onConfirm={(e) => { e?.stopPropagation(); completeMutation.mutate(tr.id); }}
+                title={t('transfers.cancelTitle')}
+                description={t('transfers.cancelDesc')}
+                okText={t('transfers.cancelOk')}
+                cancelText={t('common.no')}
+                okButtonProps={{ danger: true, loading: cancelMutation.isPending }}
+                onConfirm={(e) => { e?.stopPropagation(); cancelMutation.mutate(tr.id); }}
                 onPopupClick={(e) => e.stopPropagation()}
               >
-                <Tooltip title={t('transfers.completeTooltip')}>
-                  <Button
-                    size="small"
-                    type="text"
-                    icon={<CheckCircleOutlined style={{ color: 'var(--success)' }} />}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </Tooltip>
-              </Popconfirm>
-            )}
-            <Popconfirm
-              title={t('transfers.cancelTitle')}
-              description={t('transfers.cancelDesc')}
-              okText={t('transfers.cancelOk')}
-              cancelText={t('common.no')}
-              okButtonProps={{ danger: true, loading: cancelMutation.isPending }}
-              onConfirm={(e) => { e?.stopPropagation(); cancelMutation.mutate(tr.id); }}
-              onPopupClick={(e) => e.stopPropagation()}
-            >
-              <Tooltip title={t('transfers.cancelTooltip')}>
                 <Button
                   size="small"
                   type="text"
@@ -174,8 +169,8 @@ export function TransfersPage() {
                   icon={<CloseCircleOutlined />}
                   onClick={(e) => e.stopPropagation()}
                 />
-              </Tooltip>
-            </Popconfirm>
+              </Popconfirm>
+            )}
           </div>
         );
       },
@@ -234,7 +229,70 @@ export function TransfersPage() {
       </div>
 
       <NewTransferModal open={creating} onClose={() => setCreating(false)} />
+      <Modal
+        open={Boolean(confirmingTransfer)}
+        title={t('transfers.confirmReceiptTitle')}
+        okText={t('transfers.confirmReceiptOk')}
+        cancelText={t('transfers.confirmReceiptCancel')}
+        okButtonProps={{ loading: completeMutation.isPending }}
+        onCancel={() => setConfirmingTransfer(null)}
+        onOk={() => {
+          if (!confirmingTransfer) return;
+          completeMutation.mutate(confirmingTransfer.id, {
+            onSuccess: () => setConfirmingTransfer(null),
+          });
+        }}
+      >
+        {confirmingTransfer && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Alert
+              type="warning"
+              showIcon
+              message={t('transfers.confirmReceiptWarning')}
+              description={t('transfers.confirmReceiptDesc')}
+            />
+            <div style={{ display: 'grid', gap: 8, fontSize: 13 }}>
+              <InfoRow label={t('transfers.confirmReceiptRoute')} value={`${confirmingTransfer.fromBranch.name} → ${confirmingTransfer.toBranch.name}`} />
+              <InfoRow label={t('transfers.confirmReceiptItems')} value={`${confirmingTransfer.items.length} ${t('transfers.itemTypeSuffix')}`} />
+              <InfoRow label={t('transfers.colCost')} value={<MoneyDisplay amount={confirmingTotal} currency="UZS" />} />
+            </div>
+            <Table
+              size="small"
+              pagination={false}
+              rowKey="id"
+              dataSource={confirmingTransfer.items}
+              columns={[
+                {
+                  title: t('transfers.colProduct'),
+                  key: 'product',
+                  render: (_, item) => item.product.name,
+                },
+                {
+                  title: t('transfers.colQty'),
+                  key: 'quantity',
+                  width: 130,
+                  align: 'right',
+                  render: (_, item) => (
+                    <span className="num">
+                      {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          </div>
+        )}
+      </Modal>
     </>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+      <span style={{ color: 'var(--ink-3)' }}>{label}</span>
+      <span style={{ fontWeight: 600, textAlign: 'right' }}>{value}</span>
+    </div>
   );
 }
 
@@ -268,7 +326,7 @@ function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (key: str
             align: 'right',
             render: (_, item) => (
               <span className="num">
-                {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[item.product.unit]}
+                {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
               </span>
             ),
           },

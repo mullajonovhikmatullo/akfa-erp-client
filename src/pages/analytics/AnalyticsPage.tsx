@@ -16,6 +16,7 @@ import {
   type AnalyticsPeriod,
   type AnalyticsQuery,
 } from '@/entities/analytics';
+import { useSel } from '@/app/store.jsx';
 import { MoneyDisplay, StatusBadge } from '@/shared/ui';
 import { SALE_TYPE_LABELS, PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ProductUnit } from '@/shared/types/domain';
@@ -27,6 +28,7 @@ type TFunc = (key: string) => string;
 
 export function AnalyticsPage() {
   const t = useT();
+  const lowStockThreshold = useSel((s: { settings: { lowStockThreshold: number } }) => s.settings.lowStockThreshold);
   const [tab, setTab] = useState<Tab>('dashboard');
   const [period, setPeriod] = useState<AnalyticsPeriod>('day');
   const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
@@ -39,6 +41,7 @@ export function AnalyticsPage() {
     to: dateRange[1]?.toISOString(),
     period,
     limit: 10,
+    lowStockThreshold,
   };
 
   const dashboard = useDashboard(query);
@@ -86,7 +89,7 @@ export function AnalyticsPage() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <DatePicker.RangePicker
             value={dateRange}
-            onChange={(v) => setDateRange(v as [Dayjs | null, Dayjs | null])}
+            onChange={(v) => setDateRange(v ? [v[0], v[1]] : [null, null])}
             format="DD.MM.YYYY"
             presets={[
               { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },

@@ -9,6 +9,7 @@ export interface AnalyticsQuery {
   to?: string;
   period?: AnalyticsPeriod;
   limit?: number;
+  lowStockThreshold?: number;
 }
 
 // ─── Dashboard ──────────────────────────────────────────────────────────────

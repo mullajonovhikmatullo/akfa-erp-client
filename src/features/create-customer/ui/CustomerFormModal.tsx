@@ -10,13 +10,17 @@ interface CustomerFormModalProps {
   open: boolean;
   customer?: Customer | null;
   onClose: () => void;
+  onCreated?: (customer: Customer) => void;
 }
 
-export function CustomerFormModal({ open, customer, onClose }: CustomerFormModalProps) {
+export function CustomerFormModal({ open, customer, onClose, onCreated }: CustomerFormModalProps) {
   const t = useT();
   const { form, onSubmit, isPending, isEdit, isSuper, branches } = useCustomerForm({
     customer,
-    onSuccess: onClose,
+    onSuccess: (savedCustomer) => {
+      onCreated?.(savedCustomer);
+      onClose();
+    },
   });
   const { control, formState: { errors } } = form;
 

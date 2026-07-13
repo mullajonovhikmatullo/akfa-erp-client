@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Select, InputNumber, Radio, Alert, Tooltip, Empty } from 'antd';
+import { Button, Select, InputNumber, Radio, Alert, Tooltip, Empty, DatePicker } from 'antd';
 import { CheckCircleOutlined, DeleteOutlined, CheckOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import dayjs, { type Dayjs } from 'dayjs';
 import { useProducts } from '@/entities/product';
 import { useCustomers } from '@/entities/customer';
 import { useCreateSale } from '@/entities/sale';
 import { useStockBatches } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
+import { CustomerFormModal } from '@/features/create-customer';
 import { MoneyDisplay } from '@/shared/ui';
 import {
   PAYMENT_METHOD_LABELS,
   type SaleType,
   type PaymentMethod,
   type Product,
+  type Customer,
 } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
 
@@ -34,10 +37,11 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
     branchFilter ? { branchId: branchFilter, depleted: false } : undefined,
     { enabled: Boolean(branchFilter) },
   );
-  const { data: customers = [] } = useCustomers({
+  const customerFilters = {
     isActive: true,
     ...(branchFilter ? { branchId: branchFilter } : {}),
-  });
+  };
+  const { data: customers = [], refetch: refetchCustomers } = useCustomers(customerFilters);
 
   const createSale = useCreateSale();
 
@@ -45,9 +49,11 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const [customerId, setCustomerId] = useState<string | undefined>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH_UZS');
   const [paidAmountUzs, setPaidAmountUzs] = useState<number>(0);
+  const [debtDueDate, setDebtDueDate] = useState<Dayjs | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [productSelectKey, setProductSelectKey] = useState(0);
+  const [creatingCustomer, setCreatingCustomer] = useState(false);
 
   const stockByProductId = useMemo(() => {
     const map = new Map<string, number>();
@@ -125,6 +131,10 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
     setPaidAmountUzs((current) => (current > fullPaidAmount ? fullPaidAmount : current));
   }, [fullPaidAmount]);
 
+  useEffect(() => {
+    if (!needsCustomer) setDebtDueDate(null);
+  }, [needsCustomer]);
+
   const handleSubmit = () => {
     createSale.mutate(
       {
@@ -132,12 +142,14 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         customerId: customerId || undefined,
         paymentMethod,
         paidAmountUzs,
+        debtDueDate: needsCustomer && debtDueDate ? debtDueDate.toISOString() : undefined,
         items: cart.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       },
       {
         onSuccess: () => {
           setCart([]);
           setPaidAmountUzs(0);
+          setDebtDueDate(null);
           setCustomerId(undefined);
           onSuccess?.();
         },
@@ -145,8 +157,14 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
     );
   };
 
+  const handleCustomerCreated = (customer: Customer) => {
+    refetchCustomers();
+    setCustomerId(customer.id);
+  };
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'flex-start' }}>
+    <>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'flex-start' }}>
 
       {/* Left: Cart */}
       <div className="card">
@@ -166,19 +184,24 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
           </div>
           <div>
             <Label>{t('newSale.customerOptional')}</Label>
-            <Select
-              showSearch
-              allowClear
-              optionFilterProp="label"
-              value={customerId}
-              onChange={setCustomerId}
-              placeholder={t('newSale.customerPlaceholder')}
-              style={{ width: '100%' }}
-              options={customers.map((c) => ({
-                value: c.id,
-                label: c.phone ? `${c.fullName} · ${c.phone}` : c.fullName,
-              }))}
-            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+              <Select
+                showSearch
+                allowClear
+                optionFilterProp="label"
+                value={customerId}
+                onChange={setCustomerId}
+                placeholder={t('newSale.customerPlaceholder')}
+                style={{ width: '100%' }}
+                options={customers.map((c) => ({
+                  value: c.id,
+                  label: c.phone ? `${c.fullName} · ${c.phone}` : c.fullName,
+                }))}
+              />
+              <Button icon={<PlusOutlined />} onClick={() => setCreatingCustomer(true)}>
+                {t('customers.newCustomer')}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -369,6 +392,21 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
               </div>
             </div>
           )}
+
+          {needsCustomer && (
+            <div>
+              <Label>{t('newSale.debtDeadlineOptional')}</Label>
+              <DatePicker
+                value={debtDueDate}
+                onChange={setDebtDueDate}
+                style={{ width: '100%' }}
+                format="DD.MM.YYYY"
+                placeholder={t('newSale.debtDeadlinePlaceholder')}
+                disabledDate={(current) => Boolean(current && current < dayjs().startOf('day'))}
+                allowClear
+              />
+            </div>
+          )}
         </div>
 
         {needsCustomer && !customerId && (
@@ -393,7 +431,15 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
           {t('newSale.confirmSale')}
         </Button>
       </div>
-    </div>
+      </div>
+
+      <CustomerFormModal
+        open={creatingCustomer}
+        customer={null}
+        onClose={() => setCreatingCustomer(false)}
+        onCreated={handleCustomerCreated}
+      />
+    </>
   );
 }
 

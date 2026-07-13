@@ -10,7 +10,7 @@ import { useT } from '@/shared/lib/i18n';
 
 interface UseCustomerFormOptions {
   customer?: Customer | null;
-  onSuccess?: () => void;
+  onSuccess?: (customer: Customer) => void;
 }
 
 export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions) {
