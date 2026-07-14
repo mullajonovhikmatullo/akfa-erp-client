@@ -28,6 +28,7 @@ export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions)
       phone: '',
       address: '',
       balance: 0,
+      balanceType: 'credit',
       isActive: true,
       branchId: undefined,
     },
@@ -47,6 +48,7 @@ export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions)
         phone: '',
         address: '',
         balance: 0,
+        balanceType: 'credit',
         isActive: true,
         branchId: undefined,
       });
@@ -71,8 +73,11 @@ export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions)
       // For branch_admin branchId is ignored by backend (uses their own).
       // For super_admin branchId is required — taken from the form selector.
       const resolvedBranchId = isSuper ? values.branchId : (branchId ?? undefined);
+      const balanceAmount = values.balance ?? 0;
+      const signedBalance =
+        balanceAmount === 0 ? 0 : values.balanceType === 'debt' ? balanceAmount : -balanceAmount;
       createMutation.mutate(
-        { fullName: values.fullName, phone, address, branchId: resolvedBranchId, balance: values.balance ?? 0 },
+        { fullName: values.fullName, phone, address, branchId: resolvedBranchId, balance: signedBalance },
         { onSuccess },
       );
     }

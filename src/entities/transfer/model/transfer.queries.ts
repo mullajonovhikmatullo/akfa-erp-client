@@ -8,10 +8,11 @@ export const transferKeys = {
   detail: (id: string) => [...transferKeys.all, 'detail', id] as const,
 };
 
-export function useTransfers(filters?: TransferFilters) {
+export function useTransfers(filters?: TransferFilters, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: transferKeys.list(filters),
     queryFn: () => transferApi.list(filters),
+    enabled: options?.enabled ?? true,
   });
 }
 

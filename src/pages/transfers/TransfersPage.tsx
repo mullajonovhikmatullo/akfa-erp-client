@@ -17,7 +17,7 @@ import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { useCurrentUser } from '@/entities/user';
 import type { Transfer, TransferStatus } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
-import { formatDate } from '@/shared/lib/formatters';
+import { formatDateTime } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
@@ -72,7 +72,7 @@ export function TransfersPage() {
       dataIndex: 'createdAt',
       width: 120,
       render: (v: string) => (
-        <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(v)}</span>
+        <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDateTime(v)}</span>
       ),
     },
     {
@@ -361,7 +361,7 @@ function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (key: str
       )}
       {transfer.completedBy && (
         <div style={{ marginTop: 4, fontSize: 12, color: 'var(--ink-3)' }}>
-          {t('transfers.completedByLabel')}: {transfer.completedBy.fullName} · {formatDate(transfer.completedAt!)}
+          {t('transfers.completedByLabel')}: {transfer.completedBy.fullName} · {formatDateTime(transfer.completedAt)}
         </div>
       )}
     </div>

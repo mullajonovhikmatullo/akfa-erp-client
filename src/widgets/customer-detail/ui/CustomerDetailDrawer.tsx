@@ -1,7 +1,15 @@
-import { Drawer, Skeleton, Divider, Tag } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Drawer, Skeleton, Divider, Tag, Button, Form, InputNumber, Select } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useCustomerDetail } from '@/entities/customer';
+import { useAddPayment, useSales } from '@/entities/sale';
 import { StatusBadge, MoneyDisplay } from '@/shared/ui';
-import type { Customer } from '@/shared/types/domain';
+import {
+  PAYMENT_METHOD_LABELS,
+  type Customer,
+  type PaymentMethod,
+  type SaleListItem,
+} from '@/shared/types/domain';
 import { formatDate } from '@/shared/lib/formatters';
 import { useT } from '@/shared/lib/i18n';
 
@@ -10,26 +18,78 @@ interface CustomerDetailDrawerProps {
   onClose: () => void;
 }
 
+const DEBT_PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CARD', 'TRANSFER'];
+
 export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawerProps) {
   const t = useT();
   const { data: detail, isLoading } = useCustomerDetail(customer?.id ?? null);
+  const debtSales = useSales(
+    customer ? { customerId: customer.id, hasDebt: true, limit: 100 } : undefined,
+    { enabled: Boolean(customer) },
+  );
+  const addPayment = useAddPayment();
+  const [payingSaleId, setPayingSaleId] = useState<string | null>(null);
+  const [payAmount, setPayAmount] = useState<number>(0);
+  const [payMethod, setPayMethod] = useState<PaymentMethod>('CASH_UZS');
+
+  useEffect(() => {
+    setPayingSaleId(null);
+    setPayAmount(0);
+    setPayMethod('CASH_UZS');
+  }, [customer?.id]);
+
+  const paymentOptions = useMemo(
+    () => DEBT_PAYMENT_METHODS.map((method) => ({
+      value: method,
+      label: t(`payment.${method}`) || PAYMENT_METHOD_LABELS[method],
+    })),
+    [t],
+  );
+
+  const currentBalance = detail?.balance ?? customer?.balance ?? 0;
 
   const balanceTone =
-    !detail ? 'muted' :
-    detail.balance > 0 ? 'danger' :
-    detail.balance < 0 ? 'success' : 'muted';
+    currentBalance > 0 ? 'danger' :
+    currentBalance < 0 ? 'success' : 'muted';
 
   const balanceLabel =
-    !detail ? '' :
-    detail.balance > 0 ? t('customers.balanceDebt') :
-    detail.balance < 0 ? t('customers.drawerBalanceCreditFull') : t('customers.drawerBalanceSettled');
+    currentBalance > 0 ? t('customers.balanceDebt') :
+    currentBalance < 0 ? t('customers.drawerBalanceCreditFull') : t('customers.drawerBalanceSettled');
+
+  const startPayment = (sale: SaleListItem) => {
+    setPayingSaleId(sale.id);
+    setPayAmount(sale.debtAmountUzs);
+    setPayMethod('CASH_UZS');
+  };
+
+  const handleAddPayment = (sale: SaleListItem) => {
+    if (payAmount <= 0) return;
+
+    addPayment.mutate(
+      {
+        saleId: sale.id,
+        payload: {
+          amountUzs: Math.min(payAmount, sale.debtAmountUzs),
+          paymentMethod: payMethod,
+        },
+      },
+      {
+        onSuccess: () => {
+          setPayingSaleId(null);
+          setPayAmount(0);
+        },
+      },
+    );
+  };
+
+  const unpaidSales = (debtSales.data ?? []).filter((sale) => sale.debtAmountUzs > 0);
 
   return (
     <Drawer
       title={null}
       open={Boolean(customer)}
       onClose={onClose}
-      width={480}
+      width={560}
       styles={{ body: { padding: 0 } }}
       destroyOnHidden
     >
@@ -87,11 +147,152 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
               <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>{t('customers.drawerCurrentBalance')}</span>
               <div style={{ textAlign: 'right' }}>
                 <div className="num" style={{ fontSize: 18, fontWeight: 700 }}>
-                  <MoneyDisplay amount={Math.abs(customer.balance)} currency="UZS" />
+                  <MoneyDisplay amount={Math.abs(currentBalance)} currency="UZS" />
                 </div>
                 <StatusBadge tone={balanceTone}>{balanceLabel || '—'}</StatusBadge>
               </div>
             </div>
+
+            <Divider style={{ margin: '0 0 16px' }} />
+
+            {/* Debt payment */}
+            <SectionLabel>{t('customers.drawerDebtPayment')}</SectionLabel>
+            {debtSales.isLoading ? (
+              <Skeleton active paragraph={{ rows: 2 }} />
+            ) : unpaidSales.length === 0 ? (
+              <div style={{ padding: '12px 0 16px', color: 'var(--ink-3)', fontSize: 13 }}>
+                {t('customers.drawerNoDebtSales')}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
+                {unpaidSales.map((sale) => {
+                  const isPaying = payingSaleId === sale.id;
+                  const isSubmitting = addPayment.isPending && isPaying;
+
+                  return (
+                    <div
+                      key={sale.id}
+                      style={{
+                        padding: '12px 14px',
+                        border: '1px solid var(--border)',
+                        borderRadius: 8,
+                        background: 'var(--surface-2)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          gap: 12,
+                          alignItems: 'flex-start',
+                        }}
+                      >
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 600, fontSize: 13 }}>
+                              #{(sale.id.split('-')[0] ?? '').toUpperCase()}
+                            </span>
+                            <Tag style={{ margin: 0, fontSize: 11 }}>{sale.saleType}</Tag>
+                          </div>
+                          <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 3 }}>
+                            {formatDate(sale.createdAt)} · {sale._count.items} {t('customers.drawerProductsSuffix')}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div className="num" style={{ fontWeight: 700, fontSize: 13, color: 'var(--danger)' }}>
+                            <MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />
+                          </div>
+                          {!isPaying && (
+                            <Button
+                              size="small"
+                              icon={<PlusOutlined />}
+                              style={{ marginTop: 6 }}
+                              onClick={() => startPayment(sale)}
+                            >
+                              {t('sales.drawerAddPayment')}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
+                      {isPaying && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 10,
+                            marginTop: 12,
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: 8,
+                              alignItems: 'flex-end',
+                            }}
+                          >
+                            <Form.Item
+                              label={t('sales.drawerAmountLabel')}
+                              style={{ flex: '1 1 170px', margin: 0 }}
+                            >
+                              <InputNumber<number>
+                                value={payAmount}
+                                onChange={(v) => setPayAmount(v ?? 0)}
+                                style={{ width: '100%' }}
+                                min={1}
+                                max={sale.debtAmountUzs}
+                                step={10000}
+                                formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                                parser={(v) => Number(v?.replace(/\s/g, '') || 0)}
+                              />
+                            </Form.Item>
+                            <Form.Item
+                              label={t('sales.drawerMethodLabel')}
+                              style={{ flex: '1 1 130px', margin: 0 }}
+                            >
+                              <Select
+                                value={payMethod}
+                                onChange={setPayMethod}
+                                options={paymentOptions}
+                                style={{ width: '100%' }}
+                              />
+                            </Form.Item>
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              gap: 8,
+                              justifyContent: 'flex-end',
+                            }}
+                          >
+                            <Button
+                              type="primary"
+                              loading={isSubmitting}
+                              disabled={payAmount <= 0}
+                              style={{ minWidth: 120 }}
+                              onClick={() => handleAddPayment(sale)}
+                            >
+                              {t('sales.drawerAccept')}
+                            </Button>
+                            <Button
+                              disabled={isSubmitting}
+                              style={{ minWidth: 96 }}
+                              onClick={() => {
+                                setPayingSaleId(null);
+                                setPayAmount(0);
+                              }}
+                            >
+                              {t('sales.drawerCancelShort')}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <Divider style={{ margin: '0 0 16px' }} />
 

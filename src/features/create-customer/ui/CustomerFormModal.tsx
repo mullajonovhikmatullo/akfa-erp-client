@@ -1,5 +1,5 @@
 import { Controller } from 'react-hook-form';
-import { Form, Input, Switch, Select, InputNumber } from 'antd';
+import { Form, Input, Switch, Select, InputNumber, Radio } from 'antd';
 import { AppModal } from '@/shared/ui';
 import { Button } from 'antd';
 import type { Customer } from '@/shared/types/domain';
@@ -84,6 +84,7 @@ export function CustomerFormModal({ open, customer, onClose, onCreated }: Custom
             render={({ field }) => (
               <Form.Item
                 label={t('customerForm.labelPhone')}
+                required
                 validateStatus={errors.phone ? 'error' : undefined}
                 help={errors.phone?.message}
               >
@@ -107,27 +108,45 @@ export function CustomerFormModal({ open, customer, onClose, onCreated }: Custom
         </div>
 
         {!isEdit && (
-          <Controller
-            name="balance"
-            control={control}
-            render={({ field }) => (
-              <Form.Item
-                label={t('customerForm.labelBalance')}
-                validateStatus={errors.balance ? 'error' : undefined}
-                help={errors.balance?.message}
-              >
-                <InputNumber
-                  {...field}
-                  min={0}
-                  step={1000}
-                  style={{ width: '100%' }}
-                  formatter={(v) => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : ''}
-                  parser={(v) => Number(v?.replace(/\s/g, '') ?? 0)}
-                  addonAfter="so'm"
-                />
-              </Form.Item>
-            )}
-          />
+          <Form.Item
+            label={t('customerForm.labelBalance')}
+            validateStatus={errors.balance ? 'error' : undefined}
+            help={errors.balance?.message}
+          >
+            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8 }}>
+              <Controller
+                name="balanceType"
+                control={control}
+                render={({ field }) => (
+                  <Radio.Group
+                    {...field}
+                    optionType="button"
+                    buttonStyle="solid"
+                    style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}
+                    options={[
+                      { value: 'credit', label: t('customers.balanceCredit') },
+                      { value: 'debt', label: t('customers.balanceDebt') },
+                    ]}
+                  />
+                )}
+              />
+              <Controller
+                name="balance"
+                control={control}
+                render={({ field }) => (
+                  <InputNumber
+                    {...field}
+                    min={0}
+                    step={1000}
+                    style={{ width: '100%' }}
+                    formatter={(v) => v ? `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : ''}
+                    parser={(v) => Number(v?.replace(/\s/g, '') ?? 0)}
+                    addonAfter="so'm"
+                  />
+                )}
+              />
+            </div>
+          </Form.Item>
         )}
 
         {isEdit && (

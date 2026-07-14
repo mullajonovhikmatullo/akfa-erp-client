@@ -25,6 +25,7 @@ import type { Product, ProductUnit } from '@/shared/types/domain';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
+import { getProductPrice } from '@/shared/lib/productPricing';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
@@ -98,13 +99,13 @@ export function ProductsPage() {
       align: 'right',
       responsiveHide: true,
       render: (_: unknown, p: Product) => {
-        const isUsd = !p.costPriceUzs && !!p.costPriceUsd;
+        const price = getProductPrice(p, 'cost');
         return (
           <span className="num">
             <MoneyDisplay
-              amount={isUsd ? p.costPriceUsd! : p.costPriceUzs}
-              currency={isUsd ? 'USD' : 'UZS'}
-              noConvert={isUsd}
+              amount={price.amount}
+              currency={price.currency}
+              noConvert={price.currency === 'USD'}
             />
           </span>
         );
@@ -117,13 +118,13 @@ export function ProductsPage() {
       align: 'right',
       responsiveHide: true,
       render: (_: unknown, p: Product) => {
-        const isUsd = !p.wholesalePriceUzs && !!p.wholesalePriceUsd;
+        const price = getProductPrice(p, 'wholesale');
         return (
           <span className="num" style={{ fontWeight: 600 }}>
             <MoneyDisplay
-              amount={isUsd ? p.wholesalePriceUsd! : p.wholesalePriceUzs}
-              currency={isUsd ? 'USD' : 'UZS'}
-              noConvert={isUsd}
+              amount={price.amount}
+              currency={price.currency}
+              noConvert={price.currency === 'USD'}
             />
           </span>
         );
@@ -135,13 +136,13 @@ export function ProductsPage() {
       width: 150,
       align: 'right',
       render: (_: unknown, p: Product) => {
-        const isUsd = !p.retailPriceUzs && !!p.retailPriceUsd;
+        const price = getProductPrice(p, 'retail');
         return (
           <span className="num" style={{ fontWeight: 600 }}>
             <MoneyDisplay
-              amount={isUsd ? p.retailPriceUsd! : p.retailPriceUzs}
-              currency={isUsd ? 'USD' : 'UZS'}
-              noConvert={isUsd}
+              amount={price.amount}
+              currency={price.currency}
+              noConvert={price.currency === 'USD'}
             />
           </span>
         );

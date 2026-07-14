@@ -79,6 +79,8 @@ export { Brandmark, TagPill, Money, Sparkbar, Avatar, SectionTitle, EmptyState }
 // and all new imports still find these components.
 export { DataTable } from './ui/DataTable/DataTable.tsx';
 export { AppModal } from './ui/AppModal/AppModal.tsx';
+export { BranchName } from './ui/BranchName/BranchName.tsx';
+export { EllipsisText } from './ui/EllipsisText/EllipsisText.tsx';
 export { FormField } from './ui/FormField/FormField.tsx';
 export { MoneyDisplay } from './ui/MoneyDisplay/MoneyDisplay.tsx';
 export { StatusBadge } from './ui/StatusBadge/StatusBadge.tsx';

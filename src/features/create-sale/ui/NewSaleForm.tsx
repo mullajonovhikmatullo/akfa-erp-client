@@ -7,6 +7,7 @@ import { useCustomers } from '@/entities/customer';
 import { useCreateSale } from '@/entities/sale';
 import { useStockBatches } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
+import { useUIStore } from '@/app/stores/ui.store';
 import { CustomerFormModal } from '@/features/create-customer';
 import { MoneyDisplay } from '@/shared/ui';
 import {
@@ -17,6 +18,7 @@ import {
   type Customer,
 } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
+import { getSaleProductPrice, getSaleProductPriceUzs } from '@/shared/lib/productPricing';
 
 interface CartItem {
   _key: string;
@@ -26,10 +28,12 @@ interface CartItem {
 }
 
 const MIN_QTY = 0.0001;
+const CART_GRID_COLUMNS = 'minmax(170px, 1fr) 116px minmax(126px, 150px) minmax(150px, 178px) 28px';
 
 export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const t = useT();
   const { branchId: userBranchId } = useCurrentUser();
+  const exchangeRate = useUIStore((s) => s.exchangeRate);
 
   const branchFilter = userBranchId ?? undefined;
   const { data: products = [] } = useProducts({ isActive: true });
@@ -48,7 +52,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const [saleType, setSaleType] = useState<SaleType>('RETAIL');
   const [customerId, setCustomerId] = useState<string | undefined>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH_UZS');
-  const [paidAmountUzs, setPaidAmountUzs] = useState<number>(0);
+  const [paidAmount, setPaidAmount] = useState<number>(0);
   const [debtDueDate, setDebtDueDate] = useState<Dayjs | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
@@ -117,18 +121,22 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
     setProductSelectKey((current) => current + 1);
   };
 
-  const unitPrice = (p: Product) =>
-    saleType === 'RETAIL' ? p.retailPriceUzs : p.wholesalePriceUzs;
+  const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
+  const unitPrice = (p: Product) => getSaleProductPriceUzs(p, saleType, effectiveExchangeRate);
 
   const subtotal = cart.reduce((sum, i) => sum + i.quantity * unitPrice(i.product), 0);
-  const debtAmount = Math.max(0, subtotal - paidAmountUzs);
+  const isUsdPayment = paymentMethod === 'CASH_USD';
+  const paidAmountUzsEquivalent = isUsdPayment ? paidAmount * effectiveExchangeRate : paidAmount;
+  const debtAmount = Math.max(0, subtotal - paidAmountUzsEquivalent);
   const needsCustomer = debtAmount > 0;
-  const fullPaidAmount = Number(subtotal.toFixed(2));
+  const fullPaidAmount = Number((isUsdPayment ? subtotal / effectiveExchangeRate : subtotal).toFixed(2));
+  const hasUsdPricedItems = cart.some((i) => getSaleProductPrice(i.product, saleType).currency === 'USD');
+  const needsExchangeRate = hasUsdPricedItems || isUsdPayment;
 
-  const canSubmit = Boolean(userBranchId) && cart.length > 0 && (!needsCustomer || customerId);
+  const canSubmit = Boolean(userBranchId) && cart.length > 0 && (!needsExchangeRate || exchangeRate > 0) && (!needsCustomer || customerId);
 
   useEffect(() => {
-    setPaidAmountUzs((current) => (current > fullPaidAmount ? fullPaidAmount : current));
+    setPaidAmount((current) => (current > fullPaidAmount ? fullPaidAmount : current));
   }, [fullPaidAmount]);
 
   useEffect(() => {
@@ -141,14 +149,16 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         saleType,
         customerId: customerId || undefined,
         paymentMethod,
-        paidAmountUzs,
+        paidAmountUzs: isUsdPayment ? 0 : paidAmount,
+        paidAmountUsd: isUsdPayment ? paidAmount : 0,
+        usdToUzsRate: needsExchangeRate ? exchangeRate : undefined,
         debtDueDate: needsCustomer && debtDueDate ? debtDueDate.toISOString() : undefined,
         items: cart.map((i) => ({ productId: i.productId, quantity: i.quantity })),
       },
       {
         onSuccess: () => {
           setCart([]);
-          setPaidAmountUzs(0);
+          setPaidAmount(0);
           setDebtDueDate(null);
           setCustomerId(undefined);
           onSuccess?.();
@@ -258,7 +268,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 132px 130px 80px 28px',
+                gridTemplateColumns: CART_GRID_COLUMNS,
                 gap: 8,
                 padding: '6px 10px',
                 fontSize: 11,
@@ -270,55 +280,55 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                 marginBottom: 6,
               }}
             >
-              <div>{t('newSale.colProduct')}</div>
-              <div>{t('newSale.colQty')}</div>
-              <div style={{ textAlign: 'right' }}>{t('newSale.colUnitPrice')}</div>
-              <div style={{ textAlign: 'right' }}>{t('newSale.colTotal')}</div>
+              <div style={{ whiteSpace: 'nowrap' }}>{t('newSale.colProduct')}</div>
+              <div style={{ whiteSpace: 'nowrap' }}>{t('newSale.colQty')}</div>
+              <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colUnitPrice')}</div>
+              <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colTotal')}</div>
               <div />
             </div>
 
-            {cart.map((item) => (
-              <div
-                key={item._key}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 132px 130px 80px 28px',
-                  gap: 8,
-                  alignItems: 'center',
-                  padding: '8px 10px',
-                  borderBottom: '1px solid var(--border)',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{item.product.name}</div>
-                  {item.product.sku && (
-                    <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
-                      {item.product.sku}
-                    </div>
-                  )}
+            {cart.map((item) => {
+              const originalPrice = getSaleProductPrice(item.product, saleType);
+              const unitPriceUzs = unitPrice(item.product);
+              return (
+                <div
+                  key={item._key}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: CART_GRID_COLUMNS,
+                    gap: 8,
+                    alignItems: 'center',
+                    padding: '8px 10px',
+                    borderBottom: '1px solid var(--border)',
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.name}</div>
+                    {item.product.sku && (
+                      <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
+                        {item.product.sku}
+                      </div>
+                    )}
+                  </div>
+                  <QuantityStepper
+                    value={item.quantity}
+                    max={stockByProductId.get(item.productId) ?? 0}
+                    onMinus={() => changeQty(item._key, -1)}
+                    onPlus={() => changeQty(item._key, 1)}
+                    onChange={(value) => updateQty(item._key, value)}
+                  />
+                  <PriceCell original={originalPrice} uzs={unitPriceUzs} />
+                  <PriceCell original={{ ...originalPrice, amount: originalPrice.amount * item.quantity }} uzs={item.quantity * unitPriceUzs} strong />
+                  <Button
+                    size="small"
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => removeItem(item._key)}
+                  />
                 </div>
-                <QuantityStepper
-                  value={item.quantity}
-                  max={stockByProductId.get(item.productId) ?? 0}
-                  onMinus={() => changeQty(item._key, -1)}
-                  onPlus={() => changeQty(item._key, 1)}
-                  onChange={(value) => updateQty(item._key, value)}
-                />
-                <div className="num" style={{ textAlign: 'right', fontSize: 13 }}>
-                  <MoneyDisplay amount={unitPrice(item.product)} currency="UZS" />
-                </div>
-                <div className="num" style={{ textAlign: 'right', fontWeight: 700, fontSize: 13 }}>
-                  <MoneyDisplay amount={item.quantity * unitPrice(item.product)} currency="UZS" />
-                </div>
-                <Button
-                  size="small"
-                  type="text"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => removeItem(item._key)}
-                />
-              </div>
-            ))}
+              );
+            })}
           </>
         )}
       </div>
@@ -351,23 +361,24 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             />
           </div>
           <div>
-            <Label>{t('newSale.paidAmount')}</Label>
+            <Label>{isUsdPayment ? `${t('newSale.paidAmount')} (USD)` : t('newSale.paidAmount')}</Label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
               <InputNumber
-                value={paidAmountUzs}
-                onChange={(v) => setPaidAmountUzs(v ?? 0)}
+                value={paidAmount}
+                onChange={(v) => setPaidAmount(v ?? 0)}
                 style={{ width: '100%' }}
                 min={0}
-                max={subtotal}
-                step={10000}
+                max={fullPaidAmount}
+                step={isUsdPayment ? 1 : 10000}
+                precision={isUsdPayment ? 2 : 0}
                 formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
                 parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
               />
               <Tooltip title={t('newSale.markFullPaidTooltip')}>
                 <Button
                   icon={<CheckCircleOutlined />}
-                  disabled={fullPaidAmount <= 0 || paidAmountUzs === fullPaidAmount}
-                  onClick={() => setPaidAmountUzs(fullPaidAmount)}
+                  disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount}
+                  onClick={() => setPaidAmount(fullPaidAmount)}
                 >
                   {t('newSale.markFullPaid')}
                 </Button>
@@ -456,6 +467,27 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
       <span style={{ color: 'var(--ink-3)' }}>{label}</span>
       <span>{value}</span>
+    </div>
+  );
+}
+
+function PriceCell({
+  original,
+  uzs,
+  strong = false,
+}: {
+  original: { amount: number; currency: 'UZS' | 'USD' };
+  uzs: number;
+  strong?: boolean;
+}) {
+  return (
+    <div className="num" style={{ textAlign: 'right', fontWeight: strong ? 700 : undefined, fontSize: 13, lineHeight: 1.25, whiteSpace: 'nowrap' }}>
+      <MoneyDisplay amount={uzs} currency="UZS" />
+      {original.currency === 'USD' && (
+        <div style={{ fontSize: 10.5, color: 'var(--ink-3)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+          <MoneyDisplay amount={original.amount} currency="USD" noConvert />
+        </div>
+      )}
     </div>
   );
 }

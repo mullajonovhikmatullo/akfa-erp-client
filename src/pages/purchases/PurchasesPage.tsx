@@ -1,13 +1,15 @@
-import { useState } from 'react';
-import { Button, Select, Tooltip } from 'antd';
+import { useMemo, useState } from 'react';
+import { Button, DatePicker, Select, Tooltip } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import dayjs, { type Dayjs } from 'dayjs';
 import { useStockBatchesPage } from '@/entities/inventory';
+import { useBranches } from '@/entities/branch';
 import { StockInModal } from '@/features/stock-in';
-import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
+import { BranchName, DataTable, EllipsisText, MoneyDisplay } from '@/shared/ui';
 import type { StockBatch } from '@/shared/types/domain';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
-import { formatDate } from '@/shared/lib/formatters';
+import { formatDateTime } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
@@ -16,19 +18,39 @@ export function PurchasesPage() {
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const [creating, setCreating] = useState(false);
   const [depletedFilter, setDepletedFilter] = useState<boolean | undefined>();
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null]);
+  const dateFilters = {
+    from: dateRange[0]?.startOf('day').toISOString(),
+    to: dateRange[1]?.endOf('day').toISOString(),
+  };
 
   const { data: result, isLoading, isFetching, refetch } = useStockBatchesPage(
-    page, pageSize, { depleted: depletedFilter }
+    page, pageSize, { depleted: depletedFilter, ...dateFilters }
   );
+  const { data: branches = [] } = useBranches();
   const batches = result?.items ?? [];
   const total = result?.total ?? 0;
   const totalBatches = result?.totalBatches ?? 0;
   const activeBatches = result?.totalActive ?? 0;
   const totalCost = result?.totalCostUzs ?? 0;
   const totalRemainingValue = result?.totalRemainingValueUzs ?? 0;
+  const branchNameById = useMemo(
+    () => new Map(branches.map((branch) => [branch.id, branch.name])),
+    [branches],
+  );
+
+  function getSupplierNote(note: string | null) {
+    if (!note) return null;
+    return branchNameById.get(note) ?? note;
+  }
 
   function handleDepletedChange(v: string | undefined) {
     setDepletedFilter(v === undefined ? undefined : v === 'true');
+    onPageChange(1, pageSize);
+  }
+
+  function handleDateRangeChange(values: [Dayjs | null, Dayjs | null] | null) {
+    setDateRange(values ?? [null, null]);
     onPageChange(1, pageSize);
   }
 
@@ -46,7 +68,7 @@ export function PurchasesPage() {
       dataIndex: 'receivedAt',
       width: 120,
       render: (v: string) => (
-        <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(v)}</span>
+        <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDateTime(v)}</span>
       ),
     },
     {
@@ -69,28 +91,35 @@ export function PurchasesPage() {
       width: 150,
       responsiveHide: true,
       render: (_: unknown, b: StockBatch) => (
-        <StatusBadge tone="info">{b.branch.name}</StatusBadge>
+        <BranchName name={b.branch.name} as="badge" tone="info" />
       ),
     },
     {
       title: t('purchases.colQty'),
       key: 'qty',
-      width: 160,
+      width: 120,
+      align: 'right',
+      render: (_: unknown, b: StockBatch) => {
+        const unit = PRODUCT_UNIT_LABELS[b.product.unit];
+        return (
+          <span className="num" style={{ fontWeight: 600 }}>
+            {b.initialQty.toLocaleString('ru-RU')} {unit}
+          </span>
+        );
+      },
+    },
+    {
+      title: t('purchases.colRemaining'),
+      key: 'remainingQty',
+      width: 130,
       align: 'right',
       render: (_: unknown, b: StockBatch) => {
         const unit = PRODUCT_UNIT_LABELS[b.product.unit];
         const depleted = b.remainingQty === 0;
         return (
-          <div style={{ textAlign: 'right' }}>
-            <div className="num" style={{ fontWeight: 600 }}>
-              {b.initialQty.toLocaleString('ru-RU')} {unit}
-            </div>
-            <div style={{ fontSize: 11.5, color: depleted ? 'var(--ink-4)' : 'var(--success)' }}>
-              {depleted
-                ? t('purchases.depleted')
-                : `${b.remainingQty.toLocaleString('ru-RU')} ${unit} ${t('purchases.remaining')}`}
-            </div>
-          </div>
+          <span className="num" style={{ fontWeight: 700, color: depleted ? 'var(--ink-4)' : 'var(--success)' }}>
+            {b.remainingQty.toLocaleString('ru-RU')} {unit}
+          </span>
         );
       },
     },
@@ -128,12 +157,16 @@ export function PurchasesPage() {
       title: t('purchases.colSupplierNote'),
       dataIndex: 'supplierNote',
       responsiveHide: true,
-      render: (v: string | null) =>
-        v ? (
-          <span style={{ fontSize: 12.5, color: 'var(--ink-2)' }}>{v}</span>
+      render: (v: string | null) => {
+        const note = getSupplierNote(v);
+        return note ? (
+          <span style={{ fontSize: 12.5, color: 'var(--ink-2)' }}>
+            <EllipsisText maxWidth={180}>{note}</EllipsisText>
+          </span>
         ) : (
           <span style={{ color: 'var(--ink-4)' }}>—</span>
-        ),
+        );
+      },
     },
     {
       title: t('common.enteredBy'),
@@ -195,6 +228,18 @@ export function PurchasesPage() {
               { value: 'false', label: t('purchases.filterActive') },
               { value: 'true', label: t('purchases.depleted') },
             ]}
+          />
+          <DatePicker.RangePicker
+            value={dateRange}
+            onChange={handleDateRangeChange}
+            allowClear
+            format="YYYY-MM-DD"
+            placeholder={[t('common.startDate'), t('common.endDate')]}
+            presets={[
+              { label: t('common.today'), value: [dayjs(), dayjs()] },
+              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
+            ]}
+            style={{ minWidth: 260 }}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
             <strong>{total}</strong> {t('common.resultsSuffix')}

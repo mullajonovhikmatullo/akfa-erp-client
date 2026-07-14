@@ -24,7 +24,7 @@ export const categoryApi = {
       })
       .then((r) => r.data.data),
 
-  listPaginated: (params: { page: number; pageSize: number }) =>
+  listPaginated: (params: { page: number; pageSize: number; isActive?: boolean }) =>
     apiClient
       .get<ApiResponse<CategoryPage>>('/products/categories', {
         params,

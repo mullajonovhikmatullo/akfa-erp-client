@@ -1,6 +1,6 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Empty, Skeleton } from 'antd';
+import { Button, DatePicker, Empty, Skeleton } from 'antd';
 import {
   CreditCardOutlined,
   DollarOutlined,
@@ -12,7 +12,7 @@ import {
   ReloadOutlined,
   ShoppingCartOutlined,
   SwapOutlined,
-  TeamOutlined,
+  UserOutlined,
   WalletOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
@@ -66,7 +66,9 @@ const COLORS = {
 
 const CHART_COLORS = ['#6f8ff2', '#68bd83', '#e0aa55', '#e47f7f', '#61afbf', '#9a83de'];
 const PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CASH_USD', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT'];
+const TOP_PRODUCTS_LIMIT = 10;
 const getChartColor = (index: number) => CHART_COLORS[index % CHART_COLORS.length] ?? COLORS.primary;
+const getTodayRange = (): [dayjs.Dayjs, dayjs.Dayjs] => [dayjs().startOf('day'), dayjs().endOf('day')];
 
 export function DashboardPage() {
   const t = useT();
@@ -77,57 +79,75 @@ export function DashboardPage() {
   const branchParam = !isSuper && branchId ? { branchId } : {};
 
   const now = dayjs();
-  const todayQuery: AnalyticsQuery = {
-    ...branchParam,
-    lowStockThreshold,
-    from: now.startOf('day').toISOString(),
-    to: now.endOf('day').toISOString(),
-    period: 'day',
-    limit: 5,
-  };
-  const monthQuery: AnalyticsQuery = {
-    ...branchParam,
-    lowStockThreshold,
-    from: now.startOf('month').toISOString(),
-    to: now.endOf('day').toISOString(),
-    period: 'day',
-    limit: 5,
-  };
-  const trendQuery: AnalyticsQuery = {
-    ...branchParam,
-    lowStockThreshold,
-    from: now.subtract(13, 'day').startOf('day').toISOString(),
-    to: now.endOf('day').toISOString(),
-    period: 'day',
-    limit: 6,
-  };
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>(() => getTodayRange());
+  const rangeStart = dateRange[0]?.startOf('day') ?? now.startOf('day');
+  const rangeEnd = dateRange[1]?.endOf('day') ?? now.endOf('day');
+  const rangeDays = Math.max(1, rangeEnd.diff(rangeStart, 'day') + 1);
+  const chartPeriod: AnalyticsQuery['period'] = rangeDays > 180 ? 'month' : rangeDays > 45 ? 'week' : 'day';
+  const periodMeta = `${formatDate(rangeStart.format('YYYY-MM-DD'))} - ${formatDate(rangeEnd.format('YYYY-MM-DD'))}`;
+  const isTodayRange = rangeStart.isSame(now, 'day') && rangeEnd.isSame(now, 'day');
 
-  const today = useDashboard(todayQuery);
-  const month = useDashboard(monthQuery);
-  const sales = useSalesReport(trendQuery);
-  const expenses = useExpenseReport(trendQuery);
-  const inventory = useInventoryReport(trendQuery);
+  const periodQuery: AnalyticsQuery = {
+    ...branchParam,
+    lowStockThreshold,
+    from: rangeStart.toISOString(),
+    to: rangeEnd.toISOString(),
+    period: chartPeriod,
+    limit: TOP_PRODUCTS_LIMIT,
+  };
+  const inventoryQuery: AnalyticsQuery = { ...branchParam, lowStockThreshold, limit: 5 };
+
+  const periodDashboard = useDashboard(periodQuery);
+  const sales = useSalesReport(periodQuery);
+  const expenses = useExpenseReport(periodQuery);
+  const inventory = useInventoryReport(inventoryQuery);
   const debt = useCustomerDebt({ ...branchParam, limit: 5 });
 
-  const isLoading = today.isLoading || month.isLoading || sales.isLoading || expenses.isLoading || inventory.isLoading || debt.isLoading;
-  const isFetching = today.isFetching || month.isFetching || sales.isFetching || expenses.isFetching || inventory.isFetching || debt.isFetching;
+  const isLoading = periodDashboard.isLoading || sales.isLoading || expenses.isLoading || inventory.isLoading || debt.isLoading;
+  const isFetching = periodDashboard.isFetching || sales.isFetching || expenses.isFetching || inventory.isFetching || debt.isFetching;
 
   const trendData = useMemo(() => {
-    const days = Array.from({ length: 14 }, (_, index) => {
-      const date = now.subtract(13 - index, 'day');
-      return {
-        iso: date.format('YYYY-MM-DD'),
-        label: date.format('DD MMM'),
+    const formatKey = (date: dayjs.Dayjs) => {
+      if (chartPeriod === 'month') return date.format('YYYY-MM');
+      if (chartPeriod === 'week') return date.startOf('week').format('YYYY-MM-DD');
+      return date.format('YYYY-MM-DD');
+    };
+    const formatLabel = (date: dayjs.Dayjs) => {
+      if (chartPeriod === 'month') return date.format('MMM YYYY');
+      if (chartPeriod === 'week') return date.format('DD MMM');
+      return date.format('DD MMM');
+    };
+    const buckets = [];
+    let cursor =
+      chartPeriod === 'month'
+        ? rangeStart.startOf('month')
+        : chartPeriod === 'week'
+          ? rangeStart.startOf('week')
+          : rangeStart.startOf('day');
+    const endCursor =
+      chartPeriod === 'month'
+        ? rangeEnd.startOf('month')
+        : chartPeriod === 'week'
+          ? rangeEnd.startOf('week')
+          : rangeEnd.startOf('day');
+
+    while (cursor.isBefore(endCursor) || cursor.isSame(endCursor)) {
+      const date = cursor;
+      buckets.push({
+        iso: formatKey(date),
+        label: formatLabel(date),
         revenue: 0,
         paid: 0,
         debt: 0,
         expenses: 0,
-      };
-    });
-    const byIso = new Map(days.map((day) => [day.iso, day]));
+      });
+      cursor = cursor.add(1, chartPeriod);
+    }
+
+    const byIso = new Map(buckets.map((day) => [day.iso, day]));
 
     sales.data?.byPeriod.forEach((row) => {
-      const key = dayjs(row.period).format('YYYY-MM-DD');
+      const key = formatKey(dayjs(row.period));
       const target = byIso.get(key);
       if (!target) return;
       target.revenue = row.totalRevenue;
@@ -136,13 +156,13 @@ export function DashboardPage() {
     });
 
     expenses.data?.byPeriod.forEach((row) => {
-      const key = dayjs(row.period).format('YYYY-MM-DD');
+      const key = formatKey(dayjs(row.period));
       const target = byIso.get(key);
       if (target) target.expenses = row.amount;
     });
 
-    return days;
-  }, [expenses.data, now, sales.data]);
+    return buckets;
+  }, [chartPeriod, expenses.data, rangeEnd, rangeStart, sales.data]);
 
   const paymentRowsByMethod = new Map((sales.data?.byPaymentMethod ?? []).map((row) => [row.paymentMethod, row]));
   const paymentData = PAYMENT_METHODS.map((method) => {
@@ -163,21 +183,21 @@ export function DashboardPage() {
     }))
     .sort((a, b) => b.value - a.value || a.order - b.order);
 
-  const topProducts = (sales.data?.topProducts ?? []).slice(0, 5);
+  const topProducts = (sales.data?.topProducts ?? []).slice(0, TOP_PRODUCTS_LIMIT);
   const topProductsChartData = topProducts.map((product, index) => ({
     name: product.name,
+    sku: product.sku,
+    quantity: product.totalQuantity,
     revenue: product.totalRevenue,
     color: getChartColor(index),
   }));
   const lowStock = (inventory.data?.lowStock ?? []).slice(0, 5);
   const topDebtors = debt.data?.topDebtors ?? [];
-  const monthRevenue = month.data?.sales.totalRevenue ?? 0;
-  const monthPaid = month.data?.sales.paidAmount ?? 0;
-  const paidRate = monthRevenue > 0 ? Math.round((monthPaid / monthRevenue) * 100) : 0;
+  const avgOrderValue = sales.data?.summary.avgOrderValue ?? 0;
+  const expenseCount = expenses.data?.summary.count ?? 0;
 
   const refetchAll = () => {
-    today.refetch();
-    month.refetch();
+    periodDashboard.refetch();
     sales.refetch();
     expenses.refetch();
     inventory.refetch();
@@ -190,7 +210,7 @@ export function DashboardPage() {
         <div>
           <h1>{t('dashboard.title')}</h1>
           <div className="sub">
-            {t('dashboard.welcome')}, {firstName} · {formatDate(now.format('YYYY-MM-DD'))}
+            {t('dashboard.welcome')}, {firstName}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -209,6 +229,40 @@ export function DashboardPage() {
         </div>
       </div>
 
+      <div
+        className="card"
+        style={{
+          padding: '10px 12px',
+          marginBottom: 14,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--ink-2)' }}>{t('dashboard.selectedPeriod')}</span>
+            {isTodayRange && <StatusBadge tone="success">{t('common.today')}</StatusBadge>}
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{periodMeta}</div>
+        </div>
+        <DatePicker.RangePicker
+          value={dateRange}
+          onChange={(value) => setDateRange(value?.[0] && value?.[1] ? [value[0], value[1]] : getTodayRange())}
+          format="DD.MM.YYYY"
+          placeholder={[t('common.startDate'), t('common.endDate')]}
+          presets={[
+            { label: t('common.today'), value: [dayjs().startOf('day'), dayjs().endOf('day')] },
+            { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs().endOf('day')] },
+            { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
+            { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
+          ]}
+          style={{ minWidth: 260 }}
+        />
+      </div>
+
       {isLoading ? (
         <DashboardSkeleton />
       ) : (
@@ -216,29 +270,29 @@ export function DashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
             <MetricCard
               icon={<ShoppingCartOutlined />}
-              label={t('dashboard.todaySales')}
-              value={<MoneyDisplay amount={today.data?.sales.totalRevenue ?? 0} currency="UZS" compact />}
-              sub={`${today.data?.sales.saleCount ?? 0} ${t('dashboard.kpiTodaySalesSuffix')}`}
+              label={t('dashboard.periodSales')}
+              value={<MoneyDisplay amount={periodDashboard.data?.sales.totalRevenue ?? 0} currency="UZS" compact />}
+              sub={`${periodDashboard.data?.sales.saleCount ?? 0} ${t('dashboard.kpiTodaySalesSuffix')}`}
               tone="primary"
             />
             <MetricCard
               icon={<CreditCardOutlined />}
-              label={t('dashboard.todayPaid')}
-              value={<MoneyDisplay amount={today.data?.sales.paidAmount ?? 0} currency="UZS" compact />}
+              label={t('dashboard.periodPaid')}
+              value={<MoneyDisplay amount={periodDashboard.data?.sales.paidAmount ?? 0} currency="UZS" compact />}
               sub={t('dashboard.paidCashflow')}
               tone="success"
             />
             <MetricCard
               icon={<FileTextOutlined />}
-              label={t('dashboard.todayDebt')}
-              value={<MoneyDisplay amount={today.data?.sales.outstandingDebt ?? 0} currency="UZS" compact />}
+              label={t('dashboard.periodDebt')}
+              value={<MoneyDisplay amount={periodDashboard.data?.sales.outstandingDebt ?? 0} currency="UZS" compact />}
               sub={t('dashboard.unpaidSales')}
               tone="danger"
             />
             <MetricCard
               icon={<WalletOutlined />}
-              label={t('dashboard.todayExpenses')}
-              value={<MoneyDisplay amount={today.data?.expenses.total ?? 0} currency="UZS" compact />}
+              label={t('dashboard.periodExpenses')}
+              value={<MoneyDisplay amount={periodDashboard.data?.expenses.total ?? 0} currency="UZS" compact />}
               sub={t('dashboard.cashOut')}
               tone="warning"
             />
@@ -248,7 +302,7 @@ export function DashboardPage() {
             <div className="card">
               <div className="card-head">
                 <h3>{t('dashboard.salesTrendTitle')}</h3>
-                <span className="meta">{t('dashboard.last14Days')}</span>
+                <span className="meta">{periodMeta}</span>
               </div>
               <ResponsiveContainer width="100%" height={310}>
                 <AreaChart data={trendData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
@@ -280,11 +334,11 @@ export function DashboardPage() {
             <div className="card">
               <div className="card-head">
                 <h3>{t('dashboard.paymentMix')}</h3>
-                <span className="meta">{t('dashboard.last14Days')}</span>
+                <span className="meta">{periodMeta}</span>
               </div>
-              <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
                 <PaymentDonutChart data={paymentChartData} total={paymentTotal} totalLabel={t('common.total')} />
-                <div style={{ flex: '1 1 180px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ flex: '1 1 0', minWidth: 180, display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {paymentChartData.map((item) => (
                     <LegendRow
                       key={item.name}
@@ -300,28 +354,32 @@ export function DashboardPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
-            <SmallStat label={t('dashboard.monthRevenue')} value={<MoneyDisplay amount={monthRevenue} currency="UZS" compact />} tone="primary" />
-            <SmallStat label={t('dashboard.monthPaidRate')} value={`${paidRate}%`} tone={paidRate >= 80 ? 'success' : 'warning'} />
-            <SmallStat label={t('dashboard.totalDebt')} value={<MoneyDisplay amount={debt.data?.summary.totalDebt ?? 0} currency="UZS" compact />} tone="danger" />
-            <SmallStat label={t('dashboard.stockValue')} value={<MoneyDisplay amount={month.data?.inventory.stockValueUzs ?? 0} currency="UZS" compact />} tone="muted" />
+            <SmallStat label={t('dashboard.avgOrderValue')} value={<MoneyDisplay amount={avgOrderValue} currency="UZS" compact />} tone="muted" />
+            <SmallStat label={t('dashboard.periodNetProfit')} value={<MoneyDisplay amount={periodDashboard.data?.profit.netProfit ?? 0} currency="UZS" compact />} tone={(periodDashboard.data?.profit.netProfit ?? 0) >= 0 ? 'success' : 'danger'} />
+            <SmallStat label={t('dashboard.expenseCount')} value={expenseCount.toLocaleString('ru-RU')} tone="warning" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
             <div className="card">
               <div className="card-head">
                 <h3>{t('dashboard.topProducts')}</h3>
-                <span className="meta">{t('dashboard.last14Days')}</span>
+                <span className="meta">{periodMeta}</span>
               </div>
               {topProducts.length === 0 ? (
                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('common.noData')} />
               ) : (
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={topProductsChartData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                <ResponsiveContainer width="100%" height={360}>
+                  <BarChart
+                    data={topProductsChartData}
+                    layout="vertical"
+                    margin={{ left: 4, right: 14, top: 8, bottom: 0 }}
+                    barCategoryGap={8}
+                  >
                     <CartesianGrid stroke="rgba(15,23,42,.06)" vertical={false} />
-                    <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} interval={0} height={54} tickFormatter={(v) => String(v).slice(0, 14)} />
-                    <YAxis tickFormatter={(v) => formatCompactUZS(Number(v)).replace(" so'm", '')} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={52} />
+                    <XAxis type="number" tickFormatter={(v) => formatCompactUZS(Number(v)).replace(" so'm", '')} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                    <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={120} interval={0} tickFormatter={(v) => String(v).length > 18 ? `${String(v).slice(0, 18)}...` : String(v)} />
                     <Tooltip formatter={(v) => formatCompactUZS(Number(v))} />
-                    <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
+                    <Bar dataKey="revenue" radius={[0, 6, 6, 0]} barSize={16}>
                       {topProductsChartData.map((item) => (
                         <Cell key={item.name} fill={item.color} />
                       ))}
@@ -364,7 +422,7 @@ export function DashboardPage() {
                   title={customer.fullName}
                   meta={customer.branch.name}
                   right={<MoneyDisplay amount={customer.balance} currency="UZS" compact />}
-                  icon={<TeamOutlined style={{ color: COLORS.danger }} />}
+                  icon={<UserOutlined style={{ color: COLORS.danger }} />}
                 />
               ))}
             </ListPanel>
@@ -375,9 +433,9 @@ export function DashboardPage() {
                 <span className="meta">{t('dashboard.currentData')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <SnapshotTile icon={<InboxOutlined />} label={t('dashboard.lowStockShort')} value={month.data?.inventory.lowStockCount ?? 0} tone={(month.data?.inventory.lowStockCount ?? 0) > 0 ? 'warning' : 'success'} />
-                <SnapshotTile icon={<SwapOutlined />} label={t('dashboard.pendingTransfers')} value={month.data?.transfers.pendingCount ?? 0} tone={(month.data?.transfers.pendingCount ?? 0) > 0 ? 'warning' : 'success'} />
-                <SnapshotTile icon={<DollarOutlined />} label={t('dashboard.netProfit')} value={<MoneyDisplay amount={month.data?.profit.netProfit ?? 0} currency="UZS" compact />} tone={(month.data?.profit.netProfit ?? 0) >= 0 ? 'success' : 'danger'} />
+                <SnapshotTile icon={<InboxOutlined />} label={t('dashboard.lowStockShort')} value={periodDashboard.data?.inventory.lowStockCount ?? 0} tone={(periodDashboard.data?.inventory.lowStockCount ?? 0) > 0 ? 'warning' : 'success'} />
+                <SnapshotTile icon={<SwapOutlined />} label={t('dashboard.pendingTransfers')} value={periodDashboard.data?.transfers.pendingCount ?? 0} tone={(periodDashboard.data?.transfers.pendingCount ?? 0) > 0 ? 'warning' : 'success'} />
+                <SnapshotTile icon={<DollarOutlined />} label={t('dashboard.stockValue')} value={<MoneyDisplay amount={periodDashboard.data?.inventory.stockValueUzs ?? 0} currency="UZS" compact />} tone="muted" />
                 <SnapshotTile icon={<FileTextOutlined />} label={t('dashboard.debtorCount')} value={debt.data?.summary.debtorCount ?? 0} tone={(debt.data?.summary.debtorCount ?? 0) > 0 ? 'danger' : 'success'} />
               </div>
             </div>
@@ -498,7 +556,7 @@ function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentChartDatu
   });
 
   return (
-    <div style={{ position: 'relative', flex: '0 0 232px', width: 232, maxWidth: '100%', aspectRatio: '1 / 1' }}>
+    <div style={{ position: 'relative', flex: '0 0 clamp(250px, 52%, 278px)', width: 278, maxWidth: '100%', aspectRatio: '1 / 1' }}>
       <svg viewBox="0 0 240 240" aria-hidden="true" style={{ width: '100%', height: '100%', display: 'block' }}>
         <circle cx={center} cy={center} r={radius} fill="none" stroke="#edf1f7" strokeWidth={strokeWidth} />
         {hasSingleSegment ? (
@@ -573,25 +631,22 @@ function LegendRow({ color, label, percent, value }: { color: string; label: str
   return (
     <div
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 10,
-        padding: '9px 10px',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        gap: '4px 8px',
+        padding: '8px 9px',
         border: '1px solid var(--border)',
         borderRadius: 8,
         background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
-        fontSize: 12,
+        fontSize: 11.5,
       }}
     >
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minWidth: 0 }}>
         <span style={{ width: 9, height: 9, borderRadius: 999, background: color, boxShadow: `0 0 0 4px ${color}22`, flexShrink: 0 }} />
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
       </span>
-      <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8, flexShrink: 0 }}>
-        <span className="num" style={{ color: 'var(--ink-3)', fontWeight: 700 }}>{percent}%</span>
-        <span className="num" style={{ fontWeight: 700 }}>{value}</span>
-      </span>
+      <span className="num" style={{ color: 'var(--ink-3)', fontWeight: 700 }}>{percent}%</span>
+      <span className="num" style={{ gridColumn: '1 / -1', fontWeight: 700, paddingLeft: 16 }}>{value}</span>
     </div>
   );
 }

@@ -1,15 +1,18 @@
 import { useState, useRef, useMemo, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Tooltip } from 'antd';
+import { Badge, Tooltip } from 'antd';
 import {
   StarFilled,
   StarOutlined,
   RightOutlined,
   PushpinFilled,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import * as icons from '@ant-design/icons';
 import clsx from 'clsx';
 import { useAuthStore } from '@/entities/user';
+import { useTransfers } from '@/entities/transfer';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useT } from '@/shared/lib/i18n';
 import {
@@ -52,12 +55,14 @@ function NavItem({
   isFav,
   onToggleFav,
   onClick,
+  badgeCount,
 }: {
   item: NavItemDef;
   collapsed: boolean;
   isFav: boolean;
   onToggleFav: (key: string) => void;
   onClick?: () => void;
+  badgeCount?: number;
 }) {
   const location = useLocation();
   const t = useT();
@@ -68,6 +73,7 @@ function NavItem({
 
   const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[item.icon];
   const label = t(`nav.${item.key}`);
+  const showBadge = Boolean(badgeCount && badgeCount > 0);
 
   const inner = (
     <NavLink
@@ -78,9 +84,15 @@ function NavItem({
       <span className="sb-item__icon">
         {Icon && <Icon />}
       </span>
+      {collapsed && showBadge && (
+        <Badge count={badgeCount} overflowCount={200} className="sb-item__badge sb-item__badge--collapsed" />
+      )}
       {!collapsed && (
         <>
           <span className="sb-item__label">{label}</span>
+          {showBadge && (
+            <Badge count={badgeCount} overflowCount={200} className="sb-item__badge" />
+          )}
           <button
             className={clsx('sb-item__star', isFav && 'sb-item__star--on')}
             type="button"
@@ -115,6 +127,7 @@ function AccordionGroup({
   favorites,
   onToggleFav,
   onItemClick,
+  badgeCounts,
 }: {
   group: NavGroupDef;
   isOpen: boolean;
@@ -123,6 +136,7 @@ function AccordionGroup({
   favorites: string[];
   onToggleFav: (key: string) => void;
   onItemClick?: () => void;
+  badgeCounts?: Record<string, number>;
 }) {
   const { ref, style } = useAccordionHeight(isOpen);
   const t = useT();
@@ -140,6 +154,7 @@ function AccordionGroup({
             isFav={favorites.includes(item.key)}
             onToggleFav={onToggleFav}
             onClick={onItemClick}
+            badgeCount={badgeCounts?.[item.key]}
           />
         ))}
       </div>
@@ -162,6 +177,7 @@ function AccordionGroup({
               isFav={favorites.includes(item.key)}
               onToggleFav={onToggleFav}
               onClick={onItemClick}
+              badgeCount={badgeCounts?.[item.key]}
             />
           ))}
         </div>
@@ -176,11 +192,13 @@ function FavoritesSection({
   collapsed,
   onToggleFav,
   onItemClick,
+  badgeCounts,
 }: {
   favKeys: string[];
   collapsed: boolean;
   onToggleFav: (key: string) => void;
   onItemClick?: () => void;
+  badgeCounts?: Record<string, number>;
 }) {
   const t = useT();
   const favItems = useMemo(
@@ -202,6 +220,7 @@ function FavoritesSection({
             isFav
             onToggleFav={onToggleFav}
             onClick={onItemClick}
+            badgeCount={badgeCounts?.[item.key]}
           />
         ))}
       </div>
@@ -223,6 +242,7 @@ function FavoritesSection({
             isFav
             onToggleFav={onToggleFav}
             onClick={onItemClick}
+            badgeCount={badgeCounts?.[item.key]}
           />
         ))}
       </div>
@@ -237,10 +257,22 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
   const closeMobileSidebar = useUIStore((s) => s.closeMobileSidebar);
   const favorites = useUIStore((s) => s.sidebarFavorites);
   const toggleFavorite = useUIStore((s) => s.toggleFavorite);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
 
   const visibleGroups = useMemo(
     () => getVisibleNavGroups(can as (p: Permission) => boolean),
     [can],
+  );
+  const canViewTransfers = can('transfers:view');
+  const { data: pendingTransfers = [] } = useTransfers(
+    { status: 'PENDING', limit: 200 },
+    { enabled: canViewTransfers },
+  );
+  const badgeCounts = useMemo(
+    () => ({
+      transfers: pendingTransfers.length,
+    }),
+    [pendingTransfers.length],
   );
 
   // All groups open by default
@@ -273,6 +305,14 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
             AKFA <span className="sb-brand__sub">ERP</span>
           </span>
         )}
+        <button
+          className="sidebar-toggle sb-brand__toggle"
+          onClick={toggleSidebar}
+          type="button"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </button>
       </div>
 
       {/* Nav */}
@@ -282,6 +322,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
           collapsed={collapsed}
           onToggleFav={toggleFavorite}
           onItemClick={closeMobileSidebar}
+          badgeCounts={badgeCounts}
         />
         {visibleGroups.map((group) => (
           <AccordionGroup
@@ -293,6 +334,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
             favorites={favorites}
             onToggleFav={toggleFavorite}
             onItemClick={closeMobileSidebar}
+            badgeCounts={badgeCounts}
           />
         ))}
       </nav>

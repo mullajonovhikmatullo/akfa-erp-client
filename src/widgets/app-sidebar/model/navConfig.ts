@@ -50,8 +50,8 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'ОМБОР',
     groupLabelKey: 'nav.group.ombor',
     items: [
-      { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'InboxOutlined', permission: 'products:create' },
       { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'AppstoreOutlined', permission: 'category:manage' },
+      { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'InboxOutlined', permission: 'products:create' },
       { key: 'purchases', path: ROUTES.PURCHASES, label: 'Кирим', icon: 'DropboxOutlined', permission: 'purchases:view' },
       { key: 'transfers', path: ROUTES.TRANSFERS, label: 'Трансферлар', icon: 'SwapOutlined', permission: 'transfers:view' },
     ],

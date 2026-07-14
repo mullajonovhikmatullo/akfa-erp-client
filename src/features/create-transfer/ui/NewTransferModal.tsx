@@ -6,9 +6,11 @@ import { useBranches } from '@/entities/branch';
 import { useCreateTransfer } from '@/entities/transfer';
 import { useInventoryRecords } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
+import { useUIStore } from '@/app/stores/ui.store';
 import { AppModal, MoneyDisplay } from '@/shared/ui';
 import { type Product } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
+import { getProductPriceUzs } from '@/shared/lib/productPricing';
 
 interface NewTransferModalProps {
   open: boolean;
@@ -28,6 +30,8 @@ const MIN_QTY = 1;
 export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   const t = useT();
   const { isSuper, branchId: userBranchId } = useCurrentUser();
+  const exchangeRate = useUIStore((s) => s.exchangeRate);
+  const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
   const { data: branches = [] } = useBranches();
   const { data: products = [], isLoading: productsLoading } = useProducts({ search: undefined });
   const createTransfer = useCreateTransfer();
@@ -81,7 +85,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           productId,
           product,
           quantity: Math.min(MIN_QTY, stock),
-          unitCostUzs: product.wholesalePriceUzs,
+          unitCostUzs: getProductPriceUzs(product, 'wholesale', effectiveExchangeRate),
         },
       ];
     });

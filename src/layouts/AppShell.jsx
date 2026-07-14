@@ -107,40 +107,42 @@ const Topbar = ({ route }) => {
 
   return (
     <div className="topbar">
-      <div className="crumbs">
-        AKFA ERP · <strong>{t(pageLabel)}</strong>
-      </div>
+      <div className="topbar__inner">
+        <div className="crumbs">
+          AKFA ERP · <strong>{t(pageLabel)}</strong>
+        </div>
 
-      <div className="grow" />
+        <div className="grow" />
 
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <span className="tagpill info">
-          <icons.DollarOutlined style={{ fontSize: 11 }} />
-          1 USD = {rate.toLocaleString("ru-RU").replace(/,/g, " ")} so'm
-        </span>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span className="tagpill info">
+            <icons.DollarOutlined style={{ fontSize: 11 }} />
+            1 USD = {rate.toLocaleString("ru-RU").replace(/,/g, " ")} so'm
+          </span>
 
-        {isSuper ? (
-          <antd.Select
-            value={activeBranchId === "__all__" ? "__all__" : activeBranchId}
-            onChange={(v) => dispatch({ type: "ui/set", patch: { activeBranchId: v } })}
-            style={{ minWidth: 220 }}
-            options={[
-              { value: "__all__", label: t("common.allBranches") },
-              ...branches.map(b => ({ value: b.id, label: b.name })),
-            ]}
-            suffixIcon={<icons.EnvironmentOutlined />}
-          />
-        ) : (
-          <span className="branchchip"><span className="dot" /> {activeBranch?.name}</span>
-        )}
+          {isSuper ? (
+            <antd.Select
+              value={activeBranchId === "__all__" ? "__all__" : activeBranchId}
+              onChange={(v) => dispatch({ type: "ui/set", patch: { activeBranchId: v } })}
+              style={{ minWidth: 220 }}
+              options={[
+                { value: "__all__", label: t("common.allBranches") },
+                ...branches.map(b => ({ value: b.id, label: b.name })),
+              ]}
+              suffixIcon={<icons.EnvironmentOutlined />}
+            />
+          ) : (
+            <span className="branchchip"><span className="dot" /> {activeBranch?.name}</span>
+          )}
 
-        <antd.Dropdown menu={profileMenu} trigger={["click"]} placement="bottomRight">
-          <button className="profile-trigger" type="button">
-            <Avatar name={user?.name} tone={user?.avatarTone} size={28} />
-            <span className="profile-name">{user?.name?.split(" ")[0]}</span>
-            <icons.DownOutlined style={{ fontSize: 10, color: "#64748b" }} />
-          </button>
-        </antd.Dropdown>
+          <antd.Dropdown menu={profileMenu} trigger={["click"]} placement="bottomRight">
+            <button className="profile-trigger" type="button">
+              <Avatar name={user?.name} tone={user?.avatarTone} size={28} />
+              <span className="profile-name">{user?.name?.split(" ")[0]}</span>
+              <icons.DownOutlined style={{ fontSize: 10, color: "#64748b" }} />
+            </button>
+          </antd.Dropdown>
+        </div>
       </div>
     </div>
   );

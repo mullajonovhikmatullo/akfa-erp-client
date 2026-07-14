@@ -125,75 +125,77 @@ export function AppHeader({ branches }: AppHeaderProps) {
 
   return (
     <header className="topbar">
-      <button className="sidebar-toggle" onClick={handleToggle} type="button">
-        {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </button>
+      <div className="topbar__inner">
+        <button className="sidebar-toggle topbar-sidebar-toggle" onClick={handleToggle} type="button">
+          {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        </button>
 
-      <div className="crumbs">
-        AKFA ERP · <strong>{pageLabel}</strong>
-      </div>
+        <div className="crumbs">
+          AKFA ERP · <strong>{pageLabel}</strong>
+        </div>
 
-      <div className="grow" />
+        <div className="grow" />
 
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <span className="tagpill info topbar-hide-mobile">
-          <DollarOutlined style={{ fontSize: 11 }} />
-          1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
-        </span>
-
-        {/* Theme toggle */}
-        <Tooltip title={isDarkActive ? t('settings.themeLight') : t('settings.themeDark')} placement="bottom">
-          <button
-            type="button"
-            onClick={toggleDark}
-            className="sidebar-toggle topbar-hide-mobile"
-            style={{ fontSize: 15 }}
-          >
-            {isDarkActive ? <SunOutlined /> : <MoonOutlined />}
-          </button>
-        </Tooltip>
-
-        {/* Language selector */}
-        <Dropdown
-          menu={{ items: langMenuItems, selectedKeys: [lang] }}
-          trigger={['click']}
-          placement="bottomRight"
-        >
-          <button
-            type="button"
-            className="sidebar-toggle topbar-hide-mobile"
-            style={{ fontSize: 11, fontWeight: 700, gap: 4, width: 'auto', padding: '0 10px', minWidth: 56 }}
-          >
-            <GlobalOutlined style={{ fontSize: 13 }} />
-            {currentLangLabel}
-          </button>
-        </Dropdown>
-
-        {isSuper ? (
-          <Select
-            value={branchSelectValue}
-            onChange={setActiveBranch}
-            className="topbar-hide-mobile"
-            style={{ minWidth: 220 }}
-            suffixIcon={<EnvironmentOutlined />}
-            options={[
-              { value: '__all__', label: t('header.allBranches') },
-              ...branches.map((b) => ({ value: b.id, label: b.name })),
-            ]}
-          />
-        ) : (
-          <span className="branchchip topbar-hide-mobile">
-            <span className="dot" /> {activeBranch?.name ?? userBranch?.name}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span className="tagpill info topbar-hide-mobile">
+            <DollarOutlined style={{ fontSize: 11 }} />
+            1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
           </span>
-        )}
 
-        <Dropdown menu={{ items: profileMenuItems }} trigger={['click']} placement="bottomRight">
-          <button className="profile-trigger" type="button">
-            <UserAvatar name={user?.name} size={28} />
-            <span className="profile-name">{user?.name?.split(' ')[0]}</span>
-            <DownOutlined style={{ fontSize: 10, color: 'var(--ink-3)' }} />
-          </button>
-        </Dropdown>
+          {/* Theme toggle */}
+          <Tooltip title={isDarkActive ? t('settings.themeLight') : t('settings.themeDark')} placement="bottom">
+            <button
+              type="button"
+              onClick={toggleDark}
+              className="sidebar-toggle topbar-hide-mobile"
+              style={{ fontSize: 15 }}
+            >
+              {isDarkActive ? <SunOutlined /> : <MoonOutlined />}
+            </button>
+          </Tooltip>
+
+          {/* Language selector */}
+          <Dropdown
+            menu={{ items: langMenuItems, selectedKeys: [lang] }}
+            trigger={['click']}
+            placement="bottomRight"
+          >
+            <button
+              type="button"
+              className="sidebar-toggle topbar-hide-mobile"
+              style={{ fontSize: 11, fontWeight: 700, gap: 4, width: 'auto', padding: '0 10px', minWidth: 56 }}
+            >
+              <GlobalOutlined style={{ fontSize: 13 }} />
+              {currentLangLabel}
+            </button>
+          </Dropdown>
+
+          {isSuper ? (
+            <Select
+              value={branchSelectValue}
+              onChange={setActiveBranch}
+              className="topbar-hide-mobile"
+              style={{ minWidth: 220 }}
+              suffixIcon={<EnvironmentOutlined />}
+              options={[
+                { value: '__all__', label: t('header.allBranches') },
+                ...branches.map((b) => ({ value: b.id, label: b.name })),
+              ]}
+            />
+          ) : (
+            <span className="branchchip topbar-hide-mobile">
+              <span className="dot" /> {activeBranch?.name ?? userBranch?.name}
+            </span>
+          )}
+
+          <Dropdown menu={{ items: profileMenuItems }} trigger={['click']} placement="bottomRight">
+            <button className="profile-trigger" type="button">
+              <UserAvatar name={user?.name} size={28} />
+              <span className="profile-name">{user?.name?.split(' ')[0]}</span>
+              <DownOutlined style={{ fontSize: 10, color: 'var(--ink-3)' }} />
+            </button>
+          </Dropdown>
+        </div>
       </div>
     </header>
   );

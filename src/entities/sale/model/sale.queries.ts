@@ -13,10 +13,11 @@ export const saleKeys = {
   detail: (id: string) => [...saleKeys.all, 'detail', id] as const,
 };
 
-export function useSales(filters?: SaleFilters) {
+export function useSales(filters?: SaleFilters, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: saleKeys.list(filters),
     queryFn: () => saleApi.list(filters),
+    enabled: options?.enabled ?? true,
   });
 }
 

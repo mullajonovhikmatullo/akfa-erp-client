@@ -17,6 +17,8 @@
   --metallic: #94a3b8;
   --steel: #475569;
   --grid: rgba(15,23,42,.04);
+  --content-max: 1600px;
+  --content-pad-x: 28px;
   font-feature-settings: "ss01","cv11","tnum";
 }
 *{ box-sizing: border-box; }
@@ -82,8 +84,13 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
 .main{ display:flex; flex-direction:column; min-width:0; }
 .topbar{
   height:60px; background:var(--surface); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; padding:0 24px; gap:16px;
+  display:flex; align-items:center;
   position:sticky; top:0; z-index:10;
+}
+.topbar__inner{
+  width:100%; max-width:var(--content-max); height:100%;
+  margin-inline:auto; padding:0 var(--content-pad-x);
+  display:flex; align-items:center; gap:16px;
 }
 .topbar .crumbs{ color:var(--ink-3); font-size:13px; }
 .topbar .crumbs strong{ color:var(--ink); font-weight:600; }
@@ -112,7 +119,11 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
   max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 
-.page{ padding:24px 28px 64px; max-width: 1600px; width:100%; }
+.page{
+  padding:24px var(--content-pad-x) 64px;
+  max-width:var(--content-max); width:100%;
+  margin-inline:auto;
+}
 .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:20px; gap:16px; flex-wrap:wrap; }
 .page-head h1{ font-size:24px; line-height:1.15; margin:0 0 4px; letter-spacing:-0.015em; }
 .page-head .sub{ color:var(--ink-3); font-size:13px; }
@@ -278,6 +289,7 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
   transition: background .12s ease, color .12s ease, border-color .12s ease;
 }
 .sidebar-toggle:hover{ background:var(--surface-2); color:var(--ink); border-color:var(--border-strong); }
+.topbar-sidebar-toggle{ display:none; }
 
 /* ─── Sidebar brand ─────────────────────────────────────────────────────────── */
 .sidebar__brand{
@@ -337,8 +349,8 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
 
 /* ─── Responsive: tablet 1024px ────────────────────────────────────────────── */
 @media (max-width: 1024px){
-  .page{ padding:20px 20px 56px; }
-  .topbar{ padding:0 16px; }
+  :root{ --content-pad-x: 20px; }
+  .page{ padding:20px var(--content-pad-x) 56px; }
 }
 
 /* ─── Responsive: mobile 767px ─────────────────────────────────────────────── */
@@ -369,12 +381,14 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
   .mobile-backdrop{ display:block; }
 
   /* Page & header */
-  .page{ padding:14px 12px 48px; }
-  .topbar{ padding:0 12px; height:52px; }
+  :root{ --content-pad-x: 12px; }
+  .page{ padding:14px var(--content-pad-x) 48px; }
+  .topbar{ height:52px; }
   .topbar .crumbs{ font-size:12px; }
 
   /* Hide secondary topbar elements */
   .topbar-hide-mobile{ display:none !important; }
+  .topbar-sidebar-toggle{ display:inline-flex; }
 
   /* Page head — stack vertically */
   .page-head{ flex-direction:column; align-items:stretch; gap:10px; margin-bottom:14px; }
@@ -421,8 +435,8 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
 
 /* ─── Responsive: very small (iPhone SE) 374px ─────────────────────────────── */
 @media (max-width: 374px){
-  .page{ padding:10px 8px 40px; }
-  .topbar{ padding:0 8px; }
+  :root{ --content-pad-x: 8px; }
+  .page{ padding:10px var(--content-pad-x) 40px; }
   .page-head h1{ font-size:18px; }
 }
 
@@ -512,6 +526,20 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
 .sb-brand__sub {
   color: #1e4dd8;
   font-weight: 400;
+}
+.sb-brand__toggle {
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  border-color: var(--sb-divider);
+  background: var(--sb-bg-2);
+  color: var(--sb-text-dim);
+  font-size: 14px;
+}
+.sb-brand__toggle:hover {
+  background: var(--sb-hover);
+  color: var(--sb-text-active);
+  border-color: var(--sb-divider);
 }
 
 /* ─── Scrollable nav ─────────────────────────────────────────────────────── */
@@ -687,6 +715,35 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
 .sb-item__star--on { opacity: 1 !important; color: var(--sb-star-hover) !important; }
 .sb-item__star:hover { color: var(--sb-star-hover) !important; transform: scale(1.15); }
 
+.sb-item__badge {
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sb-item__badge .ant-badge-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #f97356;
+  box-shadow: 0 0 0 1px var(--sb-bg);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+}
+.sb-item__badge--collapsed {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+}
+.sb-item__badge--collapsed .ant-badge-count {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 9px;
+  line-height: 16px;
+}
+
 /* ─── Footer ─────────────────────────────────────────────────────────────── */
 .sb-footer {
   padding: 10px 14px 14px;
@@ -707,7 +764,14 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
 }
 .sb-root--collapsed .sb-brand {
   justify-content: center;
-  padding: 20px 0 16px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0 12px;
+}
+.sb-root--collapsed .sb-brand__toggle {
+  width: 36px;
+  height: 32px;
+  margin-left: 0;
 }
 .sb-root--collapsed .sb-item {
   margin: 1px auto;
@@ -754,6 +818,7 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
     width: 260px !important;
   }
   .sb-root--collapsed .sb-brand { justify-content: flex-start; padding: 20px 16px 16px; }
+  .sb-brand__toggle { display: none; }
   .sb-root--collapsed .sb-item {
     width: auto;
     height: var(--sb-item-h);
@@ -810,6 +875,7 @@ html.dark .sb-root {
 html.dark .sb-brand__name { color: #f1f5f9; }
 html.dark .sb-brand__sub  { color: #4f7cff; }
 html.dark .sb-item:hover  { color: #f1f5f9; }
+html.dark .sb-item__badge .ant-badge-count { background: #fb8a62; }
 
 /* ─── Dark topbar ────────────────────────────────────────────────────────── */
 html.dark .topbar .profile-trigger {

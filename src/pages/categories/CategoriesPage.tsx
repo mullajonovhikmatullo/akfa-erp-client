@@ -30,12 +30,16 @@ type CategoryFormValues = {
   isActive?: boolean;
 };
 
+type CategoryStatusFilter = 'all' | 'active' | 'inactive';
+
 export function CategoriesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
-  const { data: result, isLoading, isFetching, refetch } = useCategoriesPage(page, pageSize);
+  const [statusFilter, setStatusFilter] = useState<CategoryStatusFilter>('all');
+  const isActiveFilter = statusFilter === 'all' ? undefined : statusFilter === 'active';
+  const { data: result, isLoading, isFetching, refetch } = useCategoriesPage(page, pageSize, isActiveFilter);
   const categories = result?.items ?? [];
-  const total = result?.total ?? 0;
+  const filteredTotal = result?.total ?? 0;
 
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
@@ -93,6 +97,7 @@ export function CategoriesPage() {
 
   const active = result?.totalActive ?? 0;
   const inactive = result?.totalInactive ?? 0;
+  const totalCategories = active + inactive;
 
   const columns = [
     {
@@ -123,6 +128,12 @@ export function CategoriesPage() {
       key: 'isActive',
       width: 110,
       responsiveHide: true,
+      filters: [
+        { text: t('common.active'), value: 'active' },
+        { text: t('common.inactive'), value: 'inactive' },
+      ],
+      filterMultiple: false,
+      filteredValue: statusFilter === 'all' ? null : [statusFilter],
       render: (_: unknown, c: Category) =>
         c.isActive
           ? <StatusBadge tone="success">{t('common.active')}</StatusBadge>
@@ -186,7 +197,7 @@ export function CategoriesPage() {
       <div className="page-head">
         <div>
           <h1>{t('nav.categories')}</h1>
-          <div className="sub">{total} {t('categories.subtitleSuffix')}</div>
+          <div className="sub">{totalCategories} {t('categories.subtitleSuffix')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
@@ -217,7 +228,7 @@ export function CategoriesPage() {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.total')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{categories.length}</div>
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{totalCategories}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
@@ -239,7 +250,16 @@ export function CategoriesPage() {
           dataSource={categories}
           columns={columns}
           loading={isLoading}
-          pagination={{ current: page, pageSize, total, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
+          onChange={(_, filters) => {
+            const selectedStatus = filters.isActive?.[0];
+            const nextStatus =
+              selectedStatus === 'active' || selectedStatus === 'inactive'
+                ? selectedStatus
+                : 'all';
+            setStatusFilter(nextStatus);
+            onPageChange(1, pageSize);
+          }}
+          pagination={{ current: page, pageSize, total: filteredTotal, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText={t('categories.empty')}
         />
       </div>

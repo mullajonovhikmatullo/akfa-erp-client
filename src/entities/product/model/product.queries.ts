@@ -101,10 +101,10 @@ export function useCategories(isActive?: boolean) {
   });
 }
 
-export function useCategoriesPage(page: number, pageSize: number) {
+export function useCategoriesPage(page: number, pageSize: number, isActive?: boolean) {
   return useQuery({
-    queryKey: [...categoryKeys.list(), 'paginated', page, pageSize] as const,
-    queryFn: () => categoryApi.listPaginated({ page, pageSize }),
+    queryKey: [...categoryKeys.list(), 'paginated', page, pageSize, isActive] as const,
+    queryFn: () => categoryApi.listPaginated({ page, pageSize, isActive }),
     staleTime: 1000 * 60 * 5,
   });
 }

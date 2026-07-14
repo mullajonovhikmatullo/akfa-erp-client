@@ -225,27 +225,35 @@ export function CustomersPage() {
             <>
               <ExcelImportButton<CreateCustomerPayload>
                 entityLabel={t('nav.customers')}
-                templateHeaders={['fullName', 'phone', 'address', 'balance']}
+                templateHeaders={['fullName', 'phone', 'address', 'balance', 'balanceType']}
                 templateExamples={[
-                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0'],
-                  ['Nilufar Tosheva', '+998912345678', '', '150000'],
+                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0', 'credit'],
+                  ['Nilufar Tosheva', '+998912345678', '', '150000', 'credit'],
                 ]}
                 templateFileName="customers_template.xlsx"
                 parseRow={(raw, index) => {
                   const fullName = getField(raw, 'fullName');
                   if (!fullName) return { index, raw, error: 'fullName is required' };
-                  const phone = getField(raw, 'phone') || undefined;
+                  const phone = getField(raw, 'phone');
+                  if (!phone) return { index, raw, error: 'phone is required' };
                   const address = getField(raw, 'address') || undefined;
                   const balanceRaw = getField(raw, 'balance');
                   const balance = balanceRaw ? Number(balanceRaw) : undefined;
+                  const balanceTypeRaw = getField(raw, 'balanceType').toLowerCase();
+                  const balanceType = balanceTypeRaw || 'credit';
                   if (balance !== undefined && isNaN(balance)) {
                     return { index, raw, error: "Balance noto'g'ri kiritilgan (son bo'lishi kerak)" };
                   }
                   if (balance !== undefined && balance < 0) {
                     return { index, raw, error: "Balance manfiy bo'lishi mumkin emas" };
                   }
+                  if (balanceType !== 'credit' && balanceType !== 'debt') {
+                    return { index, raw, error: 'balanceType credit yoki debt bo\'lishi kerak' };
+                  }
                   const resolvedBranchId = isSuper ? (branchId ?? undefined) : (branchId ?? undefined);
-                  return { index, raw, data: { fullName, phone, address, branchId: resolvedBranchId, balance } };
+                  const signedBalance =
+                    balance == null || balance === 0 ? balance : balanceType === 'debt' ? balance : -balance;
+                  return { index, raw, data: { fullName, phone, address, branchId: resolvedBranchId, balance: signedBalance } };
                 }}
                 createFn={(data) => customerApi.create(data)}
                 onComplete={() => refetch()}

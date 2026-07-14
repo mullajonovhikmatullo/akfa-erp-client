@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Select, InputNumber, Input, Empty, Table } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Select, InputNumber, Empty, Table } from 'antd';
+import { PlusOutlined, DeleteOutlined, MinusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
 import { useBranches } from '@/entities/branch';
 import { useStockInBatch } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
-import { AppModal, MoneyDisplay } from '@/shared/ui';
-import { PRODUCT_UNIT_LABELS, type Product } from '@/shared/types/domain';
+import { useUIStore } from '@/app/stores/ui.store';
+import { AppModal, EllipsisText, MoneyDisplay } from '@/shared/ui';
+import type { Product } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
+import { getProductPrice, getProductPriceUzs } from '@/shared/lib/productPricing';
 
 interface StockInModalProps {
   open: boolean;
@@ -20,12 +22,16 @@ interface CartItem {
   product: Product;
   quantity: number;
   costPriceUzs: number;
-  supplierNote: string;
+  costPriceUsd?: number;
 }
+
+const MIN_QTY = 1;
 
 export function StockInModal({ open, onClose }: StockInModalProps) {
   const t = useT();
   const { isSuper, branchId: userBranchId } = useCurrentUser();
+  const exchangeRate = useUIStore((s) => s.exchangeRate);
+  const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
   const { data: branches = [] } = useBranches();
   const { data: products = [] } = useProducts({ isActive: true });
   const stockInBatch = useStockInBatch();
@@ -57,6 +63,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
   const addProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (!product) return;
+    const costPrice = getProductPrice(product, 'cost');
     setCart((prev) => {
       if (prev.find((i) => i.productId === productId)) return prev;
       return [
@@ -66,8 +73,8 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
           productId,
           product,
           quantity: 1,
-          costPriceUzs: product.costPriceUzs,
-          supplierNote: '',
+          costPriceUzs: getProductPriceUzs(product, 'cost', effectiveExchangeRate),
+          costPriceUsd: costPrice.currency === 'USD' ? costPrice.amount : undefined,
         },
       ];
     });
@@ -76,20 +83,31 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
   const updateItem = (key: string, patch: Partial<CartItem>) =>
     setCart((prev) => prev.map((i) => (i._key === key ? { ...i, ...patch } : i)));
 
+  const updateQty = (key: string, quantity: number | null) =>
+    updateItem(key, { quantity: quantity == null ? 0 : Math.max(quantity, 0) });
+
+  const changeQty = (key: string, delta: number) => {
+    const item = cart.find((i) => i._key === key);
+    if (!item) return;
+    const current = Math.max(item.quantity, 0);
+    updateQty(key, delta < 0 ? Math.max(current + delta, MIN_QTY) : current + delta);
+  };
+
   const removeItem = (key: string) =>
     setCart((prev) => prev.filter((i) => i._key !== key));
 
-  const totalCost = cart.reduce((sum, i) => sum + i.quantity * i.costPriceUzs, 0);
-  const canSubmit = cart.length > 0 && (isSuper ? !!branchId : !!userBranchId);
+  const totalCost = cart.reduce((sum, i) => sum + Math.max(i.quantity, 0) * i.costPriceUzs, 0);
+  const hasValidQuantities = cart.every((i) => i.quantity >= MIN_QTY);
+  const canSubmit = cart.length > 0 && hasValidQuantities && (isSuper ? !!branchId : !!userBranchId);
 
   const handleSubmit = () => {
     stockInBatch.mutate(
       cart.map((i) => ({
         branchId: isSuper ? branchId : undefined,
         productId: i.productId,
-        quantity: i.quantity,
+        quantity: Math.max(i.quantity, MIN_QTY),
         costPriceUzs: i.costPriceUzs,
-        supplierNote: i.supplierNote.trim() || undefined,
+        costPriceUsd: i.costPriceUsd,
       })),
       {
         onSuccess: () => {
@@ -106,7 +124,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
       title={t('stockIn.title')}
       open={open}
       onClose={onClose}
-      width={760}
+      width={920}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={stockInBatch.isPending}>
           {t('common.cancel')}
@@ -143,7 +161,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
           <Label>{t('stockIn.labelAddProduct')}</Label>
           <Select
             showSearch
-            optionFilterProp="label"
+            optionFilterProp="searchText"
             onChange={addProduct}
             value={null}
             placeholder={t('stockIn.placeholderSearch')}
@@ -153,7 +171,31 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               .filter((p) => p.isActive && !cart.find((i) => i.productId === p.id))
               .map((p) => ({
                 value: p.id,
-                label: [p.sku, p.name].filter(Boolean).join(' · '),
+                searchText: [p.sku, p.name].filter(Boolean).join(' '),
+                label: (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                    {p.sku && (
+                      <span
+                        className="num"
+                        style={{
+                          display: 'inline-block',
+                          flexShrink: 0,
+                          maxWidth: 88,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          fontSize: 11,
+                          color: 'var(--ink-3)',
+                        }}
+                      >
+                        {p.sku}
+                      </span>
+                    )}
+                    <span style={{ flex: '1 1 auto', minWidth: 0, fontWeight: 600 }}>
+                      <EllipsisText maxWidth="100%">{p.name}</EllipsisText>
+                    </span>
+                  </div>
+                ),
               }))}
           />
         </div>
@@ -172,15 +214,29 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               pagination={false}
               rowKey="_key"
               dataSource={cart}
+              scroll={{ x: 860 }}
               columns={[
                 {
                   title: t('stockIn.colProduct'),
                   key: 'product',
+                  width: 270,
                   render: (_, item) => (
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{item.product.name}</div>
+                    <div style={{ minWidth: 0, maxWidth: 270 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>
+                        <EllipsisText maxWidth="100%">{item.product.name}</EllipsisText>
+                      </div>
                       {item.product.sku && (
-                        <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
+                        <div
+                          className="num"
+                          style={{
+                            fontSize: 11,
+                            color: 'var(--ink-3)',
+                            maxWidth: 180,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
                           {item.product.sku}
                         </div>
                       )}
@@ -190,30 +246,25 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                 {
                   title: t('stockIn.colQty'),
                   key: 'qty',
-                  width: 130,
+                  width: 220,
                   render: (_, item) => (
-                    <InputNumber
+                    <QuantityStepper
                       value={item.quantity}
-                      onChange={(v) => updateItem(item._key, { quantity: v ?? 1 })}
-                      min={0.0001}
-                      step={1}
-                      style={{ width: '100%' }}
-                      addonAfter={
-                        <span style={{ fontSize: 11 }}>
-                          {PRODUCT_UNIT_LABELS[item.product.unit]}
-                        </span>
-                      }
+                      unitLabel={t(`units.${item.product.unit}`)}
+                      onMinus={() => changeQty(item._key, -1)}
+                      onPlus={() => changeQty(item._key, 1)}
+                      onChange={(value) => updateQty(item._key, value)}
                     />
                   ),
                 },
                 {
                   title: t('stockIn.colCost'),
                   key: 'cost',
-                  width: 160,
+                  width: 170,
                   render: (_, item) => (
                     <InputNumber
                       value={item.costPriceUzs}
-                      onChange={(v) => updateItem(item._key, { costPriceUzs: v ?? 0 })}
+                      onChange={(v) => updateItem(item._key, { costPriceUzs: v ?? 0, costPriceUsd: undefined })}
                       min={0}
                       step={1000}
                       style={{ width: '100%' }}
@@ -223,25 +274,13 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                   ),
                 },
                 {
-                  title: t('stockIn.colSupplierNote'),
-                  key: 'note',
-                  render: (_, item) => (
-                    <Input
-                      value={item.supplierNote}
-                      onChange={(e) => updateItem(item._key, { supplierNote: e.target.value })}
-                      placeholder={t('stockIn.placeholderNote')}
-                      maxLength={200}
-                    />
-                  ),
-                },
-                {
                   title: t('stockIn.colTotal'),
                   key: 'total',
-                  width: 130,
+                  width: 150,
                   align: 'right',
                   render: (_, item) => (
-                    <span className="num" style={{ fontWeight: 700, fontSize: 13 }}>
-                      <MoneyDisplay amount={item.quantity * item.costPriceUzs} currency="UZS" />
+                    <span className="num" style={{ display: 'inline-block', maxWidth: 140, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <MoneyDisplay amount={Math.max(item.quantity, 0) * item.costPriceUzs} currency="UZS" compact />
                     </span>
                   ),
                 },
@@ -261,10 +300,10 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                 },
               ]}
             />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: 13, paddingRight: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, fontSize: 13, paddingRight: 32 }}>
               <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('stockIn.totalCostLabel')}</span>
-              <span className="num" style={{ fontWeight: 700 }}>
-                <MoneyDisplay amount={totalCost} currency="UZS" />
+              <span className="num" style={{ display: 'inline-block', maxWidth: 180, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <MoneyDisplay amount={totalCost} currency="UZS" compact />
               </span>
             </div>
           </>
@@ -278,6 +317,65 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ fontSize: 12, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
       {children}
+    </div>
+  );
+}
+
+function QuantityStepper({
+  value,
+  unitLabel,
+  onMinus,
+  onPlus,
+  onChange,
+}: {
+  value: number;
+  unitLabel: string;
+  onMinus: () => void;
+  onPlus: () => void;
+  onChange: (value: number | null) => void;
+}) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(96px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
+      <Button
+        icon={<MinusOutlined />}
+        onClick={onMinus}
+        disabled={value <= MIN_QTY}
+        style={{ width: 30, height: 30, padding: 0 }}
+      />
+      <InputNumber
+        value={value > 0 ? value : null}
+        onChange={(v) => onChange(v == null ? null : Number(v))}
+        min={0}
+        step={1}
+        controls={false}
+        placeholder="0"
+        style={{ width: '100%' }}
+        formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+        parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+      />
+      <Button
+        icon={<PlusOutlined />}
+        onClick={onPlus}
+        style={{ width: 30, height: 30, padding: 0 }}
+      />
+      <span
+        style={{
+          height: 30,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid var(--border)',
+          borderRadius: 6,
+          background: 'var(--surface-2)',
+          color: 'var(--ink-3)',
+          fontSize: 11,
+          fontWeight: 700,
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {unitLabel}
+      </span>
     </div>
   );
 }

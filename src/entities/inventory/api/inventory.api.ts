@@ -28,13 +28,14 @@ export interface StockInPayload {
   quantity: number;
   costPriceUzs: number;
   costPriceUsd?: number;
-  supplierNote?: string;
 }
 
 export interface BatchFilters {
   branchId?: string;
   productId?: string;
   depleted?: boolean;
+  from?: string;
+  to?: string;
 }
 
 export interface InventoryFilters {
