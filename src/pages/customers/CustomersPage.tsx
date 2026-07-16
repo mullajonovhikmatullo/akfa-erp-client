@@ -15,10 +15,11 @@ import {
   customerApi,
 } from '@/entities/customer';
 import type { CreateCustomerPayload } from '@/entities/customer';
+import { useBranches } from '@/entities/branch';
 import { CustomerFormModal } from '@/features/create-customer';
 import { CustomerDetailDrawer } from '@/widgets/customer-detail';
 import { ExcelImportButton } from '@/features/excel-import';
-import { getField } from '@/features/excel-import/lib/parseExcel';
+import { getField, isUuid, parseExcelNumber } from '@/features/excel-import/lib/parseExcel';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { useCurrentUser } from '@/entities/user';
 import type { Customer } from '@/shared/types/domain';
@@ -31,7 +32,7 @@ import { useT } from '@/shared/lib/i18n';
 export function CustomersPage() {
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { can, isSuper, branchId } = useCurrentUser();
+  const { can, isSuper } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('customers:create');
 
@@ -43,6 +44,8 @@ export function CustomersPage() {
   const { data: customers = [], isLoading, isFetching, refetch } = useCustomers({
     search: search || undefined,
   });
+  const { data: branches = [] } = useBranches();
+  const defaultCustomerBranchId = branches[0]?.id ?? '';
 
   const deleteMutation = useDeactivateCustomer();
 
@@ -225,35 +228,54 @@ export function CustomersPage() {
             <>
               <ExcelImportButton<CreateCustomerPayload>
                 entityLabel={t('nav.customers')}
-                templateHeaders={['fullName', 'phone', 'address', 'balance', 'balanceType']}
+                templateHeaders={['fullName', 'phone', 'address', 'balance', 'branchId']}
                 templateExamples={[
-                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0', 'credit'],
-                  ['Nilufar Tosheva', '+998912345678', '', '150000', 'credit'],
+                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0', isSuper ? defaultCustomerBranchId : ''],
+                  ['Nilufar Tosheva', '', '', '150000', isSuper ? defaultCustomerBranchId : ''],
                 ]}
                 templateFileName="customers_template.xlsx"
+                hints={isSuper ? [{
+                  label: t('common.branch'),
+                  items: branches.map((b) => `${b.name}: ${b.id}`),
+                }] : undefined}
                 parseRow={(raw, index) => {
                   const fullName = getField(raw, 'fullName');
-                  if (!fullName) return { index, raw, error: 'fullName is required' };
-                  const phone = getField(raw, 'phone');
-                  if (!phone) return { index, raw, error: 'phone is required' };
+                  if (!fullName || fullName.length < 2) {
+                    return { index, raw, error: 'fullName kamida 2 belgi bo\'lishi kerak' };
+                  }
+                  if (fullName.length > 150) {
+                    return { index, raw, error: 'fullName 150 belgidan oshmasligi kerak' };
+                  }
+
+                  const phone = getField(raw, 'phone') || undefined;
+                  if (phone && !/^\+?[0-9\s\-()]{7,20}$/.test(phone)) {
+                    return { index, raw, error: 'phone formati noto\'g\'ri' };
+                  }
+
                   const address = getField(raw, 'address') || undefined;
+                  if (address && address.length > 300) {
+                    return { index, raw, error: 'address 300 belgidan oshmasligi kerak' };
+                  }
+
                   const balanceRaw = getField(raw, 'balance');
-                  const balance = balanceRaw ? Number(balanceRaw) : undefined;
-                  const balanceTypeRaw = getField(raw, 'balanceType').toLowerCase();
-                  const balanceType = balanceTypeRaw || 'credit';
-                  if (balance !== undefined && isNaN(balance)) {
-                    return { index, raw, error: "Balance noto'g'ri kiritilgan (son bo'lishi kerak)" };
+                  const balance = parseExcelNumber(balanceRaw);
+                  if (balanceRaw && (balance === undefined || !Number.isFinite(balance))) {
+                    return { index, raw, error: "balance noto'g'ri kiritilgan (son bo'lishi kerak)" };
                   }
-                  if (balance !== undefined && balance < 0) {
-                    return { index, raw, error: "Balance manfiy bo'lishi mumkin emas" };
+
+                  const branchFromRow = getField(raw, 'branchId');
+                  if (branchFromRow && !isUuid(branchFromRow)) {
+                    return { index, raw, error: 'branchId UUID formatida bo\'lishi kerak' };
                   }
-                  if (balanceType !== 'credit' && balanceType !== 'debt') {
-                    return { index, raw, error: 'balanceType credit yoki debt bo\'lishi kerak' };
+                  if (isSuper && !branchFromRow) {
+                    return { index, raw, error: 'branchId kiritilishi shart' };
                   }
-                  const resolvedBranchId = isSuper ? (branchId ?? undefined) : (branchId ?? undefined);
-                  const signedBalance =
-                    balance == null || balance === 0 ? balance : balanceType === 'debt' ? balance : -balance;
-                  return { index, raw, data: { fullName, phone, address, branchId: resolvedBranchId, balance: signedBalance } };
+
+                  return {
+                    index,
+                    raw,
+                    data: { fullName, phone, address, branchId: branchFromRow || undefined, balance },
+                  };
                 }}
                 createFn={(data) => customerApi.create(data)}
                 onComplete={() => refetch()}

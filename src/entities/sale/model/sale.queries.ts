@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { saleApi, type SaleFilters, type CreateSalePayload, type AddPaymentPayload } from '../api/sale.api';
+import { analyticsKeys } from '@/entities/analytics';
 import { customerKeys } from '@/entities/customer';
 import { inventoryKeys } from '@/entities/inventory';
 import { useT } from '@/shared/lib/i18n';
@@ -46,6 +47,7 @@ export function useCreateSale() {
       qc.invalidateQueries({ queryKey: saleKeys.all });
       qc.invalidateQueries({ queryKey: customerKeys.all });
       qc.invalidateQueries({ queryKey: inventoryKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success(t('sales.createSuccess'));
     },
     onError: (err: unknown) => {
@@ -64,6 +66,7 @@ export function useAddPayment() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: saleKeys.all });
       qc.invalidateQueries({ queryKey: customerKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success(t('sales.paymentSuccess'));
     },
     onError: () => toast.error(t('sales.paymentError')),
@@ -78,6 +81,7 @@ export function useSetDebtDeadline() {
       saleApi.setDebtDeadline(saleId, debtDueDate),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: saleKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success(t('sales.debtDeadlineSuccess'));
     },
   });

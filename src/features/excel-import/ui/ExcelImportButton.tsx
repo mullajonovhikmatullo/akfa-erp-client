@@ -154,7 +154,7 @@ export function ExcelImportButton<T>({
       render: (v: number) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{v}</span>,
     },
     {
-      title: 'Mahsulot',
+      title: entityLabel,
       dataIndex: 'label',
       ellipsis: true,
       render: (v: string) => <span style={{ fontSize: 12, fontWeight: 500 }}>{v}</span>,

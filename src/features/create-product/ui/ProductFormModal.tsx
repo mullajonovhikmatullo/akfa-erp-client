@@ -8,6 +8,7 @@ import { AppModal } from '@/shared/ui';
 import type { Product, ProductUnit } from '@/shared/types/domain';
 import { useProductForm } from '../model/useProductForm';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 
 interface ProductFormModalProps {
   open: boolean;
@@ -98,7 +99,11 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                 validateStatus={errors.name ? 'error' : undefined}
                 help={errors.name?.message}
               >
-                <Input {...field} placeholder={t('productForm.namePlaceholder')} />
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-product-name')}
+                  placeholder={t('productForm.namePlaceholder')}
+                />
               </Form.Item>
             )}
           />
@@ -111,7 +116,12 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                 validateStatus={errors.sku ? 'error' : undefined}
                 help={errors.sku?.message}
               >
-                <Input {...field} placeholder="PRF-A60-WHT" style={{ fontFamily: 'monospace' }} />
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-product-sku')}
+                  placeholder="PRF-A60-WHT"
+                  style={{ fontFamily: 'monospace' }}
+                />
               </Form.Item>
             )}
           />
@@ -345,7 +355,12 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
           control={control}
           render={({ field }) => (
             <Form.Item label={t('productForm.labelDescription')}>
-              <Input.TextArea {...field} rows={2} placeholder={t('productForm.placeholderDescription')} />
+              <Input.TextArea
+                {...field}
+                {...blockAutofill('akfa-product-description')}
+                rows={2}
+                placeholder={t('productForm.placeholderDescription')}
+              />
             </Form.Item>
           )}
         />

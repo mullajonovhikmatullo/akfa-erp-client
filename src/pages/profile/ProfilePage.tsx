@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/entities/user';
 import { useUpdateProfile, useChangePassword } from '@/entities/user';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 
 export function ProfilePage() {
   const t = useT();
@@ -177,7 +178,7 @@ export function ProfilePage() {
           )}
         </div>
 
-        <form onSubmit={profileForm.handleSubmit(handleProfileSave)}>
+        <form onSubmit={profileForm.handleSubmit(handleProfileSave)} autoComplete="off">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Field label={t('profile.fullName')} error={profileForm.formState.errors.fullName?.message}>
               <Controller
@@ -186,10 +187,10 @@ export function ProfilePage() {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    {...blockAutofill('akfa-profile-full-name')}
                     disabled={!profileEditing}
                     placeholder={t('profile.fullNamePlaceholder')}
                     size="middle"
-                    autoComplete="off"
                     status={profileForm.formState.errors.fullName ? 'error' : undefined}
                   />
                 )}
@@ -203,11 +204,11 @@ export function ProfilePage() {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    {...blockAutofill('akfa-profile-username')}
                     disabled={!profileEditing}
                     placeholder={t('profile.usernamePlaceholder')}
                     prefix={<span style={{ color: 'var(--ink-4)' }}>@</span>}
                     size="middle"
-                    autoComplete="off"
                     status={profileForm.formState.errors.username ? 'error' : undefined}
                   />
                 )}
@@ -261,6 +262,7 @@ export function ProfilePage() {
                 render={({ field }) => (
                   <MaskedInput
                     {...field}
+                    inputName="akfa-profile-current-password"
                     placeholder={t('profile.currentPasswordPlaceholder')}
                     status={passwordForm.formState.errors.currentPassword ? 'error' : undefined}
                   />
@@ -280,6 +282,7 @@ export function ProfilePage() {
                   render={({ field }) => (
                     <MaskedInput
                       {...field}
+                      inputName="akfa-profile-new-password"
                       placeholder={t('profile.newPasswordPlaceholder')}
                       status={passwordForm.formState.errors.newPassword ? 'error' : undefined}
                     />
@@ -298,6 +301,7 @@ export function ProfilePage() {
                   render={({ field }) => (
                     <MaskedInput
                       {...field}
+                      inputName="akfa-profile-confirm-password"
                       placeholder={t('profile.confirmPasswordPlaceholder')}
                       status={passwordForm.formState.errors.confirmPassword ? 'error' : undefined}
                     />
@@ -363,20 +367,21 @@ interface MaskedInputProps {
   value?: string;
   onChange?: (value: string) => void;
   onBlur?: () => void;
+  inputName: string;
   placeholder?: string;
   status?: 'error' | undefined;
 }
 
-function MaskedInput({ value, onChange, onBlur, placeholder, status }: MaskedInputProps) {
+function MaskedInput({ value, onChange, onBlur, inputName, placeholder, status }: MaskedInputProps) {
   const [visible, setVisible] = useState(false);
   return (
     <Input
       type="text"
+      {...blockAutofill(inputName)}
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
       onBlur={onBlur}
       placeholder={placeholder}
-      autoComplete="off"
       prefix={<LockOutlined style={{ color: 'var(--ink-4)' }} />}
       suffix={
         <button

@@ -22,6 +22,7 @@ import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 import type { Category } from '@/shared/types/domain';
 
 type CategoryFormValues = {
@@ -211,7 +212,11 @@ export function CategoriesPage() {
             parseRow={(raw, index) => {
               const name = getField(raw, 'name');
               if (!name) return { index, raw, error: t('categories.parseErrorName') };
+              if (name.length > 100) return { index, raw, error: 'name 100 belgidan oshmasligi kerak' };
               const description = getField(raw, 'description') || undefined;
+              if (description && description.length > 500) {
+                return { index, raw, error: 'description 500 belgidan oshmasligi kerak' };
+              }
               return { index, raw, data: { name, description } };
             }}
             createFn={(data) => categoryApi.create(data)}
@@ -279,17 +284,21 @@ export function CategoriesPage() {
         destroyOnClose
         width={440}
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+        <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
           <Form.Item
             name="name"
             label={t('common.name')}
             rules={[{ required: true, message: t('categories.nameRequired') }, { max: 100 }]}
           >
-            <Input placeholder={t('categories.namePlaceholder')} />
+            <Input
+              {...blockAutofill('akfa-category-name')}
+              placeholder={t('categories.namePlaceholder')}
+            />
           </Form.Item>
 
           <Form.Item name="description" label={t('common.description')}>
             <Input.TextArea
+              {...blockAutofill('akfa-category-description')}
               placeholder={t('categories.descPlaceholder')}
               rows={3}
               maxLength={500}

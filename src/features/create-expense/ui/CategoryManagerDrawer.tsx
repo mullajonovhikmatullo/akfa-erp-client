@@ -10,6 +10,7 @@ import {
 import { StatusBadge } from '@/shared/ui';
 import type { ExpenseCategory } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 
 interface CategoryManagerDrawerProps {
   open: boolean;
@@ -55,6 +56,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
         <Input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
+          {...blockAutofill('akfa-expense-category-new-name')}
           placeholder={t('categoryDrawer.placeholderNewName')}
           onPressEnter={handleCreate}
           style={{ flex: 1 }}
@@ -95,6 +97,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                   <Input
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
+                    {...blockAutofill(`akfa-expense-category-edit-${cat.id}`)}
                     onPressEnter={() => saveEdit(cat.id)}
                     style={{ flex: 1 }}
                     autoFocus

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { inventoryApi, type StockInPayload, type BatchFilters, type InventoryFilters } from '../api/inventory.api';
+import { analyticsKeys } from '@/entities/analytics';
 import { useT } from '@/shared/lib/i18n';
 
 export const inventoryKeys = {
@@ -42,6 +43,7 @@ export function useStockInBatch() {
     mutationFn: (items: StockInPayload[]) => inventoryApi.stockInBatch(items),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: inventoryKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success(`${vars.length} ${t('stockIn.successSuffix')}`);
     },
     onError: (err: unknown) => {

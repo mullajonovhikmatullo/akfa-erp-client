@@ -15,6 +15,7 @@ import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 import type { User } from '@/shared/types/domain';
 import type { CreateAdminPayload, UpdateAdminPayload } from '@/entities/user';
 
@@ -260,13 +261,16 @@ export function AdminsPage() {
         destroyOnClose
         width={480}
       >
-        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+        <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
           <Form.Item
             name="name"
             label={t('profile.fullName')}
             rules={[{ required: true, message: t('admins.nameRequired') }]}
           >
-            <Input placeholder={t('profile.fullNamePlaceholder')} />
+            <Input
+              {...blockAutofill('akfa-admin-full-name')}
+              placeholder={t('profile.fullNamePlaceholder')}
+            />
           </Form.Item>
 
           {!editTarget && (
@@ -278,7 +282,11 @@ export function AdminsPage() {
                 { pattern: /^[a-zA-Z0-9_]+$/, message: t('admins.usernamePattern') },
               ]}
             >
-              <Input placeholder={t('profile.usernamePlaceholder')} prefix="@" />
+              <Input
+                {...blockAutofill('akfa-admin-username')}
+                placeholder={t('profile.usernamePlaceholder')}
+                prefix="@"
+              />
             </Form.Item>
           )}
 
@@ -289,6 +297,7 @@ export function AdminsPage() {
               rules={[{ required: true, message: t('admins.passwordRequired') }, { min: 6, message: t('pwd.minLen') }]}
             >
               <Input.Password
+                {...blockAutofill('akfa-admin-new-password')}
                 placeholder={t('pwd.minLen')}
                 prefix={<LockOutlined style={{ color: 'var(--ink-3)' }} />}
               />

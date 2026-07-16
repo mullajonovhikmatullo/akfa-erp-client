@@ -28,7 +28,7 @@ interface CartItem {
 }
 
 const MIN_QTY = 0.0001;
-const CART_GRID_COLUMNS = 'minmax(170px, 1fr) 116px minmax(126px, 150px) minmax(150px, 178px) 28px';
+const CART_GRID_COLUMNS = 'minmax(170px, 1fr) minmax(188px, 220px) minmax(126px, 150px) minmax(150px, 178px) 28px';
 
 export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const t = useT();
@@ -53,6 +53,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const [customerId, setCustomerId] = useState<string | undefined>();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH_UZS');
   const [paidAmount, setPaidAmount] = useState<number>(0);
+  const [paidAmountError, setPaidAmountError] = useState(false);
   const [debtDueDate, setDebtDueDate] = useState<Dayjs | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
@@ -95,12 +96,13 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
     setProductSelectKey((key) => key + 1);
   };
 
-  const updateQty = (key: string, quantity: number) => {
+  const updateQty = (key: string, quantity: number | null) => {
     setCart((prev) =>
       prev.map((i) => {
         if (i._key !== key) return i;
         const stock = stockByProductId.get(i.productId) ?? 0;
-        return { ...i, quantity: Math.min(Math.max(quantity, MIN_QTY), stock) };
+        const nextQuantity = quantity == null || !Number.isFinite(quantity) ? 0 : Math.max(quantity, 0);
+        return { ...i, quantity: Math.min(nextQuantity, stock) };
       }),
     );
   };
@@ -108,11 +110,8 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const changeQty = (key: string, delta: number) => {
     const item = cart.find((i) => i._key === key);
     if (!item) return;
-    if (delta < 0 && item.quantity <= 1) {
-      removeItem(key);
-      return;
-    }
-    updateQty(key, item.quantity + delta);
+    const current = Math.max(item.quantity, 0);
+    updateQty(key, delta < 0 ? Math.max(current + delta, MIN_QTY) : current + delta);
   };
 
   const removeItem = (key: string) => {
@@ -124,19 +123,38 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
   const unitPrice = (p: Product) => getSaleProductPriceUzs(p, saleType, effectiveExchangeRate);
 
-  const subtotal = cart.reduce((sum, i) => sum + i.quantity * unitPrice(i.product), 0);
+  const subtotal = cart.reduce((sum, i) => sum + Math.max(i.quantity, 0) * unitPrice(i.product), 0);
   const isUsdPayment = paymentMethod === 'CASH_USD';
   const paidAmountUzsEquivalent = isUsdPayment ? paidAmount * effectiveExchangeRate : paidAmount;
   const debtAmount = Math.max(0, subtotal - paidAmountUzsEquivalent);
   const needsCustomer = debtAmount > 0;
   const fullPaidAmount = Number((isUsdPayment ? subtotal / effectiveExchangeRate : subtotal).toFixed(2));
+  const clampPaidAmount = (value: number | null) => {
+    const nextValue = value == null || !Number.isFinite(value) ? 0 : Math.max(value, 0);
+    return Math.min(nextValue, fullPaidAmount);
+  };
+  const handlePaidAmountChange = (value: number | null) => {
+    const nextValue = value == null || !Number.isFinite(value) ? 0 : Math.max(value, 0);
+    setPaidAmountError(nextValue > fullPaidAmount);
+    setPaidAmount(Math.min(nextValue, fullPaidAmount));
+  };
   const hasUsdPricedItems = cart.some((i) => getSaleProductPrice(i.product, saleType).currency === 'USD');
   const needsExchangeRate = hasUsdPricedItems || isUsdPayment;
 
-  const canSubmit = Boolean(userBranchId) && cart.length > 0 && (!needsExchangeRate || exchangeRate > 0) && (!needsCustomer || customerId);
+  const hasValidQuantities = cart.every((i) => {
+    const stock = stockByProductId.get(i.productId) ?? 0;
+    return i.quantity >= MIN_QTY && i.quantity <= stock;
+  });
+  const canSubmit =
+    Boolean(userBranchId) &&
+    cart.length > 0 &&
+    hasValidQuantities &&
+    (!needsExchangeRate || exchangeRate > 0) &&
+    (!needsCustomer || customerId);
 
   useEffect(() => {
-    setPaidAmount((current) => (current > fullPaidAmount ? fullPaidAmount : current));
+    setPaidAmount((current) => Math.min(Math.max(current, 0), fullPaidAmount));
+    setPaidAmountError(false);
   }, [fullPaidAmount]);
 
   useEffect(() => {
@@ -144,13 +162,15 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   }, [needsCustomer]);
 
   const handleSubmit = () => {
+    const safePaidAmount = clampPaidAmount(paidAmount);
+
     createSale.mutate(
       {
         saleType,
         customerId: customerId || undefined,
         paymentMethod,
-        paidAmountUzs: isUsdPayment ? 0 : paidAmount,
-        paidAmountUsd: isUsdPayment ? paidAmount : 0,
+        paidAmountUzs: isUsdPayment ? 0 : safePaidAmount,
+        paidAmountUsd: isUsdPayment ? safePaidAmount : 0,
         usdToUzsRate: needsExchangeRate ? exchangeRate : undefined,
         debtDueDate: needsCustomer && debtDueDate ? debtDueDate.toISOString() : undefined,
         items: cart.map((i) => ({ productId: i.productId, quantity: i.quantity })),
@@ -159,6 +179,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         onSuccess: () => {
           setCart([]);
           setPaidAmount(0);
+          setPaidAmountError(false);
           setDebtDueDate(null);
           setCustomerId(undefined);
           onSuccess?.();
@@ -313,12 +334,13 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                   <QuantityStepper
                     value={item.quantity}
                     max={stockByProductId.get(item.productId) ?? 0}
+                    unitLabel={t(`units.${item.product.unit}`)}
                     onMinus={() => changeQty(item._key, -1)}
                     onPlus={() => changeQty(item._key, 1)}
                     onChange={(value) => updateQty(item._key, value)}
                   />
                   <PriceCell original={originalPrice} uzs={unitPriceUzs} />
-                  <PriceCell original={{ ...originalPrice, amount: originalPrice.amount * item.quantity }} uzs={item.quantity * unitPriceUzs} strong />
+                  <PriceCell original={{ ...originalPrice, amount: originalPrice.amount * Math.max(item.quantity, 0) }} uzs={Math.max(item.quantity, 0) * unitPriceUzs} strong />
                   <Button
                     size="small"
                     type="text"
@@ -340,7 +362,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <Row
             label={t('newSale.rowProducts')}
-            value={`${cart.length} ${t('newSale.typeSuffix')} · ${cart.reduce((s, i) => s + i.quantity, 0).toLocaleString('ru-RU')} ${t('newSale.qtySuffix')}`}
+            value={`${cart.length} ${t('newSale.typeSuffix')} · ${cart.reduce((s, i) => s + Math.max(i.quantity, 0), 0).toLocaleString('ru-RU')} ${t('newSale.qtySuffix')}`}
           />
           <Row
             label={t('newSale.rowTotal')}
@@ -355,7 +377,10 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             <Label>{t('newSale.paymentMethod')}</Label>
             <Select
               value={paymentMethod}
-              onChange={setPaymentMethod}
+              onChange={(value) => {
+                setPaymentMethod(value);
+                setPaidAmountError(false);
+              }}
               options={PAYMENT_OPTIONS}
               style={{ width: '100%' }}
             />
@@ -365,7 +390,8 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
               <InputNumber
                 value={paidAmount}
-                onChange={(v) => setPaidAmount(v ?? 0)}
+                onChange={handlePaidAmountChange}
+                status={paidAmountError ? 'error' : undefined}
                 style={{ width: '100%' }}
                 min={0}
                 max={fullPaidAmount}
@@ -378,12 +404,20 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                 <Button
                   icon={<CheckCircleOutlined />}
                   disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount}
-                  onClick={() => setPaidAmount(fullPaidAmount)}
+                  onClick={() => {
+                    setPaidAmount(fullPaidAmount);
+                    setPaidAmountError(false);
+                  }}
                 >
                   {t('newSale.markFullPaid')}
                 </Button>
               </Tooltip>
             </div>
+            {paidAmountError && (
+              <div role="alert" style={{ marginTop: 6, color: 'var(--danger)', fontSize: 12 }}>
+                {t('newSale.paidAmountMaxError')}
+              </div>
+            )}
           </div>
 
           {subtotal > 0 && (
@@ -495,38 +529,63 @@ function PriceCell({
 function QuantityStepper({
   value,
   max,
+  unitLabel,
   onMinus,
   onPlus,
   onChange,
 }: {
   value: number;
   max: number;
+  unitLabel: string;
   onMinus: () => void;
   onPlus: () => void;
-  onChange: (value: number) => void;
+  onChange: (value: number | null) => void;
 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '32px minmax(48px, 1fr) 32px', gap: 4, alignItems: 'center' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(86px, 1fr) 30px minmax(38px, auto)', gap: 4, alignItems: 'center' }}>
       <Button
         icon={<MinusOutlined />}
         onClick={onMinus}
-        style={{ width: 32, height: 32, padding: 0 }}
+        disabled={value <= 1}
+        style={{ width: 30, height: 30, padding: 0 }}
       />
       <InputNumber
-        value={value}
-        onChange={(v) => onChange(v ?? 1)}
-        min={MIN_QTY}
+        value={value > 0 ? value : null}
+        onChange={(v) => onChange(v == null ? null : Number(v))}
+        min={0}
         max={max || undefined}
         step={1}
         controls={false}
+        placeholder="0"
         style={{ width: '100%' }}
+        formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+        parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
       />
       <Button
         icon={<PlusOutlined />}
         disabled={max > 0 && value >= max}
         onClick={onPlus}
-        style={{ width: 32, height: 32, padding: 0 }}
+        style={{ width: 30, height: 30, padding: 0 }}
       />
+      <span
+        style={{
+          height: 30,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid var(--border)',
+          borderRadius: 6,
+          background: 'var(--surface-2)',
+          color: 'var(--ink-3)',
+          fontSize: 11,
+          fontWeight: 700,
+          lineHeight: 1,
+          padding: '0 6px',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {unitLabel}
+      </span>
     </div>
   );
 }

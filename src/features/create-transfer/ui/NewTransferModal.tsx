@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Button, Select, InputNumber, Input, Alert, Empty, Spin } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Select, InputNumber, Input, Empty, Spin, Table } from 'antd';
 import { PlusOutlined, DeleteOutlined, MinusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
 import { useBranches } from '@/entities/branch';
@@ -7,10 +7,11 @@ import { useCreateTransfer } from '@/entities/transfer';
 import { useInventoryRecords } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
-import { AppModal, MoneyDisplay } from '@/shared/ui';
+import { AppModal, EllipsisText, MoneyDisplay } from '@/shared/ui';
 import { type Product } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
 import { getProductPriceUzs } from '@/shared/lib/productPricing';
+import { blockAutofill } from '@/shared/lib/autofill';
 
 interface NewTransferModalProps {
   open: boolean;
@@ -33,8 +34,18 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   const exchangeRate = useUIStore((s) => s.exchangeRate);
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
   const { data: branches = [] } = useBranches();
-  const { data: products = [], isLoading: productsLoading } = useProducts({ search: undefined });
+  const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true });
   const createTransfer = useCreateTransfer();
+
+  const defaultFromBranchId = useMemo(() => {
+    const mainBranch = branches.find((b) => /main|asosiy|глав/i.test(b.name));
+    const firstBranch = [...branches].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aTime - bTime;
+    })[0];
+    return mainBranch?.id ?? firstBranch?.id;
+  }, [branches]);
 
   const [fromBranchId, setFromBranchId] = useState<string | undefined>(
     isSuper ? undefined : (userBranchId ?? undefined),
@@ -50,6 +61,21 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   );
   const productSelectLoading = Boolean(sourceBranchId) && (productsLoading || inventoryLoading);
 
+  useEffect(() => {
+    if (isSuper && open && defaultFromBranchId && !fromBranchId) {
+      setFromBranchId(defaultFromBranchId);
+    }
+    if (!isSuper) {
+      setFromBranchId(userBranchId ?? undefined);
+    }
+  }, [defaultFromBranchId, fromBranchId, isSuper, open, userBranchId]);
+
+  useEffect(() => {
+    if (sourceBranchId && toBranchId === sourceBranchId) {
+      setToBranchId(undefined);
+    }
+  }, [sourceBranchId, toBranchId]);
+
   const stockByProductId = useMemo(() => {
     const map = new Map<string, number>();
     for (const record of inventoryRecords) {
@@ -64,10 +90,11 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   );
 
   const availableFrom = branches.filter((b) => b.id !== toBranchId);
-  const availableTo = branches.filter((b) => b.id !== fromBranchId);
+  const availableTo = branches.filter((b) => b.id !== sourceBranchId);
 
   const handleFromBranchChange = (branchId: string) => {
     setFromBranchId(branchId);
+    if (toBranchId === branchId) setToBranchId(undefined);
     setCart([]);
   };
 
@@ -93,7 +120,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
   const clampQty = (value: number, max: number) => {
     const integerValue = Math.floor(Number.isFinite(value) ? value : MIN_QTY);
-    return Math.min(Math.max(integerValue, MIN_QTY), max || integerValue);
+    return Math.min(Math.max(integerValue, MIN_QTY), Math.max(max, MIN_QTY));
   };
 
   const updateItem = (key: string, patch: Partial<CartItem>) => {
@@ -115,14 +142,23 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
     updateItem(key, { quantity: item.quantity + delta });
   };
 
+  const updateQty = (key: string, quantity: number | null) =>
+    updateItem(key, { quantity: quantity == null ? MIN_QTY : quantity });
+
   const removeItem = (key: string) => setCart((prev) => prev.filter((i) => i._key !== key));
 
   const totalCost = cart.reduce((sum, i) => sum + i.quantity * i.unitCostUzs, 0);
+  const hasValidQuantities = cart.every((i) => {
+    const stock = stockByProductId.get(i.productId) ?? 0;
+    return i.quantity >= MIN_QTY && i.quantity <= stock;
+  });
 
   const canSubmit =
     cart.length > 0 &&
+    hasValidQuantities &&
     toBranchId !== undefined &&
-    (isSuper ? fromBranchId !== undefined : true);
+    toBranchId !== sourceBranchId &&
+    (isSuper ? fromBranchId !== undefined : Boolean(userBranchId));
 
   const handleSubmit = () => {
     createTransfer.mutate(
@@ -140,6 +176,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
         onSuccess: () => {
           setCart([]);
           setToBranchId(undefined);
+          if (isSuper) setFromBranchId(defaultFromBranchId);
           setNote('');
           onClose();
         },
@@ -152,7 +189,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
       title={t('transferModal.title')}
       open={open}
       onClose={onClose}
-      width={680}
+      width={920}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={createTransfer.isPending}>
           {t('common.cancel')}
@@ -164,155 +201,236 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           disabled={!canSubmit}
           onClick={handleSubmit}
         >
-          {t('transferModal.submitBtn')}
+          {t('transferModal.submitBtn')} ({cart.length} {t('common.countSuffix')})
         </Button>,
       ]}
     >
-      {/* Branch row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-        <div>
-          <Label>{t('transferModal.labelFrom')}</Label>
-          {isSuper ? (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+          <div>
+            <Label>{t('transferModal.labelFrom')}</Label>
+            {isSuper ? (
+              <Select
+                value={fromBranchId}
+                onChange={handleFromBranchChange}
+                placeholder={t('transferModal.placeholderBranch')}
+                style={{ width: '100%' }}
+                options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
+              />
+            ) : (
+              <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
+                {branches.find((b) => b.id === userBranchId)?.name ?? t('transferModal.yourBranch')}
+              </div>
+            )}
+          </div>
+          <div>
+            <Label>{t('transferModal.labelTo')}</Label>
             <Select
-              value={fromBranchId}
-              onChange={handleFromBranchChange}
+              value={toBranchId}
+              onChange={setToBranchId}
               placeholder={t('transferModal.placeholderBranch')}
               style={{ width: '100%' }}
-              options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
+              options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
             />
-          ) : (
-            <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
-              {branches.find((b) => b.id === userBranchId)?.name ?? t('transferModal.yourBranch')}
-            </div>
-          )}
+          </div>
         </div>
+
         <div>
-          <Label>{t('transferModal.labelTo')}</Label>
+          <Label>{t('transferModal.labelAddProduct')}</Label>
           <Select
-            value={toBranchId}
-            onChange={setToBranchId}
-            placeholder={t('transferModal.placeholderBranch')}
+            showSearch
+            optionFilterProp="searchText"
+            onChange={addProduct}
+            value={null}
+            placeholder={t('transferModal.placeholderSearch')}
             style={{ width: '100%' }}
-            options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
+            loading={productSelectLoading}
+            suffixIcon={productSelectLoading ? undefined : <PlusOutlined />}
+            disabled={!sourceBranchId}
+            notFoundContent={
+              productSelectLoading ? (
+                <div style={{ display: 'flex', justifyContent: 'center', padding: 12 }}>
+                  <Spin size="small" />
+                </div>
+              ) : undefined
+            }
+            options={transferableProducts
+              .filter((p) => p.isActive && !cart.find((i) => i.productId === p.id))
+              .map((p) => {
+                const stock = stockByProductId.get(p.id) ?? 0;
+                return {
+                  value: p.id,
+                  searchText: [p.sku, p.name].filter(Boolean).join(' '),
+                  label: (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                      {p.sku && (
+                        <span
+                          className="num"
+                          style={{
+                            display: 'inline-block',
+                            flexShrink: 0,
+                            maxWidth: 88,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            fontSize: 11,
+                            color: 'var(--ink-3)',
+                          }}
+                        >
+                          {p.sku}
+                        </span>
+                      )}
+                      <span style={{ flex: '1 1 auto', minWidth: 0, fontWeight: 600 }}>
+                        <EllipsisText maxWidth="100%">{p.name}</EllipsisText>
+                      </span>
+                      <span style={{ flexShrink: 0, fontSize: 12, color: 'var(--ink-3)' }}>
+                        {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${p.unit}`)}
+                      </span>
+                    </div>
+                  ),
+                };
+              })}
           />
         </div>
-      </div>
 
-      {/* Product selector */}
-      <div style={{ marginBottom: 12 }}>
-        <Label>{t('transferModal.labelAddProduct')}</Label>
-        <Select
-          showSearch
-          optionFilterProp="searchText"
-          onChange={addProduct}
-          value={null}
-          placeholder={t('transferModal.placeholderSearch')}
-          style={{ width: '100%' }}
-          loading={productSelectLoading}
-          suffixIcon={productSelectLoading ? undefined : <PlusOutlined />}
-          disabled={!sourceBranchId}
-          notFoundContent={
-            productSelectLoading ? (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: 12 }}>
-                <Spin size="small" />
-              </div>
-            ) : undefined
-          }
-          options={transferableProducts
-            .filter((p) => p.isActive && !cart.find((i) => i.productId === p.id))
-            .map((p) => {
-              const stock = stockByProductId.get(p.id) ?? 0;
-              return {
-                value: p.id,
-                searchText: [p.sku, p.name].filter(Boolean).join(' '),
-                label: (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {p.name}
+        {cart.length === 0 ? (
+          <Empty
+            description={t('transferModal.emptyCart')}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            style={{ padding: '16px 0' }}
+          />
+        ) : (
+          <>
+            <Table
+              size="small"
+              pagination={false}
+              rowKey="_key"
+              dataSource={cart}
+              scroll={{ x: 860 }}
+              columns={[
+                {
+                  title: t('transferModal.colProduct'),
+                  key: 'product',
+                  width: 270,
+                  render: (_, item) => (
+                    <div style={{ minWidth: 0, maxWidth: 270 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>
+                        <EllipsisText maxWidth="100%">{item.product.name}</EllipsisText>
                       </div>
-                      {p.sku && (
-                        <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>
-                          {p.sku}
+                      {item.product.sku && (
+                        <div
+                          className="num"
+                          style={{
+                            fontSize: 11,
+                            color: 'var(--ink-3)',
+                            maxWidth: 180,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {item.product.sku}
                         </div>
                       )}
                     </div>
-                    <span style={{ flexShrink: 0, fontSize: 12, color: 'var(--ink-3)' }}>
-                      {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${p.unit}`)}
+                  ),
+                },
+                {
+                  title: t('transferModal.colQty'),
+                  key: 'qty',
+                  width: 220,
+                  render: (_, item) => {
+                    const stock = stockByProductId.get(item.productId) ?? 0;
+                    return (
+                      <QuantityStepper
+                        value={item.quantity}
+                        max={stock}
+                        unitLabel={t(`units.${item.product.unit}`)}
+                        onMinus={() => changeQty(item._key, -1)}
+                        onPlus={() => changeQty(item._key, 1)}
+                        onChange={(value) => updateQty(item._key, value)}
+                      />
+                    );
+                  },
+                },
+                {
+                  title: t('transferModal.colStock'),
+                  key: 'stock',
+                  width: 140,
+                  align: 'right',
+                  render: (_, item) => {
+                    const stock = stockByProductId.get(item.productId) ?? 0;
+                    const remainingStock = Math.max(0, stock - item.quantity);
+                    return (
+                      <span className="num" style={{ fontWeight: 700, fontSize: 12 }}>
+                        {remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
+                      </span>
+                    );
+                  },
+                },
+                {
+                  title: t('transferModal.colCost'),
+                  key: 'cost',
+                  width: 170,
+                  render: (_, item) => (
+                    <InputNumber
+                      value={item.unitCostUzs}
+                      onChange={(v) => updateItem(item._key, { unitCostUzs: v ?? 0 })}
+                      min={0}
+                      step={1000}
+                      style={{ width: '100%' }}
+                      formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                      parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+                    />
+                  ),
+                },
+                {
+                  title: t('transferModal.colTotal'),
+                  key: 'total',
+                  width: 150,
+                  align: 'right',
+                  render: (_, item) => (
+                    <span className="num" style={{ display: 'inline-block', maxWidth: 140, fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <MoneyDisplay amount={item.quantity * item.unitCostUzs} currency="UZS" compact />
                     </span>
-                  </div>
-                ),
-              };
-            })}
-        />
-      </div>
+                  ),
+                },
+                {
+                  title: '',
+                  key: 'del',
+                  width: 32,
+                  render: (_, item) => (
+                    <Button
+                      size="small"
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => removeItem(item._key)}
+                    />
+                  ),
+                },
+              ]}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, fontSize: 13, paddingRight: 32 }}>
+              <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('transferModal.totalCostLabel')}</span>
+              <span className="num" style={{ display: 'inline-block', maxWidth: 180, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <MoneyDisplay amount={totalCost} currency="UZS" compact />
+              </span>
+            </div>
+          </>
+        )}
 
-      {/* Cart */}
-      {cart.length === 0 ? (
-        <Empty
-          description={t('transferModal.emptyCart')}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          style={{ padding: '16px 0' }}
-        />
-      ) : (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 132px 88px 128px 96px 28px', gap: 8, padding: '6px 8px', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', borderBottom: '1px solid var(--border)', marginBottom: 4 }}>
-            <div>{t('transferModal.colProduct')}</div><div>{t('transferModal.colQty')}</div><div style={{ textAlign: 'right' }}>{t('transferModal.colStock')}</div><div>{t('transferModal.colCost')}</div><div style={{ textAlign: 'right' }}>{t('transferModal.colTotal')}</div><div />
-          </div>
-          {cart.map((item) => {
-            const stock = stockByProductId.get(item.productId) ?? 0;
-            const remainingStock = Math.max(0, stock - item.quantity);
-            return (
-              <div key={item._key} style={{ display: 'grid', gridTemplateColumns: '1fr 132px 88px 128px 96px 28px', gap: 8, alignItems: 'center', padding: '7px 8px', borderBottom: '1px solid var(--border)' }}>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{item.product.name}</div>
-                  {item.product.sku && (
-                    <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</div>
-                  )}
-                </div>
-                <QuantityStepper
-                  value={item.quantity}
-                  max={stock}
-                  onMinus={() => changeQty(item._key, -1)}
-                  onPlus={() => changeQty(item._key, 1)}
-                  onChange={(value) => updateItem(item._key, { quantity: value })}
-                />
-                <div className="num" style={{ textAlign: 'right', fontWeight: 700, fontSize: 12 }}>
-                  {remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
-                </div>
-                <InputNumber
-                  value={item.unitCostUzs}
-                  onChange={(v) => updateItem(item._key, { unitCostUzs: v ?? 0 })}
-                  min={0}
-                  step={1000}
-                  style={{ width: '100%' }}
-                  formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
-                />
-                <div className="num" style={{ textAlign: 'right', fontWeight: 700, fontSize: 12 }}>
-                  <MoneyDisplay amount={item.quantity * item.unitCostUzs} currency="UZS" />
-                </div>
-                <Button size="small" type="text" danger icon={<DeleteOutlined />} onClick={() => removeItem(item._key)} />
-              </div>
-            );
-          })}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '8px 8px 0', fontSize: 13 }}>
-            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('transferModal.totalCostLabel')}</span>
-            <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={totalCost} currency="UZS" /></span>
-          </div>
-        </>
-      )}
-
-      {/* Note */}
-      <div style={{ marginTop: 12 }}>
-        <Label>{t('transferModal.labelNote')}</Label>
-        <Input.TextArea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={2}
-          placeholder={t('transferModal.placeholderNote')}
-          maxLength={500}
-        />
+        <div>
+          <Label>{t('transferModal.labelNote')}</Label>
+          <Input.TextArea
+            {...blockAutofill('akfa-transfer-note')}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={2}
+            placeholder={t('transferModal.placeholderNote')}
+            maxLength={500}
+          />
+        </div>
       </div>
     </AppModal>
   );
@@ -329,40 +447,65 @@ function Label({ children }: { children: React.ReactNode }) {
 function QuantityStepper({
   value,
   max,
+  unitLabel,
   onMinus,
   onPlus,
   onChange,
 }: {
   value: number;
   max: number;
+  unitLabel: string;
   onMinus: () => void;
   onPlus: () => void;
-  onChange: (value: number) => void;
+  onChange: (value: number | null) => void;
 }) {
+  const effectiveMax = Math.max(max, MIN_QTY);
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '32px minmax(48px, 1fr) 32px', gap: 4, alignItems: 'center' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(96px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
       <Button
         icon={<MinusOutlined />}
-        disabled={value <= MIN_QTY}
         onClick={onMinus}
-        style={{ width: 32, height: 32, padding: 0 }}
+        disabled={value <= MIN_QTY}
+        style={{ width: 30, height: 30, padding: 0 }}
       />
       <InputNumber
-        value={value}
-        onChange={(v) => onChange(Math.floor(Number(v ?? MIN_QTY)))}
+        value={value > 0 ? value : null}
+        onChange={(v) => onChange(v == null ? null : Number(v))}
         min={MIN_QTY}
-        max={max || undefined}
+        max={effectiveMax}
         step={1}
         precision={0}
         controls={false}
+        placeholder="0"
         style={{ width: '100%' }}
+        formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+        parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
       />
       <Button
         icon={<PlusOutlined />}
-        disabled={max > 0 && value >= max}
         onClick={onPlus}
-        style={{ width: 32, height: 32, padding: 0 }}
+        disabled={value >= effectiveMax}
+        style={{ width: 30, height: 30, padding: 0 }}
       />
+      <span
+        style={{
+          height: 30,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1px solid var(--border)',
+          borderRadius: 6,
+          background: 'var(--surface-2)',
+          color: 'var(--ink-3)',
+          fontSize: 11,
+          fontWeight: 700,
+          lineHeight: 1,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {unitLabel}
+      </span>
     </div>
   );
 }

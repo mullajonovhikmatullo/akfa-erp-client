@@ -8,6 +8,7 @@ import { useSel } from '@/app/store.jsx';
 import { AppModal } from '@/shared/ui';
 import { createExpenseSchema, type ExpenseFormValues } from '../validation/expenseSchema';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 
 interface ExpenseFormModalProps {
   open: boolean;
@@ -213,7 +214,12 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
           control={control}
           render={({ field }) => (
             <Form.Item label={t('expenseForm.labelNote')}>
-              <Input.TextArea {...field} rows={2} placeholder={t('expenseForm.placeholderNote')} />
+              <Input.TextArea
+                {...field}
+                {...blockAutofill('akfa-expense-description')}
+                rows={2}
+                placeholder={t('expenseForm.placeholderNote')}
+              />
             </Form.Item>
           )}
         />

@@ -48,3 +48,45 @@ export function getField(row: Record<string, string>, key: string): string {
   }
   return '';
 }
+
+function normaliseNumericText(value: string) {
+  const compact = value.trim().replace(/[\s']/g, '');
+  const commaCount = (compact.match(/,/g) ?? []).length;
+  const dotCount = (compact.match(/\./g) ?? []).length;
+
+  if (commaCount > 0 && dotCount > 0) {
+    const decimalSep = compact.lastIndexOf(',') > compact.lastIndexOf('.') ? ',' : '.';
+    const thousandsSep = decimalSep === ',' ? '.' : ',';
+    return compact
+      .replace(new RegExp(`\\${thousandsSep}`, 'g'), '')
+      .replace(decimalSep, '.');
+  }
+
+  if (commaCount > 1) return compact.replace(/,/g, '');
+  if (dotCount > 1) return compact.replace(/\./g, '');
+
+  if (commaCount === 1) {
+    const [whole, fraction = ''] = compact.split(',');
+    return fraction.length === 3 ? `${whole}${fraction}` : `${whole}.${fraction}`;
+  }
+
+  if (dotCount === 1) {
+    const [whole, fraction = ''] = compact.split('.');
+    return fraction.length === 3 ? `${whole}${fraction}` : compact;
+  }
+
+  return compact;
+}
+
+export function parseExcelNumber(value: string): number | undefined {
+  if (!value.trim()) return undefined;
+  return Number(normaliseNumericText(value));
+}
+
+export function hasMaxTwoDecimals(value: number) {
+  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-9;
+}
+
+export function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}

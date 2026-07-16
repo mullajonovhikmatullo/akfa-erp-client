@@ -10,10 +10,16 @@ export const analyticsKeys = {
   customerDebt: (q?: AnalyticsQuery) => [...analyticsKeys.all, 'customerDebt', q] as const,
 };
 
+const liveAnalyticsQueryOptions = {
+  staleTime: 0,
+  refetchOnMount: 'always' as const,
+};
+
 export function useDashboard(q?: AnalyticsQuery) {
   return useQuery({
     queryKey: analyticsKeys.dashboard(q),
     queryFn: () => analyticsApi.dashboard(q),
+    ...liveAnalyticsQueryOptions,
   });
 }
 
@@ -21,6 +27,7 @@ export function useSalesReport(q?: AnalyticsQuery) {
   return useQuery({
     queryKey: analyticsKeys.sales(q),
     queryFn: () => analyticsApi.salesReport(q),
+    ...liveAnalyticsQueryOptions,
   });
 }
 
@@ -28,6 +35,7 @@ export function useInventoryReport(q?: AnalyticsQuery) {
   return useQuery({
     queryKey: analyticsKeys.inventory(q),
     queryFn: () => analyticsApi.inventoryReport(q),
+    ...liveAnalyticsQueryOptions,
   });
 }
 
@@ -35,6 +43,7 @@ export function useExpenseReport(q?: AnalyticsQuery) {
   return useQuery({
     queryKey: analyticsKeys.expenses(q),
     queryFn: () => analyticsApi.expenseReport(q),
+    ...liveAnalyticsQueryOptions,
   });
 }
 
@@ -42,5 +51,6 @@ export function useCustomerDebt(q?: AnalyticsQuery) {
   return useQuery({
     queryKey: analyticsKeys.customerDebt(q),
     queryFn: () => analyticsApi.customerDebt(q),
+    ...liveAnalyticsQueryOptions,
   });
 }

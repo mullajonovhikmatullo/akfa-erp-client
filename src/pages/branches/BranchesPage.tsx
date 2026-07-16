@@ -15,6 +15,7 @@ import { DataTable, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 import type { Branch } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import type { BranchPayload } from '@/entities/branch';
@@ -283,15 +284,25 @@ export function BranchesPage() {
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
       >
-        <Form form={branchForm} layout="vertical" style={{ marginTop: 16 }}>
+        <Form form={branchForm} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
           <Form.Item name="name" label={t('branches.labelName')} rules={[{ required: true, message: t('branches.nameRequired') }]}>
-            <Input placeholder={t('branches.namePlaceholder')} />
+            <Input
+              {...blockAutofill('akfa-branch-name')}
+              placeholder={t('branches.namePlaceholder')}
+            />
           </Form.Item>
           <Form.Item name="address" label={t('branches.labelAddress')}>
-            <Input placeholder={t('branches.addressPlaceholder')} />
+            <Input
+              {...blockAutofill('akfa-branch-address')}
+              placeholder={t('branches.addressPlaceholder')}
+            />
           </Form.Item>
           <Form.Item name="phone" label={t('common.phone')}>
-            <Input placeholder={t('branches.phonePlaceholder')} />
+            <Input
+              {...blockAutofill('akfa-branch-phone')}
+              inputMode="tel"
+              placeholder={t('branches.phonePlaceholder')}
+            />
           </Form.Item>
         </Form>
       </Modal>

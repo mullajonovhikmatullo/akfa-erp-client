@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { transferApi, type TransferFilters, type CreateTransferPayload } from '../api/transfer.api';
+import { analyticsKeys } from '@/entities/analytics';
+import { inventoryKeys } from '@/entities/inventory';
 
 export const transferKeys = {
   all: ['transfers'] as const,
@@ -22,6 +24,7 @@ export function useCreateTransfer() {
     mutationFn: (payload: CreateTransferPayload) => transferApi.create(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: transferKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success("Transfer yaratildi");
     },
     onError: (err: unknown) => {
@@ -37,6 +40,8 @@ export function useCompleteTransfer() {
     mutationFn: (id: string) => transferApi.complete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: transferKeys.all });
+      qc.invalidateQueries({ queryKey: inventoryKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success('Transfer yakunlandi, ombor yangilandi');
     },
     onError: (err: unknown) => {
@@ -52,6 +57,7 @@ export function useCancelTransfer() {
     mutationFn: (id: string) => transferApi.cancel(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: transferKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success("Transfer bekor qilindi");
     },
     onError: (err: unknown) => {

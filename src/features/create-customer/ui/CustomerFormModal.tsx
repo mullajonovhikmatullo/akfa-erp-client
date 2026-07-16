@@ -5,6 +5,7 @@ import { Button } from 'antd';
 import type { Customer } from '@/shared/types/domain';
 import { useCustomerForm } from '../model/useCustomerForm';
 import { useT } from '@/shared/lib/i18n';
+import { blockAutofill } from '@/shared/lib/autofill';
 
 interface CustomerFormModalProps {
   open: boolean;
@@ -72,7 +73,11 @@ export function CustomerFormModal({ open, customer, onClose, onCreated }: Custom
               validateStatus={errors.fullName ? 'error' : undefined}
               help={errors.fullName?.message}
             >
-              <Input {...field} placeholder={t('customerForm.placeholderFullName')} />
+              <Input
+                {...field}
+                {...blockAutofill('akfa-customer-full-name')}
+                placeholder={t('customerForm.placeholderFullName')}
+              />
             </Form.Item>
           )}
         />
@@ -88,7 +93,12 @@ export function CustomerFormModal({ open, customer, onClose, onCreated }: Custom
                 validateStatus={errors.phone ? 'error' : undefined}
                 help={errors.phone?.message}
               >
-                <Input {...field} placeholder="+998901234567" />
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-customer-phone')}
+                  inputMode="tel"
+                  placeholder="+998901234567"
+                />
               </Form.Item>
             )}
           />
@@ -101,7 +111,11 @@ export function CustomerFormModal({ open, customer, onClose, onCreated }: Custom
                 validateStatus={errors.address ? 'error' : undefined}
                 help={errors.address?.message}
               >
-                <Input {...field} placeholder={t('customerForm.placeholderAddress')} />
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-customer-address')}
+                  placeholder={t('customerForm.placeholderAddress')}
+                />
               </Form.Item>
             )}
           />

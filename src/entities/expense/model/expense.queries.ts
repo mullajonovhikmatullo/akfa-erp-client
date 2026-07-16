@@ -7,6 +7,7 @@ import {
   type CreateExpenseCategoryPayload,
   type UpdateExpenseCategoryPayload,
 } from '../api/expense.api';
+import { analyticsKeys } from '@/entities/analytics';
 
 export const expenseKeys = {
   all: ['expenses'] as const,
@@ -44,6 +45,7 @@ export function useCreateExpense() {
     mutationFn: (payload: CreateExpensePayload) => expenseApi.create(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: expenseKeys.all });
+      qc.invalidateQueries({ queryKey: analyticsKeys.all });
       toast.success("Xarajat qayd qilindi");
     },
     onError: (err: unknown) => {
@@ -58,7 +60,10 @@ export function useDeleteExpense() {
   return useMutation({
     mutationFn: (id: string) => expenseApi.remove(id),
     onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: expenseKeys.all });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: expenseKeys.all }),
+        qc.invalidateQueries({ queryKey: analyticsKeys.all }),
+      ]);
       toast.success("Xarajat o'chirildi");
     },
     onError: (err: unknown) => {

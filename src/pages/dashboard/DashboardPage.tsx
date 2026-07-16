@@ -53,6 +53,14 @@ type PaymentChartDatum = {
   color: string;
   percent: number;
 };
+type TrendDatum = {
+  iso: string;
+  label: string;
+  revenue: number;
+  paid: number;
+  debt: number;
+  expenses: number;
+};
 
 const COLORS = {
   primary: '#1e4dd8',
@@ -117,7 +125,7 @@ export function DashboardPage() {
       if (chartPeriod === 'week') return date.format('DD MMM');
       return date.format('DD MMM');
     };
-    const buckets = [];
+    const buckets: TrendDatum[] = [];
     let cursor =
       chartPeriod === 'month'
         ? rangeStart.startOf('month')
@@ -304,31 +312,12 @@ export function DashboardPage() {
                 <h3>{t('dashboard.salesTrendTitle')}</h3>
                 <span className="meta">{periodMeta}</span>
               </div>
-              <ResponsiveContainer width="100%" height={310}>
-                <AreaChart data={trendData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="dashRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={COLORS.primary} stopOpacity={0.24} />
-                      <stop offset="100%" stopColor={COLORS.primary} stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="dashDebt" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={COLORS.danger} stopOpacity={0.18} />
-                      <stop offset="100%" stopColor={COLORS.danger} stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="dashExpenses" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={COLORS.warning} stopOpacity={0.16} />
-                      <stop offset="100%" stopColor={COLORS.warning} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="rgba(15,23,42,.06)" vertical={false} />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
-                  <YAxis tickFormatter={(v) => formatCompactUZS(Number(v)).replace(" so'm", '')} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: '#64748b' }} width={52} />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e6e9ef', fontSize: 12 }} formatter={(v) => formatCompactUZS(Number(v))} />
-                  <Area type="monotone" dataKey="revenue" name={t('dashboard.chartRevenue')} stroke={COLORS.primary} strokeWidth={2} fill="url(#dashRevenue)" />
-                  <Area type="monotone" dataKey="debt" name={t('dashboard.chartDebt')} stroke={COLORS.danger} strokeWidth={2} fill="url(#dashDebt)" />
-                  <Area type="monotone" dataKey="expenses" name={t('dashboard.chartExpenses')} stroke={COLORS.warning} strokeWidth={2} fill="url(#dashExpenses)" />
-                </AreaChart>
-              </ResponsiveContainer>
+              <SalesTrendChart
+                data={trendData}
+                revenueLabel={t('dashboard.chartRevenue')}
+                debtLabel={t('dashboard.chartDebt')}
+                expensesLabel={t('dashboard.chartExpenses')}
+              />
             </div>
 
             <div className="card">
@@ -536,6 +525,137 @@ function SmallStat({ label, value, tone }: { label: string; value: ReactNode; to
     <div className="card" style={{ padding: '14px 16px' }}>
       <div style={{ color: 'var(--ink-3)', fontSize: 12, marginBottom: 6 }}>{label}</div>
       <div className="num" style={{ fontSize: 20, fontWeight: 800, color: COLORS[tone] }}>{value}</div>
+    </div>
+  );
+}
+
+function SalesTrendChart({
+  data,
+  revenueLabel,
+  debtLabel,
+  expensesLabel,
+}: {
+  data: TrendDatum[];
+  revenueLabel: string;
+  debtLabel: string;
+  expensesLabel: string;
+}) {
+  const series: { key: 'revenue' | 'debt' | 'expenses'; label: string; color: string; gradientId: string }[] = [
+    { key: 'revenue', label: revenueLabel, color: COLORS.primary, gradientId: 'dashRevenue' },
+    { key: 'debt', label: debtLabel, color: COLORS.danger, gradientId: 'dashDebt' },
+    { key: 'expenses', label: expensesLabel, color: COLORS.warning, gradientId: 'dashExpenses' },
+  ];
+  const values = data.flatMap((item) => series.map((itemSeries) => item[itemSeries.key]));
+  const maxValue = Math.max(0, ...values);
+  const yMax = maxValue > 0 ? maxValue * 1.18 : 1;
+  const isSinglePoint = data.length <= 1;
+  const chartType = isSinglePoint ? 'linear' : 'monotone';
+  const dotProps = isSinglePoint
+    ? { r: 5, strokeWidth: 2, fill: '#fff' }
+    : data.length <= 7
+      ? { r: 2.5, strokeWidth: 1.5, fill: '#fff' }
+      : false;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div
+        style={{
+          minHeight: 254,
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
+          padding: '8px 8px 2px',
+        }}
+      >
+        <ResponsiveContainer width="100%" height={244}>
+          <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+            <defs>
+              <linearGradient id="dashRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={COLORS.primary} stopOpacity={0.24} />
+                <stop offset="100%" stopColor={COLORS.primary} stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="dashDebt" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={COLORS.danger} stopOpacity={0.18} />
+                <stop offset="100%" stopColor={COLORS.danger} stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="dashExpenses" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={COLORS.warning} stopOpacity={0.16} />
+                <stop offset="100%" stopColor={COLORS.warning} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid stroke="rgba(15,23,42,.06)" vertical={false} />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 11, fill: '#64748b' }}
+              interval={0}
+              padding={{ left: isSinglePoint ? 62 : 8, right: isSinglePoint ? 62 : 8 }}
+            />
+            <YAxis
+              domain={[0, yMax]}
+              tickFormatter={(v) => formatCompactUZS(Number(v)).replace(" so'm", '')}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 11, fill: '#64748b' }}
+              width={52}
+            />
+            <Tooltip
+              contentStyle={{ borderRadius: 8, border: '1px solid #e6e9ef', fontSize: 12 }}
+              formatter={(v) => formatCompactUZS(Number(v))}
+            />
+            {series.map((item) => (
+              <Area
+                key={item.key}
+                type={chartType}
+                dataKey={item.key}
+                name={item.label}
+                stroke={item.color}
+                strokeWidth={2.25}
+                fill={`url(#${item.gradientId})`}
+                dot={dotProps}
+                activeDot={{ r: 6, strokeWidth: 2, fill: '#fff' }}
+                isAnimationActive={false}
+              />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(138px, 1fr))', gap: 7 }}>
+        {series.map((item) => (
+          <TrendValueTile
+            key={item.key}
+            color={item.color}
+            label={item.label}
+            value={data.reduce((sum, row) => sum + row[item.key], 0)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TrendValueTile({ color, label, value }: { color: string; label: string; value: number }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        gap: '4px 8px',
+        padding: '8px 9px',
+        border: '1px solid var(--border)',
+        borderRadius: 8,
+        background: 'linear-gradient(180deg, #fff 0%, #f8fafc 100%)',
+        fontSize: 11.5,
+        minWidth: 0,
+      }}
+    >
+      <span style={{ width: 9, height: 9, marginTop: 4, borderRadius: 999, background: color, boxShadow: `0 0 0 4px ${color}22` }} />
+      <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+      <span className="num" style={{ gridColumn: '2', fontWeight: 700 }}>
+        <MoneyDisplay amount={value} currency="UZS" compact />
+      </span>
     </div>
   );
 }

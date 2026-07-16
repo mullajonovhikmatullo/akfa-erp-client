@@ -15,8 +15,9 @@ import {
   productApi,
 } from '@/entities/product';
 import type { CreateProductPayload } from '@/entities/product';
+import { useBranches } from '@/entities/branch';
 import { ExcelImportButton } from '@/features/excel-import';
-import { getField } from '@/features/excel-import/lib/parseExcel';
+import { getField, hasMaxTwoDecimals, isUuid, parseExcelNumber } from '@/features/excel-import/lib/parseExcel';
 import { ProductFormModal } from '@/features/create-product';
 import { ProductDetailDrawer } from '@/widgets/product-detail';
 import { DataTable, StatusBadge, MoneyDisplay } from '@/shared/ui';
@@ -31,7 +32,7 @@ import { useT } from '@/shared/lib/i18n';
 
 export function ProductsPage() {
   const t = useT();
-  const { can } = useCurrentUser();
+  const { can, isSuper } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('products:create');
 
@@ -52,7 +53,23 @@ export function ProductsPage() {
   const total = result?.total ?? 0;
 
   const { data: categories = [] } = useCategories();
+  const { data: branches = [] } = useBranches();
   const deleteMutation = useDeleteProduct();
+  const defaultProductBranchId = branches[0]?.id ?? '';
+  const productImportHints = [
+    {
+      label: t('excel.hintsUnits'),
+      items: ['KG', 'PIECE'],
+    },
+    ...(categories.length > 0 ? [{
+      label: t('excel.hintsCategories'),
+      items: categories.map((c) => `${c.name}: ${c.id}`),
+    }] : []),
+    ...(isSuper && branches.length > 0 ? [{
+      label: t('common.branch'),
+      items: branches.map((b) => `${b.name}: ${b.id}`),
+    }] : []),
+  ];
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -235,25 +252,32 @@ export function ProductsPage() {
             <>
               <ExcelImportButton<CreateProductPayload>
                 entityLabel={t('nav.products')}
-                templateHeaders={['name', 'description', 'sku', 'unit', 'currency', 'costPrice', 'wholesalePrice', 'retailPrice']}
+                templateHeaders={[
+                  'name',
+                  'description',
+                  'sku',
+                  'unit',
+                  'categoryId',
+                  'branchId',
+                  'costPriceUzs',
+                  'retailPriceUzs',
+                  'wholesalePriceUzs',
+                  'costPriceUsd',
+                  'retailPriceUsd',
+                  'wholesalePriceUsd',
+                ]}
                 templateExamples={[
-                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', 'PIECE', "SO'M", '65000', '75000', '85000'],
-                  ['Mahsulot B', '', 'PRF-002', 'KG', 'USD', '9.00', '10.00', '12.50'],
+                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', 'PIECE', '', defaultProductBranchId, '65000', '85000', '75000', '', '', ''],
+                  ['Mahsulot B', '', 'PRF-002', 'KG', '', defaultProductBranchId, '0', '0', '0', '9.00', '12.50', '10.00'],
                 ]}
                 templateFileName="products_template.xlsx"
-                hints={[
-                  {
-                    label: t('excel.hintsCurrency'),
-                    items: ["SO'M", 'USD'],
-                  },
-                  {
-                    label: t('excel.hintsUnits'),
-                    items: ['KG', 'PIECE'],
-                  },
-                ]}
+                hints={productImportHints}
                 parseRow={(raw, index) => {
                   const name = getField(raw, 'name');
                   if (!name) return { index, raw, error: "Nomi kiritilishi shart" };
+                  if (name.length > 200) {
+                    return { index, raw, error: 'name 200 belgidan oshmasligi kerak' };
+                  }
 
                   const unitRaw = getField(raw, 'unit').toUpperCase();
                   const validUnits = ['KG', 'PIECE'];
@@ -269,45 +293,87 @@ export function ProductsPage() {
                     return { index, raw, error: `"${unitRaw}" noto'g'ri o'lchov birligi${hint}` };
                   }
 
-                  const currencyRaw = getField(raw, 'currency').toUpperCase().replace(/['\s]/g, '');
-                  const isUsd = currencyRaw === 'USD' || currencyRaw === '$';
-                  const isUzs = currencyRaw === 'SOM' || currencyRaw === 'UZS';
-                  if (!isUsd && !isUzs) {
-                    return { index, raw, error: "Valyuta noto'g'ri. SO'M yoki USD kiriting" };
-                  }
-
-                  const costPrice = Number(getField(raw, 'costPrice'));
-                  if (isNaN(costPrice) || costPrice < 0) {
-                    return { index, raw, error: "Tan narxi noto'g'ri kiritilgan" };
-                  }
-                  const wholesalePrice = Number(getField(raw, 'wholesalePrice'));
-                  if (isNaN(wholesalePrice) || wholesalePrice < 0) {
-                    return { index, raw, error: "Ulgurji narxi noto'g'ri kiritilgan" };
-                  }
-                  const retailPrice = Number(getField(raw, 'retailPrice'));
-                  if (isNaN(retailPrice) || retailPrice < 0) {
-                    return { index, raw, error: "Dona/KG narxi noto'g'ri kiritilgan" };
-                  }
-                  if (costPrice > wholesalePrice) {
-                    return { index, raw, error: "Tan narxi ulgurji narxdan oshmasligi kerak" };
-                  }
-                  if (wholesalePrice > retailPrice) {
-                    return { index, raw, error: "Ulgurji narxi dona/KG narxdan oshmasligi kerak" };
-                  }
-
                   const description = getField(raw, 'description') || undefined;
+                  if (description && description.length > 1000) {
+                    return { index, raw, error: 'description 1000 belgidan oshmasligi kerak' };
+                  }
+
                   const sku = getField(raw, 'sku') || undefined;
+                  if (sku && (sku.length > 100 || !/^[A-Za-z0-9_-]+$/.test(sku))) {
+                    return { index, raw, error: 'sku faqat harf, raqam, tire va pastki chiziqdan iborat bo\'lishi kerak' };
+                  }
+
+                  const categoryId = getField(raw, 'categoryId') || undefined;
+                  if (categoryId && !isUuid(categoryId)) {
+                    return { index, raw, error: 'categoryId UUID formatida bo\'lishi kerak' };
+                  }
+
+                  const branchId = getField(raw, 'branchId') || undefined;
+                  if (branchId && !isUuid(branchId)) {
+                    return { index, raw, error: 'branchId UUID formatida bo\'lishi kerak' };
+                  }
+
+                  const readPrice = (field: string, required: boolean) => {
+                    const rawValue = getField(raw, field);
+                    const value = parseExcelNumber(rawValue);
+                    if (required && value === undefined) return { error: `${field} kiritilishi shart` };
+                    if (rawValue && (value === undefined || !Number.isFinite(value))) {
+                      return { error: `${field} noto'g'ri kiritilgan` };
+                    }
+                    if (value !== undefined && value < 0) {
+                      return { error: `${field} manfiy bo'lishi mumkin emas` };
+                    }
+                    if (value !== undefined && !hasMaxTwoDecimals(value)) {
+                      return { error: `${field} ko'pi bilan 2 xonali kasr bo'lishi kerak` };
+                    }
+                    return { value };
+                  };
+
+                  const costPriceUzsResult = readPrice('costPriceUzs', true);
+                  if (costPriceUzsResult.error) return { index, raw, error: costPriceUzsResult.error };
+                  const retailPriceUzsResult = readPrice('retailPriceUzs', true);
+                  if (retailPriceUzsResult.error) return { index, raw, error: retailPriceUzsResult.error };
+                  const wholesalePriceUzsResult = readPrice('wholesalePriceUzs', true);
+                  if (wholesalePriceUzsResult.error) return { index, raw, error: wholesalePriceUzsResult.error };
+
+                  const costPriceUsdResult = readPrice('costPriceUsd', false);
+                  if (costPriceUsdResult.error) return { index, raw, error: costPriceUsdResult.error };
+                  const retailPriceUsdResult = readPrice('retailPriceUsd', false);
+                  if (retailPriceUsdResult.error) return { index, raw, error: retailPriceUsdResult.error };
+                  const wholesalePriceUsdResult = readPrice('wholesalePriceUsd', false);
+                  if (wholesalePriceUsdResult.error) return { index, raw, error: wholesalePriceUsdResult.error };
+
+                  const costPriceUzs = costPriceUzsResult.value!;
+                  const retailPriceUzs = retailPriceUzsResult.value!;
+                  const wholesalePriceUzs = wholesalePriceUzsResult.value!;
+                  const costPriceUsd = costPriceUsdResult.value;
+                  const retailPriceUsd = retailPriceUsdResult.value;
+                  const wholesalePriceUsd = wholesalePriceUsdResult.value;
+
+                  if (costPriceUzs > wholesalePriceUzs) {
+                    return { index, raw, error: "costPriceUzs wholesalePriceUzs dan oshmasligi kerak" };
+                  }
+                  if (wholesalePriceUzs > retailPriceUzs) {
+                    return { index, raw, error: "wholesalePriceUzs retailPriceUzs dan oshmasligi kerak" };
+                  }
+                  if (costPriceUsd !== undefined && wholesalePriceUsd !== undefined && costPriceUsd > wholesalePriceUsd) {
+                    return { index, raw, error: "costPriceUsd wholesalePriceUsd dan oshmasligi kerak" };
+                  }
+                  if (wholesalePriceUsd !== undefined && retailPriceUsd !== undefined && wholesalePriceUsd > retailPriceUsd) {
+                    return { index, raw, error: "wholesalePriceUsd retailPriceUsd dan oshmasligi kerak" };
+                  }
+
                   return {
                     index, raw,
                     data: {
-                      name, description, sku,
+                      name, description, sku, categoryId, branchId,
                       unit: unitRaw as CreateProductPayload['unit'],
-                      costPriceUzs: isUzs ? costPrice : 0,
-                      retailPriceUzs: isUzs ? retailPrice : 0,
-                      wholesalePriceUzs: isUzs ? wholesalePrice : 0,
-                      costPriceUsd: isUsd ? costPrice : undefined,
-                      retailPriceUsd: isUsd ? retailPrice : undefined,
-                      wholesalePriceUsd: isUsd ? wholesalePrice : undefined,
+                      costPriceUzs,
+                      retailPriceUzs,
+                      wholesalePriceUzs,
+                      costPriceUsd,
+                      retailPriceUsd,
+                      wholesalePriceUsd,
                     },
                   };
                 }}
