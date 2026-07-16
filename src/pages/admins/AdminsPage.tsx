@@ -11,7 +11,7 @@ import {
 import { toast } from 'sonner';
 import { useAdminsPage, useCreateAdmin, useUpdateAdmin, useDeleteAdmin } from '@/entities/user';
 import { useBranches } from '@/entities/branch';
-import { DataTable, StatusBadge } from '@/shared/ui';
+import { DataTable, SelectLoadingContent, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
@@ -32,7 +32,7 @@ export function AdminsPage() {
   const { data: result, isLoading, isFetching, refetch } = useAdminsPage(page, pageSize);
   const admins = result?.items ?? [];
   const total = result?.total ?? 0;
-  const { data: branches = [] } = useBranches();
+  const { data: branches = [], isLoading: branchesLoading } = useBranches();
 
   const createMutation = useCreateAdmin();
   const updateMutation = useUpdateAdmin();
@@ -312,6 +312,8 @@ export function AdminsPage() {
             <Select
               allowClear={!!editTarget}
               placeholder={t('admins.branchPlaceholder')}
+              loading={branchesLoading}
+              notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </Form.Item>

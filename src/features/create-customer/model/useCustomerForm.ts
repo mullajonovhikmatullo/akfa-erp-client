@@ -17,7 +17,7 @@ export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions)
   const t = useT();
   const isEdit = Boolean(customer?.id);
   const { isSuper, branchId } = useCurrentUser();
-  const { data: branches = [] } = useBranches();
+  const { data: branches = [], isLoading: branchesLoading } = useBranches();
 
   const schema = useMemo(() => createCustomerSchema(t), [t]);
 
@@ -83,5 +83,5 @@ export function useCustomerForm({ customer, onSuccess }: UseCustomerFormOptions)
     }
   });
 
-  return { form, onSubmit, isPending, isEdit, isSuper, branches };
+  return { form, onSubmit, isPending, isEdit, isSuper, branches, branchesLoading };
 }

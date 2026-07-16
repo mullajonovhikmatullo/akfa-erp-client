@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Select, InputNumber, Input, Empty, Spin, Table } from 'antd';
+import { Button, Select, InputNumber, Input, Empty, Table } from 'antd';
 import { PlusOutlined, DeleteOutlined, MinusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
 import { useBranches } from '@/entities/branch';
@@ -7,7 +7,7 @@ import { useCreateTransfer } from '@/entities/transfer';
 import { useInventoryRecords } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
-import { AppModal, EllipsisText, MoneyDisplay } from '@/shared/ui';
+import { AppModal, EllipsisText, MoneyDisplay, SelectLoadingContent } from '@/shared/ui';
 import { type Product } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
 import { getProductPriceUzs } from '@/shared/lib/productPricing';
@@ -33,7 +33,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   const { isSuper, branchId: userBranchId } = useCurrentUser();
   const exchangeRate = useUIStore((s) => s.exchangeRate);
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
-  const { data: branches = [] } = useBranches();
+  const { data: branches = [], isLoading: branchesLoading } = useBranches();
   const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true });
   const createTransfer = useCreateTransfer();
 
@@ -215,6 +215,8 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
                 onChange={handleFromBranchChange}
                 placeholder={t('transferModal.placeholderBranch')}
                 style={{ width: '100%' }}
+                loading={branchesLoading}
+                notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
                 options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
               />
             ) : (
@@ -230,6 +232,8 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
               onChange={setToBranchId}
               placeholder={t('transferModal.placeholderBranch')}
               style={{ width: '100%' }}
+              loading={branchesLoading}
+              notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
               options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
             />
           </div>
@@ -247,13 +251,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
             loading={productSelectLoading}
             suffixIcon={productSelectLoading ? undefined : <PlusOutlined />}
             disabled={!sourceBranchId}
-            notFoundContent={
-              productSelectLoading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: 12 }}>
-                  <Spin size="small" />
-                </div>
-              ) : undefined
-            }
+            notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
             options={transferableProducts
               .filter((p) => p.isActive && !cart.find((i) => i.productId === p.id))
               .map((p) => {

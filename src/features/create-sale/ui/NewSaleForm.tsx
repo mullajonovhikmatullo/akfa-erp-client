@@ -9,7 +9,7 @@ import { useStockBatches } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
 import { CustomerFormModal } from '@/features/create-customer';
-import { MoneyDisplay } from '@/shared/ui';
+import { MoneyDisplay, SelectLoadingContent } from '@/shared/ui';
 import {
   PAYMENT_METHOD_LABELS,
   type SaleType,
@@ -36,8 +36,8 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
   const exchangeRate = useUIStore((s) => s.exchangeRate);
 
   const branchFilter = userBranchId ?? undefined;
-  const { data: products = [] } = useProducts({ isActive: true });
-  const { data: batches = [] } = useStockBatches(
+  const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true });
+  const { data: batches = [], isLoading: batchesLoading } = useStockBatches(
     branchFilter ? { branchId: branchFilter, depleted: false } : undefined,
     { enabled: Boolean(branchFilter) },
   );
@@ -45,7 +45,8 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
     isActive: true,
     ...(branchFilter ? { branchId: branchFilter } : {}),
   };
-  const { data: customers = [], refetch: refetchCustomers } = useCustomers(customerFilters);
+  const { data: customers = [], isLoading: customersLoading, refetch: refetchCustomers } = useCustomers(customerFilters);
+  const productSelectLoading = Boolean(branchFilter) && (productsLoading || batchesLoading);
 
   const createSale = useCreateSale();
 
@@ -224,6 +225,8 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                 onChange={setCustomerId}
                 placeholder={t('newSale.customerPlaceholder')}
                 style={{ width: '100%' }}
+                loading={customersLoading}
+                notFoundContent={customersLoading ? <SelectLoadingContent /> : undefined}
                 options={customers.map((c) => ({
                   value: c.id,
                   label: c.phone ? `${c.fullName} · ${c.phone}` : c.fullName,
@@ -246,7 +249,9 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
             onChange={addToCart}
             placeholder={t('newSale.productSearchPlaceholder')}
             style={{ width: '100%' }}
-            suffixIcon={<PlusOutlined />}
+            loading={productSelectLoading}
+            suffixIcon={productSelectLoading ? undefined : <PlusOutlined />}
+            notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
             options={sellableProducts
               .filter((p) => !selectedProductIds.has(p.id))
               .map((p) => {

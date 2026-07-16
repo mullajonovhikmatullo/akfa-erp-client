@@ -11,7 +11,7 @@ import {
 import { toast } from 'sonner';
 import { useBranchesPage, useCreateBranch, useUpdateBranch, useDeleteBranch } from '@/entities/branch';
 import { useUsers, useAssignBranch, useCurrentUser } from '@/entities/user';
-import { DataTable, StatusBadge } from '@/shared/ui';
+import { DataTable, SelectLoadingContent, StatusBadge } from '@/shared/ui';
 import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
@@ -26,7 +26,7 @@ export function BranchesPage() {
   const { data: result, isLoading, isFetching, refetch } = useBranchesPage(page, pageSize);
   const branches = result?.items ?? [];
   const total = result?.total ?? 0;
-  const { data: users = [] } = useUsers();
+  const { data: users = [], isLoading: usersLoading } = useUsers();
   const { user: currentUser, isSuper } = useCurrentUser();
 
   const createMutation = useCreateBranch();
@@ -324,6 +324,8 @@ export function BranchesPage() {
             <Select
               allowClear
               placeholder={t('branches.assignPlaceholder')}
+              loading={usersLoading}
+              notFoundContent={usersLoading ? <SelectLoadingContent /> : undefined}
               options={[
                 ...unassignedAdmins.map((u) => ({ value: u.id, label: `${u.name} (@${u.username})` })),
                 ...branchAdmins

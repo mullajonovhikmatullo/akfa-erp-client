@@ -6,7 +6,7 @@ import { useBranches } from '@/entities/branch';
 import { useStockInBatch } from '@/entities/inventory';
 import { useCurrentUser } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
-import { AppModal, EllipsisText, MoneyDisplay } from '@/shared/ui';
+import { AppModal, EllipsisText, MoneyDisplay, SelectLoadingContent } from '@/shared/ui';
 import type { Product } from '@/shared/types/domain';
 import { useT } from '@/shared/lib/i18n';
 import { getProductPrice, getProductPriceUzs } from '@/shared/lib/productPricing';
@@ -32,8 +32,8 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
   const { isSuper, branchId: userBranchId } = useCurrentUser();
   const exchangeRate = useUIStore((s) => s.exchangeRate);
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1;
-  const { data: branches = [] } = useBranches();
-  const { data: products = [] } = useProducts({ isActive: true });
+  const { data: branches = [], isLoading: branchesLoading } = useBranches();
+  const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true });
   const stockInBatch = useStockInBatch();
 
   const defaultBranchId = useMemo(() => {
@@ -151,6 +151,8 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
               onChange={setBranchId}
               placeholder={t('stockIn.placeholderBranch')}
               style={{ width: 280 }}
+              loading={branchesLoading}
+              notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
               options={branches.map((b) => ({ value: b.id, label: b.name }))}
             />
           </div>
@@ -166,7 +168,9 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
             value={null}
             placeholder={t('stockIn.placeholderSearch')}
             style={{ width: '100%' }}
-            suffixIcon={<PlusOutlined />}
+            loading={productsLoading}
+            suffixIcon={productsLoading ? undefined : <PlusOutlined />}
+            notFoundContent={productsLoading ? <SelectLoadingContent /> : undefined}
             options={products
               .filter((p) => p.isActive && !cart.find((i) => i.productId === p.id))
               .map((p) => ({

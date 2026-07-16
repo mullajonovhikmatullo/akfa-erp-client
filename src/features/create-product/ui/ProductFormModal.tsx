@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Select, Switch, Button, Segmented } from 'ant
 import { useCategories } from '@/entities/product';
 import { useBranches } from '@/entities/branch';
 import { useCurrentUser } from '@/entities/user';
-import { AppModal } from '@/shared/ui';
+import { AppModal, SelectLoadingContent } from '@/shared/ui';
 import type { Product, ProductUnit } from '@/shared/types/domain';
 import { useProductForm } from '../model/useProductForm';
 import { useT } from '@/shared/lib/i18n';
@@ -141,6 +141,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                 <Select
                   {...field}
                   loading={catsLoading}
+                  notFoundContent={catsLoading ? <SelectLoadingContent /> : undefined}
                   options={categories.map((c) => ({ value: c.id, label: c.name }))}
                   placeholder={t('productForm.placeholderCategory')}
                 />
@@ -177,6 +178,7 @@ export function ProductFormModal({ open, product, onClose }: ProductFormModalPro
                 <Select
                   {...field}
                   loading={branchesLoading}
+                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
                   options={branches.map((b) => ({ value: b.id, label: b.name }))}
                   placeholder={t('productForm.placeholderBranch')}
                 />

@@ -1,6 +1,6 @@
 import { Controller } from 'react-hook-form';
 import { Form, Input, Switch, Select, InputNumber, Radio } from 'antd';
-import { AppModal } from '@/shared/ui';
+import { AppModal, SelectLoadingContent } from '@/shared/ui';
 import { Button } from 'antd';
 import type { Customer } from '@/shared/types/domain';
 import { useCustomerForm } from '../model/useCustomerForm';
@@ -16,7 +16,7 @@ interface CustomerFormModalProps {
 
 export function CustomerFormModal({ open, customer, onClose, onCreated }: CustomerFormModalProps) {
   const t = useT();
-  const { form, onSubmit, isPending, isEdit, isSuper, branches } = useCustomerForm({
+  const { form, onSubmit, isPending, isEdit, isSuper, branches, branchesLoading } = useCustomerForm({
     customer,
     onSuccess: (savedCustomer) => {
       onCreated?.(savedCustomer);
@@ -55,6 +55,8 @@ export function CustomerFormModal({ open, customer, onClose, onCreated }: Custom
               >
                 <Select
                   {...field}
+                  loading={branchesLoading}
+                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
                   placeholder={t('customerForm.placeholderBranch')}
                   options={branches.map((b) => ({ value: b.id, label: b.name }))}
                 />

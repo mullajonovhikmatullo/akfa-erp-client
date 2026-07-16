@@ -83,4 +83,5 @@ export { BranchName } from './ui/BranchName/BranchName.tsx';
 export { EllipsisText } from './ui/EllipsisText/EllipsisText.tsx';
 export { FormField } from './ui/FormField/FormField.tsx';
 export { MoneyDisplay } from './ui/MoneyDisplay/MoneyDisplay.tsx';
+export { SelectLoadingContent } from './ui/SelectLoadingContent/SelectLoadingContent.tsx';
 export { StatusBadge } from './ui/StatusBadge/StatusBadge.tsx';

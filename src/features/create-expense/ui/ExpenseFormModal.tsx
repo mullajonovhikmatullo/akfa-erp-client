@@ -5,7 +5,7 @@ import { Form, InputNumber, Select, Input, DatePicker, Button } from 'antd';
 import dayjs from 'dayjs';
 import { useCreateExpense, useExpenseCategories } from '@/entities/expense';
 import { useSel } from '@/app/store.jsx';
-import { AppModal } from '@/shared/ui';
+import { AppModal, SelectLoadingContent } from '@/shared/ui';
 import { createExpenseSchema, type ExpenseFormValues } from '../validation/expenseSchema';
 import { useT } from '@/shared/lib/i18n';
 import { blockAutofill } from '@/shared/lib/autofill';
@@ -95,6 +95,7 @@ export function ExpenseFormModal({ open, onClose }: ExpenseFormModalProps) {
               <Select
                 {...field}
                 loading={catsLoading}
+                notFoundContent={catsLoading ? <SelectLoadingContent /> : undefined}
                 placeholder={t('expenseForm.placeholderCategory')}
                 options={categories.map((c) => ({ value: c.id, label: c.name }))}
               />

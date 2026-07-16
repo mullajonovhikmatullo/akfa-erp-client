@@ -5,4 +5,5 @@ export { BranchName } from './BranchName/BranchName';
 export { EllipsisText } from './EllipsisText/EllipsisText';
 export { FormField } from './FormField/FormField';
 export { MoneyDisplay } from './MoneyDisplay/MoneyDisplay';
+export { SelectLoadingContent } from './SelectLoadingContent/SelectLoadingContent';
 export { StatusBadge } from './StatusBadge/StatusBadge';
