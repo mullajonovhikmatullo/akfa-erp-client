@@ -8,6 +8,7 @@ export const inventoryKeys = {
   all: ['inventory'] as const,
   list: (filters?: InventoryFilters) => [...inventoryKeys.all, 'list', filters] as const,
   batches: (filters?: BatchFilters) => [...inventoryKeys.all, 'batches', filters] as const,
+  batchSummary: () => [...inventoryKeys.all, 'batches', 'summary'] as const,
   batchesPaginated: (page: number, pageSize: number, filters?: BatchFilters) =>
     [...inventoryKeys.all, 'batches', 'paginated', page, pageSize, filters] as const,
 };
@@ -25,6 +26,14 @@ export function useStockBatches(filters?: BatchFilters, options?: { enabled?: bo
     queryKey: inventoryKeys.batches(filters),
     queryFn: () => inventoryApi.listBatches(filters),
     enabled: options?.enabled ?? true,
+  });
+}
+
+export function useStockBatchSummary() {
+  return useQuery({
+    queryKey: inventoryKeys.batchSummary(),
+    queryFn: inventoryApi.batchSummary,
+    staleTime: 2 * 60 * 1000,
   });
 }
 

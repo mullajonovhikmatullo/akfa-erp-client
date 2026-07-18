@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, Modal, Form, Input, Switch, Popconfirm, Tooltip, Tag } from 'antd';
 import {
   PlusOutlined,
@@ -12,6 +13,7 @@ import { ExcelImportButton } from '@/features/excel-import';
 import { getField } from '@/features/excel-import/lib/parseExcel';
 import {
   useCategoriesPage,
+  useCategorySummary,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
@@ -32,13 +34,20 @@ type CategoryFormValues = {
 };
 
 type CategoryStatusFilter = 'all' | 'active' | 'inactive';
+type CategoryFiltersForm = {
+  status: CategoryStatusFilter;
+};
 
 export function CategoriesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
-  const [statusFilter, setStatusFilter] = useState<CategoryStatusFilter>('all');
+  const { setValue: setFilterValue, watch: watchFilters } = useForm<CategoryFiltersForm>({
+    defaultValues: { status: 'all' },
+  });
+  const statusFilter = watchFilters('status');
   const isActiveFilter = statusFilter === 'all' ? undefined : statusFilter === 'active';
   const { data: result, isLoading, isFetching, refetch } = useCategoriesPage(page, pageSize, isActiveFilter);
+  const { data: summary, refetch: refetchSummary } = useCategorySummary();
   const categories = result?.items ?? [];
   const filteredTotal = result?.total ?? 0;
 
@@ -46,19 +55,30 @@ export function CategoriesPage() {
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
 
-  const [form] = Form.useForm<CategoryFormValues>();
+  const {
+    control: categoryControl,
+    handleSubmit: handleCategorySubmit,
+    reset: resetCategoryForm,
+    formState: { errors: categoryErrors },
+  } = useForm<CategoryFormValues>({
+    defaultValues: {
+      name: '',
+      description: '',
+      isActive: true,
+    },
+  });
   const [editTarget, setEditTarget] = useState<Category | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   function openCreate() {
     setEditTarget(null);
-    form.resetFields();
+    resetCategoryForm({ name: '', description: '', isActive: true });
     setModalOpen(true);
   }
 
   function openEdit(cat: Category) {
     setEditTarget(cat);
-    form.setFieldsValue({
+    resetCategoryForm({
       name: cat.name,
       description: cat.description ?? '',
       isActive: cat.isActive,
@@ -66,9 +86,7 @@ export function CategoriesPage() {
     setModalOpen(true);
   }
 
-  async function handleSubmit() {
-    const values = await form.validateFields();
-
+  function submitCategoryForm(values: CategoryFormValues) {
     if (editTarget) {
       const payload: UpdateCategoryPayload = {
         name: values.name,
@@ -96,9 +114,14 @@ export function CategoriesPage() {
     }
   }
 
-  const active = result?.totalActive ?? 0;
-  const inactive = result?.totalInactive ?? 0;
+  const active = summary?.totalActive ?? 0;
+  const inactive = summary?.totalInactive ?? 0;
   const totalCategories = active + inactive;
+
+  function handleRefresh() {
+    refetch();
+    refetchSummary();
+  }
 
   const columns = [
     {
@@ -202,7 +225,7 @@ export function CategoriesPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={handleRefresh} />
           </Tooltip>
           <ExcelImportButton<CreateCategoryPayload>
             entityLabel={t('nav.categories')}
@@ -220,7 +243,10 @@ export function CategoriesPage() {
               return { index, raw, data: { name, description } };
             }}
             createFn={(data) => categoryApi.create(data)}
-            onComplete={() => refetch()}
+            onComplete={() => {
+              refetch();
+              refetchSummary();
+            }}
           />
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
             {t('categories.newCategory')}
@@ -255,14 +281,22 @@ export function CategoriesPage() {
           dataSource={categories}
           columns={columns}
           loading={isLoading}
-          onChange={(_, filters) => {
+          onChange={(pagination, filters, _sorter, extra) => {
             const selectedStatus = filters.isActive?.[0];
             const nextStatus =
               selectedStatus === 'active' || selectedStatus === 'inactive'
                 ? selectedStatus
                 : 'all';
-            setStatusFilter(nextStatus);
-            onPageChange(1, pageSize);
+            const nextPageSize = pagination.pageSize ?? pageSize;
+            const nextPage =
+              extra.action === 'filter' && nextStatus !== statusFilter
+                ? 1
+                : pagination.current ?? page;
+
+            if (nextStatus !== statusFilter) {
+              setFilterValue('status', nextStatus);
+            }
+            onPageChange(nextPage, nextPageSize);
           }}
           pagination={{ current: page, pageSize, total: filteredTotal, onChange: onPageChange, showSizeChanger: true, showTotal: (n) => `${n} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
           emptyText={t('categories.empty')}
@@ -278,37 +312,74 @@ export function CategoriesPage() {
         }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
-        onOk={handleSubmit}
+        onOk={handleCategorySubmit(submitCategoryForm)}
         okText={editTarget ? t('common.save') : t('common.create')}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
         width={440}
       >
-        <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+        <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
           <Form.Item
-            name="name"
             label={t('common.name')}
-            rules={[{ required: true, message: t('categories.nameRequired') }, { max: 100 }]}
+            required
+            validateStatus={categoryErrors.name ? 'error' : undefined}
+            help={categoryErrors.name?.message}
           >
-            <Input
-              {...blockAutofill('akfa-category-name')}
-              placeholder={t('categories.namePlaceholder')}
+            <Controller
+              name="name"
+              control={categoryControl}
+              rules={{
+                required: t('categories.nameRequired'),
+                maxLength: { value: 100, message: 'name 100 belgidan oshmasligi kerak' },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-category-name')}
+                  placeholder={t('categories.namePlaceholder')}
+                />
+              )}
             />
           </Form.Item>
 
-          <Form.Item name="description" label={t('common.description')}>
-            <Input.TextArea
-              {...blockAutofill('akfa-category-description')}
-              placeholder={t('categories.descPlaceholder')}
-              rows={3}
-              maxLength={500}
-              showCount
+          <Form.Item
+            label={t('common.description')}
+            validateStatus={categoryErrors.description ? 'error' : undefined}
+            help={categoryErrors.description?.message}
+          >
+            <Controller
+              name="description"
+              control={categoryControl}
+              rules={{
+                maxLength: { value: 500, message: 'description 500 belgidan oshmasligi kerak' },
+              }}
+              render={({ field }) => (
+                <Input.TextArea
+                  {...field}
+                  {...blockAutofill('akfa-category-description')}
+                  placeholder={t('categories.descPlaceholder')}
+                  rows={3}
+                  maxLength={500}
+                  showCount
+                />
+              )}
             />
           </Form.Item>
 
           {editTarget && (
-            <Form.Item name="isActive" label={t('common.status')} valuePropName="checked">
-              <Switch checkedChildren={t('common.active')} unCheckedChildren={t('common.inactive')} />
+            <Form.Item label={t('common.status')}>
+              <Controller
+                name="isActive"
+                control={categoryControl}
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value ?? true}
+                    onChange={field.onChange}
+                    checkedChildren={t('common.active')}
+                    unCheckedChildren={t('common.inactive')}
+                  />
+                )}
+              />
             </Form.Item>
           )}
         </Form>

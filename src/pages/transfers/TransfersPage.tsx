@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, Select, Popconfirm, Tooltip, Table, Modal, Alert } from 'antd';
 import {
   SwapOutlined,
@@ -27,16 +28,23 @@ const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
   CANCELLED: 'danger',
 };
 
+type TransferFiltersForm = {
+  status?: TransferStatus;
+};
+
 export function TransfersPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const { isSuper, branchId: userBranchId, user } = useCurrentUser();
+  const { control, watch } = useForm<TransferFiltersForm>({
+    defaultValues: { status: undefined },
+  });
+  const filters = watch();
   const [creating, setCreating] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<TransferStatus | undefined>();
   const [confirmingTransfer, setConfirmingTransfer] = useState<Transfer | null>(null);
 
   const { data: transfers = [], isLoading, isFetching, refetch } = useTransfers({
-    status: statusFilter,
+    status: filters.status,
     limit: 100,
   });
 
@@ -199,13 +207,19 @@ export function TransfersPage() {
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Toolbar */}
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
-          <Select
-            value={statusFilter}
-            onChange={setStatusFilter}
-            allowClear
-            placeholder={t('transfers.filterAll')}
-            style={{ minWidth: 180 }}
-            options={STATUS_OPTIONS}
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onChange={field.onChange}
+                allowClear
+                placeholder={t('transfers.filterAll')}
+                style={{ minWidth: 180 }}
+                options={STATUS_OPTIONS}
+              />
+            )}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
             <strong>{transfers.length}</strong> {t('common.resultsSuffix')}

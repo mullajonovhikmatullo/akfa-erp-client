@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { parseExcelFile, downloadTemplate, getField } from '../lib/parseExcel';
 import { useT } from '@/shared/lib/i18n';
 import type { ApiError } from '@/shared/types/api';
+import type { TemplateHint } from '../lib/parseExcel';
 
 export interface ParsedRow<T> {
   index: number;
@@ -29,7 +30,8 @@ export interface ExcelImportButtonProps<T> {
   createFn: (data: T) => Promise<unknown>;
   onComplete?: () => void;
   disabled?: boolean;
-  hints?: { label: string; items: string[] }[];
+  disabledReason?: string;
+  hints?: TemplateHint[];
 }
 
 type Phase = 'idle' | 'setup' | 'preview' | 'importing' | 'done';
@@ -55,6 +57,7 @@ export function ExcelImportButton<T>({
   createFn,
   onComplete,
   disabled,
+  disabledReason,
   hints,
 }: ExcelImportButtonProps<T>) {
   const t = useT();
@@ -168,15 +171,23 @@ export function ExcelImportButton<T>({
     },
   ];
 
+  const importTrigger = (
+    <Button
+      icon={<UploadOutlined />}
+      disabled={disabled}
+      onClick={() => setPhase('setup')}
+    >
+      {t('excel.importButton')}
+    </Button>
+  );
+
   return (
     <>
-      <Button
-        icon={<UploadOutlined />}
-        disabled={disabled}
-        onClick={() => setPhase('setup')}
-      >
-        {t('excel.importButton')}
-      </Button>
+      {disabled && disabledReason ? (
+        <Tooltip title={disabledReason}>
+          <span>{importTrigger}</span>
+        </Tooltip>
+      ) : importTrigger}
 
       <Modal
         title={`${entityLabel} — ${t('excel.modalTitle')}`}
@@ -192,7 +203,7 @@ export function ExcelImportButton<T>({
             <Button
               key="tpl"
               icon={<DownloadOutlined />}
-              onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName)}
+              onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}
             >
               {t('excel.downloadTemplate')}
             </Button>,
@@ -225,7 +236,7 @@ export function ExcelImportButton<T>({
               </div>
               <Button
                 icon={<DownloadOutlined />}
-                onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName)}
+                onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}
               >
                 {t('excel.downloadTemplate')}
               </Button>

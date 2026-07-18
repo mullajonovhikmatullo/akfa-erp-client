@@ -135,7 +135,10 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
   position:relative; overflow:hidden;
 }
 .kpi .label{ color:var(--ink-3); font-size:12px; font-weight:500; letter-spacing:.02em; text-transform:uppercase; }
-.kpi .value{ font-size:24px; font-weight:700; letter-spacing:-0.015em; color:var(--ink); }
+.kpi .value{ font-size:30px; line-height:1.05; font-weight:800; letter-spacing:0; color:var(--ink); }
+.kpi .value .num{ font-size:inherit; line-height:inherit; font-weight:inherit; }
+.money-currency{ font-size:.78em; font-weight:600; opacity:.78; }
+.kpi .value .money-currency{ font-size:.68em; line-height:1; font-weight:700; }
 .kpi .delta{ font-size:12px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
 .kpi .delta.up{ color:var(--success); }
 .kpi .delta.down{ color:var(--danger); }
@@ -239,7 +242,8 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
 }
 .tagpill.success{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
 .tagpill.danger{ background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
-.tagpill.warn{ background:#fffbeb; color:#b45309; border-color:#fde68a; }
+.tagpill.warn,
+.tagpill.warning{ background:#fffbeb; color:#b45309; border-color:#fde68a; }
 .tagpill.info{ background:#eff6ff; color:#1e40af; border-color:#bfdbfe; }
 .tagpill.muted{ background:#f1f5f9; color:#475569; }
 
@@ -424,7 +428,7 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
   .ant-drawer-content-wrapper{ max-width:100vw !important; }
 
   /* KPI card font */
-  .kpi .value{ font-size:20px; }
+  .kpi .value{ font-size:24px; }
 
   /* Card padding */
   .card{ padding:14px 14px; }
@@ -694,7 +698,7 @@ body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1;
+  line-height: 1.25;
 }
 
 /* ─── Star / favourite toggle ────────────────────────────────────────────── */
@@ -908,7 +912,8 @@ html.dark .tagpill {
 }
 html.dark .tagpill.success { background: rgba(34,197,94,.1); color: #4ade80; border-color: rgba(34,197,94,.25); }
 html.dark .tagpill.danger  { background: rgba(239,68,68,.1); color: #f87171; border-color: rgba(239,68,68,.25); }
-html.dark .tagpill.warn    { background: rgba(245,158,11,.1); color: #fbbf24; border-color: rgba(245,158,11,.25); }
+html.dark .tagpill.warn,
+html.dark .tagpill.warning { background: rgba(245,158,11,.1); color: #fbbf24; border-color: rgba(245,158,11,.25); }
 html.dark .tagpill.info    { background: rgba(79,124,255,.1); color: #93c5fd; border-color: rgba(79,124,255,.25); }
 
 /* ─── Dark KPI & cards ───────────────────────────────────────────────────── */

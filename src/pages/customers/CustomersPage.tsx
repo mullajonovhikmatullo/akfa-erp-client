@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Popconfirm, Select, Tooltip } from 'antd';
 import {
   PlusOutlined,
@@ -29,20 +30,30 @@ import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
+type CustomerFiltersForm = {
+  search: string;
+  balance: BalanceFilter;
+};
+
 export function CustomersPage() {
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
   const { can, isSuper } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
   const canManage = can('customers:create');
+  const { control, watch } = useForm<CustomerFiltersForm>({
+    defaultValues: {
+      search: '',
+      balance: getInitialBalanceFilter(searchParams.get('balance')),
+    },
+  });
+  const filters = watch();
 
-  const [search, setSearch] = useState('');
-  const [balanceFilter, setBalanceFilter] = useState<BalanceFilter>(() => getInitialBalanceFilter(searchParams.get('balance')));
   const [drawerCustomer, setDrawerCustomer] = useState<Customer | null>(null);
   const [editCustomer, setEditCustomer] = useState<Customer | null | undefined>(undefined);
 
   const { data: customers = [], isLoading, isFetching, refetch } = useCustomers({
-    search: search || undefined,
+    search: filters.search || undefined,
   });
   const { data: branches = [] } = useBranches();
   const defaultCustomerBranchId = branches[0]?.id ?? '';
@@ -52,14 +63,13 @@ export function CustomersPage() {
   const totalDebt = customers.reduce((sum, c) => sum + (c.balance > 0 ? c.balance : 0), 0);
   const totalCredit = customers.reduce((sum, c) => sum + (c.balance < 0 ? -c.balance : 0), 0);
   const filteredCustomers = useMemo(() => customers.filter((customer) => {
-    if (balanceFilter === 'debt') return customer.balance > 0;
-    if (balanceFilter === 'credit') return customer.balance < 0;
-    if (balanceFilter === 'zero') return customer.balance === 0;
+    if (filters.balance === 'debt') return customer.balance > 0;
+    if (filters.balance === 'credit') return customer.balance < 0;
+    if (filters.balance === 'zero') return customer.balance === 0;
     return true;
-  }), [balanceFilter, customers]);
+  }), [filters.balance, customers]);
 
-  const handleBalanceFilterChange = (value: BalanceFilter) => {
-    setBalanceFilter(value);
+  const syncBalanceFilterParam = (value: BalanceFilter) => {
     const next = new URLSearchParams(searchParams);
     if (value === 'all') {
       next.delete('balance');
@@ -317,24 +327,39 @@ export function CustomersPage() {
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Toolbar */}
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
-          <Input
-            prefix={<SearchOutlined />}
-            placeholder={t('customers.searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            allowClear
-            style={{ maxWidth: 320 }}
+          <Controller
+            name="search"
+            control={control}
+            render={({ field }) => (
+              <Input
+                prefix={<SearchOutlined />}
+                placeholder={t('customers.searchPlaceholder')}
+                value={field.value}
+                onChange={(e) => field.onChange(e.target.value)}
+                allowClear
+                style={{ maxWidth: 320 }}
+              />
+            )}
           />
-          <Select<BalanceFilter>
-            value={balanceFilter}
-            onChange={handleBalanceFilterChange}
-            style={{ width: 190 }}
-            options={[
-              { value: 'all', label: t('customers.filterAllBalances') },
-              { value: 'debt', label: t('customers.filterDebt') },
-              { value: 'credit', label: t('customers.filterCredit') },
-              { value: 'zero', label: t('customers.filterZero') },
-            ]}
+          <Controller
+            name="balance"
+            control={control}
+            render={({ field }) => (
+              <Select<BalanceFilter>
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  syncBalanceFilterParam(value);
+                }}
+                style={{ width: 190 }}
+                options={[
+                  { value: 'all', label: t('customers.filterAllBalances') },
+                  { value: 'debt', label: t('customers.filterDebt') },
+                  { value: 'credit', label: t('customers.filterCredit') },
+                  { value: 'zero', label: t('customers.filterZero') },
+                ]}
+              />
+            )}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
             <strong>{filteredCustomers.length}</strong> {t('common.resultsSuffix')}

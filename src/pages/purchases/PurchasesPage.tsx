@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, DatePicker, Select, Tooltip } from 'antd';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import dayjs, { type Dayjs } from 'dayjs';
-import { useStockBatchesPage } from '@/entities/inventory';
+import { useStockBatchesPage, useStockBatchSummary } from '@/entities/inventory';
 import { useBranches } from '@/entities/branch';
 import { StockInModal } from '@/features/stock-in';
 import { BranchName, DataTable, EllipsisText, MoneyDisplay } from '@/shared/ui';
@@ -13,12 +14,24 @@ import { formatDateTime } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
+type PurchaseFiltersForm = {
+  depleted?: string;
+  dateRange: [Dayjs | null, Dayjs | null];
+};
+
 export function PurchasesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
+  const { control, watch } = useForm<PurchaseFiltersForm>({
+    defaultValues: {
+      depleted: undefined,
+      dateRange: [null, null],
+    },
+  });
+  const filters = watch();
   const [creating, setCreating] = useState(false);
-  const [depletedFilter, setDepletedFilter] = useState<boolean | undefined>();
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null]);
+  const depletedFilter = filters.depleted === undefined ? undefined : filters.depleted === 'true';
+  const dateRange = filters.dateRange;
   const dateFilters = {
     from: dateRange[0]?.startOf('day').toISOString(),
     to: dateRange[1]?.endOf('day').toISOString(),
@@ -27,13 +40,14 @@ export function PurchasesPage() {
   const { data: result, isLoading, isFetching, refetch } = useStockBatchesPage(
     page, pageSize, { depleted: depletedFilter, ...dateFilters }
   );
+  const { data: summary } = useStockBatchSummary();
   const { data: branches = [] } = useBranches();
   const batches = result?.items ?? [];
   const total = result?.total ?? 0;
-  const totalBatches = result?.totalBatches ?? 0;
-  const activeBatches = result?.totalActive ?? 0;
-  const totalCost = result?.totalCostUzs ?? 0;
-  const totalRemainingValue = result?.totalRemainingValueUzs ?? 0;
+  const totalBatches = summary?.totalBatches ?? 0;
+  const activeBatches = summary?.totalActive ?? 0;
+  const totalCost = summary?.totalCostUzs ?? 0;
+  const totalRemainingValue = summary?.totalRemainingValueUzs ?? 0;
   const branchNameById = useMemo(
     () => new Map(branches.map((branch) => [branch.id, branch.name])),
     [branches],
@@ -42,16 +56,6 @@ export function PurchasesPage() {
   function getSupplierNote(note: string | null) {
     if (!note) return null;
     return branchNameById.get(note) ?? note;
-  }
-
-  function handleDepletedChange(v: string | undefined) {
-    setDepletedFilter(v === undefined ? undefined : v === 'true');
-    onPageChange(1, pageSize);
-  }
-
-  function handleDateRangeChange(values: [Dayjs | null, Dayjs | null] | null) {
-    setDateRange(values ?? [null, null]);
-    onPageChange(1, pageSize);
   }
 
   const columns: ColumnDef<StockBatch>[] = [
@@ -218,28 +222,46 @@ export function PurchasesPage() {
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Toolbar */}
         <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Select
-            value={depletedFilter === undefined ? undefined : String(depletedFilter)}
-            onChange={handleDepletedChange}
-            allowClear
-            placeholder={t('purchases.filterAll')}
-            style={{ minWidth: 180 }}
-            options={[
-              { value: 'false', label: t('purchases.filterActive') },
-              { value: 'true', label: t('purchases.depleted') },
-            ]}
+          <Controller
+            name="depleted"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onChange={(value) => {
+                  field.onChange(value);
+                  onPageChange(1, pageSize);
+                }}
+                allowClear
+                placeholder={t('purchases.filterAll')}
+                style={{ minWidth: 180 }}
+                options={[
+                  { value: 'false', label: t('purchases.filterActive') },
+                  { value: 'true', label: t('purchases.depleted') },
+                ]}
+              />
+            )}
           />
-          <DatePicker.RangePicker
-            value={dateRange}
-            onChange={handleDateRangeChange}
-            allowClear
-            format="YYYY-MM-DD"
-            placeholder={[t('common.startDate'), t('common.endDate')]}
-            presets={[
-              { label: t('common.today'), value: [dayjs(), dayjs()] },
-              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
-            ]}
-            style={{ minWidth: 260 }}
+          <Controller
+            name="dateRange"
+            control={control}
+            render={({ field }) => (
+              <DatePicker.RangePicker
+                value={field.value}
+                onChange={(values) => {
+                  field.onChange(values ?? [null, null]);
+                  onPageChange(1, pageSize);
+                }}
+                allowClear
+                format="YYYY-MM-DD"
+                placeholder={[t('common.startDate'), t('common.endDate')]}
+                presets={[
+                  { label: t('common.today'), value: [dayjs(), dayjs()] },
+                  { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
+                ]}
+                style={{ minWidth: 260 }}
+              />
+            )}
           />
           <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
             <strong>{total}</strong> {t('common.resultsSuffix')}

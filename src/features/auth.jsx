@@ -2,7 +2,7 @@
  * features/auth.jsx — Login screen with role pick.
  */
 
-import { useState } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
 import { useSel, useDispatch } from '../app/store.jsx';
@@ -13,17 +13,21 @@ const LoginScreen = ({ onAuthed }) => {
   const users = useSel(s => s.users);
   const branches = useSel(s => s.branches);
   const dispatch = useDispatch();
-  const [selected, setSelected] = useState("u-1");
-  const [pwd, setPwd] = useState("••••••••");
+  const { control, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      selected: "u-1",
+      pwd: "••••••••",
+    },
+  });
+  const selected = useWatch({ control, name: "selected" });
   const t = useT();
 
-  const submit = (e) => {
-    e?.preventDefault();
+  const submit = handleSubmit(({ selected }) => {
     const user = users.find(u => u.id === selected);
     if (!user) return;
     dispatch({ type: "auth/login", user });
     onAuthed && onAuthed(user);
-  };
+  });
 
   const branchName = (id) => branches.find(b => b.id === id)?.name || "—";
 
@@ -65,7 +69,7 @@ const LoginScreen = ({ onAuthed }) => {
             <div
               key={u.id}
               className={`role-card ${selected === u.id ? "selected" : ""}`}
-              onClick={() => setSelected(u.id)}
+              onClick={() => setValue("selected", u.id, { shouldDirty: true })}
             >
               <div className="icon" style={{ background: u.avatarTone + "22", color: u.avatarTone }}>
                 {u.role === "super_admin" ? <icons.CrownOutlined /> : <icons.ShopOutlined />}
@@ -86,7 +90,18 @@ const LoginScreen = ({ onAuthed }) => {
           ))}
         </div>
 
-        <antd.Input.Password value={pwd} onChange={e => setPwd(e.target.value)} placeholder="Password" size="large" style={{ marginBottom: 16 }} />
+        <Controller
+          name="pwd"
+          control={control}
+          render={({ field }) => (
+            <antd.Input.Password
+              {...field}
+              placeholder="Password"
+              size="large"
+              style={{ marginBottom: 16 }}
+            />
+          )}
+        />
 
         <antd.Button type="primary" size="large" htmlType="submit" block>
           {t("auth.continue")}

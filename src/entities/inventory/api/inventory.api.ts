@@ -54,14 +54,25 @@ export interface BatchPage {
   totalRemainingValueUzs: number;
 }
 
+export interface BatchSummary {
+  totalBatches: number;
+  totalActive: number;
+  totalCostUzs: number;
+  totalRemainingValueUzs: number;
+}
+
 export const inventoryApi = {
   stockIn: (payload: StockInPayload) =>
-    apiClient.post('/inventory/stock-in', payload).then((r) => parseBatch(r.data.data)),
+    apiClient
+      .post('/inventory/stock-in', payload, { timeout: 0 })
+      .then((r) => parseBatch(r.data.data)),
 
   stockInBatch: (payload: StockInPayload[]) =>
-    apiClient.post('/inventory/stock-in/batch', payload).then((r) =>
-      (r.data.data as Raw[]).map(parseBatch),
-    ),
+    apiClient
+      .post('/inventory/stock-in/batch', payload, { timeout: 0 })
+      .then((r) =>
+        (r.data.data as Raw[]).map(parseBatch),
+      ),
 
   listCurrent: (params?: InventoryFilters) =>
     apiClient.get('/inventory', { params }).then((r) =>
@@ -72,6 +83,17 @@ export const inventoryApi = {
     apiClient.get('/inventory/batches', { params }).then((r) =>
       (r.data.data as Raw[]).map(parseBatch),
     ),
+
+  batchSummary: (): Promise<BatchSummary> =>
+    apiClient.get('/inventory/batches/summary').then((r) => {
+      const body = r.data.data as BatchSummary;
+      return {
+        totalBatches: Number(body.totalBatches),
+        totalActive: Number(body.totalActive),
+        totalCostUzs: Number(body.totalCostUzs),
+        totalRemainingValueUzs: Number(body.totalRemainingValueUzs),
+      };
+    }),
 
   listBatchesPaginated: (
     params: BatchFilters & { page: number; pageSize: number }

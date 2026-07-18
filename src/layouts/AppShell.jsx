@@ -2,7 +2,8 @@
  * layouts/AppShell.jsx — sidebar + topbar chrome.
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
 import { useSel, useDispatch, sel } from '../app/store.jsx';
@@ -72,6 +73,14 @@ const Topbar = ({ route }) => {
   const activeBranch = branches.find(b => b.id === activeBranchId);
   const rate = useSel(s => s.settings.exchangeRate);
   const userBranchName = user?.branchId ? branches.find(b => b.id === user.branchId)?.name : "All branches";
+  const branchSelectValue = activeBranchId === "__all__" ? "__all__" : activeBranchId;
+  const { control: branchControl, reset: resetBranchForm } = useForm({
+    defaultValues: { activeBranchId: branchSelectValue },
+  });
+
+  useEffect(() => {
+    resetBranchForm({ activeBranchId: branchSelectValue });
+  }, [branchSelectValue, resetBranchForm]);
 
   const pageLabel = NAV_ITEMS.find(n => n.key === route.page)?.label || "nav.dashboard";
 
@@ -121,15 +130,24 @@ const Topbar = ({ route }) => {
           </span>
 
           {isSuper ? (
-            <antd.Select
-              value={activeBranchId === "__all__" ? "__all__" : activeBranchId}
-              onChange={(v) => dispatch({ type: "ui/set", patch: { activeBranchId: v } })}
-              style={{ minWidth: 220 }}
-              options={[
-                { value: "__all__", label: t("common.allBranches") },
-                ...branches.map(b => ({ value: b.id, label: b.name })),
-              ]}
-              suffixIcon={<icons.EnvironmentOutlined />}
+            <Controller
+              name="activeBranchId"
+              control={branchControl}
+              render={({ field }) => (
+                <antd.Select
+                  value={field.value}
+                  onChange={(v) => {
+                    field.onChange(v);
+                    dispatch({ type: "ui/set", patch: { activeBranchId: v } });
+                  }}
+                  style={{ minWidth: 220 }}
+                  options={[
+                    { value: "__all__", label: t("common.allBranches") },
+                    ...branches.map(b => ({ value: b.id, label: b.name })),
+                  ]}
+                  suffixIcon={<icons.EnvironmentOutlined />}
+                />
+              )}
             />
           ) : (
             <span className="branchchip"><span className="dot" /> {activeBranch?.name}</span>

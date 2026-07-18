@@ -1,6 +1,6 @@
 import { apiClient } from '@/shared/api/client';
 import type { ApiResponse } from '@/shared/types/api';
-import type { Product, InventoryRecord, ProductUnit } from '@/shared/types/domain';
+import type { Product, InventoryRecord, ProductUnit, Currency } from '@/shared/types/domain';
 
 // Prisma Decimal serializes to string — parse to number at the API boundary
 const parseProduct = (raw: Record<string, unknown>): Product => ({
@@ -19,6 +19,7 @@ export interface ProductListParams {
   categoryId?: string;
   unit?: ProductUnit;
   isActive?: boolean;
+  priceCurrency?: Currency;
 }
 
 export interface CreateProductPayload {
@@ -43,6 +44,11 @@ export interface ProductPage {
   total: number;
 }
 
+export interface ProductSummary {
+  totalActive: number;
+  totalInactive: number;
+}
+
 export const productApi = {
   list: (params?: ProductListParams) =>
     apiClient
@@ -55,6 +61,14 @@ export const productApi = {
       .then((r) => ({
         items: r.data.data.items.map(parseProduct),
         total: r.data.data.total,
+      })),
+
+  summary: () =>
+    apiClient
+      .get<ApiResponse<ProductSummary>>('/products/summary')
+      .then((r) => ({
+        totalActive: Number(r.data.data.totalActive),
+        totalInactive: Number(r.data.data.totalInactive),
       })),
 
   getById: (id: string) =>

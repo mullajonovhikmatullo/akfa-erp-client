@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
@@ -88,42 +89,70 @@ const TransferModal = ({ open, onClose }) => {
   const branches = useSel(s => s.branches);
   const products = useSel(s => s.products);
   const stock = useSel(s => s.stock);
-  const [from, setFrom] = useState(branches[0]?.id);
-  const [to, setTo] = useState(branches[1]?.id);
-  const [items, setItems] = useState([]);
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      from: branches[0]?.id,
+      to: branches[1]?.id,
+      items: [],
+    },
+  });
+  const { append, remove } = useFieldArray({
+    control,
+    name: "items",
+    keyName: "fieldId",
+  });
+  const from = useWatch({ control, name: "from" });
+  const to = useWatch({ control, name: "to" });
+  const items = useWatch({ control, name: "items" }) || [];
 
-  useEffect(() => { if (open) { setItems([]); setFrom(branches[0]?.id); setTo(branches[1]?.id); } }, [open]);
+  useEffect(() => {
+    if (open) {
+      reset({
+        from: branches[0]?.id,
+        to: branches[1]?.id,
+        items: [],
+      });
+    }
+  }, [branches, open, reset]);
 
   const stockOf = (productId) => (stock[from] || {})[productId] || 0;
   const addItem = (productId) => {
     const p = products.find(pp => pp.id === productId); if (!p) return;
-    setItems(arr => [...arr, { id: Math.random().toString(36).slice(2,7), productId, qty: 1, unit: p.unit }]);
+    append({ id: Math.random().toString(36).slice(2,7), productId, qty: 1, unit: p.unit });
   };
-  const submit = () => {
-    if (from === to) return antd.message.warning("Pick different source and destination");
-    if (items.length === 0) return antd.message.warning("Add at least one product");
+  const submit = handleSubmit((vals) => {
+    if (vals.from === vals.to) return antd.message.warning("Pick different source and destination");
+    if (vals.items.length === 0) return antd.message.warning("Add at least one product");
     const transfer = {
       id: `t-${Math.floor(Math.random() * 999)}`,
       date: dayjs().format("YYYY-MM-DD"),
-      fromBranchId: from, toBranchId: to,
+      fromBranchId: vals.from, toBranchId: vals.to,
       status: "in_transit",
-      items: items.map(({ id, ...rest }) => rest),
+      items: vals.items.map(({ id, ...rest }) => rest),
     };
     dispatch({ type: "transfers/create", transfer });
     antd.message.success("Transfer initiated");
     onClose();
-  };
+  });
 
   return (
     <antd.Modal open={open} onCancel={onClose} onOk={submit} title="New transfer" okText="Send" width={680}>
       <div className="grid-2" style={{ marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 6 }}>From</div>
-          <antd.Select value={from} onChange={setFrom} style={{ width: "100%" }} options={branches.map(b => ({ value: b.id, label: b.name }))} />
+          <Controller
+            name="from"
+            control={control}
+            render={({ field }) => <antd.Select value={field.value} onChange={field.onChange} style={{ width: "100%" }} options={branches.map(b => ({ value: b.id, label: b.name }))} />}
+          />
         </div>
         <div>
           <div style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 6 }}>To</div>
-          <antd.Select value={to} onChange={setTo} style={{ width: "100%" }} options={branches.map(b => ({ value: b.id, label: b.name }))} />
+          <Controller
+            name="to"
+            control={control}
+            render={({ field }) => <antd.Select value={field.value} onChange={field.onChange} style={{ width: "100%" }} options={branches.map(b => ({ value: b.id, label: b.name }))} />}
+          />
         </div>
       </div>
 
@@ -136,11 +165,11 @@ const TransferModal = ({ open, onClose }) => {
           columns={[
             { title: "Product", dataIndex: "productId", render: (v) => products.find(p => p.id === v)?.name },
             { title: "Available", dataIndex: "productId", width: 110, render: (v) => <span className="num">{stockOf(v)}</span> },
-            { title: "Qty", dataIndex: "qty", width: 110, render: (v, r) => {
+            { title: "Qty", dataIndex: "qty", width: 110, render: (_, r, index) => {
               const max = stockOf(r.productId);
-              return <antd.InputNumber value={v} min={1} max={max} onChange={n => setItems(arr => arr.map(it => it.id === r.id ? { ...it, qty: n } : it))} />;
+              return <Controller name={`items.${index}.qty`} control={control} render={({ field }) => <antd.InputNumber value={field.value} min={1} max={max} onChange={field.onChange} />} />;
             } },
-            { title: "", key: "x", width: 40, render: (_, r) => <antd.Button type="text" danger icon={<icons.DeleteOutlined />} onClick={() => setItems(arr => arr.filter(it => it.id !== r.id))} /> },
+            { title: "", key: "x", width: 40, render: (_, __, index) => <antd.Button type="text" danger icon={<icons.DeleteOutlined />} onClick={() => remove(index)} /> },
           ]} />
       )}
     </antd.Modal>

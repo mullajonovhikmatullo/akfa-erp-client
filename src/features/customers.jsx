@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
 import { useSel, useDispatch } from '../app/store.jsx';
@@ -16,8 +17,9 @@ const CustomersFeature = () => {
   const customers = useSel(s => s.customers);
   const sales = useSel(s => s.sales);
   const dispatch = useDispatch();
-  const [q, setQ] = useState("");
-  const [filter, setFilter] = useState("__all__");
+  const { control } = useForm({ defaultValues: { q: "", filter: "__all__" } });
+  const q = useWatch({ control, name: "q" }) || "";
+  const filter = useWatch({ control, name: "filter" }) || "__all__";
   const [editing, setEditing] = useState(null);
   const [drawer, setDrawer] = useState(null);
 
@@ -84,14 +86,35 @@ const CustomersFeature = () => {
 
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ display: "flex", gap: 10, padding: "14px 16px", borderBottom: "1px solid var(--border)", alignItems: "center" }}>
-          <antd.Input prefix={<icons.SearchOutlined />} placeholder="Search name or phone" value={q} onChange={e => setQ(e.target.value)} style={{ maxWidth: 320 }} />
-          <antd.Segmented value={filter} onChange={setFilter} options={[
-            { label: "All", value: "__all__" },
-            { label: "Debtors", value: "debtors" },
-            { label: "Credits", value: "creditors" },
-            { label: "Wholesale", value: "wholesale" },
-            { label: "Retail", value: "retail" },
-          ]} />
+          <Controller
+            name="q"
+            control={control}
+            render={({ field }) => (
+              <antd.Input
+                {...field}
+                prefix={<icons.SearchOutlined />}
+                placeholder="Search name or phone"
+                style={{ maxWidth: 320 }}
+              />
+            )}
+          />
+          <Controller
+            name="filter"
+            control={control}
+            render={({ field }) => (
+              <antd.Segmented
+                value={field.value}
+                onChange={field.onChange}
+                options={[
+                  { label: "All", value: "__all__" },
+                  { label: "Debtors", value: "debtors" },
+                  { label: "Credits", value: "creditors" },
+                  { label: "Wholesale", value: "wholesale" },
+                  { label: "Retail", value: "retail" },
+                ]}
+              />
+            )}
+          />
         </div>
         <antd.Table rowKey="id" dataSource={filtered} columns={columns} pagination={false}
           onRow={(c) => ({ onClick: (e) => { if (e.target.closest("button")) return; setDrawer(c); }, style: { cursor: "pointer" } })} />
@@ -105,34 +128,56 @@ const CustomersFeature = () => {
 
 const CustomerFormModal = ({ customer, onClose }) => {
   const dispatch = useDispatch();
-  const [form] = antd.Form.useForm();
-  useEffect(() => { if (customer) form.setFieldsValue(customer); }, [customer]);
+  const { control, handleSubmit, reset, formState: { errors } } = useForm({
+    defaultValues: {
+      name: "",
+      phone: "",
+      type: "retail",
+      address: "",
+      balance: 0,
+    },
+  });
+
+  useEffect(() => {
+    if (customer) reset(customer);
+  }, [customer, reset]);
+
   if (!customer) return null;
 
-  const submit = () => {
-    form.validateFields().then(vals => {
-      dispatch({ type: "customers/upsert", customer: { ...customer, ...vals } });
-      antd.message.success("Customer saved");
-      onClose();
-    });
-  };
+  const submit = handleSubmit((vals) => {
+    dispatch({ type: "customers/upsert", customer: { ...customer, ...vals } });
+    antd.message.success("Customer saved");
+    onClose();
+  });
 
   return (
     <antd.Modal title="Customer" open={!!customer} onCancel={onClose} onOk={submit} okText="Save">
-      <antd.Form form={form} layout="vertical">
-        <antd.Form.Item name="name" label="Name" rules={[{ required: true }]}><antd.Input /></antd.Form.Item>
+      <antd.Form layout="vertical">
+        <antd.Form.Item label="Name" required validateStatus={errors.name ? "error" : undefined} help={errors.name?.message}>
+          <Controller name="name" control={control} rules={{ required: "Name is required" }} render={({ field }) => <antd.Input {...field} />} />
+        </antd.Form.Item>
         <div className="grid-2">
-          <antd.Form.Item name="phone" label="Phone"><antd.Input /></antd.Form.Item>
-          <antd.Form.Item name="type" label="Type">
-            <antd.Radio.Group>
-              <antd.Radio.Button value="retail">Retail</antd.Radio.Button>
-              <antd.Radio.Button value="wholesale">Wholesale</antd.Radio.Button>
-            </antd.Radio.Group>
+          <antd.Form.Item label="Phone">
+            <Controller name="phone" control={control} render={({ field }) => <antd.Input {...field} />} />
+          </antd.Form.Item>
+          <antd.Form.Item label="Type">
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <antd.Radio.Group value={field.value} onChange={e => field.onChange(e.target.value)}>
+                  <antd.Radio.Button value="retail">Retail</antd.Radio.Button>
+                  <antd.Radio.Button value="wholesale">Wholesale</antd.Radio.Button>
+                </antd.Radio.Group>
+              )}
+            />
           </antd.Form.Item>
         </div>
-        <antd.Form.Item name="address" label="Address"><antd.Input /></antd.Form.Item>
-        <antd.Form.Item name="balance" label="Opening balance (UZS) — negative = debt">
-          <antd.InputNumber style={{ width: "100%" }} step={100000} />
+        <antd.Form.Item label="Address">
+          <Controller name="address" control={control} render={({ field }) => <antd.Input {...field} />} />
+        </antd.Form.Item>
+        <antd.Form.Item label="Opening balance (UZS) — negative = debt">
+          <Controller name="balance" control={control} render={({ field }) => <antd.InputNumber value={field.value} onChange={field.onChange} style={{ width: "100%" }} step={100000} />} />
         </antd.Form.Item>
       </antd.Form>
     </antd.Modal>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, DatePicker, Select, Popconfirm, Tooltip } from 'antd';
 import {
   PlusOutlined,
@@ -24,22 +25,33 @@ import { useT } from '@/shared/lib/i18n';
 
 const KPI_CATEGORY_LIMIT = 5;
 
+type ExpenseFiltersForm = {
+  categoryId?: string;
+  dateRange: [Dayjs | null, Dayjs | null];
+};
+
 export function ExpensesPage() {
   const t = useT();
   const { isSuper } = useCurrentUser();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
+  const { control, watch } = useForm<ExpenseFiltersForm>({
+    defaultValues: {
+      categoryId: undefined,
+      dateRange: [null, null],
+    },
+  });
+  const filters = watch();
 
-  const [categoryFilter, setCategoryFilter] = useState<string | undefined>();
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([null, null]);
   const [creating, setCreating] = useState(false);
   const [managingCats, setManagingCats] = useState(false);
+  const dateRange = filters.dateRange;
   const dateFilters = {
     from: dateRange[0]?.startOf('day').toISOString(),
     to: dateRange[1]?.endOf('day').toISOString(),
   };
 
   const { data: expenses = [], isLoading, isFetching, refetch } = useExpenses({
-    categoryId: categoryFilter,
+    categoryId: filters.categoryId,
     ...dateFilters,
     limit: 200,
   });
@@ -48,7 +60,7 @@ export function ExpensesPage() {
     isFetching: isSummaryFetching,
     refetch: refetchCategorySummary,
   } = useExpenseCategorySummary({
-    categoryId: categoryFilter,
+    categoryId: filters.categoryId,
     ...dateFilters,
     limit: KPI_CATEGORY_LIMIT,
   });
@@ -195,18 +207,24 @@ export function ExpensesPage() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <DatePicker.RangePicker
-            value={dateRange}
-            onChange={(v) => setDateRange(v ? [v[0], v[1]] : [null, null])}
-            format="DD.MM.YYYY"
-            placeholder={[t('common.startDate'), t('common.endDate')]}
-            presets={[
-              { label: t('common.today'), value: [dayjs().startOf('day'), dayjs().endOf('day')] },
-              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs().endOf('day')] },
-              { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
-              { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
-            ]}
-            style={{ minWidth: 240 }}
+          <Controller
+            name="dateRange"
+            control={control}
+            render={({ field }) => (
+              <DatePicker.RangePicker
+                value={field.value}
+                onChange={(value) => field.onChange(value ? [value[0], value[1]] : [null, null])}
+                format="DD.MM.YYYY"
+                placeholder={[t('common.startDate'), t('common.endDate')]}
+                presets={[
+                  { label: t('common.today'), value: [dayjs().startOf('day'), dayjs().endOf('day')] },
+                  { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs().endOf('day')] },
+                  { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
+                  { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
+                ]}
+                style={{ minWidth: 240 }}
+              />
+            )}
           />
           <Tooltip title={t('common.refresh')}>
             <Button
@@ -275,13 +293,19 @@ export function ExpensesPage() {
         {/* Table */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
-            <Select
-              value={categoryFilter}
-              onChange={setCategoryFilter}
-              allowClear
-              placeholder={t('expenses.filterAll')}
-              style={{ minWidth: 220 }}
-              options={categories.map((c) => ({ value: c.id, label: c.name }))}
+            <Controller
+              name="categoryId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={field.onChange}
+                  allowClear
+                  placeholder={t('expenses.filterAll')}
+                  style={{ minWidth: 220 }}
+                  options={categories.map((c) => ({ value: c.id, label: c.name }))}
+                />
+              )}
             />
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
               <strong>{expenses.length}</strong> {t('common.resultsSuffix')}

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, Select, InputNumber, Input, Empty, Table } from 'antd';
 import { PlusOutlined, DeleteOutlined, MinusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
@@ -26,6 +27,13 @@ interface CartItem {
   unitCostUzs: number;
 }
 
+type TransferFormValues = {
+  fromBranchId?: string;
+  toBranchId?: string;
+  note: string;
+  cart: CartItem[];
+};
+
 const MIN_QTY = 1;
 
 export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
@@ -36,6 +44,23 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   const { data: branches = [], isLoading: branchesLoading } = useBranches();
   const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true });
   const createTransfer = useCreateTransfer();
+  const { control, handleSubmit, reset, setValue, watch } = useForm<TransferFormValues>({
+    defaultValues: {
+      fromBranchId: isSuper ? undefined : (userBranchId ?? undefined),
+      toBranchId: undefined,
+      note: '',
+      cart: [],
+    },
+  });
+  const { append, update, remove, replace } = useFieldArray({
+    control,
+    name: 'cart',
+    keyName: 'fieldId',
+  });
+  const fromBranchId = watch('fromBranchId');
+  const toBranchId = watch('toBranchId');
+  const note = watch('note') ?? '';
+  const cart = watch('cart') ?? [];
 
   const defaultFromBranchId = useMemo(() => {
     const mainBranch = branches.find((b) => /main|asosiy|глав/i.test(b.name));
@@ -47,13 +72,6 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
     return mainBranch?.id ?? firstBranch?.id;
   }, [branches]);
 
-  const [fromBranchId, setFromBranchId] = useState<string | undefined>(
-    isSuper ? undefined : (userBranchId ?? undefined),
-  );
-  const [toBranchId, setToBranchId] = useState<string | undefined>();
-  const [note, setNote] = useState('');
-  const [cart, setCart] = useState<CartItem[]>([]);
-
   const sourceBranchId = isSuper ? fromBranchId : (userBranchId ?? undefined);
   const { data: inventoryRecords = [], isLoading: inventoryLoading } = useInventoryRecords(
     sourceBranchId ? { branchId: sourceBranchId } : undefined,
@@ -63,18 +81,18 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
   useEffect(() => {
     if (isSuper && open && defaultFromBranchId && !fromBranchId) {
-      setFromBranchId(defaultFromBranchId);
+      setValue('fromBranchId', defaultFromBranchId);
     }
     if (!isSuper) {
-      setFromBranchId(userBranchId ?? undefined);
+      setValue('fromBranchId', userBranchId ?? undefined);
     }
-  }, [defaultFromBranchId, fromBranchId, isSuper, open, userBranchId]);
+  }, [defaultFromBranchId, fromBranchId, isSuper, open, setValue, userBranchId]);
 
   useEffect(() => {
     if (sourceBranchId && toBranchId === sourceBranchId) {
-      setToBranchId(undefined);
+      setValue('toBranchId', undefined);
     }
-  }, [sourceBranchId, toBranchId]);
+  }, [setValue, sourceBranchId, toBranchId]);
 
   const stockByProductId = useMemo(() => {
     const map = new Map<string, number>();
@@ -93,9 +111,9 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   const availableTo = branches.filter((b) => b.id !== sourceBranchId);
 
   const handleFromBranchChange = (branchId: string) => {
-    setFromBranchId(branchId);
-    if (toBranchId === branchId) setToBranchId(undefined);
-    setCart([]);
+    setValue('fromBranchId', branchId);
+    if (toBranchId === branchId) setValue('toBranchId', undefined);
+    replace([]);
   };
 
   const addProduct = (productId: string) => {
@@ -103,18 +121,13 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
     if (!product) return;
     const stock = stockByProductId.get(productId) ?? 0;
     if (stock <= 0) return;
-    setCart((prev) => {
-      if (prev.find((i) => i.productId === productId)) return prev;
-      return [
-        ...prev,
-        {
-          _key: `${productId}-${Date.now()}`,
-          productId,
-          product,
-          quantity: Math.min(MIN_QTY, stock),
-          unitCostUzs: getProductPriceUzs(product, 'wholesale', effectiveExchangeRate),
-        },
-      ];
+    if (cart.find((i) => i.productId === productId)) return;
+    append({
+      _key: `${productId}-${Date.now()}`,
+      productId,
+      product,
+      quantity: Math.min(MIN_QTY, stock),
+      unitCostUzs: getProductPriceUzs(product, 'wholesale', effectiveExchangeRate),
     });
   };
 
@@ -124,16 +137,15 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   };
 
   const updateItem = (key: string, patch: Partial<CartItem>) => {
-    setCart((prev) =>
-      prev.map((i) => {
-        if (i._key !== key) return i;
-        const stock = stockByProductId.get(i.productId) ?? 0;
-        const quantity = patch.quantity == null
-          ? i.quantity
-          : clampQty(patch.quantity, stock);
-        return { ...i, ...patch, quantity };
-      }),
-    );
+    const index = cart.findIndex((i) => i._key === key);
+    if (index < 0) return;
+    const item = cart[index];
+    if (!item) return;
+    const stock = stockByProductId.get(item.productId) ?? 0;
+    const quantity = patch.quantity == null
+      ? item.quantity
+      : clampQty(patch.quantity, stock);
+    update(index, { ...item, ...patch, quantity });
   };
 
   const changeQty = (key: string, delta: number) => {
@@ -145,7 +157,10 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
   const updateQty = (key: string, quantity: number | null) =>
     updateItem(key, { quantity: quantity == null ? MIN_QTY : quantity });
 
-  const removeItem = (key: string) => setCart((prev) => prev.filter((i) => i._key !== key));
+  const removeItem = (key: string) => {
+    const index = cart.findIndex((i) => i._key === key);
+    if (index >= 0) remove(index);
+  };
 
   const totalCost = cart.reduce((sum, i) => sum + i.quantity * i.unitCostUzs, 0);
   const hasValidQuantities = cart.every((i) => {
@@ -160,24 +175,26 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
     toBranchId !== sourceBranchId &&
     (isSuper ? fromBranchId !== undefined : Boolean(userBranchId));
 
-  const handleSubmit = () => {
+  const submitTransfer = (values: TransferFormValues) => {
     createTransfer.mutate(
       {
-        fromBranchId: isSuper ? fromBranchId : undefined,
-        toBranchId: toBranchId!,
-        items: cart.map((i) => ({
+        fromBranchId: isSuper ? values.fromBranchId : undefined,
+        toBranchId: values.toBranchId!,
+        items: values.cart.map((i) => ({
           productId: i.productId,
           quantity: i.quantity,
           unitCostUzs: i.unitCostUzs,
         })),
-        note: note.trim() || undefined,
+        note: values.note.trim() || undefined,
       },
       {
         onSuccess: () => {
-          setCart([]);
-          setToBranchId(undefined);
-          if (isSuper) setFromBranchId(defaultFromBranchId);
-          setNote('');
+          reset({
+            fromBranchId: isSuper ? defaultFromBranchId : (userBranchId ?? undefined),
+            toBranchId: undefined,
+            note: '',
+            cart: [],
+          });
           onClose();
         },
       },
@@ -199,7 +216,7 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           type="primary"
           loading={createTransfer.isPending}
           disabled={!canSubmit}
-          onClick={handleSubmit}
+          onClick={handleSubmit(submitTransfer)}
         >
           {t('transferModal.submitBtn')} ({cart.length} {t('common.countSuffix')})
         </Button>,
@@ -210,14 +227,23 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           <div>
             <Label>{t('transferModal.labelFrom')}</Label>
             {isSuper ? (
-              <Select
-                value={fromBranchId}
-                onChange={handleFromBranchChange}
-                placeholder={t('transferModal.placeholderBranch')}
-                style={{ width: '100%' }}
-                loading={branchesLoading}
-                notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-                options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
+              <Controller
+                name="fromBranchId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      handleFromBranchChange(value);
+                    }}
+                    placeholder={t('transferModal.placeholderBranch')}
+                    style={{ width: '100%' }}
+                    loading={branchesLoading}
+                    notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
+                    options={availableFrom.map((b) => ({ value: b.id, label: b.name }))}
+                  />
+                )}
               />
             ) : (
               <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
@@ -227,14 +253,20 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
           </div>
           <div>
             <Label>{t('transferModal.labelTo')}</Label>
-            <Select
-              value={toBranchId}
-              onChange={setToBranchId}
-              placeholder={t('transferModal.placeholderBranch')}
-              style={{ width: '100%' }}
-              loading={branchesLoading}
-              notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-              options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
+            <Controller
+              name="toBranchId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder={t('transferModal.placeholderBranch')}
+                  style={{ width: '100%' }}
+                  loading={branchesLoading}
+                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
+                  options={availableTo.map((b) => ({ value: b.id, label: b.name }))}
+                />
+              )}
             />
           </div>
         </div>
@@ -420,13 +452,18 @@ export function NewTransferModal({ open, onClose }: NewTransferModalProps) {
 
         <div>
           <Label>{t('transferModal.labelNote')}</Label>
-          <Input.TextArea
-            {...blockAutofill('akfa-transfer-note')}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={2}
-            placeholder={t('transferModal.placeholderNote')}
-            maxLength={500}
+          <Controller
+            name="note"
+            control={control}
+            render={({ field }) => (
+              <Input.TextArea
+                {...field}
+                {...blockAutofill('akfa-transfer-note')}
+                rows={2}
+                placeholder={t('transferModal.placeholderNote')}
+                maxLength={500}
+              />
+            )}
           />
         </div>
       </div>

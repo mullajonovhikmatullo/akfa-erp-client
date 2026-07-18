@@ -5,7 +5,7 @@
  * Branch Admin: same but scoped to their branch.
  */
 
-import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import * as antd from 'antd';
 import { useSel, sel } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
@@ -24,7 +24,7 @@ const AnalyticsFeature = () => {
   const products = useSel(s => s.products);
   const rate = useSel(s => s.settings.exchangeRate);
 
-  const [period, setPeriod] = useState("month");
+  const { control } = useForm({ defaultValues: { period: "month" } });
 
   const branchFilter = isSuper && activeBranchId === "__all__" ? null : activeBranchId;
   const series = useDailySeries(branchFilter);
@@ -64,12 +64,22 @@ const AnalyticsFeature = () => {
           <h1>{t("nav.analytics")}</h1>
           <div className="sub">{isSuper ? "Global view across all branches" : `Branch view · ${branches.find(b => b.id === activeBranchId)?.name}`}</div>
         </div>
-        <antd.Segmented value={period} onChange={setPeriod} options={[
-          { label: "Today", value: "day" },
-          { label: "Week",  value: "week" },
-          { label: "Month", value: "month" },
-          { label: "Year",  value: "year" },
-        ]} />
+        <Controller
+          name="period"
+          control={control}
+          render={({ field }) => (
+            <antd.Segmented
+              value={field.value}
+              onChange={field.onChange}
+              options={[
+                { label: "Today", value: "day" },
+                { label: "Week",  value: "week" },
+                { label: "Month", value: "month" },
+                { label: "Year",  value: "year" },
+              ]}
+            />
+          )}
+        />
       </div>
 
       <div className="grid-4" style={{ marginBottom: 16 }}>

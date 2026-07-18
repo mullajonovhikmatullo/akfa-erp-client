@@ -36,6 +36,16 @@ export function MoneyDisplay({
 
   const formatted = formatMoney(converted, effectiveCurrency, compact);
   const color = colorize ? (amount < 0 ? 'var(--danger)' : amount > 0 ? 'var(--success)' : undefined) : undefined;
+  const uzsSuffix = " so'm";
+
+  if (effectiveCurrency === 'UZS' && formatted.endsWith(uzsSuffix)) {
+    return (
+      <span className="num" style={color ? { color } : undefined}>
+        {formatted.slice(0, -uzsSuffix.length)}{' '}
+        <span className="money-currency">so'm</span>
+      </span>
+    );
+  }
 
   return (
     <span className="num" style={color ? { color } : undefined}>

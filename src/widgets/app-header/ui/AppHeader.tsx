@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Select, Dropdown, Tooltip } from 'antd';
 import {
@@ -70,6 +72,13 @@ export function AppHeader({ branches }: AppHeaderProps) {
   const activeBranch = branches.find((b) => b.id === activeBranchId);
   const userBranch = branches.find((b) => b.id === user?.branchId);
   const branchSelectValue = activeBranch ? activeBranchId : '__all__';
+  const { control: branchControl, reset: resetBranchForm } = useForm<{ activeBranchId: string }>({
+    defaultValues: { activeBranchId: branchSelectValue },
+  });
+
+  useEffect(() => {
+    resetBranchForm({ activeBranchId: branchSelectValue });
+  }, [branchSelectValue, resetBranchForm]);
 
   const currentNav = ALL_NAV_ITEMS.find((n) => {
     if (n.path === '/') return location.pathname === '/';
@@ -171,16 +180,25 @@ export function AppHeader({ branches }: AppHeaderProps) {
           </Dropdown>
 
           {isSuper ? (
-            <Select
-              value={branchSelectValue}
-              onChange={setActiveBranch}
-              className="topbar-hide-mobile"
-              style={{ minWidth: 220 }}
-              suffixIcon={<EnvironmentOutlined />}
-              options={[
-                { value: '__all__', label: t('header.allBranches') },
-                ...branches.map((b) => ({ value: b.id, label: b.name })),
-              ]}
+            <Controller
+              name="activeBranchId"
+              control={branchControl}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    setActiveBranch(value);
+                  }}
+                  className="topbar-hide-mobile"
+                  style={{ minWidth: 220 }}
+                  suffixIcon={<EnvironmentOutlined />}
+                  options={[
+                    { value: '__all__', label: t('header.allBranches') },
+                    ...branches.map((b) => ({ value: b.id, label: b.name })),
+                  ]}
+                />
+              )}
             />
           ) : (
             <span className="branchchip topbar-hide-mobile">

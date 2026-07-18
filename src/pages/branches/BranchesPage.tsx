@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, Modal, Form, Input, Popconfirm, Tooltip, Select, Tag } from 'antd';
 import {
   PlusOutlined,
@@ -20,6 +21,10 @@ import type { Branch } from '@/shared/types/domain';
 import type { ColumnDef } from '@/shared/ui';
 import type { BranchPayload } from '@/entities/branch';
 
+type AssignBranchFormValues = {
+  userId?: string | null;
+};
+
 export function BranchesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
@@ -34,8 +39,27 @@ export function BranchesPage() {
   const deleteMutation = useDeleteBranch();
   const assignMutation = useAssignBranch();
 
-  const [branchForm] = Form.useForm<BranchPayload>();
-  const [assignForm] = Form.useForm<{ userId: string | null }>();
+  const {
+    control: branchControl,
+    handleSubmit: handleBranchFormSubmit,
+    reset: resetBranchForm,
+    formState: { errors: branchErrors },
+  } = useForm<BranchPayload>({
+    defaultValues: {
+      name: '',
+      address: '',
+      phone: '',
+    },
+  });
+  const {
+    control: assignControl,
+    handleSubmit: handleAssignFormSubmit,
+    reset: resetAssignForm,
+  } = useForm<AssignBranchFormValues>({
+    defaultValues: {
+      userId: null,
+    },
+  });
 
   const [editTarget, setEditTarget] = useState<Branch | null>(null);
   const [branchModalOpen, setBranchModalOpen] = useState(false);
@@ -52,42 +76,46 @@ export function BranchesPage() {
 
   function openCreate() {
     setEditTarget(null);
-    branchForm.resetFields();
+    resetBranchForm({ name: '', address: '', phone: '' });
     setBranchModalOpen(true);
   }
 
   function openEdit(branch: Branch) {
     setEditTarget(branch);
-    branchForm.setFieldsValue({ name: branch.name, address: branch.address ?? '', phone: branch.phone ?? '' });
+    resetBranchForm({ name: branch.name, address: branch.address ?? '', phone: branch.phone ?? '' });
     setBranchModalOpen(true);
   }
 
   function openAssign(branch: Branch) {
     setAssignTarget(branch);
     const currentAdmin = branchAdmins.find((u) => u.branchId === branch.id);
-    assignForm.setFieldsValue({ userId: currentAdmin?.id ?? null });
+    resetAssignForm({ userId: currentAdmin?.id ?? null });
   }
 
-  async function handleBranchSubmit() {
-    const values = await branchForm.validateFields();
+  function submitBranchForm(values: BranchPayload) {
+    const payload: BranchPayload = {
+      name: values.name,
+      address: values.address || undefined,
+      phone: values.phone || undefined,
+    };
+
     if (editTarget) {
       updateMutation.mutate(
-        { id: editTarget.id, data: values },
+        { id: editTarget.id, data: payload },
         {
           onSuccess: () => { toast.success(t('branches.updateSuccess')); setBranchModalOpen(false); },
           onError: () => toast.error(t('branches.updateError')),
         },
       );
     } else {
-      createMutation.mutate(values, {
+      createMutation.mutate(payload, {
         onSuccess: () => { toast.success(t('branches.createSuccess')); setBranchModalOpen(false); },
         onError: () => toast.error(t('branches.createError')),
       });
     }
   }
 
-  async function handleAssignSubmit() {
-    const { userId } = await assignForm.validateFields();
+  function submitAssignForm({ userId }: AssignBranchFormValues) {
     if (!assignTarget) return;
 
     const prevAdmin = branchAdmins.find((u) => u.branchId === assignTarget.id);
@@ -279,29 +307,62 @@ export function BranchesPage() {
         title={editTarget ? t('branches.modalEdit') : t('branches.modalCreate')}
         open={branchModalOpen}
         onCancel={() => setBranchModalOpen(false)}
-        onOk={handleBranchSubmit}
+        onOk={handleBranchFormSubmit(submitBranchForm)}
         okText={editTarget ? t('common.save') : t('common.create')}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
       >
-        <Form form={branchForm} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
-          <Form.Item name="name" label={t('branches.labelName')} rules={[{ required: true, message: t('branches.nameRequired') }]}>
-            <Input
-              {...blockAutofill('akfa-branch-name')}
-              placeholder={t('branches.namePlaceholder')}
+        <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+          <Form.Item
+            label={t('branches.labelName')}
+            required
+            validateStatus={branchErrors.name ? 'error' : undefined}
+            help={branchErrors.name?.message}
+          >
+            <Controller
+              name="name"
+              control={branchControl}
+              rules={{ required: t('branches.nameRequired') }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-branch-name')}
+                  placeholder={t('branches.namePlaceholder')}
+                />
+              )}
             />
           </Form.Item>
-          <Form.Item name="address" label={t('branches.labelAddress')}>
-            <Input
-              {...blockAutofill('akfa-branch-address')}
-              placeholder={t('branches.addressPlaceholder')}
+          <Form.Item label={t('branches.labelAddress')}>
+            <Controller
+              name="address"
+              control={branchControl}
+              render={({ field }) => (
+                <Input
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  {...blockAutofill('akfa-branch-address')}
+                  placeholder={t('branches.addressPlaceholder')}
+                />
+              )}
             />
           </Form.Item>
-          <Form.Item name="phone" label={t('common.phone')}>
-            <Input
-              {...blockAutofill('akfa-branch-phone')}
-              inputMode="tel"
-              placeholder={t('branches.phonePlaceholder')}
+          <Form.Item label={t('common.phone')}>
+            <Controller
+              name="phone"
+              control={branchControl}
+              render={({ field }) => (
+                <Input
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  {...blockAutofill('akfa-branch-phone')}
+                  inputMode="tel"
+                  placeholder={t('branches.phonePlaceholder')}
+                />
+              )}
             />
           </Form.Item>
         </Form>
@@ -311,7 +372,7 @@ export function BranchesPage() {
         title={`${t('branches.assignTitle')} — ${assignTarget?.name ?? ''}`}
         open={!!assignTarget}
         onCancel={() => setAssignTarget(null)}
-        onOk={handleAssignSubmit}
+        onOk={handleAssignFormSubmit(submitAssignForm)}
         okText={t('branches.assignBtn')}
         confirmLoading={assignMutation.isPending}
         destroyOnClose
@@ -319,22 +380,30 @@ export function BranchesPage() {
         <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-3)' }}>
           {t('branches.assignHint')}
         </div>
-        <Form form={assignForm} layout="vertical">
-          <Form.Item name="userId" label={t('branches.assignLabel')}>
-            <Select
-              allowClear
-              placeholder={t('branches.assignPlaceholder')}
-              loading={usersLoading}
-              notFoundContent={usersLoading ? <SelectLoadingContent /> : undefined}
-              options={[
-                ...unassignedAdmins.map((u) => ({ value: u.id, label: `${u.name} (@${u.username})` })),
-                ...branchAdmins
-                  .filter((u) => u.branchId && u.branchId !== assignTarget?.id)
-                  .map((u) => {
-                    const assignedTo = branches.find((b) => b.id === u.branchId);
-                    return { value: u.id, label: `${u.name} (@${u.username}) · ${assignedTo?.name ?? t('common.otherBranch')}`, disabled: true };
-                  }),
-              ]}
+        <Form layout="vertical">
+          <Form.Item label={t('branches.assignLabel')}>
+            <Controller
+              name="userId"
+              control={assignControl}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={field.onChange}
+                  allowClear
+                  placeholder={t('branches.assignPlaceholder')}
+                  loading={usersLoading}
+                  notFoundContent={usersLoading ? <SelectLoadingContent /> : undefined}
+                  options={[
+                    ...unassignedAdmins.map((u) => ({ value: u.id, label: `${u.name} (@${u.username})` })),
+                    ...branchAdmins
+                      .filter((u) => u.branchId && u.branchId !== assignTarget?.id)
+                      .map((u) => {
+                        const assignedTo = branches.find((b) => b.id === u.branchId);
+                        return { value: u.id, label: `${u.name} (@${u.username}) · ${assignedTo?.name ?? t('common.otherBranch')}`, disabled: true };
+                      }),
+                  ]}
+                />
+              )}
             />
           </Form.Item>
         </Form>

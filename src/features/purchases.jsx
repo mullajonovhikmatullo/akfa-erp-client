@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
@@ -80,40 +81,72 @@ const PurchaseModal = ({ open, onClose }) => {
   const products = useSel(s => s.products);
   const branches = useSel(s => s.branches);
   const activeBranchId = useSel(sel.activeBranchId);
-  const [form] = antd.Form.useForm();
-  const [items, setItems] = useState([]);
+  const defaultBranchId = activeBranchId === "__all__" ? branches[0].id : activeBranchId;
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      branchId: defaultBranchId,
+      supplier: "AKFA Plant",
+      currency: "UZS",
+      items: [],
+    },
+  });
+  const { append, remove } = useFieldArray({
+    control,
+    name: "items",
+    keyName: "fieldId",
+  });
+  const items = useWatch({ control, name: "items" }) || [];
 
-  const reset = () => { form.resetFields(); setItems([]); };
-  useEffect(() => { if (open) reset(); }, [open]);
+  useEffect(() => {
+    if (open) {
+      reset({
+        branchId: defaultBranchId,
+        supplier: "AKFA Plant",
+        currency: "UZS",
+        items: [],
+      });
+    }
+  }, [defaultBranchId, open, reset]);
 
-  const submit = () => {
-    form.validateFields().then(vals => {
-      if (items.length === 0) return antd.message.warning("Add at least one product");
-      const purchase = {
-        id: `po-${500 + Math.floor(Math.random() * 500)}`,
-        date: dayjs().format("YYYY-MM-DD"),
-        ...vals,
-        items: items.map(({ id, ...rest }) => rest),
-      };
-      dispatch({ type: "purchases/create", purchase });
-      antd.message.success("Purchase recorded · stock & batches updated");
-      onClose();
-    });
-  };
+  const submit = handleSubmit((vals) => {
+    if (vals.items.length === 0) return antd.message.warning("Add at least one product");
+    const purchase = {
+      id: `po-${500 + Math.floor(Math.random() * 500)}`,
+      date: dayjs().format("YYYY-MM-DD"),
+      ...vals,
+      items: vals.items.map(({ id, ...rest }) => rest),
+    };
+    dispatch({ type: "purchases/create", purchase });
+    antd.message.success("Purchase recorded · stock & batches updated");
+    onClose();
+  });
 
   const addItem = (productId) => {
     const p = products.find(pp => pp.id === productId); if (!p) return;
-    setItems(arr => [...arr, { id: Math.random().toString(36).slice(2,7), productId, qty: 1, unit: p.unit, costPrice: p.costPrice }]);
+    append({ id: Math.random().toString(36).slice(2,7), productId, qty: 1, unit: p.unit, costPrice: p.costPrice });
   };
 
   return (
     <antd.Modal open={open} onCancel={onClose} onOk={submit} okText="Record purchase" width={780} title="New purchase order">
-      <antd.Form form={form} layout="vertical" initialValues={{ branchId: activeBranchId === "__all__" ? branches[0].id : activeBranchId, supplier: "AKFA Plant", currency: "UZS" }}>
+      <antd.Form layout="vertical">
         <div className="grid-3">
-          <antd.Form.Item name="supplier" label="Supplier" rules={[{ required: true }]}><antd.Input /></antd.Form.Item>
-          <antd.Form.Item name="branchId" label="Receiving branch"><antd.Select options={branches.map(b => ({ value: b.id, label: b.name }))} /></antd.Form.Item>
-          <antd.Form.Item name="currency" label="Currency">
-            <antd.Radio.Group><antd.Radio.Button value="UZS">UZS</antd.Radio.Button><antd.Radio.Button value="USD">USD</antd.Radio.Button></antd.Radio.Group>
+          <antd.Form.Item label="Supplier" required>
+            <Controller name="supplier" control={control} rules={{ required: true }} render={({ field }) => <antd.Input {...field} />} />
+          </antd.Form.Item>
+          <antd.Form.Item label="Receiving branch">
+            <Controller name="branchId" control={control} render={({ field }) => <antd.Select value={field.value} onChange={field.onChange} options={branches.map(b => ({ value: b.id, label: b.name }))} />} />
+          </antd.Form.Item>
+          <antd.Form.Item label="Currency">
+            <Controller
+              name="currency"
+              control={control}
+              render={({ field }) => (
+                <antd.Radio.Group value={field.value} onChange={e => field.onChange(e.target.value)}>
+                  <antd.Radio.Button value="UZS">UZS</antd.Radio.Button>
+                  <antd.Radio.Button value="USD">USD</antd.Radio.Button>
+                </antd.Radio.Group>
+              )}
+            />
           </antd.Form.Item>
         </div>
 
@@ -125,9 +158,13 @@ const PurchaseModal = ({ open, onClose }) => {
           <antd.Table size="small" pagination={false} rowKey="id" dataSource={items}
             columns={[
               { title: "Product", dataIndex: "productId", render: (v) => products.find(p => p.id === v)?.name },
-              { title: "Qty", dataIndex: "qty", width: 110, render: (v, r) => <antd.InputNumber value={v} min={1} onChange={n => setItems(arr => arr.map(it => it.id === r.id ? { ...it, qty: n } : it))} /> },
-              { title: "Cost", dataIndex: "costPrice", width: 160, render: (v, r) => <antd.InputNumber value={v} min={0} step={1000} onChange={n => setItems(arr => arr.map(it => it.id === r.id ? { ...it, costPrice: n } : it))} /> },
-              { title: "", key: "x", width: 40, render: (_, r) => <antd.Button type="text" icon={<icons.DeleteOutlined />} danger onClick={() => setItems(arr => arr.filter(it => it.id !== r.id))} /> },
+              { title: "Qty", dataIndex: "qty", width: 110, render: (_, __, index) => (
+                <Controller name={`items.${index}.qty`} control={control} render={({ field }) => <antd.InputNumber value={field.value} min={1} onChange={field.onChange} />} />
+              ) },
+              { title: "Cost", dataIndex: "costPrice", width: 160, render: (_, __, index) => (
+                <Controller name={`items.${index}.costPrice`} control={control} render={({ field }) => <antd.InputNumber value={field.value} min={0} step={1000} onChange={field.onChange} />} />
+              ) },
+              { title: "", key: "x", width: 40, render: (_, __, index) => <antd.Button type="text" icon={<icons.DeleteOutlined />} danger onClick={() => remove(index)} /> },
             ]} />
         )}
       </antd.Form>

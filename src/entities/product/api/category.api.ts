@@ -12,6 +12,9 @@ export type UpdateCategoryPayload = Partial<CreateCategoryPayload> & { isActive?
 export interface CategoryPage {
   items: Category[];
   total: number;
+}
+
+export interface CategorySummary {
   totalActive: number;
   totalInactive: number;
 }
@@ -30,6 +33,14 @@ export const categoryApi = {
         params,
       })
       .then((r) => r.data.data),
+
+  summary: () =>
+    apiClient
+      .get<ApiResponse<CategorySummary>>('/products/categories/summary')
+      .then((r) => ({
+        totalActive: Number(r.data.data.totalActive),
+        totalInactive: Number(r.data.data.totalInactive),
+      })),
 
   create: (payload: CreateCategoryPayload) =>
     apiClient

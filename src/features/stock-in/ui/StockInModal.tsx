@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, Select, InputNumber, Empty, Table } from 'antd';
 import { PlusOutlined, DeleteOutlined, MinusOutlined } from '@ant-design/icons';
 import { useProducts } from '@/entities/product';
@@ -25,6 +26,11 @@ interface CartItem {
   costPriceUsd?: number;
 }
 
+type StockInFormValues = {
+  branchId?: string;
+  cart: CartItem[];
+};
+
 const MIN_QTY = 1;
 
 export function StockInModal({ open, onClose }: StockInModalProps) {
@@ -35,6 +41,19 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
   const { data: branches = [], isLoading: branchesLoading } = useBranches();
   const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true });
   const stockInBatch = useStockInBatch();
+  const { control, handleSubmit, reset, setValue, watch } = useForm<StockInFormValues>({
+    defaultValues: {
+      branchId: isSuper ? undefined : (userBranchId ?? undefined),
+      cart: [],
+    },
+  });
+  const { append, update, remove } = useFieldArray({
+    control,
+    name: 'cart',
+    keyName: 'fieldId',
+  });
+  const branchId = watch('branchId');
+  const cart = watch('cart') ?? [];
 
   const defaultBranchId = useMemo(() => {
     const mainBranch = branches.find((b) => /main|asosiy|глав/i.test(b.name));
@@ -46,42 +65,37 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
     return mainBranch?.id ?? firstBranch?.id;
   }, [branches]);
 
-  const [branchId, setBranchId] = useState<string | undefined>(
-    isSuper ? undefined : (userBranchId ?? undefined),
-  );
-  const [cart, setCart] = useState<CartItem[]>([]);
-
   useEffect(() => {
     if (isSuper && open && defaultBranchId && !branchId) {
-      setBranchId(defaultBranchId);
+      setValue('branchId', defaultBranchId);
     }
     if (!isSuper) {
-      setBranchId(userBranchId ?? undefined);
+      setValue('branchId', userBranchId ?? undefined);
     }
-  }, [branchId, defaultBranchId, isSuper, open, userBranchId]);
+  }, [branchId, defaultBranchId, isSuper, open, setValue, userBranchId]);
 
   const addProduct = (productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (!product) return;
     const costPrice = getProductPrice(product, 'cost');
-    setCart((prev) => {
-      if (prev.find((i) => i.productId === productId)) return prev;
-      return [
-        ...prev,
-        {
-          _key: `${productId}-${Date.now()}`,
-          productId,
-          product,
-          quantity: 1,
-          costPriceUzs: getProductPriceUzs(product, 'cost', effectiveExchangeRate),
-          costPriceUsd: costPrice.currency === 'USD' ? costPrice.amount : undefined,
-        },
-      ];
+    if (cart.find((i) => i.productId === productId)) return;
+    append({
+      _key: `${productId}-${Date.now()}`,
+      productId,
+      product,
+      quantity: 1,
+      costPriceUzs: getProductPriceUzs(product, 'cost', effectiveExchangeRate),
+      costPriceUsd: costPrice.currency === 'USD' ? costPrice.amount : undefined,
     });
   };
 
-  const updateItem = (key: string, patch: Partial<CartItem>) =>
-    setCart((prev) => prev.map((i) => (i._key === key ? { ...i, ...patch } : i)));
+  const updateItem = (key: string, patch: Partial<CartItem>) => {
+    const index = cart.findIndex((i) => i._key === key);
+    if (index < 0) return;
+    const item = cart[index];
+    if (!item) return;
+    update(index, { ...item, ...patch });
+  };
 
   const updateQty = (key: string, quantity: number | null) =>
     updateItem(key, { quantity: quantity == null ? 0 : Math.max(quantity, 0) });
@@ -93,17 +107,19 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
     updateQty(key, delta < 0 ? Math.max(current + delta, MIN_QTY) : current + delta);
   };
 
-  const removeItem = (key: string) =>
-    setCart((prev) => prev.filter((i) => i._key !== key));
+  const removeItem = (key: string) => {
+    const index = cart.findIndex((i) => i._key === key);
+    if (index >= 0) remove(index);
+  };
 
   const totalCost = cart.reduce((sum, i) => sum + Math.max(i.quantity, 0) * i.costPriceUzs, 0);
   const hasValidQuantities = cart.every((i) => i.quantity >= MIN_QTY);
   const canSubmit = cart.length > 0 && hasValidQuantities && (isSuper ? !!branchId : !!userBranchId);
 
-  const handleSubmit = () => {
+  const submitStockIn = (values: StockInFormValues) => {
     stockInBatch.mutate(
-      cart.map((i) => ({
-        branchId: isSuper ? branchId : undefined,
+      values.cart.map((i) => ({
+        branchId: isSuper ? values.branchId : undefined,
         productId: i.productId,
         quantity: Math.max(i.quantity, MIN_QTY),
         costPriceUzs: i.costPriceUzs,
@@ -111,8 +127,10 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
       })),
       {
         onSuccess: () => {
-          setCart([]);
-          if (isSuper) setBranchId(defaultBranchId);
+          reset({
+            branchId: isSuper ? defaultBranchId : (userBranchId ?? undefined),
+            cart: [],
+          });
           onClose();
         },
       },
@@ -134,7 +152,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
           type="primary"
           loading={stockInBatch.isPending}
           disabled={!canSubmit}
-          onClick={handleSubmit}
+          onClick={handleSubmit(submitStockIn)}
         >
           {t('stockIn.confirmBtn')} ({cart.length} {t('common.countSuffix')})
         </Button>,
@@ -146,14 +164,20 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
         {isSuper && (
           <div>
             <Label>{t('stockIn.labelBranch')}</Label>
-            <Select
-              value={branchId}
-              onChange={setBranchId}
-              placeholder={t('stockIn.placeholderBranch')}
-              style={{ width: 280 }}
-              loading={branchesLoading}
-              notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-              options={branches.map((b) => ({ value: b.id, label: b.name }))}
+            <Controller
+              name="branchId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder={t('stockIn.placeholderBranch')}
+                  style={{ width: 280 }}
+                  loading={branchesLoading}
+                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
+                  options={branches.map((b) => ({ value: b.id, label: b.name }))}
+                />
+              )}
             />
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, Modal, Form, Input, Select, Popconfirm, Tooltip, Tag } from 'antd';
 import {
   PlusOutlined,
@@ -38,30 +39,40 @@ export function AdminsPage() {
   const updateMutation = useUpdateAdmin();
   const deleteMutation = useDeleteAdmin();
 
-  const [form] = Form.useForm<AdminFormValues>();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<AdminFormValues>({
+    defaultValues: {
+      name: '',
+      username: '',
+      password: '',
+      branchId: undefined,
+    },
+  });
   const [editTarget, setEditTarget] = useState<User | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   function openCreate() {
     setEditTarget(null);
-    form.resetFields();
+    reset({ name: '', username: '', password: '', branchId: undefined });
     setModalOpen(true);
   }
 
   function openEdit(user: User) {
     setEditTarget(user);
-    form.setFieldsValue({
+    reset({
       name: user.name,
       username: user.username,
-      password: undefined,
+      password: '',
       branchId: user.branchId ?? undefined,
     });
     setModalOpen(true);
   }
 
-  async function handleSubmit() {
-    const values = await form.validateFields();
-
+  function submitAdminForm(values: AdminFormValues) {
     if (editTarget) {
       const payload: UpdateAdminPayload = {
         fullName: values.name,
@@ -255,66 +266,106 @@ export function AdminsPage() {
         }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
-        onOk={handleSubmit}
+        onOk={handleSubmit(submitAdminForm)}
         okText={editTarget ? t('common.save') : t('common.create')}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
         width={480}
       >
-        <Form form={form} layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+        <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
           <Form.Item
-            name="name"
             label={t('profile.fullName')}
-            rules={[{ required: true, message: t('admins.nameRequired') }]}
+            required
+            validateStatus={errors.name ? 'error' : undefined}
+            help={errors.name?.message}
           >
-            <Input
-              {...blockAutofill('akfa-admin-full-name')}
-              placeholder={t('profile.fullNamePlaceholder')}
+            <Controller
+              name="name"
+              control={control}
+              rules={{ required: t('admins.nameRequired') }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  {...blockAutofill('akfa-admin-full-name')}
+                  placeholder={t('profile.fullNamePlaceholder')}
+                />
+              )}
             />
           </Form.Item>
 
           {!editTarget && (
             <Form.Item
-              name="username"
               label={t('profile.username')}
-              rules={[
-                { required: true, message: t('admins.usernameRequired') },
-                { pattern: /^[a-zA-Z0-9_]+$/, message: t('admins.usernamePattern') },
-              ]}
+              required
+              validateStatus={errors.username ? 'error' : undefined}
+              help={errors.username?.message}
             >
-              <Input
-                {...blockAutofill('akfa-admin-username')}
-                placeholder={t('profile.usernamePlaceholder')}
-                prefix="@"
+              <Controller
+                name="username"
+                control={control}
+                rules={{
+                  required: t('admins.usernameRequired'),
+                  pattern: { value: /^[a-zA-Z0-9_]+$/, message: t('admins.usernamePattern') },
+                }}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    {...blockAutofill('akfa-admin-username')}
+                    placeholder={t('profile.usernamePlaceholder')}
+                    prefix="@"
+                  />
+                )}
               />
             </Form.Item>
           )}
 
           {!editTarget && (
             <Form.Item
-              name="password"
               label={t('admins.labelPassword')}
-              rules={[{ required: true, message: t('admins.passwordRequired') }, { min: 6, message: t('pwd.minLen') }]}
+              required
+              validateStatus={errors.password ? 'error' : undefined}
+              help={errors.password?.message}
             >
-              <Input.Password
-                {...blockAutofill('akfa-admin-new-password')}
-                placeholder={t('pwd.minLen')}
-                prefix={<LockOutlined style={{ color: 'var(--ink-3)' }} />}
+              <Controller
+                name="password"
+                control={control}
+                rules={{
+                  required: t('admins.passwordRequired'),
+                  minLength: { value: 6, message: t('pwd.minLen') },
+                }}
+                render={({ field }) => (
+                  <Input.Password
+                    {...field}
+                    {...blockAutofill('akfa-admin-new-password')}
+                    placeholder={t('pwd.minLen')}
+                    prefix={<LockOutlined style={{ color: 'var(--ink-3)' }} />}
+                  />
+                )}
               />
             </Form.Item>
           )}
 
           <Form.Item
-            name="branchId"
             label={t('admins.labelBranch')}
-            rules={editTarget ? [] : [{ required: true, message: t('admins.branchRequired') }]}
+            required={!editTarget}
+            validateStatus={errors.branchId ? 'error' : undefined}
+            help={errors.branchId?.message}
           >
-            <Select
-              allowClear={!!editTarget}
-              placeholder={t('admins.branchPlaceholder')}
-              loading={branchesLoading}
-              notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-              options={branches.map((b) => ({ value: b.id, label: b.name }))}
+            <Controller
+              name="branchId"
+              control={control}
+              rules={editTarget ? undefined : { required: t('admins.branchRequired') }}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={field.onChange}
+                  allowClear={!!editTarget}
+                  placeholder={t('admins.branchPlaceholder')}
+                  loading={branchesLoading}
+                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
+                  options={branches.map((b) => ({ value: b.id, label: b.name }))}
+                />
+              )}
             />
           </Form.Item>
         </Form>

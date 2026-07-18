@@ -1,6 +1,7 @@
 import { Drawer, Skeleton, Divider, Tag, Button, Form, InputNumber, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useSaleDetail, useAddPayment } from '@/entities/sale';
 import { StatusBadge, MoneyDisplay } from '@/shared/ui';
 import {
@@ -22,22 +23,32 @@ const PAYMENT_OPTIONS = (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[])
   .filter((k) => k !== 'MIXED')
   .map((k) => ({ value: k, label: PAYMENT_METHOD_LABELS[k] }));
 
+type PaymentFormValues = {
+  amount: number;
+  method: PaymentMethod;
+};
+
 export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
   const t = useT();
   const { data: detail, isLoading } = useSaleDetail(sale?.id ?? null);
   const addPayment = useAddPayment();
   const [showPayForm, setShowPayForm] = useState(false);
-  const [payAmount, setPayAmount] = useState<number>(0);
-  const [payMethod, setPayMethod] = useState<PaymentMethod>('CASH_UZS');
+  const { control, handleSubmit, reset, watch } = useForm<PaymentFormValues>({
+    defaultValues: {
+      amount: 0,
+      method: 'CASH_UZS',
+    },
+  });
+  const payAmount = watch('amount') ?? 0;
 
-  const handleAddPayment = () => {
-    if (!sale || payAmount <= 0) return;
+  const submitPayment = (values: PaymentFormValues) => {
+    if (!sale || values.amount <= 0) return;
     addPayment.mutate(
-      { saleId: sale.id, payload: { amountUzs: payAmount, paymentMethod: payMethod } },
+      { saleId: sale.id, payload: { amountUzs: values.amount, paymentMethod: values.method } },
       {
         onSuccess: () => {
           setShowPayForm(false);
-          setPayAmount(0);
+          reset({ amount: 0, method: 'CASH_UZS' });
         },
       },
     );
@@ -94,37 +105,62 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
                 {showPayForm ? (
                   <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
                     <Form.Item label={t('sales.drawerAmountLabel')} style={{ flex: 1, minWidth: 140, margin: 0 }}>
-                      <InputNumber
-                        value={payAmount}
-                        onChange={(v) => setPayAmount(v ?? 0)}
-                        style={{ width: '100%' }}
-                        min={1}
-                        max={sale.debtAmountUzs}
-                        step={10000}
-                        formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                        parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
+                      <Controller
+                        name="amount"
+                        control={control}
+                        render={({ field }) => (
+                          <InputNumber<number>
+                            value={field.value}
+                            onChange={(v) => field.onChange(v ?? 0)}
+                            style={{ width: '100%' }}
+                            min={1}
+                            max={sale.debtAmountUzs}
+                            step={10000}
+                            formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                            parser={(v) => Number(v?.replace(/\s/g, '') || 0)}
+                          />
+                        )}
                       />
                     </Form.Item>
                     <Form.Item label={t('sales.drawerMethodLabel')} style={{ flex: 1, minWidth: 140, margin: 0 }}>
-                      <Select
-                        value={payMethod}
-                        onChange={setPayMethod}
-                        options={PAYMENT_OPTIONS}
-                        style={{ width: '100%' }}
+                      <Controller
+                        name="method"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={PAYMENT_OPTIONS}
+                            style={{ width: '100%' }}
+                          />
+                        )}
                       />
                     </Form.Item>
                     <Button
                       type="primary"
                       loading={addPayment.isPending}
                       disabled={payAmount <= 0}
-                      onClick={handleAddPayment}
+                      onClick={handleSubmit(submitPayment)}
                     >
                       {t('sales.drawerAccept')}
                     </Button>
-                    <Button onClick={() => setShowPayForm(false)}>{t('sales.drawerCancelShort')}</Button>
+                    <Button
+                      onClick={() => {
+                        setShowPayForm(false);
+                        reset({ amount: 0, method: 'CASH_UZS' });
+                      }}
+                    >
+                      {t('sales.drawerCancelShort')}
+                    </Button>
                   </div>
                 ) : (
-                  <Button icon={<PlusOutlined />} onClick={() => setShowPayForm(true)}>
+                  <Button
+                    icon={<PlusOutlined />}
+                    onClick={() => {
+                      reset({ amount: 0, method: 'CASH_UZS' });
+                      setShowPayForm(true);
+                    }}
+                  >
                     {t('sales.drawerAddPayment')}
                   </Button>
                 )}

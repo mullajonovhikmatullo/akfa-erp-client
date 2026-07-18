@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
@@ -143,21 +144,39 @@ const ExpenseModal = ({ open, onClose }) => {
   const branches = useSel(s => s.branches);
   const categories = useSel(s => s.expenseCategories || []);
   const activeBranchId = useSel(sel.activeBranchId);
-  const [form] = antd.Form.useForm();
-  useEffect(() => { if (open) form.resetFields(); }, [open]);
+  const defaultBranchId = activeBranchId === "__all__" ? branches[0]?.id : activeBranchId;
+  const { control, handleSubmit, reset, formState: { errors } } = useForm({
+    defaultValues: {
+      branchId: defaultBranchId,
+      currency: "UZS",
+      category: "utilities",
+      amount: 0,
+      comment: "",
+    },
+  });
 
-  const submit = () => {
-    form.validateFields().then(vals => {
-      const expense = {
-        id: `e-${Math.floor(Math.random() * 9999)}`,
-        date: dayjs().format("YYYY-MM-DD"),
-        ...vals,
-      };
-      dispatch({ type: "expenses/create", expense });
-      antd.message.success("Expense recorded");
-      onClose();
-    });
-  };
+  useEffect(() => {
+    if (open) {
+      reset({
+        branchId: defaultBranchId,
+        currency: "UZS",
+        category: "utilities",
+        amount: 0,
+        comment: "",
+      });
+    }
+  }, [defaultBranchId, open, reset]);
+
+  const submit = handleSubmit((vals) => {
+    const expense = {
+      id: `e-${Math.floor(Math.random() * 9999)}`,
+      date: dayjs().format("YYYY-MM-DD"),
+      ...vals,
+    };
+    dispatch({ type: "expenses/create", expense });
+    antd.message.success("Expense recorded");
+    onClose();
+  });
 
   const renderOption = (c) => ({
     value: c.id,
@@ -175,29 +194,65 @@ const ExpenseModal = ({ open, onClose }) => {
 
   return (
     <antd.Modal open={open} onCancel={onClose} onOk={submit} title="Log expense" okText="Save">
-      <antd.Form form={form} layout="vertical" initialValues={{ branchId: activeBranchId === "__all__" ? branches[0].id : activeBranchId, currency: "UZS", category: "utilities" }}>
+      <antd.Form layout="vertical">
         <div className="grid-2">
-          <antd.Form.Item name="category" label="Category" rules={[{ required: true }]}>
-            <antd.Select
-              showSearch
-              optionFilterProp="value"
-              options={[
-                { label: "Standard", options: builtinOpts },
-                ...(customOpts.length ? [{ label: "Custom", options: customOpts }] : []),
-              ]}
+          <antd.Form.Item label="Category" required validateStatus={errors.category ? "error" : undefined}>
+            <Controller
+              name="category"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <antd.Select
+                  showSearch
+                  optionFilterProp="value"
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={[
+                    { label: "Standard", options: builtinOpts },
+                    ...(customOpts.length ? [{ label: "Custom", options: customOpts }] : []),
+                  ]}
+                />
+              )}
             />
           </antd.Form.Item>
-          <antd.Form.Item name="branchId" label="Branch"><antd.Select options={branches.map(b => ({ value: b.id, label: b.name }))} /></antd.Form.Item>
+          <antd.Form.Item label="Branch">
+            <Controller name="branchId" control={control} render={({ field }) => <antd.Select value={field.value} onChange={field.onChange} options={branches.map(b => ({ value: b.id, label: b.name }))} />} />
+          </antd.Form.Item>
         </div>
         <div className="grid-2">
-          <antd.Form.Item name="amount" label="Amount" rules={[{ required: true }]}>
-            <antd.InputNumber style={{ width: "100%" }} step={100000} min={0} formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} />
+          <antd.Form.Item label="Amount" required validateStatus={errors.amount ? "error" : undefined}>
+            <Controller
+              name="amount"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <antd.InputNumber
+                  value={field.value}
+                  onChange={field.onChange}
+                  style={{ width: "100%" }}
+                  step={100000}
+                  min={0}
+                  formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}
+                />
+              )}
+            />
           </antd.Form.Item>
-          <antd.Form.Item name="currency" label="Currency">
-            <antd.Radio.Group><antd.Radio.Button value="UZS">UZS</antd.Radio.Button><antd.Radio.Button value="USD">USD</antd.Radio.Button></antd.Radio.Group>
+          <antd.Form.Item label="Currency">
+            <Controller
+              name="currency"
+              control={control}
+              render={({ field }) => (
+                <antd.Radio.Group value={field.value} onChange={e => field.onChange(e.target.value)}>
+                  <antd.Radio.Button value="UZS">UZS</antd.Radio.Button>
+                  <antd.Radio.Button value="USD">USD</antd.Radio.Button>
+                </antd.Radio.Group>
+              )}
+            />
           </antd.Form.Item>
         </div>
-        <antd.Form.Item name="comment" label="Comment"><antd.Input.TextArea rows={2} /></antd.Form.Item>
+        <antd.Form.Item label="Comment">
+          <Controller name="comment" control={control} render={({ field }) => <antd.Input.TextArea {...field} rows={2} />} />
+        </antd.Form.Item>
       </antd.Form>
     </antd.Modal>
   );
@@ -209,31 +264,52 @@ const CategoryManagerDrawer = ({ open, onClose }) => {
   const categories = useSel(s => s.expenseCategories || []);
   const expenses = useSel(s => s.expenses);
   const [editing, setEditing] = useState(null); // { id?, label, color }
+  const {
+    control,
+    handleSubmit,
+    reset: resetCategoryForm,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      label: "",
+      color: PRESET_COLORS[0],
+    },
+  });
+  const categoryColor = useWatch({ control, name: "color" }) || PRESET_COLORS[0];
 
   const usageOf = (catId) => expenses.filter(e => e.category === catId).length;
 
-  const openNew = () => setEditing({ id: "", label: "", color: PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)] });
-  const openEdit = (cat) => setEditing({ ...cat });
+  const openNew = () => {
+    setEditing({ id: "", builtin: false });
+    resetCategoryForm({
+      label: "",
+      color: PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)],
+    });
+  };
+  const openEdit = (cat) => {
+    setEditing({ id: cat.id, builtin: cat.builtin });
+    resetCategoryForm({ label: cat.label, color: cat.color });
+  };
 
   const slugify = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 
-  const save = () => {
-    if (!editing.label?.trim()) { antd.message.warning("Name is required"); return; }
+  const save = handleSubmit(({ label, color }) => {
+    if (!label?.trim()) { antd.message.warning("Name is required"); return; }
     const isNew = !editing.id || !categories.some(c => c.id === editing.id);
     let id = editing.id;
     if (isNew) {
-      id = slugify(editing.label) || `cat_${Math.random().toString(36).slice(2,6)}`;
+      id = slugify(label) || `cat_${Math.random().toString(36).slice(2,6)}`;
       // ensure uniqueness
       let base = id, i = 2;
       while (categories.some(c => c.id === id)) { id = `${base}_${i++}`; }
     }
     dispatch({
       type: "expenseCategories/upsert",
-      category: { id, label: editing.label.trim(), color: editing.color, builtin: editing.builtin || false },
+      category: { id, label: label.trim(), color, builtin: editing.builtin || false },
     });
     antd.message.success(isNew ? "Category created" : "Category updated");
     setEditing(null);
-  };
+  });
 
   const remove = (cat) => {
     const usage = usageOf(cat.id);
@@ -283,7 +359,11 @@ const CategoryManagerDrawer = ({ open, onClose }) => {
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
               <div>
                 <div style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 4 }}>Name</div>
-                <antd.Input value={editing.label} onChange={e => setEditing({ ...editing, label: e.target.value })} placeholder="e.g. Equipment maintenance" autoFocus />
+                <Controller
+                  name="label"
+                  control={control}
+                  render={({ field }) => <antd.Input {...field} placeholder="e.g. Equipment maintenance" autoFocus />}
+                />
               </div>
               <div>
                 <div style={{ fontSize: 12, color: "var(--ink-3)", marginBottom: 6 }}>Colour</div>
@@ -292,12 +372,12 @@ const CategoryManagerDrawer = ({ open, onClose }) => {
                     <button
                       key={c}
                       type="button"
-                      onClick={() => setEditing({ ...editing, color: c })}
+                      onClick={() => setValue("color", c, { shouldDirty: true })}
                       style={{
                         width: 28, height: 28, borderRadius: 6,
                         background: c,
-                        border: editing.color === c ? "2px solid var(--ink)" : "2px solid transparent",
-                        boxShadow: editing.color === c ? "0 0 0 2px #fff inset" : "none",
+                        border: categoryColor === c ? "2px solid var(--ink)" : "2px solid transparent",
+                        boxShadow: categoryColor === c ? "0 0 0 2px #fff inset" : "none",
                         cursor: "pointer", padding: 0,
                       }}
                     />

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Drawer, Button, Input, Popconfirm, Switch, Skeleton, Empty } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import {
@@ -17,6 +18,11 @@ interface CategoryManagerDrawerProps {
   onClose: () => void;
 }
 
+type CategoryManagerFormValues = {
+  newName: string;
+  editName: string;
+};
+
 export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerProps) {
   const t = useT();
   const { data: categories = [], isLoading } = useExpenseCategories(true);
@@ -24,23 +30,31 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
   const updateCat = useUpdateExpenseCategory();
   const deleteCat = useDeleteExpenseCategory();
 
-  const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
+  const { control, handleSubmit, resetField, setValue, getValues, watch } = useForm<CategoryManagerFormValues>({
+    defaultValues: {
+      newName: '',
+      editName: '',
+    },
+  });
+  const newName = watch('newName') ?? '';
+  const editName = watch('editName') ?? '';
 
-  const handleCreate = () => {
-    if (!newName.trim()) return;
-    createCat.mutate({ name: newName.trim() }, { onSuccess: () => setNewName('') });
+  const submitCreate = (values: CategoryManagerFormValues) => {
+    const name = values.newName.trim();
+    if (!name) return;
+    createCat.mutate({ name }, { onSuccess: () => resetField('newName') });
   };
 
   const startEdit = (cat: ExpenseCategory) => {
     setEditingId(cat.id);
-    setEditName(cat.name);
+    setValue('editName', cat.name);
   };
 
   const saveEdit = (id: string) => {
-    if (!editName.trim()) return;
-    updateCat.mutate({ id, payload: { name: editName.trim() } }, { onSuccess: () => setEditingId(null) });
+    const name = getValues('editName').trim();
+    if (!name) return;
+    updateCat.mutate({ id, payload: { name } }, { onSuccess: () => setEditingId(null) });
   };
 
   return (
@@ -53,20 +67,25 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
     >
       {/* Add new */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-        <Input
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          {...blockAutofill('akfa-expense-category-new-name')}
-          placeholder={t('categoryDrawer.placeholderNewName')}
-          onPressEnter={handleCreate}
-          style={{ flex: 1 }}
+        <Controller
+          name="newName"
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              {...blockAutofill('akfa-expense-category-new-name')}
+              placeholder={t('categoryDrawer.placeholderNewName')}
+              onPressEnter={handleSubmit(submitCreate)}
+              style={{ flex: 1 }}
+            />
+          )}
         />
         <Button
           type="primary"
           icon={<PlusOutlined />}
           loading={createCat.isPending}
           disabled={!newName.trim()}
-          onClick={handleCreate}
+          onClick={handleSubmit(submitCreate)}
         >
           {t('common.add')}
         </Button>
@@ -94,16 +113,35 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
             >
               {editingId === cat.id ? (
                 <>
-                  <Input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    {...blockAutofill(`akfa-expense-category-edit-${cat.id}`)}
-                    onPressEnter={() => saveEdit(cat.id)}
-                    style={{ flex: 1 }}
-                    autoFocus
+                  <Controller
+                    name="editName"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        {...blockAutofill(`akfa-expense-category-edit-${cat.id}`)}
+                        onPressEnter={() => saveEdit(cat.id)}
+                        style={{ flex: 1 }}
+                        autoFocus
+                      />
+                    )}
                   />
-                  <Button size="small" type="primary" icon={<CheckOutlined />} onClick={() => saveEdit(cat.id)} loading={updateCat.isPending} />
-                  <Button size="small" icon={<CloseOutlined />} onClick={() => setEditingId(null)} />
+                  <Button
+                    size="small"
+                    type="primary"
+                    icon={<CheckOutlined />}
+                    onClick={() => saveEdit(cat.id)}
+                    loading={updateCat.isPending}
+                    disabled={!editName.trim()}
+                  />
+                  <Button
+                    size="small"
+                    icon={<CloseOutlined />}
+                    onClick={() => {
+                      setEditingId(null);
+                      resetField('editName');
+                    }}
+                  />
                 </>
               ) : (
                 <>

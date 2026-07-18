@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, DatePicker, Select, Skeleton, Table, Alert } from 'antd';
 import {
   ReloadOutlined,
@@ -16,25 +17,42 @@ import {
   type AnalyticsPeriod,
   type AnalyticsQuery,
 } from '@/entities/analytics';
+import { useSales } from '@/entities/sale';
 import { useSel } from '@/app/store.jsx';
 import { MoneyDisplay, StatusBadge } from '@/shared/ui';
 import { SALE_TYPE_LABELS, PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@/shared/types/domain';
-import type { ProductUnit } from '@/shared/types/domain';
+import type { ProductUnit, SaleListItem, SaleType } from '@/shared/types/domain';
 import { formatDate } from '@/shared/lib/formatters';
 import { useT } from '@/shared/lib/i18n';
 
 type Tab = 'dashboard' | 'sales' | 'expenses' | 'inventory' | 'debt';
 type TFunc = (key: string) => string;
+type DebtScope = 'overdue' | 'allDebt';
+type DebtDeadlineFilter = 'all' | 'withDeadline' | 'withoutDeadline';
+type DebtSort = 'dueDateAsc' | 'debtDesc' | 'lateDesc' | 'createdDesc';
+type AnalyticsFiltersForm = {
+  period: AnalyticsPeriod;
+  dateRange: [Dayjs | null, Dayjs | null];
+};
 
 export function AnalyticsPage() {
   const t = useT();
   const lowStockThreshold = useSel((s: { settings: { lowStockThreshold: number } }) => s.settings.lowStockThreshold);
   const [tab, setTab] = useState<Tab>('dashboard');
-  const [period, setPeriod] = useState<AnalyticsPeriod>('day');
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
-    dayjs().startOf('month'),
-    dayjs(),
-  ]);
+  const [overduePage, setOverduePage] = useState(1);
+  const [overduePageSize, setOverduePageSize] = useState(10);
+  const [debtScope, setDebtScope] = useState<DebtScope>('overdue');
+  const [debtDeadlineFilter, setDebtDeadlineFilter] = useState<DebtDeadlineFilter>('all');
+  const [debtSort, setDebtSort] = useState<DebtSort>('dueDateAsc');
+  const [debtCustomerId, setDebtCustomerId] = useState<string | undefined>();
+  const [debtSaleType, setDebtSaleType] = useState<SaleType | undefined>();
+  const { control, watch } = useForm<AnalyticsFiltersForm>({
+    defaultValues: {
+      period: 'day',
+      dateRange: [dayjs().startOf('month'), dayjs()],
+    },
+  });
+  const { period, dateRange } = watch();
 
   const query: AnalyticsQuery = {
     from: dateRange[0]?.toISOString(),
@@ -49,6 +67,30 @@ export function AnalyticsPage() {
   const expenseReport = useExpenseReport(query);
   const inventoryReport = useInventoryReport(query);
   const customerDebt = useCustomerDebt(query);
+  const debtSales = useSales({
+    from: query.from,
+    to: query.to,
+    hasDebt: true,
+    overdue: debtScope === 'overdue' ? true : undefined,
+    customerId: debtCustomerId,
+    saleType: debtSaleType,
+  });
+
+  useEffect(() => {
+    setOverduePage(1);
+  }, [query.from, query.to, debtScope, debtDeadlineFilter, debtCustomerId, debtSaleType, debtSort]);
+
+  const handleDebtScopeChange = (value: DebtScope) => {
+    setDebtScope(value);
+    if (value === 'overdue' && debtDeadlineFilter === 'withoutDeadline') {
+      setDebtDeadlineFilter('all');
+    }
+  };
+
+  const handleDebtDeadlineChange = (value: DebtDeadlineFilter) => {
+    setDebtDeadlineFilter(value);
+    if (value === 'withoutDeadline') setDebtScope('allDebt');
+  };
 
   const refetchAll = () => {
     dashboard.refetch();
@@ -56,6 +98,7 @@ export function AnalyticsPage() {
     expenseReport.refetch();
     inventoryReport.refetch();
     customerDebt.refetch();
+    debtSales.refetch();
   };
 
   const anyFetching =
@@ -63,7 +106,8 @@ export function AnalyticsPage() {
     salesReport.isFetching ||
     expenseReport.isFetching ||
     inventoryReport.isFetching ||
-    customerDebt.isFetching;
+    customerDebt.isFetching ||
+    debtSales.isFetching;
 
   const PERIOD_OPTIONS: { value: AnalyticsPeriod; label: string }[] = [
     { value: 'day', label: t('analytics.periodDay') },
@@ -87,22 +131,34 @@ export function AnalyticsPage() {
           <div className="sub">{t('analytics.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <DatePicker.RangePicker
-            value={dateRange}
-            onChange={(v) => setDateRange(v ? [v[0], v[1]] : [null, null])}
-            format="DD.MM.YYYY"
-            presets={[
-              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
-              { label: t('analytics.lastMonth'), value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
-              { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day'), dayjs()] },
-              { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day'), dayjs()] },
-            ]}
+          <Controller
+            name="dateRange"
+            control={control}
+            render={({ field }) => (
+              <DatePicker.RangePicker
+                value={field.value}
+                onChange={(value) => field.onChange(value ? [value[0], value[1]] : [null, null])}
+                format="DD.MM.YYYY"
+                presets={[
+                  { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
+                  { label: t('analytics.lastMonth'), value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] },
+                  { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day'), dayjs()] },
+                  { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day'), dayjs()] },
+                ]}
+              />
+            )}
           />
-          <Select
-            value={period}
-            onChange={setPeriod}
-            options={PERIOD_OPTIONS}
-            style={{ width: 120 }}
+          <Controller
+            name="period"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onChange={field.onChange}
+                options={PERIOD_OPTIONS}
+                style={{ width: 120 }}
+              />
+            )}
           />
           <Button icon={<ReloadOutlined spin={anyFetching} />} onClick={refetchAll} />
         </div>
@@ -153,7 +209,30 @@ export function AnalyticsPage() {
 
       {/* ── Customer Debt ─────────────────────────────────────── */}
       {tab === 'debt' && (
-        <DebtTab data={customerDebt.data} loading={customerDebt.isLoading} t={t} />
+        <DebtTab
+          data={customerDebt.data}
+          loading={customerDebt.isLoading}
+          t={t}
+          debtSales={debtSales.data}
+          debtLoading={debtSales.isLoading}
+          debtFetching={debtSales.isFetching}
+          overduePage={overduePage}
+          overduePageSize={overduePageSize}
+          debtScope={debtScope}
+          debtDeadlineFilter={debtDeadlineFilter}
+          debtSort={debtSort}
+          debtCustomerId={debtCustomerId}
+          debtSaleType={debtSaleType}
+          onDebtScopeChange={handleDebtScopeChange}
+          onDebtDeadlineChange={handleDebtDeadlineChange}
+          onDebtSortChange={setDebtSort}
+          onDebtCustomerChange={setDebtCustomerId}
+          onDebtSaleTypeChange={setDebtSaleType}
+          onOverduePageChange={(page, pageSize) => {
+            setOverduePage(page);
+            setOverduePageSize(pageSize);
+          }}
+        />
       )}
     </>
   );
@@ -418,8 +497,73 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
 
 // ─── Debt Tab ─────────────────────────────────────────────────────────────────
 
-function DebtTab({ data, loading, t }: { data?: ReturnType<typeof useCustomerDebt>['data']; loading: boolean; t: TFunc }) {
+function DebtTab({
+  data,
+  loading,
+  t,
+  debtSales,
+  debtLoading,
+  debtFetching,
+  overduePage,
+  overduePageSize,
+  debtScope,
+  debtDeadlineFilter,
+  debtSort,
+  debtCustomerId,
+  debtSaleType,
+  onDebtScopeChange,
+  onDebtDeadlineChange,
+  onDebtSortChange,
+  onDebtCustomerChange,
+  onDebtSaleTypeChange,
+  onOverduePageChange,
+}: {
+  data?: ReturnType<typeof useCustomerDebt>['data'];
+  loading: boolean;
+  t: TFunc;
+  debtSales?: ReturnType<typeof useSales>['data'];
+  debtLoading: boolean;
+  debtFetching: boolean;
+  overduePage: number;
+  overduePageSize: number;
+  debtScope: DebtScope;
+  debtDeadlineFilter: DebtDeadlineFilter;
+  debtSort: DebtSort;
+  debtCustomerId?: string;
+  debtSaleType?: SaleType;
+  onDebtScopeChange: (value: DebtScope) => void;
+  onDebtDeadlineChange: (value: DebtDeadlineFilter) => void;
+  onDebtSortChange: (value: DebtSort) => void;
+  onDebtCustomerChange: (value?: string) => void;
+  onDebtSaleTypeChange: (value?: SaleType) => void;
+  onOverduePageChange: (page: number, pageSize: number) => void;
+}) {
   if (loading || !data) return <Skeleton active paragraph={{ rows: 6 }} />;
+
+  const debtRows = [...(debtSales ?? [])]
+    .filter((sale) => {
+      if (debtDeadlineFilter === 'withDeadline') return Boolean(sale.debtDueDate);
+      if (debtDeadlineFilter === 'withoutDeadline') return !sale.debtDueDate;
+      return true;
+    })
+    .sort((a, b) => sortDebtRows(a, b, debtSort));
+  const debtTotal = debtRows.length;
+  const tableTitle = debtScope === 'overdue' ? t('analytics.overduePayments') : t('analytics.debtPayments');
+  const emptyText = debtScope === 'overdue' ? t('analytics.noOverduePayments') : t('analytics.noDebtPayments');
+  const topDebtorOptions = data.topDebtors.map((customer) => ({
+    value: customer.id,
+    searchLabel: customer.fullName,
+    label: (
+      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {customer.fullName}
+        </span>
+        <span className="num" style={{ color: 'var(--danger)', fontWeight: 700, flex: '0 0 auto' }}>
+          {formatCompactAmount(customer.balance)}
+        </span>
+      </span>
+    ),
+  }));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -437,29 +581,131 @@ function DebtTab({ data, loading, t }: { data?: ReturnType<typeof useCustomerDeb
         />
       )}
 
-      {/* Top debtors */}
+      {/* Debt payments */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', fontWeight: 700, fontSize: 13 }}>
-          {t('analytics.topDebtors')}
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 13 }}>
+            <WarningOutlined style={{ color: 'var(--warning)' }} />
+            {tableTitle}
+          </div>
+          <span style={{ color: 'var(--ink-3)', fontSize: 12.5 }}>
+            <strong>{debtTotal}</strong> {t('common.resultsSuffix')}
+          </span>
         </div>
-        <Table
+        <div style={{ display: 'flex', gap: 8, padding: '12px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Select<DebtScope>
+            value={debtScope}
+            onChange={onDebtScopeChange}
+            style={{ width: 170 }}
+            options={[
+              { value: 'overdue', label: t('analytics.scopeOverdue') },
+              { value: 'allDebt', label: t('analytics.scopeAllDebt') },
+            ]}
+          />
+          <Select<DebtDeadlineFilter>
+            value={debtDeadlineFilter}
+            onChange={onDebtDeadlineChange}
+            style={{ width: 190 }}
+            options={[
+              { value: 'all', label: t('analytics.deadlineAll') },
+              { value: 'withDeadline', label: t('analytics.deadlineSet') },
+              { value: 'withoutDeadline', label: t('analytics.deadlineMissing') },
+            ]}
+          />
+          <Select
+            value={debtCustomerId}
+            onChange={onDebtCustomerChange}
+            allowClear
+            showSearch
+            optionFilterProp="searchLabel"
+            placeholder={t('analytics.filterTopDebtors')}
+            style={{ minWidth: 230, flex: '1 1 230px' }}
+            options={topDebtorOptions}
+          />
+          <Select<SaleType>
+            value={debtSaleType}
+            onChange={onDebtSaleTypeChange}
+            allowClear
+            placeholder={t('sales.filterAllTypes')}
+            style={{ width: 160 }}
+            options={[
+              { value: 'RETAIL', label: t('sales.typeRetail') },
+              { value: 'WHOLESALE', label: t('sales.typeWholesale') },
+            ]}
+          />
+          <Select<DebtSort>
+            value={debtSort}
+            onChange={onDebtSortChange}
+            style={{ width: 190 }}
+            options={[
+              { value: 'dueDateAsc', label: t('analytics.sortDueDateAsc') },
+              { value: 'debtDesc', label: t('analytics.sortDebtDesc') },
+              { value: 'lateDesc', label: t('analytics.sortLateDesc') },
+              { value: 'createdDesc', label: t('analytics.sortCreatedDesc') },
+            ]}
+          />
+        </div>
+        <Table<SaleListItem>
           size="small"
-          pagination={false}
           rowKey="id"
-          dataSource={data.topDebtors}
+          loading={debtLoading || debtFetching}
+          dataSource={debtRows}
+          scroll={{ x: 980 }}
+          locale={{ emptyText }}
+          pagination={{
+            current: overduePage,
+            pageSize: overduePageSize,
+            total: debtTotal,
+            onChange: onOverduePageChange,
+            showSizeChanger: true,
+            showTotal: (total) => `${total} ${t('common.countSuffix')}`,
+            pageSizeOptions: ['10', '25', '50'],
+          }}
           columns={[
-            { title: t('analytics.colCustomer'), key: 'name', render: (_, c) => (
+            { title: '#', key: '_idx', width: 52, align: 'center', render: (_, __, index) => (
+              <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>
+                {(overduePage - 1) * overduePageSize + index + 1}
+              </span>
+            )},
+            { title: t('analytics.colCustomer'), key: 'customer', render: (_, sale) => (
+              sale.customer ? (
+                <div>
+                  <div style={{ fontWeight: 600 }}>{sale.customer.fullName}</div>
+                </div>
+              ) : (
+                <span style={{ color: 'var(--ink-4)' }}>{t('sales.anonymous')}</span>
+              )
+            )},
+            { title: t('analytics.colPhone'), key: 'phone', width: 150, render: (_, sale) => (
+              sale.customer?.phone ? (
+                <span style={{ fontSize: 12, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{sale.customer.phone}</span>
+              ) : (
+                <span style={{ color: 'var(--ink-4)' }}>—</span>
+              )
+            )},
+            { title: t('analytics.colBranch'), key: 'branch', width: 140, render: (_, sale) => (
+              <StatusBadge tone="muted">{sale.branch.name}</StatusBadge>
+            )},
+            { title: t('analytics.colDueDate'), key: 'dueDate', width: 150, render: (_, sale) => (
               <div>
-                <div style={{ fontWeight: 600 }}>{c.fullName}</div>
-                {c.phone && <div style={{ fontSize: 11.5, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{c.phone}</div>}
+                <div style={{ fontWeight: 700, color: sale.debtDueDate ? 'var(--danger)' : 'var(--ink-4)' }}>
+                  {sale.debtDueDate ? formatDate(sale.debtDueDate) : t('analytics.noDeadline')}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{t('common.date')}: {formatDate(sale.createdAt)}</div>
               </div>
             )},
-            { title: t('analytics.colBranch'), key: 'branch', width: 140, render: (_, c) => (
-              <StatusBadge tone="muted">{c.branch.name}</StatusBadge>
+            { title: t('analytics.colOverdueBy'), key: 'lateBy', width: 130, align: 'center', render: (_, sale) => (
+              sale.debtDueDate ? (
+                <StatusBadge tone="danger" dot>
+                  {getLateDays(sale.debtDueDate)} {t('analytics.daysLateSuffix')}
+                </StatusBadge>
+              ) : (
+                <StatusBadge tone="muted">{t('analytics.noDeadline')}</StatusBadge>
+              )
             )},
-            { title: t('analytics.colDebt'), key: 'balance', width: 160, align: 'right', render: (_, c) => (
+            { title: t('analytics.colDebt'), key: 'debt', width: 170, align: 'right', render: (_, sale) => (
               <span className="num" style={{ fontWeight: 700, color: 'var(--danger)' }}>
-                <MoneyDisplay amount={c.balance} currency="UZS" />
+                <MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />
               </span>
             )},
           ]}
@@ -505,4 +751,44 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 function Empty({ t }: { t: TFunc }) {
   return <div style={{ color: 'var(--ink-3)', fontSize: 13, padding: '8px 0' }}>{t('common.noData')}</div>;
+}
+
+function sortDebtRows(a: SaleListItem, b: SaleListItem, sort: DebtSort) {
+  if (sort === 'debtDesc') {
+    return b.debtAmountUzs - a.debtAmountUzs || compareDueDate(a, b);
+  }
+
+  if (sort === 'lateDesc') {
+    return getSortableLateDays(b) - getSortableLateDays(a) || b.debtAmountUzs - a.debtAmountUzs;
+  }
+
+  if (sort === 'createdDesc') {
+    return dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf();
+  }
+
+  return compareDueDate(a, b);
+}
+
+function compareDueDate(a: SaleListItem, b: SaleListItem) {
+  return getDueTime(a) - getDueTime(b) || b.debtAmountUzs - a.debtAmountUzs;
+}
+
+function getDueTime(sale: SaleListItem) {
+  return sale.debtDueDate ? dayjs(sale.debtDueDate).valueOf() : Number.MAX_SAFE_INTEGER;
+}
+
+function getSortableLateDays(sale: SaleListItem) {
+  return sale.debtDueDate ? getLateDays(sale.debtDueDate) : -1;
+}
+
+function getLateDays(dueDate: string) {
+  return Math.max(0, dayjs().startOf('day').diff(dayjs(dueDate).startOf('day'), 'day'));
+}
+
+function formatCompactAmount(amount: number) {
+  const abs = Math.abs(amount);
+  if (abs >= 1e9) return `${(abs / 1e9).toFixed(1)}B`;
+  if (abs >= 1e6) return `${(abs / 1e6).toFixed(1)}M`;
+  if (abs >= 1e3) return `${Math.round(abs / 1e3)}K`;
+  return String(abs);
 }

@@ -1,4 +1,5 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Button, DatePicker, Empty, Skeleton } from 'antd';
 import {
@@ -77,6 +78,9 @@ const PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CASH_USD', 'CARD', 'TRANS
 const TOP_PRODUCTS_LIMIT = 10;
 const getChartColor = (index: number) => CHART_COLORS[index % CHART_COLORS.length] ?? COLORS.primary;
 const getTodayRange = (): [dayjs.Dayjs, dayjs.Dayjs] => [dayjs().startOf('day'), dayjs().endOf('day')];
+type DashboardFiltersForm = {
+  dateRange: [dayjs.Dayjs | null, dayjs.Dayjs | null];
+};
 
 export function DashboardPage() {
   const t = useT();
@@ -87,7 +91,10 @@ export function DashboardPage() {
   const branchParam = !isSuper && branchId ? { branchId } : {};
 
   const now = dayjs();
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>(() => getTodayRange());
+  const { control, watch } = useForm<DashboardFiltersForm>({
+    defaultValues: { dateRange: getTodayRange() },
+  });
+  const { dateRange } = watch();
   const rangeStart = dateRange[0]?.startOf('day') ?? now.startOf('day');
   const rangeEnd = dateRange[1]?.endOf('day') ?? now.endOf('day');
   const rangeDays = Math.max(1, rangeEnd.diff(rangeStart, 'day') + 1);
@@ -256,18 +263,24 @@ export function DashboardPage() {
           </div>
           <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{periodMeta}</div>
         </div>
-        <DatePicker.RangePicker
-          value={dateRange}
-          onChange={(value) => setDateRange(value?.[0] && value?.[1] ? [value[0], value[1]] : getTodayRange())}
-          format="DD.MM.YYYY"
-          placeholder={[t('common.startDate'), t('common.endDate')]}
-          presets={[
-            { label: t('common.today'), value: [dayjs().startOf('day'), dayjs().endOf('day')] },
-            { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs().endOf('day')] },
-            { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
-            { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
-          ]}
-          style={{ minWidth: 260 }}
+        <Controller
+          name="dateRange"
+          control={control}
+          render={({ field }) => (
+            <DatePicker.RangePicker
+              value={field.value}
+              onChange={(value) => field.onChange(value?.[0] && value?.[1] ? [value[0], value[1]] : getTodayRange())}
+              format="DD.MM.YYYY"
+              placeholder={[t('common.startDate'), t('common.endDate')]}
+              presets={[
+                { label: t('common.today'), value: [dayjs().startOf('day'), dayjs().endOf('day')] },
+                { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs().endOf('day')] },
+                { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
+                { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
+              ]}
+              style={{ minWidth: 260 }}
+            />
+          )}
         />
       </div>
 

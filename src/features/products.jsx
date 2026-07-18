@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as antd from 'antd';
 import * as icons from '@ant-design/icons';
 import { useSel, useDispatch } from '../app/store.jsx';
@@ -18,9 +19,10 @@ const ProductsFeature = () => {
   const branches = useSel(s => s.branches);
   const lowThreshold = useSel(s => s.settings.lowStockThreshold);
   const dispatch = useDispatch();
+  const { control } = useForm({ defaultValues: { q: "", cat: "__all__" } });
+  const q = useWatch({ control, name: "q" }) || "";
+  const cat = useWatch({ control, name: "cat" }) || "__all__";
 
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState("__all__");
   const [editing, setEditing] = useState(null);
   const [drawerProduct, setDrawerProduct] = useState(null);
 
@@ -88,9 +90,30 @@ const ProductsFeature = () => {
 
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ display: "flex", gap: 10, padding: "14px 16px", borderBottom: "1px solid var(--border)", alignItems: "center" }}>
-          <antd.Input prefix={<icons.SearchOutlined />} placeholder="Search SKU or name" value={q} onChange={e => setQ(e.target.value)} style={{ maxWidth: 320 }} />
-          <antd.Select value={cat} onChange={setCat} style={{ minWidth: 200 }}
-            options={[{ value: "__all__", label: "All categories" }, ...categories.map(c => ({ value: c.id, label: c.name }))]} />
+          <Controller
+            name="q"
+            control={control}
+            render={({ field }) => (
+              <antd.Input
+                {...field}
+                prefix={<icons.SearchOutlined />}
+                placeholder="Search SKU or name"
+                style={{ maxWidth: 320 }}
+              />
+            )}
+          />
+          <Controller
+            name="cat"
+            control={control}
+            render={({ field }) => (
+              <antd.Select
+                value={field.value}
+                onChange={field.onChange}
+                style={{ minWidth: 200 }}
+                options={[{ value: "__all__", label: "All categories" }, ...categories.map(c => ({ value: c.id, label: c.name }))]}
+              />
+            )}
+          />
           <div style={{ marginLeft: "auto", color: "var(--ink-3)", fontSize: 12.5 }}>
             Showing <strong>{filtered.length}</strong> of {products.length}
           </div>
@@ -117,48 +140,82 @@ const ProductsFeature = () => {
 const ProductFormModal = ({ product, onClose }) => {
   const dispatch = useDispatch();
   const categories = useSel(s => s.categories);
-  const [form] = antd.Form.useForm();
+  const productExists = useSel(s => product ? s.products.some(p => p.id === product.id) : false);
+  const { control, handleSubmit, reset, formState: { errors } } = useForm({
+    defaultValues: {
+      sku: "",
+      name: "",
+      categoryId: "c-prof",
+      unit: "PIECE",
+      costPrice: 0,
+      retailPrice: 0,
+      wholesalePrice: 0,
+      currency: "UZS",
+    },
+  });
 
   useEffect(() => {
-    if (product) form.setFieldsValue(product);
-  }, [product]);
+    if (product) reset(product);
+  }, [product, reset]);
 
   if (!product) return null;
-  const isNew = !useSel(s => s.products.some(p => p.id === product.id));
+  const isNew = !productExists;
 
-  const submit = () => {
-    form.validateFields().then(vals => {
-      dispatch({ type: "products/upsert", product: { ...product, ...vals } });
-      antd.message.success(isNew ? "Product created" : "Product updated");
-      onClose();
-    });
-  };
+  const submit = handleSubmit((vals) => {
+    dispatch({ type: "products/upsert", product: { ...product, ...vals } });
+    antd.message.success(isNew ? "Product created" : "Product updated");
+    onClose();
+  });
 
   return (
     <antd.Modal title={isNew ? "New product" : `Edit · ${product.sku}`} open={!!product} onCancel={onClose} onOk={submit} okText="Save" width={680}>
-      <antd.Form form={form} layout="vertical" initialValues={product}>
+      <antd.Form layout="vertical">
         <div className="grid-2">
-          <antd.Form.Item name="sku" label="SKU" rules={[{ required: true }]}><antd.Input placeholder="PRF-XYZ-001" /></antd.Form.Item>
-          <antd.Form.Item name="name" label="Name" rules={[{ required: true }]}><antd.Input /></antd.Form.Item>
+          <antd.Form.Item label="SKU" required validateStatus={errors.sku ? "error" : undefined} help={errors.sku?.message}>
+            <Controller name="sku" control={control} rules={{ required: "SKU is required" }} render={({ field }) => <antd.Input {...field} placeholder="PRF-XYZ-001" />} />
+          </antd.Form.Item>
+          <antd.Form.Item label="Name" required validateStatus={errors.name ? "error" : undefined} help={errors.name?.message}>
+            <Controller name="name" control={control} rules={{ required: "Name is required" }} render={({ field }) => <antd.Input {...field} />} />
+          </antd.Form.Item>
         </div>
         <div className="grid-2">
-          <antd.Form.Item name="categoryId" label="Category">
-            <antd.Select options={categories.map(c => ({ value: c.id, label: c.name }))} />
+          <antd.Form.Item label="Category">
+            <Controller
+              name="categoryId"
+              control={control}
+              render={({ field }) => <antd.Select value={field.value} onChange={field.onChange} options={categories.map(c => ({ value: c.id, label: c.name }))} />}
+            />
           </antd.Form.Item>
-          <antd.Form.Item name="unit" label="Unit">
-            <antd.Select options={["PIECE","KG"].map(u => ({ value: u, label: u }))} />
+          <antd.Form.Item label="Unit">
+            <Controller
+              name="unit"
+              control={control}
+              render={({ field }) => <antd.Select value={field.value} onChange={field.onChange} options={["PIECE","KG"].map(u => ({ value: u, label: u }))} />}
+            />
           </antd.Form.Item>
         </div>
         <div className="grid-3">
-          <antd.Form.Item name="costPrice" label="Cost"><antd.InputNumber style={{ width: "100%" }} min={0} /></antd.Form.Item>
-          <antd.Form.Item name="retailPrice" label="Retail"><antd.InputNumber style={{ width: "100%" }} min={0} /></antd.Form.Item>
-          <antd.Form.Item name="wholesalePrice" label="Wholesale"><antd.InputNumber style={{ width: "100%" }} min={0} /></antd.Form.Item>
+          <antd.Form.Item label="Cost">
+            <Controller name="costPrice" control={control} render={({ field }) => <antd.InputNumber value={field.value} onChange={field.onChange} style={{ width: "100%" }} min={0} />} />
+          </antd.Form.Item>
+          <antd.Form.Item label="Retail">
+            <Controller name="retailPrice" control={control} render={({ field }) => <antd.InputNumber value={field.value} onChange={field.onChange} style={{ width: "100%" }} min={0} />} />
+          </antd.Form.Item>
+          <antd.Form.Item label="Wholesale">
+            <Controller name="wholesalePrice" control={control} render={({ field }) => <antd.InputNumber value={field.value} onChange={field.onChange} style={{ width: "100%" }} min={0} />} />
+          </antd.Form.Item>
         </div>
-        <antd.Form.Item name="currency" label="Currency">
-          <antd.Radio.Group>
-            <antd.Radio.Button value="UZS">UZS</antd.Radio.Button>
-            <antd.Radio.Button value="USD">USD</antd.Radio.Button>
-          </antd.Radio.Group>
+        <antd.Form.Item label="Currency">
+          <Controller
+            name="currency"
+            control={control}
+            render={({ field }) => (
+              <antd.Radio.Group value={field.value} onChange={e => field.onChange(e.target.value)}>
+                <antd.Radio.Button value="UZS">UZS</antd.Radio.Button>
+                <antd.Radio.Button value="USD">USD</antd.Radio.Button>
+              </antd.Radio.Group>
+            )}
+          />
         </antd.Form.Item>
       </antd.Form>
     </antd.Modal>

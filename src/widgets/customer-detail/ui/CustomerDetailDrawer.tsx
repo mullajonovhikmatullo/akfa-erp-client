@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Drawer, Skeleton, Divider, Tag, Button, Form, InputNumber, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { Controller, useForm } from 'react-hook-form';
 import { useCustomerDetail } from '@/entities/customer';
 import { useAddPayment, useSales } from '@/entities/sale';
 import { StatusBadge, MoneyDisplay } from '@/shared/ui';
@@ -20,6 +21,11 @@ interface CustomerDetailDrawerProps {
 
 const DEBT_PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CARD', 'TRANSFER'];
 
+type DebtPaymentFormValues = {
+  amount: number;
+  method: PaymentMethod;
+};
+
 export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawerProps) {
   const t = useT();
   const { data: detail, isLoading } = useCustomerDetail(customer?.id ?? null);
@@ -29,14 +35,18 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
   );
   const addPayment = useAddPayment();
   const [payingSaleId, setPayingSaleId] = useState<string | null>(null);
-  const [payAmount, setPayAmount] = useState<number>(0);
-  const [payMethod, setPayMethod] = useState<PaymentMethod>('CASH_UZS');
+  const { control, reset, watch, handleSubmit } = useForm<DebtPaymentFormValues>({
+    defaultValues: {
+      amount: 0,
+      method: 'CASH_UZS',
+    },
+  });
+  const payAmount = watch('amount') ?? 0;
 
   useEffect(() => {
     setPayingSaleId(null);
-    setPayAmount(0);
-    setPayMethod('CASH_UZS');
-  }, [customer?.id]);
+    reset({ amount: 0, method: 'CASH_UZS' });
+  }, [customer?.id, reset]);
 
   const paymentOptions = useMemo(
     () => DEBT_PAYMENT_METHODS.map((method) => ({
@@ -58,25 +68,24 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
 
   const startPayment = (sale: SaleListItem) => {
     setPayingSaleId(sale.id);
-    setPayAmount(sale.debtAmountUzs);
-    setPayMethod('CASH_UZS');
+    reset({ amount: sale.debtAmountUzs, method: 'CASH_UZS' });
   };
 
-  const handleAddPayment = (sale: SaleListItem) => {
-    if (payAmount <= 0) return;
+  const submitPayment = (sale: SaleListItem, values: DebtPaymentFormValues) => {
+    if (values.amount <= 0) return;
 
     addPayment.mutate(
       {
         saleId: sale.id,
         payload: {
-          amountUzs: Math.min(payAmount, sale.debtAmountUzs),
-          paymentMethod: payMethod,
+          amountUzs: Math.min(values.amount, sale.debtAmountUzs),
+          paymentMethod: values.method,
         },
       },
       {
         onSuccess: () => {
           setPayingSaleId(null);
-          setPayAmount(0);
+          reset({ amount: 0, method: 'CASH_UZS' });
         },
       },
     );
@@ -236,26 +245,38 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                               label={t('sales.drawerAmountLabel')}
                               style={{ flex: '1 1 170px', margin: 0 }}
                             >
-                              <InputNumber<number>
-                                value={payAmount}
-                                onChange={(v) => setPayAmount(v ?? 0)}
-                                style={{ width: '100%' }}
-                                min={1}
-                                max={sale.debtAmountUzs}
-                                step={10000}
-                                formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                                parser={(v) => Number(v?.replace(/\s/g, '') || 0)}
+                              <Controller
+                                name="amount"
+                                control={control}
+                                render={({ field }) => (
+                                  <InputNumber<number>
+                                    value={field.value}
+                                    onChange={(v) => field.onChange(v ?? 0)}
+                                    style={{ width: '100%' }}
+                                    min={1}
+                                    max={sale.debtAmountUzs}
+                                    step={10000}
+                                    formatter={(v) => `${v ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                                    parser={(v) => Number(v?.replace(/\s/g, '') || 0)}
+                                  />
+                                )}
                               />
                             </Form.Item>
                             <Form.Item
                               label={t('sales.drawerMethodLabel')}
                               style={{ flex: '1 1 130px', margin: 0 }}
                             >
-                              <Select
-                                value={payMethod}
-                                onChange={setPayMethod}
-                                options={paymentOptions}
-                                style={{ width: '100%' }}
+                              <Controller
+                                name="method"
+                                control={control}
+                                render={({ field }) => (
+                                  <Select
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={paymentOptions}
+                                    style={{ width: '100%' }}
+                                  />
+                                )}
                               />
                             </Form.Item>
                           </div>
@@ -271,7 +292,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                               loading={isSubmitting}
                               disabled={payAmount <= 0}
                               style={{ minWidth: 120 }}
-                              onClick={() => handleAddPayment(sale)}
+                              onClick={handleSubmit((values) => submitPayment(sale, values))}
                             >
                               {t('sales.drawerAccept')}
                             </Button>
@@ -280,7 +301,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                               style={{ minWidth: 96 }}
                               onClick={() => {
                                 setPayingSaleId(null);
-                                setPayAmount(0);
+                                reset({ amount: 0, method: 'CASH_UZS' });
                               }}
                             >
                               {t('sales.drawerCancelShort')}

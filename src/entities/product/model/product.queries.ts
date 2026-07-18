@@ -9,11 +9,13 @@ export const productKeys = {
   list: (filters?: ProductListParams) => ['products', 'list', filters ?? {}] as const,
   detail: (id: string) => ['products', 'detail', id] as const,
   inventory: (productId: string) => ['products', 'inventory', productId] as const,
+  summary: () => ['products', 'summary'] as const,
 };
 
 export const categoryKeys = {
   all: ['categories'] as const,
   list: () => ['categories', 'list'] as const,
+  summary: () => ['categories', 'summary'] as const,
 };
 
 // ── Products ───────────────────────────────────────────────────────────────────
@@ -28,6 +30,14 @@ export function useProductsPage(params: ProductListParams & { page: number; page
   return useQuery({
     queryKey: [...productKeys.all, 'paginated', params] as const,
     queryFn: () => productApi.listPaginated(params),
+  });
+}
+
+export function useProductSummary() {
+  return useQuery({
+    queryKey: productKeys.summary(),
+    queryFn: productApi.summary,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -105,6 +115,14 @@ export function useCategoriesPage(page: number, pageSize: number, isActive?: boo
   return useQuery({
     queryKey: [...categoryKeys.list(), 'paginated', page, pageSize, isActive] as const,
     queryFn: () => categoryApi.listPaginated({ page, pageSize, isActive }),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCategorySummary() {
+  return useQuery({
+    queryKey: categoryKeys.summary(),
+    queryFn: categoryApi.summary,
     staleTime: 1000 * 60 * 5,
   });
 }

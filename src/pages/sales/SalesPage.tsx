@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Button, Select, Tooltip, Badge } from 'antd';
 import { ReloadOutlined, EyeOutlined } from '@ant-design/icons';
 import { useSalesPage } from '@/entities/sale';
@@ -12,17 +13,28 @@ import { formatDate } from '@/shared/lib/formatters';
 import { usePagination } from '@/shared/lib/usePagination';
 import { useT } from '@/shared/lib/i18n';
 
+type SalesFiltersForm = {
+  saleType?: SaleType;
+  hasDebt?: string;
+};
+
 export function SalesPage() {
   const t = useT();
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination();
+  const { control, watch } = useForm<SalesFiltersForm>({
+    defaultValues: {
+      saleType: undefined,
+      hasDebt: undefined,
+    },
+  });
+  const filters = watch();
   const [tab, setTab] = useState<'new' | 'history'>('new');
   const [drawerSale, setDrawerSale] = useState<SaleListItem | null>(null);
-  const [saleTypeFilter, setSaleTypeFilter] = useState<SaleType | undefined>();
-  const [hasDebt, setHasDebt] = useState<boolean | undefined>();
+  const hasDebtFilter = filters.hasDebt === undefined ? undefined : filters.hasDebt === 'true';
 
   const { data: result, isLoading, isFetching, refetch } = useSalesPage(page, pageSize, {
-    saleType: saleTypeFilter,
-    hasDebt,
+    saleType: filters.saleType,
+    hasDebt: hasDebtFilter,
   });
   const sales = result?.items ?? [];
   const total = result?.total ?? 0;
@@ -152,16 +164,6 @@ export function SalesPage() {
 
   const debtCount = totalWithDebt;
 
-  function handleSaleTypeChange(v: SaleType | undefined) {
-    setSaleTypeFilter(v);
-    onPageChange(1, pageSize);
-  }
-
-  function handleHasDebtChange(v: string | undefined) {
-    setHasDebt(v === undefined ? undefined : v === 'true');
-    onPageChange(1, pageSize);
-  }
-
   return (
     <>
       <div className="page-head">
@@ -193,24 +195,42 @@ export function SalesPage() {
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {/* Toolbar */}
           <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Select
-              value={saleTypeFilter}
-              onChange={handleSaleTypeChange}
-              allowClear
-              placeholder={t('sales.filterAllTypes')}
-              style={{ minWidth: 160 }}
-              options={SALE_TYPE_OPTIONS}
+            <Controller
+              name="saleType"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    onPageChange(1, pageSize);
+                  }}
+                  allowClear
+                  placeholder={t('sales.filterAllTypes')}
+                  style={{ minWidth: 160 }}
+                  options={SALE_TYPE_OPTIONS}
+                />
+              )}
             />
-            <Select
-              value={hasDebt === undefined ? undefined : String(hasDebt)}
-              onChange={handleHasDebtChange}
-              allowClear
-              placeholder={t('sales.filterPayment')}
-              style={{ minWidth: 160 }}
-              options={[
-                { value: 'true', label: t('sales.hasDebt') },
-                { value: 'false', label: t('sales.filterPaid') },
-              ]}
+            <Controller
+              name="hasDebt"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    onPageChange(1, pageSize);
+                  }}
+                  allowClear
+                  placeholder={t('sales.filterPayment')}
+                  style={{ minWidth: 160 }}
+                  options={[
+                    { value: 'true', label: t('sales.hasDebt') },
+                    { value: 'false', label: t('sales.filterPaid') },
+                  ]}
+                />
+              )}
             />
             <Tooltip title={t('common.refresh')}>
               <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
