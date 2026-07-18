@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Modal, Form, Input, Popconfirm, Tooltip, Select, Tag } from 'antd';
 import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ReloadOutlined,
-  UserAddOutlined,
-  BankOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  StorefrontIcon,
+  TrashIcon,
+  UserPlusIcon,
+} from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { useBranchesPage, useCreateBranch, useUpdateBranch, useDeleteBranch } from '@/entities/branch';
 import { useUsers, useAssignBranch, useCurrentUser } from '@/entities/user';
@@ -160,7 +160,7 @@ export function BranchesPage() {
               color: '#fff',
               boxShadow: isMain ? '0 0 0 2px #fde68a' : undefined,
             }}>
-              <BankOutlined style={{ fontSize: 14 }} />
+              <StorefrontIcon size={16} weight="duotone" />
             </span>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -225,14 +225,14 @@ export function BranchesPage() {
             <Button
               size="small"
               type="text"
-              icon={<UserAddOutlined />}
+              icon={<UserPlusIcon size={18} />}
               onClick={(e) => { e.stopPropagation(); openAssign(b); }}
             />
           </Tooltip>
           <Button
             size="small"
             type="text"
-            icon={<EditOutlined />}
+            icon={<PencilSimpleIcon size={18} />}
             onClick={(e) => { e.stopPropagation(); openEdit(b); }}
           />
           <Popconfirm
@@ -248,7 +248,7 @@ export function BranchesPage() {
               size="small"
               type="text"
               danger
-              icon={<DeleteOutlined />}
+              icon={<TrashIcon size={18} />}
               loading={deleteMutation.isPending && deleteMutation.variables === b.id}
               onClick={(e) => e.stopPropagation()}
             />
@@ -269,9 +269,12 @@ export function BranchesPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={() => refetch()}
+            />
           </Tooltip>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
             {t('branches.newBranch')}
           </Button>
         </div>

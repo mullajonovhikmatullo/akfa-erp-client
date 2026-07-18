@@ -3,18 +3,18 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Select, Dropdown, Tooltip } from 'antd';
 import {
-  EnvironmentOutlined,
-  DollarOutlined,
-  SettingOutlined,
-  LogoutOutlined,
-  DownOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  UserOutlined,
-  MoonOutlined,
-  SunOutlined,
-  GlobalOutlined,
-} from '@ant-design/icons';
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  CaretDownIcon,
+  GearIcon,
+  GlobeIcon,
+  MapPinIcon,
+  MoneyIcon,
+  MoonIcon,
+  SignOutIcon,
+  SunIcon,
+  UserCircleIcon,
+} from '@phosphor-icons/react';
 import { useAuthStore } from '@/entities/user';
 import { useDispatch, useSel } from '@/app/store.jsx';
 import { useUIStore } from '@/app/stores/ui.store';
@@ -108,20 +108,20 @@ export function AppHeader({ branches }: AppHeaderProps) {
     { type: 'divider' as const },
     {
       key: 'profile',
-      icon: <UserOutlined />,
+      icon: <UserCircleIcon size={18} />,
       label: t('header.profile'),
       onClick: () => navigate(ROUTES.PROFILE),
     },
     {
       key: 'settings',
-      icon: <SettingOutlined />,
+      icon: <GearIcon size={18} />,
       label: t('header.settings'),
       onClick: () => navigate(ROUTES.SETTINGS),
     },
     {
       key: 'logout',
-      icon: <LogoutOutlined />,
-      label: <span style={{ color: '#dc2626' }}>{t('header.logout')}</span>,
+      icon: <SignOutIcon size={18} />,
+      label: <span style={{ color: 'var(--danger)' }}>{t('header.logout')}</span>,
       onClick: () => {
         zustandLogout();
         legacyDispatch({ type: 'auth/logout' });
@@ -136,7 +136,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
     <header className="topbar">
       <div className="topbar__inner">
         <button className="sidebar-toggle topbar-sidebar-toggle" onClick={handleToggle} type="button">
-          {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          {sidebarCollapsed ? <ArrowLineRightIcon size={20} /> : <ArrowLineLeftIcon size={20} />}
         </button>
 
         <div className="crumbs">
@@ -147,7 +147,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <span className="tagpill info topbar-hide-mobile">
-            <DollarOutlined style={{ fontSize: 11 }} />
+            <MoneyIcon size={13} weight="duotone" />
             1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
           </span>
 
@@ -159,7 +159,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
               className="sidebar-toggle topbar-hide-mobile"
               style={{ fontSize: 15 }}
             >
-              {isDarkActive ? <SunOutlined /> : <MoonOutlined />}
+              {isDarkActive ? <SunIcon size={20} /> : <MoonIcon size={20} />}
             </button>
           </Tooltip>
 
@@ -174,7 +174,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
               className="sidebar-toggle topbar-hide-mobile"
               style={{ fontSize: 11, fontWeight: 700, gap: 4, width: 'auto', padding: '0 10px', minWidth: 56 }}
             >
-              <GlobalOutlined style={{ fontSize: 13 }} />
+              <GlobeIcon size={16} />
               {currentLangLabel}
             </button>
           </Dropdown>
@@ -192,7 +192,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
                   }}
                   className="topbar-hide-mobile"
                   style={{ minWidth: 220 }}
-                  suffixIcon={<EnvironmentOutlined />}
+                  suffixIcon={<MapPinIcon size={16} />}
                   options={[
                     { value: '__all__', label: t('header.allBranches') },
                     ...branches.map((b) => ({ value: b.id, label: b.name })),
@@ -210,7 +210,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
             <button className="profile-trigger" type="button">
               <UserAvatar name={user?.name} size={28} />
               <span className="profile-name">{user?.name?.split(' ')[0]}</span>
-              <DownOutlined style={{ fontSize: 10, color: 'var(--ink-3)' }} />
+              <CaretDownIcon size={12} color="currentColor" />
             </button>
           </Dropdown>
         </div>

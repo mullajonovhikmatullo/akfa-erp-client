@@ -10,7 +10,13 @@ import { useState, useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import {
+  GearIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TagIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import { useSel, useDispatch, sel } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { TagPill, Money, SectionTitle } from '../shared/ui.jsx';
@@ -52,8 +58,8 @@ const ExpensesFeature = () => {
           <div className="sub">Recurring & ad-hoc operational costs · {categories.length} categories ({categories.filter(c => !c.builtin).length} custom)</div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <antd.Button icon={<icons.AppstoreOutlined />} onClick={() => setManagingCats(true)}>Manage categories</antd.Button>
-          <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={() => setCreating(true)}>Log expense</antd.Button>
+          <antd.Button icon={<TagIcon size={18} />} onClick={() => setManagingCats(true)}>Manage categories</antd.Button>
+          <antd.Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>Log expense</antd.Button>
         </div>
       </div>
 
@@ -96,14 +102,14 @@ const ExpensesFeature = () => {
               { title: "Branch", dataIndex: "branchId", width: 160, render: (v) => <TagPill tone="info">{branchMap[v]?.code}</TagPill> },
               { title: "Amount", dataIndex: "amount", align: "right", width: 180, render: (v, e) => <span className="num" style={{ fontWeight: 600 }}><Money amount={v} currency={e.currency} /></span> },
               { title: "Comment", dataIndex: "comment" },
-              { title: "", key: "x", width: 50, render: (_, e) => <antd.Button size="small" type="text" icon={<icons.DeleteOutlined />} danger onClick={() => dispatch({ type: "expenses/remove", id: e.id })} /> },
+              { title: "", key: "x", width: 50, render: (_, e) => <antd.Button size="small" type="text" icon={<TrashIcon size={18} />} danger onClick={() => dispatch({ type: "expenses/remove", id: e.id })} /> },
             ]}
           />
         </div>
 
         <div className="card">
           <SectionTitle action={
-            <antd.Button size="small" type="text" icon={<icons.SettingOutlined />} onClick={() => setManagingCats(true)}>Manage</antd.Button>
+            <antd.Button size="small" type="text" icon={<GearIcon size={16} />} onClick={() => setManagingCats(true)}>Manage</antd.Button>
           }>Breakdown</SectionTitle>
           <div className="col" style={{ gap: 10 }}>
             {byCat.map(c => {
@@ -348,7 +354,7 @@ const CategoryManagerDrawer = ({ open, onClose }) => {
           <div style={{ fontSize: 12, color: "var(--ink-3)", textTransform: "uppercase", letterSpacing: ".06em" }}>
             {categories.length} total · {categories.filter(c => !c.builtin).length} custom
           </div>
-          <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={openNew}>New category</antd.Button>
+          <antd.Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openNew}>New category</antd.Button>
         </div>
 
         {editing && (
@@ -412,12 +418,12 @@ const CategoryManagerDrawer = ({ open, onClose }) => {
                     id: {cat.id} · {usage} expense{usage === 1 ? "" : "s"}
                   </div>
                 </div>
-                <antd.Button size="small" type="text" icon={<icons.EditOutlined />} onClick={() => openEdit(cat)} />
+                <antd.Button size="small" type="text" icon={<PencilSimpleIcon size={16} />} onClick={() => openEdit(cat)} />
                 <antd.Button
                   size="small"
                   type="text"
                   danger
-                  icon={<icons.DeleteOutlined />}
+                  icon={<TrashIcon size={16} />}
                   disabled={cat.id === "other"}
                   onClick={() => remove(cat)}
                 />

@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, DatePicker, Select, Skeleton, Table, Alert } from 'antd';
 import {
-  ReloadOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  WarningOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  WarningIcon,
+} from '@phosphor-icons/react';
 import dayjs, { type Dayjs } from 'dayjs';
 import {
   useDashboard,
@@ -160,7 +158,7 @@ export function AnalyticsPage() {
               />
             )}
           />
-          <Button icon={<ReloadOutlined spin={anyFetching} />} onClick={refetchAll} />
+          <Button icon={<ArrowClockwiseIcon size={18} className={anyFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll} />
         </div>
       </div>
 
@@ -437,7 +435,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
         {/* Low stock */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <WarningOutlined style={{ color: 'var(--warning)' }} />
+            <WarningIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--warning)' }} />
             <span style={{ fontWeight: 700, fontSize: 13 }}>{t('analytics.lowStockItems')} ({data.lowStock.length})</span>
           </div>
           {data.lowStock.length === 0 ? (
@@ -585,7 +583,7 @@ function DebtTab({
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 13 }}>
-            <WarningOutlined style={{ color: 'var(--warning)' }} />
+            <WarningIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--warning)' }} />
             {tableTitle}
           </div>
           <span style={{ color: 'var(--ink-3)', fontSize: 12.5 }}>

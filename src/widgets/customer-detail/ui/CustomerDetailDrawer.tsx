@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Drawer, Skeleton, Divider, Tag, Button, Form, InputNumber, Select } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusIcon } from '@phosphor-icons/react';
 import { Controller, useForm } from 'react-hook-form';
 import { useCustomerDetail } from '@/entities/customer';
 import { useAddPayment, useSales } from '@/entities/sale';
@@ -214,7 +214,7 @@ export function CustomerDetailDrawer({ customer, onClose }: CustomerDetailDrawer
                           {!isPaying && (
                             <Button
                               size="small"
-                              icon={<PlusOutlined />}
+                              icon={<PlusIcon size={16} />}
                               style={{ marginTop: 6 }}
                               onClick={() => startPayment(sale)}
                             >

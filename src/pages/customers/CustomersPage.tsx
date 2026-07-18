@@ -3,13 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Popconfirm, Select, Tooltip } from 'antd';
 import {
-  PlusOutlined,
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  EyeIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import {
   useCustomers,
   useDeactivateCustomer,
@@ -184,7 +184,7 @@ export function CustomersPage() {
             <Button
               size="small"
               type="text"
-              icon={<EyeOutlined />}
+              icon={<EyeIcon size={18} />}
               onClick={(e) => { e.stopPropagation(); setDrawerCustomer(c); }}
             />
           </Tooltip>
@@ -193,7 +193,7 @@ export function CustomersPage() {
               <Button
                 size="small"
                 type="text"
-                icon={<EditOutlined />}
+                icon={<PencilSimpleIcon size={18} />}
                 onClick={(e) => { e.stopPropagation(); setEditCustomer(c); }}
               />
               <Popconfirm
@@ -209,7 +209,7 @@ export function CustomersPage() {
                   size="small"
                   type="text"
                   danger
-                  icon={<DeleteOutlined />}
+                  icon={<TrashIcon size={18} />}
                   loading={deleteMutation.isPending && deleteMutation.variables === c.id}
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -232,7 +232,7 @@ export function CustomersPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
           </Tooltip>
           {canManage && (
             <>
@@ -292,7 +292,7 @@ export function CustomersPage() {
               />
               <Button
                 type="primary"
-                icon={<PlusOutlined />}
+                icon={<PlusIcon size={18} weight="bold" />}
                 onClick={() => setEditCustomer(null)}
               >
                 {t('customers.newCustomer')}
@@ -332,7 +332,7 @@ export function CustomersPage() {
             control={control}
             render={({ field }) => (
               <Input
-                prefix={<SearchOutlined />}
+                prefix={<MagnifyingGlassIcon size={18} />}
                 placeholder={t('customers.searchPlaceholder')}
                 value={field.value}
                 onChange={(e) => field.onChange(e.target.value)}

@@ -4,7 +4,15 @@
 
 import dayjs from 'dayjs';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import {
+  ArrowsLeftRightIcon,
+  BoxArrowDownIcon,
+  ChartLineUpIcon,
+  PackageIcon,
+  PlusIcon,
+  UsersIcon,
+  WalletIcon,
+} from '@phosphor-icons/react';
 import { useSel, sel } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { Avatar, TagPill, Money, SectionTitle, EmptyState } from '../shared/ui.jsx';
@@ -59,9 +67,9 @@ const DashboardPage = () => {
           </div>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <antd.Button icon={<icons.PlusOutlined />} onClick={() => window.location.hash = "#/sales"}>New sale</antd.Button>
-          <antd.Button icon={<icons.DropboxOutlined />} onClick={() => window.location.hash = "#/purchases"}>Receive stock</antd.Button>
-          <antd.Button type="primary" icon={<icons.LineChartOutlined />} onClick={() => window.location.hash = "#/analytics"}>Open analytics</antd.Button>
+          <antd.Button icon={<PlusIcon size={18} />} onClick={() => window.location.hash = "#/sales"}>New sale</antd.Button>
+          <antd.Button icon={<BoxArrowDownIcon size={18} />} onClick={() => window.location.hash = "#/purchases"}>Receive stock</antd.Button>
+          <antd.Button type="primary" icon={<ChartLineUpIcon size={18} weight="bold" />} onClick={() => window.location.hash = "#/analytics"}>Open analytics</antd.Button>
         </div>
       </div>
 
@@ -132,10 +140,10 @@ const DashboardPage = () => {
 
           <SectionTitle>Quick actions</SectionTitle>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-            <antd.Button icon={<icons.SwapOutlined />} onClick={() => window.location.hash = "#/transfers"}>New transfer</antd.Button>
-            <antd.Button icon={<icons.WalletOutlined />} onClick={() => window.location.hash = "#/expenses"}>Log expense</antd.Button>
-            <antd.Button icon={<icons.TeamOutlined />} onClick={() => window.location.hash = "#/customers"}>Add customer</antd.Button>
-            <antd.Button icon={<icons.InboxOutlined />} onClick={() => window.location.hash = "#/products"}>Add product</antd.Button>
+            <antd.Button icon={<ArrowsLeftRightIcon size={18} />} onClick={() => window.location.hash = "#/transfers"}>New transfer</antd.Button>
+            <antd.Button icon={<WalletIcon size={18} />} onClick={() => window.location.hash = "#/expenses"}>Log expense</antd.Button>
+            <antd.Button icon={<UsersIcon size={18} />} onClick={() => window.location.hash = "#/customers"}>Add customer</antd.Button>
+            <antd.Button icon={<PackageIcon size={18} />} onClick={() => window.location.hash = "#/products"}>Add product</antd.Button>
           </div>
         </div>
       </div>

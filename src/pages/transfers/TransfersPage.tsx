@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Select, Popconfirm, Tooltip, Table, Modal, Alert } from 'antd';
 import {
-  SwapOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  ArrowRightOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  ArrowRightIcon,
+  ArrowsLeftRightIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from '@phosphor-icons/react';
 import {
   useTransfers,
   useCompleteTransfer,
@@ -89,7 +89,7 @@ export function TransfersPage() {
       render: (_: unknown, tr: Transfer) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <StatusBadge tone="info">{tr.fromBranch.name}</StatusBadge>
-          <ArrowRightOutlined style={{ color: 'var(--ink-4)', fontSize: 11 }} />
+          <ArrowRightIcon size={14} color="currentColor" style={{ color: 'var(--ink-4)' }} />
           <StatusBadge tone="muted">{tr.toBranch.name}</StatusBadge>
         </div>
       ),
@@ -153,7 +153,7 @@ export function TransfersPage() {
               <Button
                 size="small"
                 type="text"
-                icon={<CheckCircleOutlined style={{ color: 'var(--success)' }} />}
+                icon={<CheckCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--success)' }} />}
                 onClick={(e) => {
                   e.stopPropagation();
                   setConfirmingTransfer(tr);
@@ -174,7 +174,7 @@ export function TransfersPage() {
                   size="small"
                   type="text"
                   danger
-                  icon={<CloseCircleOutlined />}
+                  icon={<XCircleIcon size={18} />}
                   onClick={(e) => e.stopPropagation()}
                 />
               </Popconfirm>
@@ -196,9 +196,12 @@ export function TransfersPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={() => refetch()}
+            />
           </Tooltip>
-          <Button type="primary" icon={<SwapOutlined />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<ArrowsLeftRightIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
             {t('transfers.newTransfer')}
           </Button>
         </div>

@@ -2,14 +2,25 @@ import { useState, useRef, useMemo, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Badge, Tooltip } from 'antd';
 import {
-  StarFilled,
-  StarOutlined,
-  RightOutlined,
-  PushpinFilled,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-} from '@ant-design/icons';
-import * as icons from '@ant-design/icons';
+  ArrowLineLeftIcon,
+  ArrowLineRightIcon,
+  ArrowsLeftRightIcon,
+  BoxArrowDownIcon,
+  CaretRightIcon,
+  ChartBarIcon,
+  GearIcon,
+  PackageIcon,
+  ShoppingCartIcon,
+  SquaresFourIcon,
+  StarIcon,
+  StorefrontIcon,
+  TagIcon,
+  UserSwitchIcon,
+  UsersIcon,
+  WalletIcon,
+  PushPinIcon,
+} from '@phosphor-icons/react';
+import type { Icon } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useAuthStore } from '@/entities/user';
 import { useTransfers } from '@/entities/transfer';
@@ -27,6 +38,21 @@ interface AppSidebarProps {
   collapsed: boolean;
   mobileOpen: boolean;
 }
+
+const SIDEBAR_ICONS: Record<string, Icon> = {
+  admins: UserSwitchIcon,
+  analytics: ChartBarIcon,
+  branches: StorefrontIcon,
+  categories: TagIcon,
+  customers: UsersIcon,
+  dashboard: SquaresFourIcon,
+  expenses: WalletIcon,
+  products: PackageIcon,
+  purchases: BoxArrowDownIcon,
+  sales: ShoppingCartIcon,
+  settings: GearIcon,
+  transfers: ArrowsLeftRightIcon,
+};
 
 // ─── Accordion item height animation hook ────────────────────────────────────
 function useAccordionHeight(isOpen: boolean) {
@@ -71,7 +97,7 @@ function NavItem({
       ? location.pathname === '/'
       : location.pathname.startsWith(item.path);
 
-  const Icon = (icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[item.icon];
+  const Icon = SIDEBAR_ICONS[item.icon];
   const label = t(`nav.${item.key}`);
   const showBadge = Boolean(badgeCount && badgeCount > 0);
 
@@ -82,7 +108,7 @@ function NavItem({
       onClick={onClick}
     >
       <span className="sb-item__icon">
-        {Icon && <Icon />}
+        {Icon && <Icon size={20} weight={isActive ? 'fill' : 'regular'} />}
       </span>
       {collapsed && showBadge && (
         <Badge count={badgeCount} overflowCount={200} className="sb-item__badge sb-item__badge--collapsed" />
@@ -100,7 +126,7 @@ function NavItem({
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(item.key); }}
             aria-label={isFav ? 'Sevimlilardan olib tashlash' : "Sevimlilarga qo'shish"}
           >
-            {isFav ? <StarFilled /> : <StarOutlined />}
+            <StarIcon size={12} weight={isFav ? 'fill' : 'regular'} />
           </button>
         </>
       )}
@@ -165,7 +191,7 @@ function AccordionGroup({
     <div className={clsx('sb-group', isOpen && 'sb-group--open')}>
       <button className="sb-group__header" type="button" onClick={onToggle}>
         <span className="sb-group__label">{groupLabel}</span>
-        <RightOutlined className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
+        <CaretRightIcon size={10} className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
       </button>
       <div className="sb-group__items" style={style}>
         <div ref={ref} className="sb-group__items-inner">
@@ -230,7 +256,7 @@ function FavoritesSection({
   return (
     <div className="sb-fav-section">
       <div className="sb-fav-section__header">
-        <PushpinFilled className="sb-fav-section__pin" />
+        <PushPinIcon size={10} weight="fill" className="sb-fav-section__pin" />
         <span>{t('header.quickAccess')}</span>
       </div>
       <div className="sb-group__items-inner">
@@ -311,7 +337,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
           type="button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          {collapsed ? <ArrowLineRightIcon size={18} /> : <ArrowLineLeftIcon size={18} />}
         </button>
       </div>
 

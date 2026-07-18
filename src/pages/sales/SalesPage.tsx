@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Select, Tooltip, Badge } from 'antd';
-import { ReloadOutlined, EyeOutlined } from '@ant-design/icons';
+import { ArrowClockwiseIcon, EyeIcon } from '@phosphor-icons/react';
 import { useSalesPage } from '@/entities/sale';
 import { NewSaleForm } from '@/features/create-sale';
 import { SaleDetailDrawer } from '@/widgets/sale-detail';
@@ -154,7 +154,8 @@ export function SalesPage() {
           <Button
             size="small"
             type="text"
-            icon={<EyeOutlined />}
+            aria-label={t('common.view')}
+            icon={<EyeIcon size={18} />}
             onClick={(e) => { e.stopPropagation(); setDrawerSale(s); }}
           />
         </Tooltip>
@@ -233,7 +234,10 @@ export function SalesPage() {
               )}
             />
             <Tooltip title={t('common.refresh')}>
-              <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+              <Button
+                icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+                onClick={() => refetch()}
+              />
             </Tooltip>
             <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
               <strong>{total}</strong> {t('common.resultsSuffix')}

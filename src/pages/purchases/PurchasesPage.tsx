@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, DatePicker, Select, Tooltip } from 'antd';
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useStockBatchesPage, useStockBatchSummary } from '@/entities/inventory';
 import { useBranches } from '@/entities/branch';
@@ -194,9 +194,12 @@ export function PurchasesPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={() => refetch()}
+            />
           </Tooltip>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
             {t('purchases.newPurchase')}
           </Button>
         </div>

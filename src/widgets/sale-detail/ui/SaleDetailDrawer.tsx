@@ -1,5 +1,5 @@
 import { Drawer, Skeleton, Divider, Tag, Button, Form, InputNumber, Select } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useSaleDetail, useAddPayment } from '@/entities/sale';
@@ -155,7 +155,7 @@ export function SaleDetailDrawer({ sale, onClose }: SaleDetailDrawerProps) {
                   </div>
                 ) : (
                   <Button
-                    icon={<PlusOutlined />}
+                    icon={<PlusIcon size={18} />}
                     onClick={() => {
                       reset({ amount: 0, method: 'CASH_UZS' });
                       setShowPayForm(true);

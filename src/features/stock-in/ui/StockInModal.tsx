@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, Select, InputNumber, Empty, Table } from 'antd';
-import { PlusOutlined, DeleteOutlined, MinusOutlined } from '@ant-design/icons';
+import { MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { useProducts } from '@/entities/product';
 import { useBranches } from '@/entities/branch';
 import { useStockInBatch } from '@/entities/inventory';
@@ -193,7 +193,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
             placeholder={t('stockIn.placeholderSearch')}
             style={{ width: '100%' }}
             loading={productsLoading}
-            suffixIcon={productsLoading ? undefined : <PlusOutlined />}
+            suffixIcon={productsLoading ? undefined : <PlusIcon size={16} />}
             notFoundContent={productsLoading ? <SelectLoadingContent /> : undefined}
             options={products
               .filter((p) => p.isActive && !cart.find((i) => i.productId === p.id))
@@ -321,7 +321,7 @@ export function StockInModal({ open, onClose }: StockInModalProps) {
                       size="small"
                       type="text"
                       danger
-                      icon={<DeleteOutlined />}
+                      icon={<TrashIcon size={18} />}
                       onClick={() => removeItem(item._key)}
                     />
                   ),
@@ -365,7 +365,7 @@ function QuantityStepper({
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(96px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
       <Button
-        icon={<MinusOutlined />}
+        icon={<MinusIcon size={16} />}
         onClick={onMinus}
         disabled={value <= MIN_QTY}
         style={{ width: 30, height: 30, padding: 0 }}
@@ -382,7 +382,7 @@ function QuantityStepper({
         parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
       />
       <Button
-        icon={<PlusOutlined />}
+        icon={<PlusIcon size={16} />}
         onClick={onPlus}
         style={{ width: 30, height: 30, padding: 0 }}
       />

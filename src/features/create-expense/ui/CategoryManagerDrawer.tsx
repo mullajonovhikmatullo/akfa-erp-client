@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Drawer, Button, Input, Popconfirm, Switch, Skeleton, Empty } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  CheckIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import {
   useExpenseCategories,
   useCreateExpenseCategory,
@@ -82,7 +88,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
         />
         <Button
           type="primary"
-          icon={<PlusOutlined />}
+          icon={<PlusIcon size={18} weight="bold" />}
           loading={createCat.isPending}
           disabled={!newName.trim()}
           onClick={handleSubmit(submitCreate)}
@@ -129,14 +135,14 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                   <Button
                     size="small"
                     type="primary"
-                    icon={<CheckOutlined />}
+                    icon={<CheckIcon size={16} weight="bold" />}
                     onClick={() => saveEdit(cat.id)}
                     loading={updateCat.isPending}
                     disabled={!editName.trim()}
                   />
                   <Button
                     size="small"
-                    icon={<CloseOutlined />}
+                    icon={<XIcon size={16} />}
                     onClick={() => {
                       setEditingId(null);
                       resetField('editName');
@@ -160,7 +166,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                     loading={updateCat.isPending}
                     onChange={(checked) => updateCat.mutate({ id: cat.id, payload: { isActive: checked } })}
                   />
-                  <Button size="small" type="text" icon={<EditOutlined />} onClick={() => startEdit(cat)} />
+                  <Button size="small" type="text" icon={<PencilSimpleIcon size={16} />} onClick={() => startEdit(cat)} />
                   <Popconfirm
                     title={t('categoryDrawer.popconfirmTitle')}
                     description={cat._count.expenses > 0 ? t('categoryDrawer.popconfirmHasExpenses') : t('categoryDrawer.popconfirmNoExpenses')}
@@ -177,7 +183,7 @@ export function CategoryManagerDrawer({ open, onClose }: CategoryManagerDrawerPr
                       size="small"
                       type="text"
                       danger
-                      icon={<DeleteOutlined />}
+                      icon={<TrashIcon size={16} />}
                       loading={deleteCat.isPending && deleteCat.variables === cat.id}
                     />
                   </Popconfirm>

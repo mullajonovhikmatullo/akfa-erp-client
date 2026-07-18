@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as antd from 'antd';
-import { BulbOutlined } from '@ant-design/icons';
+import { LightbulbIcon } from '@phosphor-icons/react';
 import { useSel, useDispatch } from '../app/store.jsx';
 import { useUIStore } from '../app/stores/ui.store';
 import { useT } from '../shared/lib/i18n.ts';
@@ -151,7 +151,7 @@ const SettingsFeature = () => {
 
         <div className="card">
           <SectionTitle>
-            <BulbOutlined style={{ marginRight: 6 }} />
+            <LightbulbIcon size={18} weight="duotone" style={{ marginRight: 6 }} />
             {t('settings.appearance')}
           </SectionTitle>
           <div>

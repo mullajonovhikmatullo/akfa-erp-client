@@ -156,6 +156,71 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
 .card .card-head h3{ margin:0; font-size:15px; font-weight:600; letter-spacing:-0.005em; }
 .card .card-head .meta{ color:var(--ink-3); font-size:12px; }
 
+.dashboard-chart-tooltip{
+  min-width:200px;
+  max-width:min(280px, calc(100vw - 32px));
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--ink-2);
+  box-shadow:0 14px 34px rgba(15,23,42,.14), 0 2px 8px rgba(15,23,42,.08);
+  font-size:12px;
+  line-height:1.35;
+}
+.dashboard-chart-tooltip__head{
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr);
+  gap:8px;
+  align-items:start;
+  padding-bottom:8px;
+  margin-bottom:8px;
+  border-bottom:1px solid var(--border);
+}
+.dashboard-chart-tooltip__marker{
+  width:9px;
+  height:9px;
+  margin-top:4px;
+  border-radius:999px;
+  box-shadow:0 0 0 4px color-mix(in srgb, currentColor 10%, transparent);
+}
+.dashboard-chart-tooltip__title-wrap{ min-width:0; }
+.dashboard-chart-tooltip__title{
+  color:var(--ink);
+  font-size:13px;
+  font-weight:700;
+  line-height:1.25;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.dashboard-chart-tooltip__meta{
+  margin-top:2px;
+  color:var(--ink-3);
+  font-size:11px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.dashboard-chart-tooltip__rows{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.dashboard-chart-tooltip__row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:14px;
+  color:var(--ink-3);
+}
+.dashboard-chart-tooltip__row strong{
+  color:var(--ink);
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
 /* Tables */
 .ant-table{ font-size:12.5px; }
 .ant-table-thead > tr > th{
@@ -246,6 +311,9 @@ code, .mono{ font-family: "JetBrains Mono", ui-monospace, monospace; }
 .tagpill.warning{ background:#fffbeb; color:#b45309; border-color:#fde68a; }
 .tagpill.info{ background:#eff6ff; color:#1e40af; border-color:#bfdbfe; }
 .tagpill.muted{ background:#f1f5f9; color:#475569; }
+
+.ph-icon-spin{ animation: ph-icon-spin 1s linear infinite; }
+@keyframes ph-icon-spin{ to{ transform: rotate(360deg); } }
 
 /* Density modifiers */
 body.density-compact .ant-table-thead > tr > th{ padding: 4px 8px !important; }

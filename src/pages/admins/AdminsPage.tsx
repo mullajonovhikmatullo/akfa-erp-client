@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Modal, Form, Input, Select, Popconfirm, Tooltip, Tag } from 'antd';
 import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ReloadOutlined,
-  UserSwitchOutlined,
-  LockOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  LockIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+  UserSwitchIcon,
+} from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { useAdminsPage, useCreateAdmin, useUpdateAdmin, useDeleteAdmin } from '@/entities/user';
 import { useBranches } from '@/entities/branch';
@@ -163,7 +163,7 @@ export function AdminsPage() {
           <Button
             size="small"
             type="text"
-            icon={<EditOutlined />}
+            icon={<PencilSimpleIcon size={18} />}
             onClick={(e) => { e.stopPropagation(); openEdit(u); }}
           />
           <Popconfirm
@@ -185,7 +185,7 @@ export function AdminsPage() {
               size="small"
               type="text"
               danger
-              icon={<DeleteOutlined />}
+              icon={<TrashIcon size={18} />}
               loading={deleteMutation.isPending && deleteMutation.variables === u.id}
               onClick={(e) => e.stopPropagation()}
             />
@@ -207,9 +207,12 @@ export function AdminsPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} />
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={() => refetch()}
+            />
           </Tooltip>
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
             {t('admins.newAdmin')}
           </Button>
         </div>
@@ -260,7 +263,7 @@ export function AdminsPage() {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <UserSwitchOutlined />
+            <UserSwitchIcon size={18} weight="duotone" />
             {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('admins.modalCreate')}
           </div>
         }
@@ -338,7 +341,7 @@ export function AdminsPage() {
                     {...field}
                     {...blockAutofill('akfa-admin-new-password')}
                     placeholder={t('pwd.minLen')}
-                    prefix={<LockOutlined style={{ color: 'var(--ink-3)' }} />}
+                    prefix={<LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-3)' }} />}
                   />
                 )}
               />

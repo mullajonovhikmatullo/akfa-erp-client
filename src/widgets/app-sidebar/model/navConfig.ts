@@ -33,7 +33,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'АСОСИЙ',
     groupLabelKey: 'nav.group.main',
     items: [
-      { key: 'dashboard', path: ROUTES.DASHBOARD, label: 'Асосий', icon: 'DashboardOutlined' },
+      { key: 'dashboard', path: ROUTES.DASHBOARD, label: 'Асосий', icon: 'dashboard' },
     ],
   },
   {
@@ -41,8 +41,8 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'САВДО',
     groupLabelKey: 'nav.group.savdo',
     items: [
-      { key: 'sales', path: ROUTES.SALES, label: 'Сотувлар', icon: 'ShoppingCartOutlined', permission: 'sales:view' },
-      { key: 'customers', path: ROUTES.CUSTOMERS, label: 'Мижозлар', icon: 'TeamOutlined', permission: 'customers:create' },
+      { key: 'sales', path: ROUTES.SALES, label: 'Сотувлар', icon: 'sales', permission: 'sales:view' },
+      { key: 'customers', path: ROUTES.CUSTOMERS, label: 'Мижозлар', icon: 'customers', permission: 'customers:create' },
     ],
   },
   {
@@ -50,10 +50,10 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'ОМБОР',
     groupLabelKey: 'nav.group.ombor',
     items: [
-      { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'AppstoreOutlined', permission: 'category:manage' },
-      { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'InboxOutlined', permission: 'products:create' },
-      { key: 'purchases', path: ROUTES.PURCHASES, label: 'Кирим', icon: 'DropboxOutlined', permission: 'purchases:view' },
-      { key: 'transfers', path: ROUTES.TRANSFERS, label: 'Трансферлар', icon: 'SwapOutlined', permission: 'transfers:view' },
+      { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'categories', permission: 'category:manage' },
+      { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'products', permission: 'products:create' },
+      { key: 'purchases', path: ROUTES.PURCHASES, label: 'Кирим', icon: 'purchases', permission: 'purchases:view' },
+      { key: 'transfers', path: ROUTES.TRANSFERS, label: 'Трансферлар', icon: 'transfers', permission: 'transfers:view' },
     ],
   },
   {
@@ -61,7 +61,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'МОЛИЯ',
     groupLabelKey: 'nav.group.moliya',
     items: [
-      { key: 'expenses', path: ROUTES.EXPENSES, label: 'Харажатлар', icon: 'WalletOutlined', permission: 'expenses:view' },
+      { key: 'expenses', path: ROUTES.EXPENSES, label: 'Харажатлар', icon: 'expenses', permission: 'expenses:view' },
     ],
   },
   {
@@ -69,7 +69,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'ТАҲЛИЛ',
     groupLabelKey: 'nav.group.tahlil',
     items: [
-      { key: 'analytics', path: ROUTES.ANALYTICS, label: 'Аналитика', icon: 'LineChartOutlined', permission: 'analytics:global' },
+      { key: 'analytics', path: ROUTES.ANALYTICS, label: 'Аналитика', icon: 'analytics', permission: 'analytics:global' },
     ],
   },
   {
@@ -77,8 +77,8 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'БОШҚАРУВ',
     groupLabelKey: 'nav.group.boshqaruv',
     items: [
-      { key: 'branches', path: ROUTES.BRANCHES, label: 'Филиаллар', icon: 'BankOutlined', permission: 'branch:create' },
-      { key: 'admins', path: ROUTES.ADMINS, label: 'Администраторлар', icon: 'UserSwitchOutlined', permission: 'admin:create' },
+      { key: 'branches', path: ROUTES.BRANCHES, label: 'Филиаллар', icon: 'branches', permission: 'branch:create' },
+      { key: 'admins', path: ROUTES.ADMINS, label: 'Администраторлар', icon: 'admins', permission: 'admin:create' },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabel: 'СОЗЛАМАЛАР',
     groupLabelKey: 'nav.group.sozlamalar',
     items: [
-      { key: 'settings', path: ROUTES.SETTINGS, label: 'Созламалар', icon: 'SettingOutlined' },
+      { key: 'settings', path: ROUTES.SETTINGS, label: 'Созламалар', icon: 'settings' },
     ],
   },
 ];

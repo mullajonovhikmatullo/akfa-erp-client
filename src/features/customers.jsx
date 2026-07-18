@@ -5,7 +5,12 @@
 import { useState, useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import {
+  EyeIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+} from '@phosphor-icons/react';
 import { useSel, useDispatch } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { Avatar, TagPill, Money, SectionTitle, EmptyState } from '../shared/ui.jsx';
@@ -62,8 +67,8 @@ const CustomersFeature = () => {
     { title: "Last txn", key: "last", width: 120, render: (_, c) => fmt.fmtDate(lastTxnFor(c.id)) || "—" },
     { title: "", key: "act", width: 80, render: (_, c) => (
       <div style={{ display: "flex", gap: 4 }}>
-        <antd.Button size="small" type="text" icon={<icons.EyeOutlined />} onClick={() => setDrawer(c)} />
-        <antd.Button size="small" type="text" icon={<icons.EditOutlined />} onClick={() => setEditing(c)} />
+        <antd.Button size="small" type="text" icon={<EyeIcon size={18} />} onClick={() => setDrawer(c)} />
+        <antd.Button size="small" type="text" icon={<PencilSimpleIcon size={18} />} onClick={() => setEditing(c)} />
       </div>
     ) },
   ];
@@ -75,7 +80,7 @@ const CustomersFeature = () => {
           <h1>{t("nav.customers")}</h1>
           <div className="sub">Track balances, ledger entries, and payment history.</div>
         </div>
-        <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={() => setEditing({ id: `cu-${Math.random().toString(36).slice(2,6)}`, name: "", phone: "", address: "", balance: 0, type: "retail" })}>New customer</antd.Button>
+        <antd.Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setEditing({ id: `cu-${Math.random().toString(36).slice(2,6)}`, name: "", phone: "", address: "", balance: 0, type: "retail" })}>New customer</antd.Button>
       </div>
 
       <div className="grid-3" style={{ marginBottom: 16 }}>
@@ -92,7 +97,7 @@ const CustomersFeature = () => {
             render={({ field }) => (
               <antd.Input
                 {...field}
-                prefix={<icons.SearchOutlined />}
+                prefix={<MagnifyingGlassIcon size={18} />}
                 placeholder="Search name or phone"
                 style={{ maxWidth: 320 }}
               />

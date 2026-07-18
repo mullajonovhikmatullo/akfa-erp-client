@@ -5,22 +5,48 @@
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import {
+  ArrowsLeftRightIcon,
+  BoxArrowDownIcon,
+  CaretDownIcon,
+  ChartLineUpIcon,
+  GearIcon,
+  MapPinIcon,
+  MoneyIcon,
+  PackageIcon,
+  ShoppingCartIcon,
+  SignOutIcon,
+  SquaresFourIcon,
+  UsersIcon,
+  WalletIcon,
+} from '@phosphor-icons/react';
 import { useSel, useDispatch, sel } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { Brandmark, Avatar } from '../shared/ui.jsx';
 
 const NAV_ITEMS = [
-  { key: "dashboard",  to: "#/",          label: "nav.dashboard",  icon: "DashboardOutlined", group: null },
-  { key: "products",   to: "#/products",  label: "nav.products",   icon: "InboxOutlined",     group: "nav.catalog" },
-  { key: "customers",  to: "#/customers", label: "nav.customers",  icon: "TeamOutlined",      group: "nav.catalog" },
-  { key: "sales",      to: "#/sales",     label: "nav.sales",      icon: "ShoppingCartOutlined", group: "nav.operations" },
-  { key: "purchases",  to: "#/purchases", label: "nav.purchases",  icon: "DropboxOutlined",   group: "nav.operations" },
-  { key: "expenses",   to: "#/expenses",  label: "nav.expenses",   icon: "WalletOutlined",    group: "nav.operations" },
-  { key: "transfers",  to: "#/transfers", label: "nav.transfers",  icon: "SwapOutlined",      group: "nav.operations" },
-  { key: "analytics",  to: "#/analytics", label: "nav.analytics",  icon: "LineChartOutlined", group: "nav.insights" },
-  { key: "settings",   to: "#/settings",  label: "nav.settings",   icon: "SettingOutlined",   group: "nav.insights" },
+  { key: "dashboard",  to: "#/",          label: "nav.dashboard",  icon: "dashboard", group: null },
+  { key: "products",   to: "#/products",  label: "nav.products",   icon: "products",  group: "nav.catalog" },
+  { key: "customers",  to: "#/customers", label: "nav.customers",  icon: "customers", group: "nav.catalog" },
+  { key: "sales",      to: "#/sales",     label: "nav.sales",      icon: "sales",     group: "nav.operations" },
+  { key: "purchases",  to: "#/purchases", label: "nav.purchases",  icon: "purchases", group: "nav.operations" },
+  { key: "expenses",   to: "#/expenses",  label: "nav.expenses",   icon: "expenses",  group: "nav.operations" },
+  { key: "transfers",  to: "#/transfers", label: "nav.transfers",  icon: "transfers", group: "nav.operations" },
+  { key: "analytics",  to: "#/analytics", label: "nav.analytics",  icon: "analytics", group: "nav.insights" },
+  { key: "settings",   to: "#/settings",  label: "nav.settings",   icon: "settings",  group: "nav.insights" },
 ];
+
+const NAV_ICONS = {
+  analytics: ChartLineUpIcon,
+  customers: UsersIcon,
+  dashboard: SquaresFourIcon,
+  expenses: WalletIcon,
+  products: PackageIcon,
+  purchases: BoxArrowDownIcon,
+  sales: ShoppingCartIcon,
+  settings: GearIcon,
+  transfers: ArrowsLeftRightIcon,
+};
 
 const Sidebar = ({ route }) => {
   const t = useT();
@@ -42,11 +68,11 @@ const Sidebar = ({ route }) => {
         <React.Fragment key={gi}>
           {g.group && <div className="nav-section">{t(g.group)}</div>}
           {g.items.map(item => {
-            const Icon = icons[item.icon];
+            const Icon = NAV_ICONS[item.icon];
             const active = route.page === item.key;
             return (
               <a key={item.key} href={item.to} className={`nav-item ${active ? "active" : ""}`}>
-                <Icon />
+                {Icon && <Icon size={16} weight={active ? "fill" : "regular"} />}
                 <span>{t(item.label)}</span>
               </a>
             );
@@ -101,14 +127,14 @@ const Topbar = ({ route }) => {
       { type: "divider" },
       {
         key: "settings",
-        icon: <icons.SettingOutlined />,
+        icon: <GearIcon size={18} />,
         label: "Settings",
         onClick: () => { window.location.hash = "#/settings"; },
       },
       {
         key: "logout",
-        icon: <icons.LogoutOutlined />,
-        label: <span style={{ color: "#dc2626" }}>Sign out</span>,
+        icon: <SignOutIcon size={18} />,
+        label: <span style={{ color: "var(--danger)" }}>Sign out</span>,
         onClick: () => { dispatch({ type: "auth/logout" }); window.location.hash = "#/login"; },
       },
     ],
@@ -125,7 +151,7 @@ const Topbar = ({ route }) => {
 
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span className="tagpill info">
-            <icons.DollarOutlined style={{ fontSize: 11 }} />
+            <MoneyIcon size={13} weight="duotone" />
             1 USD = {rate.toLocaleString("ru-RU").replace(/,/g, " ")} so'm
           </span>
 
@@ -145,7 +171,7 @@ const Topbar = ({ route }) => {
                     { value: "__all__", label: t("common.allBranches") },
                     ...branches.map(b => ({ value: b.id, label: b.name })),
                   ]}
-                  suffixIcon={<icons.EnvironmentOutlined />}
+                  suffixIcon={<MapPinIcon size={16} />}
                 />
               )}
             />
@@ -157,7 +183,7 @@ const Topbar = ({ route }) => {
             <button className="profile-trigger" type="button">
               <Avatar name={user?.name} tone={user?.avatarTone} size={28} />
               <span className="profile-name">{user?.name?.split(" ")[0]}</span>
-              <icons.DownOutlined style={{ fontSize: 10, color: "#64748b" }} />
+              <CaretDownIcon size={12} color="currentColor" />
             </button>
           </antd.Dropdown>
         </div>

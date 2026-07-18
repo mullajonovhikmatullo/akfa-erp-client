@@ -1,6 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
-import { SwapOutlined, WalletOutlined, TeamOutlined, InboxOutlined } from '@ant-design/icons';
+import {
+  ArrowsLeftRightIcon,
+  PackageIcon,
+  UsersIcon,
+  WalletIcon,
+} from '@phosphor-icons/react';
 import { useInventoryReport } from '@/entities/analytics';
 import { useSel } from '@/app/store.jsx';
 import { StatusBadge } from '@/shared/ui';
@@ -58,10 +63,10 @@ export function LowStockWidget() {
         {t('dashboard.quickActions')}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <Button icon={<SwapOutlined />} onClick={() => navigate(ROUTES.TRANSFERS)}>{t('dashboard.newTransfer')}</Button>
-        <Button icon={<WalletOutlined />} onClick={() => navigate(ROUTES.EXPENSES)}>{t('dashboard.addExpense')}</Button>
-        <Button icon={<TeamOutlined />} onClick={() => navigate(ROUTES.CUSTOMERS)}>{t('dashboard.addCustomer')}</Button>
-        <Button icon={<InboxOutlined />} onClick={() => navigate(ROUTES.PRODUCTS)}>{t('dashboard.addProduct')}</Button>
+        <Button icon={<ArrowsLeftRightIcon size={18} />} onClick={() => navigate(ROUTES.TRANSFERS)}>{t('dashboard.newTransfer')}</Button>
+        <Button icon={<WalletIcon size={18} />} onClick={() => navigate(ROUTES.EXPENSES)}>{t('dashboard.addExpense')}</Button>
+        <Button icon={<UsersIcon size={18} />} onClick={() => navigate(ROUTES.CUSTOMERS)}>{t('dashboard.addCustomer')}</Button>
+        <Button icon={<PackageIcon size={18} />} onClick={() => navigate(ROUTES.PRODUCTS)}>{t('dashboard.addProduct')}</Button>
       </div>
     </div>
   );

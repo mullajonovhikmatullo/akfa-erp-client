@@ -4,15 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Input, Button, Divider, Alert } from 'antd';
 import {
-  UserOutlined,
-  LockOutlined,
-  EditOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  SafetyOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-} from '@ant-design/icons';
+  CheckIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  LockIcon,
+  PencilSimpleIcon,
+  ShieldCheckIcon,
+  UserCircleIcon,
+  XIcon,
+} from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/entities/user';
 import { useUpdateProfile, useChangePassword } from '@/entities/user';
@@ -168,11 +168,11 @@ export function ProfilePage() {
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <UserOutlined style={{ color: 'var(--ink-3)' }} />
+            <UserCircleIcon size={18} color="currentColor" style={{ color: 'var(--ink-3)' }} />
             <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{t('profile.basicInfo')}</span>
           </div>
           {!profileEditing && (
-            <Button size="small" icon={<EditOutlined />} onClick={startEditing}>
+            <Button size="small" icon={<PencilSimpleIcon size={16} />} onClick={startEditing}>
               {t('profile.edit')}
             </Button>
           )}
@@ -221,12 +221,12 @@ export function ProfilePage() {
               <Button
                 type="primary"
                 htmlType="submit"
-                icon={<CheckOutlined />}
+                icon={<CheckIcon size={18} weight="bold" />}
                 loading={updateProfile.isPending}
               >
                 {t('profile.save')}
               </Button>
-              <Button icon={<CloseOutlined />} onClick={cancelEditing} disabled={updateProfile.isPending}>
+              <Button icon={<XIcon size={18} />} onClick={cancelEditing} disabled={updateProfile.isPending}>
                 {t('profile.cancel')}
               </Button>
             </div>
@@ -237,13 +237,13 @@ export function ProfilePage() {
       {/* Change password card */}
       <div className="card" style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-          <LockOutlined style={{ color: 'var(--ink-3)' }} />
+          <LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-3)' }} />
           <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{t('profile.changePassword')}</span>
         </div>
 
         <Alert
           type="info"
-          icon={<SafetyOutlined />}
+          icon={<ShieldCheckIcon size={18} weight="duotone" />}
           showIcon
           message={t('profile.passwordHint')}
           style={{ marginBottom: 20, borderRadius: 8 }}
@@ -316,7 +316,7 @@ export function ProfilePage() {
               <Button
                 type="primary"
                 htmlType="submit"
-                icon={<LockOutlined />}
+                icon={<LockIcon size={18} weight="bold" />}
                 loading={changePassword.isPending}
                 danger
               >
@@ -382,15 +382,16 @@ function MaskedInput({ value, onChange, onBlur, inputName, placeholder, status }
       onChange={(e) => onChange?.(e.target.value)}
       onBlur={onBlur}
       placeholder={placeholder}
-      prefix={<LockOutlined style={{ color: 'var(--ink-4)' }} />}
+      prefix={<LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-4)' }} />}
       suffix={
         <button
           type="button"
+          aria-label="Toggle password visibility"
           onClick={() => setVisible((v) => !v)}
           style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: 'var(--ink-3)', display: 'flex', alignItems: 'center' }}
           tabIndex={-1}
         >
-          {visible ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+          {visible ? <EyeSlashIcon size={18} /> : <EyeIcon size={18} />}
         </button>
       }
       status={status}

@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import { PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { useSel, useDispatch, sel } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { TagPill, Money, EmptyState } from '../shared/ui.jsx';
@@ -33,7 +33,7 @@ const PurchasesFeature = () => {
           <h1>{t("nav.purchases")}</h1>
           <div className="sub">Receive incoming stock from suppliers — each purchase creates a new batch.</div>
         </div>
-        <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={() => setCreating(true)}>New purchase order</antd.Button>
+        <antd.Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>New purchase order</antd.Button>
       </div>
 
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
@@ -164,7 +164,7 @@ const PurchaseModal = ({ open, onClose }) => {
               { title: "Cost", dataIndex: "costPrice", width: 160, render: (_, __, index) => (
                 <Controller name={`items.${index}.costPrice`} control={control} render={({ field }) => <antd.InputNumber value={field.value} min={0} step={1000} onChange={field.onChange} />} />
               ) },
-              { title: "", key: "x", width: 40, render: (_, __, index) => <antd.Button type="text" icon={<icons.DeleteOutlined />} danger onClick={() => remove(index)} /> },
+              { title: "", key: "x", width: 40, render: (_, __, index) => <antd.Button type="text" icon={<TrashIcon size={18} />} danger onClick={() => remove(index)} /> },
             ]} />
         )}
       </antd.Form>

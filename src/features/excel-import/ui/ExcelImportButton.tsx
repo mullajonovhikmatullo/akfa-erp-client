@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Button, Modal, Table, Progress, Alert, Tag, Tooltip, Upload } from 'antd';
 import {
-  UploadOutlined,
-  DownloadOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  InboxOutlined,
-} from '@ant-design/icons';
+  CheckCircleIcon,
+  DownloadSimpleIcon,
+  FileXlsIcon,
+  UploadSimpleIcon,
+  XCircleIcon,
+} from '@phosphor-icons/react';
 import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { parseExcelFile, downloadTemplate, getField } from '../lib/parseExcel';
@@ -141,10 +141,10 @@ export function ExcelImportButton<T>({
       render: (_: unknown, r: ParsedRow<T>) =>
         r.error ? (
           <Tooltip title={r.error}>
-            <CloseCircleOutlined style={{ color: '#ef4444' }} />
+            <XCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--danger)' }} />
           </Tooltip>
         ) : (
-          <CheckCircleOutlined style={{ color: '#22c55e' }} />
+          <CheckCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--success)' }} />
         ),
     },
   ];
@@ -166,14 +166,14 @@ export function ExcelImportButton<T>({
       title: 'Xato sababi',
       dataIndex: 'message',
       render: (v: string) => (
-        <span style={{ fontSize: 12, color: '#ef4444' }}>{v}</span>
+        <span style={{ fontSize: 12, color: 'var(--danger)' }}>{v}</span>
       ),
     },
   ];
 
   const importTrigger = (
     <Button
-      icon={<UploadOutlined />}
+      icon={<UploadSimpleIcon size={18} />}
       disabled={disabled}
       onClick={() => setPhase('setup')}
     >
@@ -202,7 +202,7 @@ export function ExcelImportButton<T>({
           ] : phase === 'preview' ? [
             <Button
               key="tpl"
-              icon={<DownloadOutlined />}
+              icon={<DownloadSimpleIcon size={18} />}
               onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}
             >
               {t('excel.downloadTemplate')}
@@ -235,7 +235,7 @@ export function ExcelImportButton<T>({
                 <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{t('excel.templateDesc')}</div>
               </div>
               <Button
-                icon={<DownloadOutlined />}
+                icon={<DownloadSimpleIcon size={18} />}
                 onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}
               >
                 {t('excel.downloadTemplate')}
@@ -248,7 +248,9 @@ export function ExcelImportButton<T>({
               multiple={false}
               beforeUpload={(file) => { processFile(file); return false; }}
             >
-              <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+              <p className="ant-upload-drag-icon">
+                <FileXlsIcon size={48} weight="duotone" color="currentColor" />
+              </p>
               <p className="ant-upload-text">{t('excel.dropzoneTitle')}</p>
               <p className="ant-upload-hint">{t('excel.dropzoneHint')}</p>
             </Upload.Dragger>

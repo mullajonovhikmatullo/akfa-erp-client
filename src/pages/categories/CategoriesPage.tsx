@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Modal, Form, Input, Switch, Popconfirm, Tooltip, Tag } from 'antd';
 import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ReloadOutlined,
-  AppstoreOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TagIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { ExcelImportButton } from '@/features/excel-import';
 import { getField } from '@/features/excel-import/lib/parseExcel';
@@ -183,7 +183,7 @@ export function CategoriesPage() {
           <Button
             size="small"
             type="text"
-            icon={<EditOutlined />}
+            icon={<PencilSimpleIcon size={18} />}
             onClick={(e) => { e.stopPropagation(); openEdit(c); }}
           />
           <Popconfirm
@@ -206,7 +206,7 @@ export function CategoriesPage() {
               size="small"
               type="text"
               danger
-              icon={<DeleteOutlined />}
+              icon={<TrashIcon size={18} />}
               loading={deleteMutation.isPending && deleteMutation.variables === c.id}
               onClick={(e) => e.stopPropagation()}
             />
@@ -225,7 +225,10 @@ export function CategoriesPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={handleRefresh} />
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={handleRefresh}
+            />
           </Tooltip>
           <ExcelImportButton<CreateCategoryPayload>
             entityLabel={t('nav.categories')}
@@ -248,7 +251,7 @@ export function CategoriesPage() {
               refetchSummary();
             }}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
             {t('categories.newCategory')}
           </Button>
         </div>
@@ -306,7 +309,7 @@ export function CategoriesPage() {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <AppstoreOutlined />
+            <TagIcon size={18} weight="duotone" />
             {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('categories.modalCreate')}
           </div>
         }

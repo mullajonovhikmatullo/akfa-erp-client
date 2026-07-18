@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { Button, Select, InputNumber, Radio, Alert, Tooltip, Empty, DatePicker } from 'antd';
-import { CheckCircleOutlined, DeleteOutlined, CheckOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CheckCircleIcon,
+  CheckIcon,
+  MinusIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import dayjs from 'dayjs';
 import { useProducts } from '@/entities/product';
 import { useCustomers } from '@/entities/customer';
@@ -346,7 +352,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                   />
                 )}
               />
-              <Button icon={<PlusOutlined />} onClick={() => setCreatingCustomer(true)}>
+              <Button icon={<PlusIcon size={18} />} onClick={() => setCreatingCustomer(true)}>
                 {t('customers.newCustomer')}
               </Button>
             </div>
@@ -371,7 +377,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                 placeholder={t('newSale.productSearchPlaceholder')}
                 style={{ width: '100%' }}
                 loading={productSelectLoading}
-                suffixIcon={productSelectLoading ? undefined : <PlusOutlined />}
+                suffixIcon={productSelectLoading ? undefined : <PlusIcon size={16} />}
                 notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
                 options={sellableProducts
                   .filter((p) => !selectedProductIds.has(p.id))
@@ -473,7 +479,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
                     size="small"
                     type="text"
                     danger
-                    icon={<DeleteOutlined />}
+                    icon={<TrashIcon size={18} />}
                     onClick={() => removeItem(item._key)}
                   />
                 </div>
@@ -542,7 +548,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
               />
               <Tooltip title={t('newSale.markFullPaidTooltip')}>
                 <Button
-                  icon={<CheckCircleOutlined />}
+                  icon={<CheckCircleIcon size={18} weight="duotone" />}
                   disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount}
                   onClick={() => {
                     setValue('paidAmount', fullPaidAmount, { shouldDirty: true });
@@ -613,7 +619,7 @@ export function NewSaleForm({ onSuccess }: { onSuccess?: () => void }) {
           type="primary"
           size="large"
           block
-          icon={<CheckOutlined />}
+          icon={<CheckIcon size={18} weight="bold" />}
           loading={createSale.isPending}
           disabled={!canSubmit}
           style={{ marginTop: 16 }}
@@ -690,7 +696,7 @@ function QuantityStepper({
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(86px, 1fr) 30px minmax(38px, auto)', gap: 4, alignItems: 'center' }}>
       <Button
-        icon={<MinusOutlined />}
+        icon={<MinusIcon size={16} />}
         onClick={onMinus}
         disabled={value <= 1}
         style={{ width: 30, height: 30, padding: 0 }}
@@ -708,7 +714,7 @@ function QuantityStepper({
         parser={(v) => Number(v?.replace(/\s/g, '')) as unknown as 0}
       />
       <Button
-        icon={<PlusOutlined />}
+        icon={<PlusIcon size={16} />}
         disabled={max > 0 && value >= max}
         onClick={onPlus}
         style={{ width: 30, height: 30, padding: 0 }}

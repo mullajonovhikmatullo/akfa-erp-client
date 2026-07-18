@@ -5,7 +5,12 @@
 import { useState, useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import {
+  EyeIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+} from '@phosphor-icons/react';
 import { useSel, useDispatch } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { TagPill, Money, SectionTitle } from '../shared/ui.jsx';
@@ -70,8 +75,8 @@ const ProductsFeature = () => {
     { title: "Batches", key: "batches", width: 90, render: (_, p) => <TagPill tone="info">{p.batches?.length || 0}</TagPill> },
     { title: "", key: "act", width: 80, render: (_, p) => (
       <div style={{ display: "flex", gap: 4 }}>
-        <antd.Button size="small" type="text" icon={<icons.EyeOutlined />} onClick={() => setDrawerProduct(p)} />
-        <antd.Button size="small" type="text" icon={<icons.EditOutlined />} onClick={() => setEditing(p)} />
+        <antd.Button size="small" type="text" icon={<EyeIcon size={18} />} onClick={() => setDrawerProduct(p)} />
+        <antd.Button size="small" type="text" icon={<PencilSimpleIcon size={18} />} onClick={() => setEditing(p)} />
       </div>
     ) },
   ];
@@ -83,7 +88,7 @@ const ProductsFeature = () => {
           <h1>{t("nav.products")}</h1>
           <div className="sub">{products.length} SKUs across {branches.length} branches · batch-level inventory</div>
         </div>
-        <antd.Button type="primary" icon={<icons.PlusOutlined />} onClick={() => setEditing({ id: `p-${Math.random().toString(36).slice(2,7)}`, sku: "", name: "", categoryId: "c-prof", unit: "PIECE", costPrice: 0, retailPrice: 0, wholesalePrice: 0, currency: "UZS", batches: [] })}>
+        <antd.Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setEditing({ id: `p-${Math.random().toString(36).slice(2,7)}`, sku: "", name: "", categoryId: "c-prof", unit: "PIECE", costPrice: 0, retailPrice: 0, wholesalePrice: 0, currency: "UZS", batches: [] })}>
           New product
         </antd.Button>
       </div>
@@ -96,7 +101,7 @@ const ProductsFeature = () => {
             render={({ field }) => (
               <antd.Input
                 {...field}
-                prefix={<icons.SearchOutlined />}
+                prefix={<MagnifyingGlassIcon size={18} />}
                 placeholder="Search SKU or name"
                 style={{ maxWidth: 320 }}
               />

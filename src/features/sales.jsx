@@ -14,7 +14,7 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import { CheckIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react';
 import { useSel, useDispatch, sel } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { TagPill, Money, EmptyState, SectionTitle } from '../shared/ui.jsx';
@@ -252,7 +252,7 @@ const NewSaleFlow = () => {
                 value: p.id,
                 label: `${p.sku} · ${p.name} · ${stockOf(p.id)} ${p.unit} on hand`,
               }))}
-            suffixIcon={<icons.PlusOutlined />}
+            suffixIcon={<PlusIcon size={16} />}
           />
         </div>
 
@@ -309,7 +309,7 @@ const NewSaleFlow = () => {
                     {onHand} {p?.unit} {over && <TagPill tone="danger">over</TagPill>}
                   </div>
                   <div className="num" style={{ fontWeight: 600 }}><Money amount={it.qty * it.price} currency={currency} /></div>
-                  <antd.Button type="text" icon={<icons.DeleteOutlined />} onClick={() => remove(index)} danger size="small" />
+                  <antd.Button type="text" icon={<TrashIcon size={18} />} onClick={() => remove(index)} danger size="small" />
                 </div>
               );
             })}
@@ -402,7 +402,7 @@ const NewSaleFlow = () => {
           <antd.Alert type="error" showIcon style={{ marginBottom: 10 }} message={`${overstockItems.length} item(s) over stock — adjust quantity or transfer first.`} />
         )}
 
-        <antd.Button type="primary" size="large" block icon={<icons.CheckOutlined />} disabled={items.length === 0 || overstockItems.length > 0} onClick={submit}>
+        <antd.Button type="primary" size="large" block icon={<CheckIcon size={18} weight="bold" />} disabled={items.length === 0 || overstockItems.length > 0} onClick={submit}>
           Confirm sale
         </antd.Button>
       </div>

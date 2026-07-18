@@ -1,5 +1,4 @@
 import { Drawer, Skeleton, Tag, Divider } from 'antd';
-import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
 import { useProductInventory } from '@/entities/product';
 import { StatusBadge, MoneyDisplay } from '@/shared/ui';
 import { PRODUCT_UNIT_LABELS } from '@/shared/types/domain';

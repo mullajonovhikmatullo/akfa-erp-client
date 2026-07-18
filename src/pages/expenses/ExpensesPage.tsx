@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, DatePicker, Select, Popconfirm, Tooltip } from 'antd';
 import {
-  PlusOutlined,
-  DeleteOutlined,
-  AppstoreOutlined,
-  ReloadOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  PlusIcon,
+  TagIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import dayjs, { type Dayjs } from 'dayjs';
 import {
   useExpenses,
@@ -188,7 +188,7 @@ export function ExpensesPage() {
             size="small"
             type="text"
             danger
-            icon={<DeleteOutlined />}
+            icon={<TrashIcon size={18} />}
             loading={deleteMutation.isPending && deleteMutation.variables === e.id}
             onClick={(ev) => ev.stopPropagation()}
           />
@@ -228,7 +228,7 @@ export function ExpensesPage() {
           />
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<ReloadOutlined spin={isFetching || isSummaryFetching} />}
+              icon={<ArrowClockwiseIcon size={18} className={isFetching || isSummaryFetching ? 'ph-icon-spin' : undefined} />}
               onClick={() => {
                 refetch();
                 refetchCategorySummary();
@@ -236,11 +236,11 @@ export function ExpensesPage() {
             />
           </Tooltip>
           {isSuper && (
-            <Button icon={<AppstoreOutlined />} onClick={() => setManagingCats(true)}>
+            <Button icon={<TagIcon size={18} />} onClick={() => setManagingCats(true)}>
               {t('nav.categories')}
             </Button>
           )}
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
             {t('expenses.newExpense')}
           </Button>
         </div>

@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Select, Popconfirm, Tooltip } from 'antd';
 import {
-  PlusOutlined,
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  ReloadOutlined,
-  ImportOutlined,
-} from '@ant-design/icons';
+  ArrowClockwiseIcon,
+  BoxArrowDownIcon,
+  EyeIcon,
+  MagnifyingGlassIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import {
   useProductsPage,
   useProductSummary,
@@ -186,7 +186,7 @@ export function ProductsPage() {
             </span>
             {isNewProduct(p) && (
               <StatusBadge tone="warning">
-                <ImportOutlined style={{ fontSize: 10 }} />
+                <BoxArrowDownIcon size={12} weight="duotone" />
                 {t('products.newBadge')}
               </StatusBadge>
             )}
@@ -291,7 +291,7 @@ export function ProductsPage() {
             <Button
               size="small"
               type="text"
-              icon={<EyeOutlined />}
+              icon={<EyeIcon size={18} />}
               onClick={(e) => { e.stopPropagation(); setDrawerProduct(p); }}
             />
           </Tooltip>
@@ -300,7 +300,7 @@ export function ProductsPage() {
               <Button
                 size="small"
                 type="text"
-                icon={<EditOutlined />}
+                icon={<PencilSimpleIcon size={18} />}
                 onClick={(e) => { e.stopPropagation(); setEditProduct(p); }}
               />
               <Popconfirm
@@ -316,7 +316,7 @@ export function ProductsPage() {
                   size="small"
                   type="text"
                   danger
-                  icon={<DeleteOutlined />}
+                  icon={<TrashIcon size={18} />}
                   loading={deleteMutation.isPending && deleteMutation.variables === p.id}
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -346,7 +346,7 @@ export function ProductsPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ReloadOutlined spin={isFetching} />} onClick={handleRefresh} />
+            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={handleRefresh} />
           </Tooltip>
           {canManage && (
             <>
@@ -514,7 +514,7 @@ export function ProductsPage() {
               />
               <Button
                 type="primary"
-                icon={<PlusOutlined />}
+                icon={<PlusIcon size={18} weight="bold" />}
                 onClick={() => setEditProduct(null)}
               >
                 {t('products.newProduct')}
@@ -532,7 +532,7 @@ export function ProductsPage() {
             control={control}
             render={({ field }) => (
               <Input
-                prefix={<SearchOutlined />}
+                prefix={<MagnifyingGlassIcon size={18} />}
                 placeholder={t('products.searchPlaceholder')}
                 value={field.value}
                 onChange={(e) => {

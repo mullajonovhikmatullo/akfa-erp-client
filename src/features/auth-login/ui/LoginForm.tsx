@@ -1,6 +1,11 @@
 import { Controller } from 'react-hook-form';
 import { Form, Input, Button, Alert } from 'antd';
-import { UserOutlined, LockOutlined, WarningOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import {
+  ClockIcon,
+  LockIcon,
+  UserCircleIcon,
+  WarningIcon,
+} from '@phosphor-icons/react';
 import { useLoginForm } from '../model/useLoginForm';
 import { useT } from '@/shared/lib/i18n';
 
@@ -20,7 +25,7 @@ export function LoginForm() {
 
       {sessionExpired && !hasRootError && (
         <Alert
-          icon={<ClockCircleOutlined />}
+          icon={<ClockIcon size={18} weight="duotone" />}
           type="warning"
           message={t('login.sessionExpired')}
           showIcon
@@ -30,7 +35,7 @@ export function LoginForm() {
 
       {hasRootError && (
         <Alert
-          icon={<WarningOutlined />}
+          icon={<WarningIcon size={18} weight="duotone" />}
           type="error"
           message={errors.root!.message}
           showIcon
@@ -54,7 +59,7 @@ export function LoginForm() {
               <Input
                 {...field}
                 size="large"
-                prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
+                prefix={<UserCircleIcon size={18} color="currentColor" style={{ color: 'var(--ink-4)' }} />}
                 placeholder={t('login.usernamePlaceholder')}
                 autoComplete="username"
                 autoFocus
@@ -79,7 +84,7 @@ export function LoginForm() {
               <Input.Password
                 {...field}
                 size="large"
-                prefix={<LockOutlined style={{ color: '#94a3b8' }} />}
+                prefix={<LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-4)' }} />}
                 placeholder={t('login.passwordPlaceholder')}
                 autoComplete="current-password"
                 disabled={isLoading}

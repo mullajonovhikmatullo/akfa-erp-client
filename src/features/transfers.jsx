@@ -6,7 +6,11 @@ import { useState, useEffect } from 'react';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import dayjs from 'dayjs';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import {
+  ArrowRightIcon,
+  ArrowsLeftRightIcon,
+  TrashIcon,
+} from '@phosphor-icons/react';
 import { useSel, useDispatch } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { TagPill, EmptyState } from '../shared/ui.jsx';
@@ -31,7 +35,7 @@ const TransfersFeature = () => {
           <h1>{t("nav.transfers")}</h1>
           <div className="sub">Move stock between the main warehouse and branch showrooms.</div>
         </div>
-        <antd.Button type="primary" icon={<icons.SwapOutlined />} onClick={() => setCreating(true)}>New transfer</antd.Button>
+        <antd.Button type="primary" icon={<ArrowsLeftRightIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>New transfer</antd.Button>
       </div>
 
       <div className="grid-2" style={{ marginBottom: 16 }}>
@@ -69,7 +73,7 @@ const TransfersFeature = () => {
             { title: "From → To", key: "route", render: (_, r) => (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <TagPill tone="info">{branchMap[r.fromBranchId]?.code}</TagPill>
-                <icons.ArrowRightOutlined style={{ color: "var(--ink-3)" }} />
+                <ArrowRightIcon size={14} color="currentColor" style={{ color: "var(--ink-3)" }} />
                 <TagPill tone="info">{branchMap[r.toBranchId]?.code}</TagPill>
               </div>
             ) },
@@ -169,7 +173,7 @@ const TransferModal = ({ open, onClose }) => {
               const max = stockOf(r.productId);
               return <Controller name={`items.${index}.qty`} control={control} render={({ field }) => <antd.InputNumber value={field.value} min={1} max={max} onChange={field.onChange} />} />;
             } },
-            { title: "", key: "x", width: 40, render: (_, __, index) => <antd.Button type="text" danger icon={<icons.DeleteOutlined />} onClick={() => remove(index)} /> },
+            { title: "", key: "x", width: 40, render: (_, __, index) => <antd.Button type="text" danger icon={<TrashIcon size={18} />} onClick={() => remove(index)} /> },
           ]} />
       )}
     </antd.Modal>

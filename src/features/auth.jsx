@@ -4,7 +4,7 @@
 
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import * as antd from 'antd';
-import * as icons from '@ant-design/icons';
+import { CrownIcon, StorefrontIcon } from '@phosphor-icons/react';
 import { useSel, useDispatch } from '../app/store.jsx';
 import { useT } from '../shared/i18n.jsx';
 import { Brandmark } from '../shared/ui.jsx';
@@ -72,7 +72,7 @@ const LoginScreen = ({ onAuthed }) => {
               onClick={() => setValue("selected", u.id, { shouldDirty: true })}
             >
               <div className="icon" style={{ background: u.avatarTone + "22", color: u.avatarTone }}>
-                {u.role === "super_admin" ? <icons.CrownOutlined /> : <icons.ShopOutlined />}
+                {u.role === "super_admin" ? <CrownIcon size={20} weight="duotone" /> : <StorefrontIcon size={20} weight="duotone" />}
               </div>
               <div style={{ flex: 1 }}>
                 <div className="t">{u.name}</div>
