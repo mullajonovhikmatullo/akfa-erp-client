@@ -1,0 +1,1 @@
+export { ComingSoonView } from './ComingSoonView';

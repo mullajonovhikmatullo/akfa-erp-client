@@ -1,16 +1,26 @@
-# React + Vite
+# Store Management Client Monorepo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository is organized as a pnpm/turbo monorepo.
 
-Currently, two official plugins are available:
+## Workspaces
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `apps/admin` - the existing AKFA ERP admin app, moved without UI or route rewrites.
+- `apps/landing` - minimal public shell for future landing/onboarding routes.
+- `apps/global-admin` - minimal shell for future cross-tenant administration.
+- `dramas/erp-shared` - local shared API, auth token, response type, i18n, and permission helpers.
+- `dramas/store-buddy-stub` - buildable API/type package boundary for store-management domains.
+- `dramas/store-buddy-view` - buildable React view package boundary for future domain UI extraction.
+- `shared-public` - shared Vite public assets such as `favicon.svg` and `icons.svg`.
 
-## React Compiler
+## Commands
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+pnpm install
+pnpm dev
+pnpm build
+pnpm --filter @store/admin build
+pnpm --filter @store/landing build
+pnpm --filter @store/global-admin build
+```
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The admin app still reads root `.env` files through its Vite `envDir` setting, so existing `VITE_API_URL` usage remains unchanged.

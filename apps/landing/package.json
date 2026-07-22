@@ -1,0 +1,28 @@
+{
+  "name": "@store/landing",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5174",
+    "start": "vite --host 127.0.0.1 --port 5174",
+    "build": "vite build",
+    "lint": "eslint \"src/**/*.{js,jsx}\" --no-error-on-unmatched-pattern",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview --port 4174",
+    "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "@erp/erp-shared": "workspace:*",
+    "@vitejs/plugin-react": "6.0.1",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "vite": "8.0.11",
+    "vite-tsconfig-paths": "5.1.4"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "6.0.3"
+  }
+}

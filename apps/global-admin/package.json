@@ -1,0 +1,35 @@
+{
+  "name": "@store/global-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5175",
+    "start": "vite --host 127.0.0.1 --port 5175",
+    "build": "vite build",
+    "lint": "eslint \"src/**/*.{js,jsx}\" --no-error-on-unmatched-pattern",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview --port 4175",
+    "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "@erp/global-admin-view": "workspace:*",
+    "@phosphor-icons/react": "2.1.10",
+    "@tanstack/react-query": "5.100.9",
+    "@vitejs/plugin-react": "6.0.1",
+    "antd": "6.3.7",
+    "clsx": "2.1.1",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "react-router-dom": "7.15.0",
+    "sonner": "2.0.7",
+    "vite": "8.0.11",
+    "vite-tsconfig-paths": "5.1.4",
+    "zustand": "5.0.13"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "6.0.3"
+  }
+}

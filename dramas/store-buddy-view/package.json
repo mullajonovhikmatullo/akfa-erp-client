@@ -1,0 +1,101 @@
+{
+  "name": "@erp/store-buddy-view",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/@types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/@types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./admins": {
+      "types": "./dist/@types/components/mgr/admins/index.d.ts",
+      "import": "./dist/admins.js"
+    },
+    "./analytics": {
+      "types": "./dist/@types/components/mgr/analytics/index.d.ts",
+      "import": "./dist/analytics.js"
+    },
+    "./auth": {
+      "types": "./dist/@types/components/mgr/auth/index.d.ts",
+      "import": "./dist/auth.js"
+    },
+    "./branch": {
+      "types": "./dist/@types/components/mgr/branch/index.d.ts",
+      "import": "./dist/branch.js"
+    },
+    "./category": {
+      "types": "./dist/@types/components/mgr/category/index.d.ts",
+      "import": "./dist/category.js"
+    },
+    "./customer": {
+      "types": "./dist/@types/components/mgr/customer/index.d.ts",
+      "import": "./dist/customer.js"
+    },
+    "./dashboard": {
+      "types": "./dist/@types/components/mgr/dashboard/index.d.ts",
+      "import": "./dist/dashboard.js"
+    },
+    "./expense": {
+      "types": "./dist/@types/components/mgr/expense/index.d.ts",
+      "import": "./dist/expense.js"
+    },
+    "./inventory": {
+      "types": "./dist/@types/components/mgr/inventory/index.d.ts",
+      "import": "./dist/inventory.js"
+    },
+    "./product": {
+      "types": "./dist/@types/components/mgr/product/index.d.ts",
+      "import": "./dist/product.js"
+    },
+    "./profile": {
+      "types": "./dist/@types/components/mgr/profile/index.d.ts",
+      "import": "./dist/profile.js"
+    },
+    "./purchase": {
+      "types": "./dist/@types/components/mgr/purchase/index.d.ts",
+      "import": "./dist/purchase.js"
+    },
+    "./sale": {
+      "types": "./dist/@types/components/mgr/sale/index.d.ts",
+      "import": "./dist/sale.js"
+    },
+    "./settings": {
+      "types": "./dist/@types/components/mgr/settings/index.d.ts",
+      "import": "./dist/settings.js"
+    },
+    "./transfer": {
+      "types": "./dist/@types/components/mgr/transfer/index.d.ts",
+      "import": "./dist/transfer.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && tsc -p src/tsconfig.json",
+    "lint": "eslint \"src/**/*.{js,jsx}\" --no-error-on-unmatched-pattern",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "@erp/erp-shared": "workspace:*",
+    "@erp/store-buddy-stub": "workspace:*",
+    "@hookform/resolvers": "5.2.2",
+    "@phosphor-icons/react": "2.1.10",
+    "@tanstack/react-query": "5.100.9",
+    "antd": "6.3.7",
+    "dayjs": "1.11.20",
+    "react": "19.2.6",
+    "react-hook-form": "7.75.0",
+    "react-router-dom": "7.15.0",
+    "recharts": "3.8.1",
+    "sonner": "2.0.7",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "typescript": "6.0.3",
+    "vite": "8.0.11"
+  }
+}

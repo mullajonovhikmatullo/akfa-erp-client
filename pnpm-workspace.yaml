@@ -1,0 +1,6 @@
+packages:
+  - "apps/*"
+  - "dramas/*"
+
+overrides:
+  "@rc-component/util": "1.12.0"
