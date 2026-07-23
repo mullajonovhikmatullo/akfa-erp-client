@@ -4,10 +4,10 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@erp/landing-view": ["../../dramas/landing-view/src/index.ts"]
     }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"],
-  "references": [{ "path": "../../dramas/erp-shared" }]
+  "include": ["src", "../../dramas/landing-view/src"],
+  "exclude": ["node_modules", "dist"]
 }

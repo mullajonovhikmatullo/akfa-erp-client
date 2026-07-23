@@ -13,10 +13,14 @@
     "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "dependencies": {
-    "@erp/erp-shared": "workspace:*",
+    "@erp/landing-view": "workspace:*",
+    "@tailwindcss/vite": "4.2.1",
     "@vitejs/plugin-react": "6.0.1",
     "react": "19.2.6",
     "react-dom": "19.2.6",
+    "react-router-dom": "7.15.0",
+    "tailwindcss": "4.2.1",
+    "tw-animate-css": "1.3.4",
     "vite": "8.0.11",
     "vite-tsconfig-paths": "5.1.4"
   },
