@@ -1,5 +1,5 @@
 {
-  "name": "@erp/landing-view",
+  "name": "@store/landing-view",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -20,6 +20,7 @@
     "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "dependencies": {
+    "@store/landing-stub": "workspace:*",
     "lucide-react": "0.575.0",
     "react": "19.2.6",
     "tailwindcss": "4.2.1",

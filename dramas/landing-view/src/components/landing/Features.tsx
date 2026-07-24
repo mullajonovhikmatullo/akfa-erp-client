@@ -19,7 +19,7 @@ export function Features() {
         <div className="max-w-2xl mb-14">
           <div className="eyebrow">Imkoniyatlar</div>
           <h2 className="section-heading mt-3">
-            Retail biznes uchun ishlab chiqilgan ERP tizim
+            Do‘kon boshqaruvi uchun ishlab chiqilgan tizim
           </h2>
         </div>
 

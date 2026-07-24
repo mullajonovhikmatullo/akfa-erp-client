@@ -1,11 +1,10 @@
 // Single source of truth for the Kvon Admin landing page.
-// Backend is not connected yet, so this copy describes the admin onboarding UI flow.
 
 export const site = {
   brand: {
     name: "Kvon Admin",
     tagline:
-      "Do‘kon egalari uchun shaxsiy admin panel, tenantlar esa global admin orqali boshqariladi.",
+      "Do‘kon egalari uchun shaxsiy admin panel, tenantlar esa platform admin orqali boshqariladi.",
   },
   contact: {
     phone: "+998 71 200 20 20",
@@ -26,15 +25,15 @@ export const site = {
     eyebrow: "Do‘kon egasi uchun tayyor admin panel",
     heading: "Landing orqali o‘z do‘koningizga admin panel oching",
     supporting:
-      "Kvon Admin do‘kon egasiga sotuv, filial, mahsulot, xodim va mijozlarni boshqaradigan shaxsiy admin muhit beradi. Har bir ochilgan admin global admin orqali yuritiladi.",
+      "Kvon Admin do‘kon egasiga sotuv, filial, mahsulot, xodim va mijozlarni boshqaradigan shaxsiy admin muhit beradi. Har bir ochilgan admin platform admin orqali yuritiladi.",
     primaryCta: "Admin ochish",
     secondaryCta: "Adminni ko‘rish",
-    note: "Shaxsiy admin panel · Tenant nazorati · Global admin boshqaruvi",
+    note: "Shaxsiy admin panel · Tenant nazorati · Platform admin boshqaruvi",
   },
   dashboard: {
     company: "Ziyo Market Admin",
     period: "Bugun",
-    status: "Tenant holati: Global admin tomonidan aktiv",
+    status: "Tenant holati: Platform admin tomonidan aktiv",
     metrics: [
       { label: "Bugungi savdo", value: "48 750 000", unit: "so‘m", delta: "+12.4%" },
       { label: "Faol filiallar", value: "4", unit: "ta", delta: "+1" },
@@ -57,7 +56,7 @@ export const site = {
       { name: "Olmazor", value: "7.4 mln" },
     ],
     activity: [
-      "Global admin tenantni aktiv qildi",
+      "Platform admin tenantni aktiv qildi",
       "Do‘kon egasi yangi xodim qo‘shdi",
       "Business tarifi 29 kun faol",
       "Chilonzor filialiga kassir roli berildi",
@@ -70,7 +69,7 @@ export const site = {
   problem: {
     heading: "Har bir do‘kon uchun admin ochish jarayoni tartibli bo‘lishi kerak",
     description:
-      "Do‘kon egasi alohida admin muhitda ishlaydi, global admin esa tenant, tarif, holat va kirish ruxsatlarini markazdan nazorat qiladi.",
+      "Do‘kon egasi alohida admin muhitda ishlaydi, platform admin esa tenant, tarif, holat va kirish ruxsatlarini markazdan nazorat qiladi.",
     before: {
       title: "Qo‘lda yuritiladigan onboarding",
       items: [
@@ -78,7 +77,7 @@ export const site = {
         "Do‘kon egasi, filial va xodim ma’lumotlari tarqoq saqlanadi",
         "Tarif muddati va tenant holati alohida jadvalda tekshiriladi",
         "Admin ruxsatlari qo‘lda berilib, nazorat qiyinlashadi",
-        "Global admin uchun tenantlar bo‘yicha umumiy ko‘rinish yo‘q",
+        "Platform admin uchun tenantlar bo‘yicha umumiy ko‘rinish yo‘q",
       ],
     },
     after: {
@@ -86,7 +85,7 @@ export const site = {
       items: [
         "Landingdan kelgan ariza bitta admin ochish oqimiga tushadi",
         "Har bir do‘kon uchun alohida tenant va admin muhit tayyorlanadi",
-        "Global admin tarif, muddat va aktivlik holatini boshqaradi",
+        "Platform admin tarif, muddat va aktivlik holatini boshqaradi",
         "Do‘kon egasi o‘z filial, mahsulot va xodimlarini panelda yuritadi",
         "Barcha adminlar global ro‘yxatda kuzatiladi",
       ],
@@ -102,7 +101,7 @@ export const site = {
       points: [
         "Sotuv, mahsulot va filial statistikasi",
         "Admin xodimlar va rollar",
-        "Tenant holati global admin bilan sinxron",
+        "Tenant holati platform admin bilan sinxron",
       ],
       screenshot: "dashboard" as const,
       imagePosition: "right" as const,
@@ -124,23 +123,23 @@ export const site = {
     {
       id: "activation",
       eyebrow: "Admin faollashtirish",
-      heading: "Landingdan kelgan ariza global admin orqali faollashadi",
+      heading: "Landingdan kelgan ariza platform admin orqali faollashadi",
       description:
         "Backend ulanmaguncha oqim UI darajasida ko‘rsatiladi: ariza olinadi, tenant yaratiladi, tarif belgilanadi va do‘kon egasiga admin kirishi beriladi.",
       points: [
         "Ariza, tenant, tarif va login bosqichlari",
-        "Global admin tasdiqlash nuqtasi",
+        "Platform admin tasdiqlash nuqtasi",
         "Do‘kon egasiga tayyor admin URL",
       ],
       screenshot: "transfer" as const,
       imagePosition: "right" as const,
     },
     {
-      id: "global-admin",
-      eyebrow: "Global admin",
+      id: "platform",
+      eyebrow: "Platform admin",
       heading: "Barcha do‘kon adminlari markazdan boshqariladi",
       description:
-        "Global admin tenantlar ro‘yxati, tarif holati, do‘kon egasi kontaktlari va admin domenlarini kuzatadi.",
+        "Platform admin tenantlar ro‘yxati, tarif holati, do‘kon egasi kontaktlari va admin domenlarini kuzatadi.",
       points: [
         "Yangi arizalar va faol tenantlar",
         "Tarif, muddat va bloklash holatlari",
@@ -160,8 +159,8 @@ export const site = {
       },
       {
         n: "02",
-        title: "Global admin tenantni tayyorlaydi",
-        text: "Global admin arizani tekshiradi, tenant yaratadi va tarif muddatini belgilaydi.",
+        title: "Platform admin tenantni tayyorlaydi",
+        text: "Platform admin arizani tekshiradi, tenant yaratadi va tarif muddatini belgilaydi.",
       },
       {
         n: "03",
@@ -172,9 +171,10 @@ export const site = {
   },
   pricing: {
     heading: "Admin panel uchun mos tarifni tanlang",
-    note: "Tariflar global admin tomonidan tenantga biriktiriladi. Backend ulanmaguncha bu oqim UI sifatida ko‘rsatiladi.",
+    note: "Yangi do‘konlar uchun sinov muddati avtomatik boshlanadi. Hozir test uchun free muddat backendda 1 kun qilib qo‘yilgan.",
     plans: [
       {
+        code: "START" as const,
         name: "Start Admin",
         price: "199 000",
         unit: "so‘m / oy",
@@ -184,11 +184,12 @@ export const site = {
           "1 ta filial",
           "5 tagacha xodim",
           "Sotuv va mahsulot boshqaruvi",
-          "Global admin ro‘yxatida tenant",
+          "Platform admin ro‘yxatida tenant",
         ],
         cta: "Start admin ochish",
       },
       {
+        code: "BUSINESS" as const,
         name: "Business Admin",
         price: "399 000",
         unit: "so‘m / oy",
@@ -200,11 +201,12 @@ export const site = {
           "Filiallar va rollar",
           "Mijozlar bazasi",
           "Dashboard va Excel eksport",
-          "Global admin orqali tarif nazorati",
+          "Platform admin orqali tarif nazorati",
         ],
         cta: "Business admin ochish",
       },
       {
+        code: "NETWORK" as const,
         name: "Network Admin",
         price: "Shaxsiy",
         unit: "tarif",
@@ -214,14 +216,14 @@ export const site = {
           "Moslashtirilgan tenant limitlari",
           "Ko‘p admin rollari",
           "Ustuvor yordam",
-          "Global admin monitoringi",
+          "Platform admin monitoringi",
         ],
-        cta: "Global admin bilan bog‘lanish",
+        cta: "Platform admin bilan bog‘lanish",
       },
     ],
   },
   subscriptionFlow: {
-    heading: "Admin faollashishi global admin orqali yuritiladi",
+    heading: "Admin faollashishi platform admin orqali yuritiladi",
     steps: [
       "Ariza yuboriladi",
       "Tenant yaratiladi",
@@ -229,10 +231,10 @@ export const site = {
       "Admin panel faollashadi",
     ],
     note:
-      "Hozir backend ulanmagan: landing admin ochish oqimini UI sifatida ko‘rsatadi. Keyingi bosqichda arizalar, to‘lov va faollashtirish API orqali avtomatlashtiriladi.",
+      "Landingdan ro‘yxatdan o‘tgan do‘kon darhol sinov muddatida ochiladi. Sinov tugagach to‘lov platform admin tomonidan manual tasdiqlanadi.",
   },
   productDetail: {
-    heading: "Global admin uchun admin ochish arizalari va tenantlar ko‘rinishi",
+    heading: "Platform admin uchun admin ochish arizalari va tenantlar ko‘rinishi",
     records: [
       {
         id: "ADM-10582",
@@ -255,7 +257,7 @@ export const site = {
         owner: "Ideal Savdo",
         adminUrl: "ideal.kvon.uz",
         plan: "Network",
-        source: "Global admin",
+        source: "Platform admin",
         status: "Tekshiruvda",
       },
       {
@@ -281,11 +283,11 @@ export const site = {
       name: "Javohir M.",
       role: "3 ta filial egasi",
       quote:
-        "Landingdan admin ochish oqimi tushunarli. Global admin tasdiqlagandan keyin do‘kon panelida xodim va filiallarni tez sozladik.",
+        "Landingdan admin ochish oqimi tushunarli. Platform admin tasdiqlagandan keyin do‘kon panelida xodim va filiallarni tez sozladik.",
     },
     {
       name: "Madina R.",
-      role: "Global admin operatori",
+      role: "Platform admin operatori",
       quote:
         "Tenantlar, tarif muddatlari va admin URLlarni bitta joydan ko‘rish ishni ancha tartibga soldi.",
     },
@@ -293,23 +295,23 @@ export const site = {
   faq: [
     {
       q: "Kvon Admin kimlar uchun?",
-      a: "Kvon Admin o‘z do‘koni uchun alohida admin panel ochmoqchi bo‘lgan do‘kon egalari va ularni markazdan boshqaradigan global admin jamoasi uchun.",
+      a: "Kvon Admin o‘z do‘koni uchun alohida admin panel ochmoqchi bo‘lgan do‘kon egalari va ularni markazdan boshqaradigan platform admin jamoasi uchun.",
     },
     {
       q: "Do‘kon egasi landing orqali nimaga ega bo‘ladi?",
-      a: "Do‘kon egasi landing orqali admin ochish arizasini boshlaydi. Global admin tenantni tayyorlagandan so‘ng egaga shaxsiy admin panel beriladi.",
+      a: "Do‘kon egasi landing orqali admin ochish arizasini boshlaydi. Platform admin tenantni tayyorlagandan so‘ng egaga shaxsiy admin panel beriladi.",
     },
     {
-      q: "Global admin nima qiladi?",
-      a: "Global admin tenantlarni yaratadi, tarif va muddatlarni belgilaydi, admin holatini aktiv yoki bloklangan qilib yuritadi va arizalarni kuzatadi.",
+      q: "Platform admin nima qiladi?",
+      a: "Platform admin tenantlarni yaratadi, tarif va muddatlarni belgilaydi, admin holatini aktiv yoki bloklangan qilib yuritadi va arizalarni kuzatadi.",
     },
     {
       q: "Backend hozir ulanganmi?",
-      a: "Yo‘q. Hozir landing UI admin ochish va global admin boshqaruvi haqida gapiradi. Ariza, to‘lov va faollashtirish keyingi backend bosqichida ulanadi.",
+      a: "Ha. Landing yangi do‘konni backend orqali ro‘yxatdan o‘tkazadi, sinov muddati va tenant ma’lumotlari avtomatik yaratiladi.",
     },
     {
       q: "Har bir do‘kon alohida admin panel oladimi?",
-      a: "Ha. Model bo‘yicha har bir do‘kon alohida tenant/admin muhitga ega bo‘ladi, global admin esa ularning holatini markazdan boshqaradi.",
+      a: "Ha. Model bo‘yicha har bir do‘kon alohida tenant/admin muhitga ega bo‘ladi, platform admin esa ularning holatini markazdan boshqaradi.",
     },
     {
       q: "Xodimlarga alohida ruxsat berish mumkinmi?",
@@ -322,7 +324,7 @@ export const site = {
   ],
   finalCta: {
     heading: "Do‘koningiz uchun shaxsiy admin panel ochishni boshlang",
-    text: "Landingdan ariza boshlang, global admin esa tenant va tarifni tayyorlaydi.",
+    text: "Landingdan ariza boshlang, platform admin esa tenant va tarifni tayyorlaydi.",
     primary: "Admin ochish",
     secondary: "Tariflarni ko‘rish",
   },
@@ -334,7 +336,7 @@ export const site = {
       },
       {
         title: "Boshqaruv",
-        links: ["Global admin", "Tenantlar", "Rollar"],
+        links: ["Platform admin", "Tenantlar", "Rollar"],
       },
       {
         title: "Huquqiy",

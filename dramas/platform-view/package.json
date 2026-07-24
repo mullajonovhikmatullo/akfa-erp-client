@@ -1,0 +1,53 @@
+{
+  "name": "@store/platform-view",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/@types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/@types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./dashboard": {
+      "types": "./dist/@types/components/dashboard/index.d.ts",
+      "import": "./dist/dashboard.js"
+    },
+    "./coming-soon": {
+      "types": "./dist/@types/components/coming-soon/index.d.ts",
+      "import": "./dist/coming-soon.js"
+    },
+    "./mocks": {
+      "types": "./dist/@types/mocks/index.d.ts",
+      "import": "./dist/mocks.js"
+    },
+    "./types": {
+      "types": "./dist/@types/types/index.d.ts",
+      "import": "./dist/types.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && tsc -p src/tsconfig.json",
+    "lint": "eslint \"src/**/*.{js,jsx}\" --no-error-on-unmatched-pattern",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "@store/platform-stub": "workspace:*",
+    "@phosphor-icons/react": "2.1.10",
+    "@tanstack/react-query": "5.100.9",
+    "antd": "6.3.7",
+    "clsx": "2.1.1",
+    "dayjs": "1.11.20",
+    "react": "19.2.6",
+    "recharts": "3.8.1",
+    "sonner": "2.0.7"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "typescript": "6.0.3",
+    "vite": "8.0.11"
+  }
+}

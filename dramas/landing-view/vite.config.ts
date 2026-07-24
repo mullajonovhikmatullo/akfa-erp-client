@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 const entry = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
-const externalPackages = ['lucide-react', 'react'];
+const externalPackages = ['@store/landing-stub', 'lucide-react', 'react'];
 
 const isExternal = (id: string) =>
   externalPackages.some((pkg) => id === pkg || id.startsWith(`${pkg}/`));

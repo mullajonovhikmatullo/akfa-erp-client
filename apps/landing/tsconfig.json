@@ -5,9 +5,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@erp/landing-view": ["../../dramas/landing-view/src/index.ts"]
+      "@store/landing-stub": ["../../dramas/landing-stub/src/index.ts"],
+      "@store/landing-view": ["../../dramas/landing-view/src/index.ts"]
     }
   },
-  "include": ["src", "../../dramas/landing-view/src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../dramas/landing-stub" },
+    { "path": "../../dramas/landing-view" }
+  ]
 }

@@ -13,7 +13,8 @@
     "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "dependencies": {
-    "@erp/landing-view": "workspace:*",
+    "@store/landing-stub": "workspace:*",
+    "@store/landing-view": "workspace:*",
     "@tailwindcss/vite": "4.2.1",
     "@vitejs/plugin-react": "6.0.1",
     "react": "19.2.6",

@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "outDir": "../dist/@types",
+    "paths": {
+      "@store/store-shared": ["../../store-shared/dist/@types/index.d.ts"],
+      "@store/store-shared/core": ["../../store-shared/dist/@types/core/index.d.ts"],
+      "@store/store-shared/lib/autofill": ["../../store-shared/dist/@types/lib/autofill.d.ts"],
+      "@store/store-shared/lib/formatters": ["../../store-shared/dist/@types/lib/formatters.d.ts"],
+      "@store/store-shared/lib/parse-excel": ["../../store-shared/dist/@types/lib/parseExcel.d.ts"],
+      "@store/store-shared/lib/product-pricing": ["../../store-shared/dist/@types/lib/productPricing.d.ts"],
+      "@store/store-shared/ui/app-modal": ["../../store-shared/dist/@types/ui/AppModal/AppModal.d.ts"],
+      "@store/store-shared/ui/branch-name": ["../../store-shared/dist/@types/ui/BranchName/BranchName.d.ts"],
+      "@store/store-shared/ui/data-table": ["../../store-shared/dist/@types/ui/DataTable/DataTable.d.ts"],
+      "@store/store-shared/ui/ellipsis-text": ["../../store-shared/dist/@types/ui/EllipsisText/EllipsisText.d.ts"],
+      "@store/store-shared/ui/excel-import-button": ["../../store-shared/dist/@types/ui/ExcelImportButton/ExcelImportButton.d.ts"],
+      "@store/store-shared/ui/money-display": ["../../store-shared/dist/@types/ui/MoneyDisplay/MoneyDisplay.d.ts"],
+      "@store/store-shared/ui/select-loading-content": ["../../store-shared/dist/@types/ui/SelectLoadingContent/SelectLoadingContent.d.ts"],
+      "@store/store-shared/ui/status-badge": ["../../store-shared/dist/@types/ui/StatusBadge/StatusBadge.d.ts"],
+      "@store/store-stub": ["../../store-stub/dist/@types/index.d.ts"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

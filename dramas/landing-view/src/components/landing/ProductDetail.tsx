@@ -14,7 +14,7 @@ export function ProductDetail() {
     <section className="py-20 sm:py-28 border-t border-border">
       <div className="container-page">
         <div className="max-w-2xl mb-10">
-          <div className="eyebrow">Global admin</div>
+          <div className="eyebrow">Platform admin</div>
           <h2 className="section-heading mt-3">{d.heading}</h2>
         </div>
 

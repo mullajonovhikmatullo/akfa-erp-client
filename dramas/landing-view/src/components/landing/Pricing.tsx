@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Check } from "lucide-react";
 import { site } from "../../config/site";
+import { RegistrationModal } from "./RegistrationModal";
 
 export function Pricing() {
   const p = site.pricing;
+  const [selectedPlan, setSelectedPlan] = useState<(typeof p.plans)[number] | null>(null);
+
   return (
     <section id="tariflar" className="py-20 sm:py-28 border-t border-border">
       <div className="container-page">
@@ -46,16 +50,26 @@ export function Pricing() {
                   </li>
                 ))}
               </ul>
-              <a
-                href="#"
+              <button
+                type="button"
+                onClick={() => setSelectedPlan(plan)}
                 className={`mt-7 w-full ${plan.highlight ? "btn-primary" : "btn-secondary"}`}
               >
                 {plan.cta}
-              </a>
+              </button>
             </div>
           ))}
         </div>
       </div>
+
+      {selectedPlan && (
+        <RegistrationModal
+          open
+          planCode={selectedPlan.code}
+          planName={selectedPlan.name}
+          onClose={() => setSelectedPlan(null)}
+        />
+      )}
     </section>
   );
 }

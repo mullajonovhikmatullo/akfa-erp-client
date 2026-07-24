@@ -1,0 +1,100 @@
+{
+  "name": "@store/store-shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/@types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/@types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./api": {
+      "types": "./dist/@types/api/index.d.ts",
+      "import": "./dist/api.js"
+    },
+    "./core": {
+      "types": "./dist/@types/core/index.d.ts",
+      "import": "./dist/core.js"
+    },
+    "./lib": {
+      "types": "./dist/@types/lib/index.d.ts",
+      "import": "./dist/lib.js"
+    },
+    "./ui": {
+      "types": "./dist/@types/ui/index.d.ts",
+      "import": "./dist/ui.js"
+    },
+    "./lib/autofill": {
+      "types": "./dist/@types/lib/autofill.d.ts",
+      "import": "./dist/lib/autofill.js"
+    },
+    "./lib/formatters": {
+      "types": "./dist/@types/lib/formatters.d.ts",
+      "import": "./dist/lib/formatters.js"
+    },
+    "./lib/parse-excel": {
+      "types": "./dist/@types/lib/parseExcel.d.ts",
+      "import": "./dist/lib/parse-excel.js"
+    },
+    "./lib/product-pricing": {
+      "types": "./dist/@types/lib/productPricing.d.ts",
+      "import": "./dist/lib/product-pricing.js"
+    },
+    "./ui/app-modal": {
+      "types": "./dist/@types/ui/AppModal/AppModal.d.ts",
+      "import": "./dist/ui/app-modal.js"
+    },
+    "./ui/branch-name": {
+      "types": "./dist/@types/ui/BranchName/BranchName.d.ts",
+      "import": "./dist/ui/branch-name.js"
+    },
+    "./ui/data-table": {
+      "types": "./dist/@types/ui/DataTable/DataTable.d.ts",
+      "import": "./dist/ui/data-table.js"
+    },
+    "./ui/ellipsis-text": {
+      "types": "./dist/@types/ui/EllipsisText/EllipsisText.d.ts",
+      "import": "./dist/ui/ellipsis-text.js"
+    },
+    "./ui/excel-import-button": {
+      "types": "./dist/@types/ui/ExcelImportButton/ExcelImportButton.d.ts",
+      "import": "./dist/ui/excel-import-button.js"
+    },
+    "./ui/money-display": {
+      "types": "./dist/@types/ui/MoneyDisplay/MoneyDisplay.d.ts",
+      "import": "./dist/ui/money-display.js"
+    },
+    "./ui/select-loading-content": {
+      "types": "./dist/@types/ui/SelectLoadingContent/SelectLoadingContent.d.ts",
+      "import": "./dist/ui/select-loading-content.js"
+    },
+    "./ui/status-badge": {
+      "types": "./dist/@types/ui/StatusBadge/StatusBadge.d.ts",
+      "import": "./dist/ui/status-badge.js"
+    }
+  },
+  "scripts": {
+    "build": "vite build && tsc -p src/tsconfig.json",
+    "lint": "eslint \"src/**/*.{js,jsx}\" --no-error-on-unmatched-pattern",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
+  },
+  "dependencies": {
+    "antd": "6.3.7",
+    "@phosphor-icons/react": "2.1.10",
+    "axios": "1.16.0",
+    "clsx": "2.1.1",
+    "dayjs": "1.11.20",
+    "react": "19.2.6",
+    "sonner": "2.0.7",
+    "xlsx": "0.18.5"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "typescript": "6.0.3",
+    "vite": "8.0.11"
+  }
+}

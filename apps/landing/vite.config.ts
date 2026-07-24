@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 const appSrc = fileURLToPath(new URL('./src', import.meta.url))
+const landingStubEntry = fileURLToPath(new URL('../../dramas/landing-stub/src/index.ts', import.meta.url))
 const landingViewEntry = fileURLToPath(new URL('../../dramas/landing-view/src/index.ts', import.meta.url))
 
 export default defineConfig({
@@ -16,7 +17,8 @@ export default defineConfig({
     preserveSymlinks: false,
     dedupe: ['react', 'react-dom'],
     alias: [
-      { find: /^@erp\/landing-view$/, replacement: landingViewEntry },
+      { find: /^@store\/landing-stub$/, replacement: landingStubEntry },
+      { find: /^@store\/landing-view$/, replacement: landingViewEntry },
       { find: /^@\//, replacement: `${appSrc}/` },
     ],
   },

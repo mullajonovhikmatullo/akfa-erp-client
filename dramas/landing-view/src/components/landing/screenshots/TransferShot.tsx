@@ -16,7 +16,7 @@ export function TransferShot() {
           <span className="text-muted-foreground tabular">ADM-1048</span>
         </div>
         <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-accent-soft text-foreground">
-          Global admin tasdiqlamoqda
+          Platform admin tasdiqlamoqda
         </span>
       </div>
 
@@ -25,7 +25,7 @@ export function TransferShot() {
           <Field label="Do‘kon" value="Ziyo Market" />
           <Field label="Admin URL" value="ziyo.kvon.uz" />
           <Field label="Tarif" value="Business" />
-          <Field label="Mas’ul" value="Global admin" />
+          <Field label="Mas’ul" value="Platform admin" />
         </div>
 
         <div className="mt-5 rounded-lg bg-card border border-border p-4">
@@ -63,7 +63,7 @@ export function TransferShot() {
             Tenant ID: ziyo-market · Egasi: Dilshod E.
           </div>
           <div className="flex items-center gap-1 text-primary font-medium">
-            Global adminda ko‘rish <ArrowRight className="h-3 w-3" />
+            Platform adminda ko‘rish <ArrowRight className="h-3 w-3" />
           </div>
         </div>
       </div>

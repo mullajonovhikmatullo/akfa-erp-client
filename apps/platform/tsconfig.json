@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@store/store-shared": ["../../dramas/store-shared/dist/@types/index.d.ts"],
+      "@store/platform-stub": ["../../dramas/platform-stub/src/index.ts"],
+      "@store/platform-view": ["../../dramas/platform-view/src/index.ts"],
+      "@store/platform-view/coming-soon": ["../../dramas/platform-view/src/components/coming-soon/index.ts"],
+      "@store/platform-view/dashboard": ["../../dramas/platform-view/src/components/dashboard/index.ts"],
+      "@store/platform-view/mocks": ["../../dramas/platform-view/src/mocks/index.ts"],
+      "@store/platform-view/types": ["../../dramas/platform-view/src/types/index.ts"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "../../dramas/platform-stub" }, { "path": "../../dramas/platform-view" }]
+}

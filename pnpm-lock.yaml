@@ -33,17 +33,17 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
-  apps/admin:
+  apps/store:
     dependencies:
-      '@erp/erp-shared':
+      '@store/store-shared':
         specifier: workspace:*
-        version: link:../../dramas/erp-shared
-      '@erp/store-buddy-stub':
+        version: link:../../dramas/store-shared
+      '@store/store-stub':
         specifier: workspace:*
-        version: link:../../dramas/store-buddy-stub
-      '@erp/store-buddy-view':
+        version: link:../../dramas/store-stub
+      '@store/store-view':
         specifier: workspace:*
-        version: link:../../dramas/store-buddy-view
+        version: link:../../dramas/store-view
       '@hookform/resolvers':
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.75.0(react@19.2.6))
@@ -139,11 +139,14 @@ importers:
         specifier: 5.1.4
         version: 5.1.4(typescript@6.0.3)(vite@8.0.11(jiti@2.7.0))
 
-  apps/global-admin:
+  apps/platform:
     dependencies:
-      '@erp/global-admin-view':
+      '@store/platform-stub':
         specifier: workspace:*
-        version: link:../../dramas/global-admin-view
+        version: link:../../dramas/platform-stub
+      '@store/platform-view':
+        specifier: workspace:*
+        version: link:../../dramas/platform-view
       '@phosphor-icons/react':
         specifier: 2.1.10
         version: 2.1.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -193,7 +196,10 @@ importers:
 
   apps/landing:
     dependencies:
-      '@erp/landing-view':
+      '@store/landing-stub':
+        specifier: workspace:*
+        version: link:../../dramas/landing-stub
+      '@store/landing-view':
         specifier: workspace:*
         version: link:../../dramas/landing-view
       '@tailwindcss/vite':
@@ -234,7 +240,7 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
 
-  dramas/erp-shared:
+  dramas/store-shared:
     dependencies:
       '@phosphor-icons/react':
         specifier: 2.1.10
@@ -271,8 +277,24 @@ importers:
         specifier: 8.0.11
         version: 8.0.11(jiti@2.7.0)
 
-  dramas/global-admin-view:
+  dramas/platform-stub:
     dependencies:
+      '@store/store-shared':
+        specifier: workspace:*
+        version: link:../store-shared
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.0.11
+        version: 8.0.11(jiti@2.7.0)
+
+  dramas/platform-view:
+    dependencies:
+      '@store/platform-stub':
+        specifier: workspace:*
+        version: link:../platform-stub
       '@phosphor-icons/react':
         specifier: 2.1.10
         version: 2.1.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -308,8 +330,20 @@ importers:
         specifier: 8.0.11
         version: 8.0.11(jiti@2.7.0)
 
+  dramas/landing-stub:
+    devDependencies:
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.0.11
+        version: 8.0.11(jiti@2.7.0)
+
   dramas/landing-view:
     dependencies:
+      '@store/landing-stub':
+        specifier: workspace:*
+        version: link:../landing-stub
       lucide-react:
         specifier: 0.575.0
         version: 0.575.0(react@19.2.6)
@@ -333,11 +367,11 @@ importers:
         specifier: 8.0.11
         version: 8.0.11(jiti@2.7.0)
 
-  dramas/store-buddy-stub:
+  dramas/store-stub:
     dependencies:
-      '@erp/erp-shared':
+      '@store/store-shared':
         specifier: workspace:*
-        version: link:../erp-shared
+        version: link:../store-shared
     devDependencies:
       typescript:
         specifier: 6.0.3
@@ -346,14 +380,14 @@ importers:
         specifier: 8.0.11
         version: 8.0.11(jiti@2.7.0)
 
-  dramas/store-buddy-view:
+  dramas/store-view:
     dependencies:
-      '@erp/erp-shared':
+      '@store/store-shared':
         specifier: workspace:*
-        version: link:../erp-shared
-      '@erp/store-buddy-stub':
+        version: link:../store-shared
+      '@store/store-stub':
         specifier: workspace:*
-        version: link:../store-buddy-stub
+        version: link:../store-stub
       '@hookform/resolvers':
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.75.0(react@19.2.6))

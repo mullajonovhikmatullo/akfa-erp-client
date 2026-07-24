@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { LandingPage } from '@erp/landing-view';
+import { LandingPage } from '@store/landing-view';
 import { routes } from '../config/routes';
 
 export const AppRouter = () => (

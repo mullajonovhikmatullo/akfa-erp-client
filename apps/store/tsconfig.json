@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/shared/ui": ["src/shared/ui/index.ts"],
+      "@/*": ["src/*"],
+      "@store/store-shared": ["../../dramas/store-shared/src/index.ts"],
+      "@store/store-shared/core": ["../../dramas/store-shared/src/core/index.ts"],
+      "@store/store-shared/lib/autofill": ["../../dramas/store-shared/src/lib/autofill.ts"],
+      "@store/store-shared/lib/formatters": ["../../dramas/store-shared/src/lib/formatters.ts"],
+      "@store/store-shared/lib/parse-excel": ["../../dramas/store-shared/src/lib/parseExcel.ts"],
+      "@store/store-shared/lib/product-pricing": ["../../dramas/store-shared/src/lib/productPricing.ts"],
+      "@store/store-shared/ui/app-modal": ["../../dramas/store-shared/src/ui/AppModal/AppModal.tsx"],
+      "@store/store-shared/ui/branch-name": ["../../dramas/store-shared/src/ui/BranchName/BranchName.tsx"],
+      "@store/store-shared/ui/data-table": ["../../dramas/store-shared/src/ui/DataTable/DataTable.tsx"],
+      "@store/store-shared/ui/ellipsis-text": ["../../dramas/store-shared/src/ui/EllipsisText/EllipsisText.tsx"],
+      "@store/store-shared/ui/excel-import-button": ["../../dramas/store-shared/src/ui/ExcelImportButton/ExcelImportButton.tsx"],
+      "@store/store-shared/ui/money-display": ["../../dramas/store-shared/src/ui/MoneyDisplay/MoneyDisplay.tsx"],
+      "@store/store-shared/ui/select-loading-content": ["../../dramas/store-shared/src/ui/SelectLoadingContent/SelectLoadingContent.tsx"],
+      "@store/store-shared/ui/status-badge": ["../../dramas/store-shared/src/ui/StatusBadge/StatusBadge.tsx"],
+      "@store/store-stub": ["../../dramas/store-stub/src/index.ts"],
+      "@store/store-view": ["../../dramas/store-view/src/index.ts"],
+      "@store/store-view/*": ["../../dramas/store-view/src/components/mgr/*/index.ts"]
+    },
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../dramas/store-shared" },
+    { "path": "../../dramas/store-stub" },
+    { "path": "../../dramas/store-view" }
+  ]
+}

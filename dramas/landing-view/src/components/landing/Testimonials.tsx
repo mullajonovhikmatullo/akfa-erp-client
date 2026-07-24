@@ -7,7 +7,7 @@ export function Testimonials() {
         <div className="max-w-2xl mb-12">
           <div className="eyebrow">Foydalanuvchilar</div>
           <h2 className="section-heading mt-3">
-            Do‘kon egalari va global admin jamoasi uchun
+            Do‘kon egalari va platform admin jamoasi uchun
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
