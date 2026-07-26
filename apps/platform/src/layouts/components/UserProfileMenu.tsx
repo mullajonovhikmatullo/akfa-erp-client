@@ -6,6 +6,7 @@ import type { MenuProps } from 'antd';
 import type { PlatformProfile } from '@store/platform-view/types';
 import { routes } from '../../config/routes';
 import { clearPlatformSession } from '../../shared/auth/session';
+import { platformQueryClient } from '../../app/providers/AppProviders';
 
 interface UserProfileMenuProps {
   admin: PlatformProfile;
@@ -41,9 +42,10 @@ const profileMenuItems: MenuProps['items'] = [
 export const UserProfileMenu = ({ admin }: UserProfileMenuProps) => {
   const navigate = useNavigate();
 
-  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-    //
+  const handleMenuClick: MenuProps['onClick'] = async ({ key }) => {
     if (key === 'logout') {
+      await platformQueryClient.cancelQueries();
+      platformQueryClient.clear();
       clearPlatformSession();
       toast.success('Tizimdan chiqildi');
       navigate(routes.login, { replace: true });

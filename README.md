@@ -5,8 +5,8 @@ This repository is organized as a pnpm/turbo monorepo.
 ## Workspaces
 
 - `apps/store` - the existing Store Manager app for store operations, moved without UI or route rewrites.
-- `apps/landing` - minimal public shell for future landing/onboarding routes.
-- `apps/platform` - minimal shell for future platform administration.
+- `apps/landing` - public plans and tenant self-registration.
+- `apps/platform` - platform-owner tenant, billing and lifecycle administration.
 - `dramas/store-shared` - local shared API, auth token, response type, i18n, and permission helpers.
 - `dramas/store-stub` - buildable API/type package boundary for store-management domains.
 - `dramas/store-view` - buildable React view package boundary for future domain UI extraction.
@@ -17,10 +17,18 @@ This repository is organized as a pnpm/turbo monorepo.
 ```bash
 pnpm install
 pnpm dev
+pnpm dev:landing
+pnpm dev:platform
 pnpm build
+pnpm typecheck
+pnpm contracts:check
 pnpm --filter @store/store build
 pnpm --filter @store/landing build
 pnpm --filter @store/platform build
 ```
 
-The store app still reads root `.env` files through its Vite `envDir` setting, so existing `VITE_API_URL` usage remains unchanged.
+Copy the values from `.env.example` into the local environment configuration. The
+landing and platform apps pass only single-use codes to the store app through URL
+fragments; access tokens are never transferred between origins.
+`VITE_STORE_LOGIN_URL` must be the store app's absolute `/auth/login` URL in
+production. Provisioning and setup-link replacement fail closed when it is missing.

@@ -25,6 +25,27 @@ export interface User {
   branchId: string | null
   isActive?: boolean
   createdAt?: string
+  store?: {
+    id: string
+    name: string
+    slug: string
+    status: 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED' | 'CANCELLED'
+    billingVersion: number
+    trialEndsAt: string | null
+    subscription: {
+      status: 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED' | 'CANCELLED'
+      trialEndsAt: string | null
+      currentPeriodEnd: string | null
+      nextPaymentDueAt: string | null
+    } | null
+    plan: {
+      code: string
+      name: string
+      maxBranches: number | null
+      maxUsers: number | null
+      maxProducts: number | null
+    } | null
+  } | null
 }
 
 export interface Category {
@@ -59,6 +80,22 @@ export const PRODUCT_UNIT_LABELS: Record<ProductUnit, string> = {
   PIECE: 'dona',
 }
 
+export interface ProductImage {
+  id: string
+  productId: string
+  url: string
+  thumbnailUrl: string
+  originalFilename: string
+  mimeType: 'image/webp'
+  fileSize: number
+  width: number
+  height: number
+  isPrimary: boolean
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -74,6 +111,10 @@ export interface Product {
   retailPriceUsd: number | null
   wholesalePriceUsd: number | null
   isActive: boolean
+  primaryImageUrl?: string | null
+  primaryThumbnailUrl?: string | null
+  imageCount?: number
+  images?: ProductImage[]
   createdAt: string
   updatedAt: string
 }

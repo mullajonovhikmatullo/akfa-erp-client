@@ -25,6 +25,27 @@ export interface User {
   branchId: string | null;
   isActive?: boolean;
   createdAt?: string;
+  store?: {
+    id: string;
+    name: string;
+    slug: string;
+    status: 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED' | 'CANCELLED';
+    billingVersion: number;
+    trialEndsAt: string | null;
+    subscription: {
+      status: 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED' | 'CANCELLED';
+      trialEndsAt: string | null;
+      currentPeriodEnd: string | null;
+      nextPaymentDueAt: string | null;
+    } | null;
+    plan: {
+      code: string;
+      name: string;
+      maxBranches: number | null;
+      maxUsers: number | null;
+      maxProducts: number | null;
+    } | null;
+  } | null;
 }
 
 export interface Category {

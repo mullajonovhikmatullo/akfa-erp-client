@@ -8,7 +8,7 @@ import { createAntdTheme } from '../../config/theme';
 import { useUIStore } from '../stores/uiStore';
 import type { ThemeMode } from '../../shared/types';
 
-const queryClient = new QueryClient({
+export const platformQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
@@ -61,7 +61,7 @@ export const AppProviders = ({ children }: AppProvidersProps) => {
   return (
     <ConfigProvider theme={antdTheme}>
       <AntdApp>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={platformQueryClient}>
           <BrowserRouter basename={routerBasename}>{children}</BrowserRouter>
           <Toaster
             richColors

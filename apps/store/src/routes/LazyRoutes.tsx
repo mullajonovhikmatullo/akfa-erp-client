@@ -27,6 +27,10 @@ export const ExpensesPage = lazy(() =>
   import('@/pages/expenses/ExpensesPage').then((m) => ({ default: m.ExpensesPage })),
 );
 
+export const BillingPage = lazy(() =>
+  import('@/pages/billing/BillingPage').then((m) => ({ default: m.BillingPage })),
+);
+
 export const TransfersPage = lazy(() =>
   import('@/pages/transfers/TransfersPage').then((m) => ({ default: m.TransfersPage })),
 );

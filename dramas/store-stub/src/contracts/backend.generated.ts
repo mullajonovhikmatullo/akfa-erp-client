@@ -206,12 +206,36 @@ export interface ProductResponse {
   "retailPriceUsd"?: string | null
   "wholesalePriceUsd"?: string | null
   "isActive"?: boolean
+  "primaryImageUrl"?: string | null
+  "primaryThumbnailUrl"?: string | null
+  "imageCount"?: number
+  "images"?: ProductImageResponse[]
   "category"?: {
   "id"?: string
   "name"?: string
 }
   "createdAt"?: string
   "updatedAt"?: string
+}
+
+export interface ProductImageResponse {
+  "id": string
+  "productId": string
+  "url": string
+  "thumbnailUrl": string
+  "originalFilename": string
+  "mimeType": "image/webp"
+  "fileSize": number
+  "width": number
+  "height": number
+  "isPrimary": boolean
+  "sortOrder": number
+  "createdAt": string
+  "updatedAt": string
+}
+
+export interface ReorderProductImagesRequest {
+  "imageIds": string[]
 }
 
 export interface SaleResponse {
@@ -289,4 +313,72 @@ export interface UpdateProductRequest {
   "retailPriceUsd"?: number
   "wholesalePriceUsd"?: number
   "isActive"?: boolean
+}
+
+export type StoreStatus = "TRIALING" | "ACTIVE" | "PAST_DUE" | "SUSPENDED" | "CANCELLED"
+
+export type PaymentStatus = "PENDING" | "APPROVED" | "REJECTED"
+
+export type PaymentCurrency = "UZS" | "USD"
+
+export interface PaymentBranch {
+  "id": string
+  "name": string
+}
+
+export interface PaymentReceiptMedia {
+  "id": string
+  "fileName": string
+  "mimeType": string
+  "sizeBytes": number
+}
+
+export interface TenantPayment {
+  "id": string
+  "amount": number
+  "currency": PaymentCurrency
+  "status": PaymentStatus
+  "periodStart": string | null
+  "periodEnd": string | null
+  "paidAt": string | null
+  "approvedAt": string | null
+  "rejectedAt": string | null
+  "rejectionReason": string | null
+  "note": string | null
+  "createdAt": string
+  "branch": (PaymentBranch) | null
+  "receiptMedia": (PaymentReceiptMedia) | null
+}
+
+export interface TenantBillingSummary {
+  "id": string
+  "name": string
+  "status": StoreStatus
+  "trialEndsAt": string
+  "plan": {
+  "code"?: PlanCode
+  "name"?: string
+  "monthlyPriceUzs"?: number
+} | null
+  "subscription": {
+  "status"?: string
+  "trialEndsAt"?: string
+  "currentPeriodStart"?: string | null
+  "currentPeriodEnd"?: string | null
+  "nextPaymentDueAt"?: string | null
+} | null
+  "branches": PaymentBranch[]
+}
+
+export type PlanCode = string
+
+export interface SubmitTenantPaymentPayload {
+  "branchId": string
+  "paidAt"?: string
+  "note"?: string
+  "receipt": {
+  "fileName": string
+  "mimeType": string
+  "base64": string
+}
 }

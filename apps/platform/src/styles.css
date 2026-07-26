@@ -847,6 +847,39 @@ input:focus-visible,
   margin-top: 8px;
 }
 
+.tenant-provisioning__form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+  max-width: 920px;
+}
+
+.tenant-provisioning__actions {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 24px;
+}
+
+.setup-result {
+  display: grid;
+  gap: 12px;
+}
+
+.setup-result > div {
+  display: grid;
+  gap: 3px;
+}
+
+.setup-result span {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.setup-result strong {
+  color: var(--text-primary);
+}
+
 .operation-panel .ant-table-wrapper {
   min-width: 0;
 }
@@ -860,6 +893,59 @@ input:focus-visible,
 
 .operation-panel .ant-table {
   background: transparent;
+}
+
+.plan-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.plan-form-grid--limits {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.plan-switches {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+.operation-panel .ant-table-cell-fix-right {
+  background: var(--surface-elevated);
+}
+
+.operation-panel .ant-table-tbody > tr:hover > .ant-table-cell-fix-right {
+  background: var(--popover-background);
+}
+
+.receipt-preview {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 320px;
+  max-height: 72vh;
+  overflow: auto;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--surface-elevated);
+}
+
+.receipt-preview img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+.receipt-preview iframe {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  border: 0;
+  background: #fff;
 }
 
 .dashboard-top-grid {
@@ -1906,6 +1992,16 @@ input:focus-visible,
 }
 
 @media (max-width: 620px) {
+  .plan-form-grid,
+  .plan-form-grid--limits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-switches {
+    flex-direction: column;
+    gap: 0;
+  }
+
   .app-header {
     padding: 11px;
   }
@@ -1984,6 +2080,10 @@ input:focus-visible,
 
   .operation-panel {
     padding: 10px;
+  }
+
+  .tenant-provisioning__form {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

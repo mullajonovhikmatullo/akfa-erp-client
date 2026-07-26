@@ -1,11 +1,58 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check } from "lucide-react";
 import { site } from "../../config/site";
 import { RegistrationModal } from "./RegistrationModal";
+import { LandingSeekApi } from "@store/landing-stub";
+import type { PublicPlan, PublicPlanCode } from "@store/landing-stub";
+
+type DisplayPlan = (typeof site.pricing.plans)[number] & {
+  features: string[];
+};
+
+const formatLimit = (value: number | null, noun: string) =>
+  value === null ? `Cheklanmagan ${noun}` : `${value} tagacha ${noun}`;
 
 export function Pricing() {
   const p = site.pricing;
-  const [selectedPlan, setSelectedPlan] = useState<(typeof p.plans)[number] | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
+  const [publicPlans, setPublicPlans] = useState<PublicPlan[] | null>(null);
+  const [plansError, setPlansError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    LandingSeekApi.listPublicPlans()
+      .then((plans) => {
+        if (active) setPublicPlans(plans);
+      })
+      .catch(() => {
+        if (active) setPlansError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const plans = useMemo<DisplayPlan[]>(() => {
+    const networkPlan = p.plans.find((plan) => plan.code === "NETWORK")!;
+    const billablePlans = (publicPlans ?? []).flatMap((plan) => {
+      const template = p.plans.find((item) => item.code === plan.code);
+      if (!template || template.code === "NETWORK") return [];
+
+      return [{
+        ...template,
+        name: plan.name,
+        price: new Intl.NumberFormat("uz-UZ").format(plan.monthlyPriceUzs),
+        features: [
+          formatLimit(plan.maxBranches, "filial"),
+          formatLimit(plan.maxUsers, "faol foydalanuvchi"),
+          formatLimit(plan.maxProducts, "faol mahsulot"),
+          ...template.features.slice(-2),
+        ],
+      }];
+    });
+
+    return [...billablePlans, networkPlan];
+  }, [p.plans, publicPlans]);
 
   return (
     <section id="tariflar" className="py-20 sm:py-28 border-t border-border">
@@ -16,8 +63,14 @@ export function Pricing() {
           <p className="mt-3 text-muted-foreground">{p.note}</p>
         </div>
 
+        {plansError ? (
+          <p className="mt-8 text-sm text-muted-foreground">
+            Ochiq tariflarni hozir yuklab bo‘lmadi. Individual tarif uchun bog‘lanishingiz mumkin.
+          </p>
+        ) : null}
+
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {p.plans.map((plan) => (
+          {plans.map((plan) => (
             <div
               key={plan.name}
               className={`relative rounded-2xl border p-6 sm:p-7 flex flex-col bg-card ${
@@ -52,7 +105,13 @@ export function Pricing() {
               </ul>
               <button
                 type="button"
-                onClick={() => setSelectedPlan(plan)}
+                onClick={() => {
+                  if (plan.code === "NETWORK") {
+                    window.location.href = `mailto:${site.contact.email}?subject=${encodeURIComponent("Network Admin tarifi")}`;
+                    return;
+                  }
+                  setSelectedPlan(plan);
+                }}
                 className={`mt-7 w-full ${plan.highlight ? "btn-primary" : "btn-secondary"}`}
               >
                 {plan.cta}
@@ -65,7 +124,7 @@ export function Pricing() {
       {selectedPlan && (
         <RegistrationModal
           open
-          planCode={selectedPlan.code}
+          planCode={selectedPlan.code as PublicPlanCode}
           planName={selectedPlan.name}
           onClose={() => setSelectedPlan(null)}
         />

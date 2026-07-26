@@ -62,6 +62,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabelKey: 'nav.group.moliya',
     items: [
       { key: 'expenses', path: ROUTES.EXPENSES, label: 'Харажатлар', icon: 'expenses', permission: 'expenses:view' },
+      { key: 'billing', path: ROUTES.BILLING, label: 'Ижара тўлови', icon: 'billing', permission: 'billing:manage' },
     ],
   },
   {

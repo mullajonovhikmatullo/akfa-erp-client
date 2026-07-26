@@ -13,9 +13,11 @@ const itemHasActiveChild = (item: NavigationItem, pathname: string) =>
 const implementedPaths = new Set([
   routes.dashboard,
   routes.companies,
+  routes.companiesNew,
   routes.companiesActive,
   routes.companiesBlocked,
   routes.subscriptionPayments,
+  routes.subscriptionPlans,
   routes.subscriptionDebts,
 ]);
 

@@ -26,6 +26,7 @@ import { usePagination } from '../../shared/hooks/usePagination'
 import { ProductDetailDrawer } from '../detail/ProductDetailDrawer'
 import { ProductFormModal } from '../form/ProductFormModal'
 import { useDeleteProduct, useProductSummary, useProductsPage } from '../hooks/useProducts'
+import { AuthenticatedProductImage } from '../images/AuthenticatedProductImage'
 
 const PRODUCT_IMPORT_UNIT_ALIASES: Record<ProductUnit, string[]> = {
   KG: ['KG', 'KGS', 'KILOGRAM', 'KILOGRAMM', 'КГ', 'КИЛО', 'КИЛОГРАММ'],
@@ -186,17 +187,25 @@ export function ProductsList({ t, canManage, isSuper, userBranchId, activeBranch
       title: t('nav.products'),
       key: 'name',
       render: (_: unknown, product: Product) => (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-            <span style={{ fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
-            {isNewProduct(product) ? (
-              <StatusBadge tone="warning">
-                <BoxArrowDownIcon size={12} weight="duotone" />
-                {t('products.newBadge')}
-              </StatusBadge>
-            ) : null}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+          <AuthenticatedProductImage
+            url={product.primaryThumbnailUrl}
+            alt={product.name}
+            width={42}
+            height={42}
+          />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              <span style={{ fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
+              {isNewProduct(product) ? (
+                <StatusBadge tone="warning">
+                  <BoxArrowDownIcon size={12} weight="duotone" />
+                  {t('products.newBadge')}
+                </StatusBadge>
+              ) : null}
+            </div>
+            {product.category ? <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{product.category.name}</div> : null}
           </div>
-          {product.category ? <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{product.category.name}</div> : null}
         </div>
       ),
     },

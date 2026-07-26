@@ -25,6 +25,16 @@ export interface ChangePasswordPayload {
   confirmPassword: string
 }
 
+export interface ExchangeHandoffPayload {
+  handoffCode: string
+}
+
+export interface CompleteAccountSetupPayload {
+  setupCode: string
+  newPassword: string
+  confirmPassword: string
+}
+
 export interface AdminPage {
   items: User[]
   total: number

@@ -125,11 +125,11 @@ export const site = {
       eyebrow: "Admin faollashtirish",
       heading: "Landingdan kelgan ariza platform admin orqali faollashadi",
       description:
-        "Backend ulanmaguncha oqim UI darajasida ko‘rsatiladi: ariza olinadi, tenant yaratiladi, tarif belgilanadi va do‘kon egasiga admin kirishi beriladi.",
+        "Ro‘yxatdan o‘tishda tenant, tarif, asosiy filial va do‘kon egasi hisobi bir transactionda yaratiladi. Platform admin keyingi to‘lov va holatlarni boshqaradi.",
       points: [
         "Ariza, tenant, tarif va login bosqichlari",
-        "Platform admin tasdiqlash nuqtasi",
-        "Do‘kon egasiga tayyor admin URL",
+        "Bir martalik xavfsiz kirish",
+        "Do‘kon egasiga tayyor admin manzili",
       ],
       screenshot: "transfer" as const,
       imagePosition: "right" as const,
@@ -160,7 +160,7 @@ export const site = {
       {
         n: "02",
         title: "Platform admin tenantni tayyorlaydi",
-        text: "Platform admin arizani tekshiradi, tenant yaratadi va tarif muddatini belgilaydi.",
+        text: "Tenant sinov holatida avtomatik ochiladi; platform admin tarif muddati, to‘lov va kirish holatini nazorat qiladi.",
       },
       {
         n: "03",
@@ -182,7 +182,7 @@ export const site = {
         features: [
           "1 ta do‘kon admini",
           "1 ta filial",
-          "5 tagacha xodim",
+          "Egasi bilan 3 tagacha foydalanuvchi",
           "Sotuv va mahsulot boshqaruvi",
           "Platform admin ro‘yxatida tenant",
         ],
@@ -283,7 +283,7 @@ export const site = {
       name: "Javohir M.",
       role: "3 ta filial egasi",
       quote:
-        "Landingdan admin ochish oqimi tushunarli. Platform admin tasdiqlagandan keyin do‘kon panelida xodim va filiallarni tez sozladik.",
+        "Landingdan admin ochish oqimi tushunarli. Sinov tenant ochilgach do‘kon panelida xodim va filiallarni tez sozladik.",
     },
     {
       name: "Madina R.",
@@ -299,7 +299,7 @@ export const site = {
     },
     {
       q: "Do‘kon egasi landing orqali nimaga ega bo‘ladi?",
-      a: "Do‘kon egasi landing orqali admin ochish arizasini boshlaydi. Platform admin tenantni tayyorlagandan so‘ng egaga shaxsiy admin panel beriladi.",
+      a: "Do‘kon egasi landing orqali ro‘yxatdan o‘tadi, tenant sinov holatida darhol yaratiladi va bir martalik xavfsiz kirish orqali shaxsiy paneliga o‘tadi.",
     },
     {
       q: "Platform admin nima qiladi?",

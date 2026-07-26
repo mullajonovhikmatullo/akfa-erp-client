@@ -21,7 +21,8 @@ export type Permission =
   | 'category:manage'
   | 'customers:create'
   | 'customers:edit'
-  | 'settings:global';
+  | 'settings:global'
+  | 'billing:manage';
 
 const SUPER_ADMIN_PERMISSIONS: Permission[] = [
   'branch:switch',
@@ -45,6 +46,7 @@ const SUPER_ADMIN_PERMISSIONS: Permission[] = [
   'customers:create',
   'customers:edit',
   'settings:global',
+  'billing:manage',
 ];
 
 const BRANCH_ADMIN_PERMISSIONS: Permission[] = [

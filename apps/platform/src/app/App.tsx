@@ -1,7 +1,15 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { routes } from '../config/routes';
 import { AppLayout } from '../layouts/AppLayout';
-import { CompaniesPage, ComingSoonPage, DashboardPage, LoginPage, PaymentsPage } from '../pages';
+import {
+  CompaniesPage,
+  ComingSoonPage,
+  DashboardPage,
+  LoginPage,
+  NewCompanyPage,
+  PaymentsPage,
+  PlansPage,
+} from '../pages';
 import { ProtectedRoute } from '../routes/ProtectedRoute';
 
 export const App = () => (
@@ -12,12 +20,14 @@ export const App = () => (
         <Route path={routes.home} element={<Navigate to={routes.dashboard} replace />} />
         <Route path={routes.dashboard} element={<DashboardPage />} />
         <Route path={routes.companies} element={<CompaniesPage />} />
+        <Route path={routes.companiesNew} element={<NewCompanyPage />} />
         <Route path={routes.companiesActive} element={<CompaniesPage initialStatus="ACTIVE" title="Faol mijozlar" />} />
         <Route
           path={routes.companiesBlocked}
           element={<CompaniesPage initialStatus="SUSPENDED" title="Bloklangan mijozlar" />}
         />
         <Route path={routes.subscriptionPayments} element={<PaymentsPage />} />
+        <Route path={routes.subscriptionPlans} element={<PlansPage />} />
         <Route
           path={routes.subscriptionDebts}
           element={<CompaniesPage initialStatus="PAST_DUE" title="Qarzdorliklar" />}

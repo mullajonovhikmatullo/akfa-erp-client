@@ -1,7 +1,12 @@
-import type { Currency, Product } from '@store/store-shared'
-import type { CreateProductRequest, ProductUnit, UpdateProductRequest } from '../../../contracts/backend.generated'
+import type { Currency, Product, ProductImage } from '@store/store-shared'
+import type {
+  CreateProductRequest,
+  ProductUnit,
+  ReorderProductImagesRequest,
+  UpdateProductRequest,
+} from '../../../contracts/backend.generated'
 
-export type { Product, ProductUnit, Currency }
+export type { Product, ProductImage, ProductUnit, Currency }
 
 export interface ProductListParams {
   search?: string
@@ -14,6 +19,8 @@ export interface ProductListParams {
 export type CreateProductPayload = CreateProductRequest
 
 export type UpdateProductPayload = UpdateProductRequest
+
+export type ReorderProductImagesPayload = ReorderProductImagesRequest
 
 export interface ProductPage {
   items: Product[]

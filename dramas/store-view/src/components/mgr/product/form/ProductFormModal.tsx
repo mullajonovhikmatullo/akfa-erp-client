@@ -1,12 +1,16 @@
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Controller } from 'react-hook-form'
-import { Button, Form, Input, InputNumber, Segmented, Select, Switch } from 'antd'
+import { Alert, Button, Form, Input, InputNumber, Progress, Segmented, Select, Switch } from 'antd'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Branch, Product, ProductUnit } from '@store/store-stub'
 import { useBranches } from '../../branch/hooks/useBranches'
 import { useCategories } from '../../category/hooks/useCategories'
+import { PendingProductImages } from '../images/PendingProductImages'
+import { ProductImageManager } from '../images/ProductImageManager'
+import { PRODUCT_IMAGE_MAX_COUNT } from '../images/image-utils'
+import { createEmptyProductImageChanges } from '../images/product-image-changes'
 import { useProductForm } from './useProductForm'
 
 interface ProductFormModalProps {
@@ -31,14 +35,35 @@ function findDefaultBranch(branches: Branch[]) {
 
 export function ProductFormModal({ t, open, product, onClose, isSuper }: ProductFormModalProps) {
   //
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imageChanges, setImageChanges] = useState(createEmptyProductImageChanges)
   const unitOptions: { value: ProductUnit; label: string }[] = [
     { value: 'KG', label: t('units.KG') },
     { value: 'PIECE', label: t('units.PIECE') },
   ]
-  const { form, onSubmit, isPending, isEdit } = useProductForm({
+  const handleSuccess = useCallback(() => {
+    setImageFiles([])
+    setImageChanges(createEmptyProductImageChanges())
+    onClose()
+  }, [onClose])
+  const {
+    form,
+    onSubmit,
+    isPending,
+    isEdit,
+    isUploading,
+    uploadProgress,
+    imageUploadError,
+    isAwaitingImageRetry,
+    resetFlow,
+  } = useProductForm({
     t,
     product,
-    onSuccess: onClose,
+    imageFiles,
+    onImageFilesChange: setImageFiles,
+    imageChanges,
+    onImageChangesChange: setImageChanges,
+    onSuccess: handleSuccess,
   })
   const {
     control,
@@ -66,6 +91,20 @@ export function ProductFormModal({ t, open, product, onClose, isSuper }: Product
     }
   }, [open, isEdit, isSuper, defaultBranchId, branchId, setValue])
 
+  useEffect(() => {
+    setImageFiles([])
+    setImageChanges(createEmptyProductImageChanges())
+    if (!open) resetFlow()
+  }, [open, product?.id, resetFlow])
+
+  const handleClose = () => {
+    if (isPending) return
+    setImageFiles([])
+    setImageChanges(createEmptyProductImageChanges())
+    resetFlow()
+    onClose()
+  }
+
   const handleCurrencyChange = (value: string | number) => {
     //
     const currency = value as 'UZS' | 'USD'
@@ -86,14 +125,20 @@ export function ProductFormModal({ t, open, product, onClose, isSuper }: Product
     <AppModal
       title={isEdit ? `${t('common.edit')} · ${product?.sku ?? product?.name}` : t('productForm.titleCreate')}
       open={open}
-      onClose={onClose}
-      width={700}
+      onClose={handleClose}
+      width={760}
       footer={[
-        <Button key="cancel" onClick={onClose} disabled={isPending}>
+        <Button key="cancel" onClick={handleClose} disabled={isPending}>
           {t('common.cancel')}
         </Button>,
         <Button key="submit" type="primary" loading={isPending} onClick={() => onSubmit()}>
-          {isEdit ? t('common.save') : t('common.add')}
+          {isAwaitingImageRetry
+            ? t('productImages.retry')
+            : isUploading
+              ? t('productImages.uploading')
+              : isEdit
+                ? t('common.save')
+                : t('common.add')}
         </Button>,
       ]}
     >
@@ -352,6 +397,56 @@ export function ProductFormModal({ t, open, product, onClose, isSuper }: Product
             )}
           />
         ) : null}
+
+        {isEdit && product ? (
+          <>
+            {imageUploadError ? (
+              <Alert
+                type="error"
+                showIcon
+                title={t('productImages.uploadError')}
+                description={imageUploadError}
+                style={{ marginBottom: 10 }}
+              />
+            ) : null}
+            <ProductImageManager
+              productId={product.id}
+              productName={product.name}
+              t={t}
+              pendingFiles={imageFiles}
+              onPendingFilesChange={setImageFiles}
+              changes={imageChanges}
+              onChangesChange={setImageChanges}
+              uploading={isUploading}
+              uploadProgress={uploadProgress}
+            />
+          </>
+        ) : (
+          <section style={{ borderTop: '1px solid var(--border)', paddingTop: 16, marginTop: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>{t('productImages.title')}</div>
+              <span style={{ fontSize: 11.5, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>
+                {imageFiles.length}/{PRODUCT_IMAGE_MAX_COUNT}
+              </span>
+            </div>
+            {imageUploadError ? (
+              <Alert
+                type="error"
+                showIcon
+                title={t('productImages.createdUploadRetry')}
+                description={imageUploadError}
+                style={{ marginBottom: 10 }}
+              />
+            ) : null}
+            <PendingProductImages
+              t={t}
+              files={imageFiles}
+              onChange={setImageFiles}
+              disabled={isPending}
+            />
+            {isUploading ? <Progress percent={uploadProgress} size="small" style={{ marginTop: 10 }} /> : null}
+          </section>
+        )}
       </Form>
     </AppModal>
   )

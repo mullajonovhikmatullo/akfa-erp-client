@@ -1,13 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { App as AntdApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
-import { CheckCircle, PlusCircle, Receipt, XCircle } from '@phosphor-icons/react';
+import { CheckCircle, Eye, PlusCircle, Receipt, XCircle } from '@phosphor-icons/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   PlatformFlowApi,
   PlatformSeekApi,
 } from '@store/platform-stub';
-import type { CreatePaymentPayload, Currency, PaymentStatus, PlatformPayment } from '@store/platform-stub';
-import { currencyLabels, formatDateTime, formatMoney, paymentStatusLabels } from '../../shared/lib/platformFormatters';
+import type { CreatePaymentPayload, PaymentStatus, PlatformPayment } from '@store/platform-stub';
+import { formatDateTime, formatMoney, paymentStatusLabels } from '../../shared/lib/platformFormatters';
 
 const paymentStatusOptions: Array<{ label: string; value: PaymentStatus }> = [
   { label: paymentStatusLabels.PENDING, value: 'PENDING' },
@@ -21,10 +21,11 @@ const paymentStatusColors: Record<PaymentStatus, string> = {
   REJECTED: 'red',
 };
 
-const currencyOptions: Array<{ label: string; value: Currency }> = [
-  { label: currencyLabels.UZS, value: 'UZS' },
-  { label: currencyLabels.USD, value: 'USD' },
-];
+type ReceiptPreview = {
+  url: string;
+  fileName: string;
+  mimeType: string;
+};
 
 export const PaymentsPage = () => {
   const { message } = AntdApp.useApp();
@@ -34,6 +35,15 @@ export const PaymentsPage = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<PlatformPayment | null>(null);
   const [rejectNote, setRejectNote] = useState('');
+  const [openingReceiptId, setOpeningReceiptId] = useState<string | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<ReceiptPreview | null>(null);
+
+  useEffect(
+    () => () => {
+      if (receiptPreview?.url) URL.revokeObjectURL(receiptPreview.url);
+    },
+    [receiptPreview?.url],
+  );
 
   const paymentsQuery = useQuery({
     queryKey: ['platform-payments', status],
@@ -49,7 +59,7 @@ export const PaymentsPage = () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['platform-payments'] }),
       queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      queryClient.invalidateQueries({ queryKey: ['platform-dashboard'] }),
     ]);
   };
 
@@ -63,6 +73,7 @@ export const PaymentsPage = () => {
     },
     onError: (error) => {
       message.error(error instanceof Error ? error.message : 'To‘lov yaratilmadi');
+      void refreshPlatformData();
     },
   });
 
@@ -74,11 +85,12 @@ export const PaymentsPage = () => {
     },
     onError: (error) => {
       message.error(error instanceof Error ? error.message : 'To‘lovni tasdiqlab bo‘lmadi');
+      void refreshPlatformData();
     },
   });
 
   const rejectMutation = useMutation({
-    mutationFn: ({ id, note }: { id: string; note?: string }) =>
+    mutationFn: ({ id, note }: { id: string; note: string }) =>
       PlatformFlowApi.rejectPayment({ paymentId: id, note }),
     onSuccess: async () => {
       message.success('To‘lov rad etildi');
@@ -88,6 +100,7 @@ export const PaymentsPage = () => {
     },
     onError: (error) => {
       message.error(error instanceof Error ? error.message : 'To‘lovni rad etib bo‘lmadi');
+      void refreshPlatformData();
     },
   });
 
@@ -101,16 +114,51 @@ export const PaymentsPage = () => {
   );
   const storeOptions = useMemo(
     () =>
-      (storesQuery.data?.items ?? []).map((store) => ({
-        label: `${store.name} · ${store.ownerName}`,
-        value: store.id,
-      })),
+      (storesQuery.data?.items ?? [])
+        .filter(
+          (store) =>
+            store.status !== 'SUSPENDED' &&
+            store.status !== 'CANCELLED' &&
+            Boolean(store.plan) &&
+            Number(store.plan?.monthlyPriceUzs) > 0,
+        )
+        .map((store) => ({
+          label: `${store.name} · ${store.plan?.name} · ${formatMoney(store.plan?.monthlyPriceUzs ?? 0)}`,
+          value: store.id,
+        })),
     [storesQuery.data?.items],
   );
 
   const submitCreatePayment = async () => {
     const values = await form.validateFields();
-    createMutation.mutate(values);
+    createMutation.mutate({ ...values, currency: 'UZS' });
+  };
+
+  const selectStore = (storeId: string) => {
+    const store = storesQuery.data?.items.find((item) => item.id === storeId);
+    form.setFieldsValue({
+      storeId,
+      amount: store?.plan?.monthlyPriceUzs,
+      currency: 'UZS',
+    });
+  };
+
+  const openReceipt = async (payment: PlatformPayment) => {
+    if (!payment.receiptMedia) return;
+    setOpeningReceiptId(payment.receiptMedia.id);
+    try {
+      const blob = await PlatformSeekApi.downloadMedia(payment.receiptMedia.id);
+      const url = URL.createObjectURL(blob);
+      setReceiptPreview({
+        url,
+        fileName: payment.receiptMedia.fileName,
+        mimeType: payment.receiptMedia.mimeType,
+      });
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : 'Chekni ochib bo‘lmadi');
+    } finally {
+      setOpeningReceiptId(null);
+    }
   };
 
   return (
@@ -163,7 +211,7 @@ export const PaymentsPage = () => {
           rowKey="id"
           loading={paymentsQuery.isLoading}
           dataSource={payments}
-          scroll={{ x: 1100 }}
+          scroll={{ x: 1830 }}
           pagination={{ pageSize: 10, showSizeChanger: true }}
           columns={[
             {
@@ -177,6 +225,12 @@ export const PaymentsPage = () => {
                   <span>{payment.store.slug}</span>
                 </div>
               ),
+            },
+            {
+              title: 'Filial',
+              key: 'branch',
+              width: 180,
+              render: (_value, payment) => payment.branch?.name ?? 'Platform kiritgan',
             },
             {
               title: 'Summa',
@@ -216,6 +270,35 @@ export const PaymentsPage = () => {
               ),
             },
             {
+              title: 'Yuborgan',
+              key: 'submittedBy',
+              width: 190,
+              render: (_value, payment) => (
+                <div className="table-primary-cell">
+                  <strong>{payment.submittedBy?.fullName ?? 'Platform admin'}</strong>
+                  <span>{payment.submittedBy?.username ?? 'manual'}</span>
+                </div>
+              ),
+            },
+            {
+              title: 'Chek',
+              key: 'receipt',
+              width: 150,
+              render: (_value, payment) =>
+                payment.receiptMedia ? (
+                  <Button
+                    size="small"
+                    icon={<Eye size={16} />}
+                    loading={openingReceiptId === payment.receiptMedia.id}
+                    onClick={() => void openReceipt(payment)}
+                  >
+                    Ko‘rish
+                  </Button>
+                ) : (
+                  <span className="muted-text">Manual</span>
+                ),
+            },
+            {
               title: 'Tasdiqlagan',
               key: 'approvedBy',
               width: 180,
@@ -224,12 +307,14 @@ export const PaymentsPage = () => {
             {
               title: 'Amallar',
               key: 'actions',
-              width: 220,
+              fixed: 'right',
+              width: 250,
               render: (_value, payment) =>
                 payment.status === 'PENDING' ? (
-                  <Space size={6}>
+                  <Space size={6} wrap={false}>
                     <Popconfirm
-                      title="To‘lovni tasdiqlaysizmi?"
+                      title={`${payment.store.name} to‘lovini tasdiqlaysizmi?`}
+                      description={`${formatMoney(payment.amount, payment.currency)} · ${formatDateTime(payment.periodStart)} – ${formatDateTime(payment.periodEnd)}`}
                       okText="Ha"
                       cancelText="Yo‘q"
                       onConfirm={() => approveMutation.mutate(payment.id)}
@@ -261,6 +346,26 @@ export const PaymentsPage = () => {
       </div>
 
       <Modal
+        title={receiptPreview?.fileName ?? 'To‘lov cheki'}
+        open={Boolean(receiptPreview)}
+        width={880}
+        footer={
+          <Button type="primary" onClick={() => setReceiptPreview(null)}>
+            Yopish
+          </Button>
+        }
+        onCancel={() => setReceiptPreview(null)}
+      >
+        <div className="receipt-preview">
+          {receiptPreview?.mimeType === 'application/pdf' ? (
+            <iframe src={receiptPreview.url} title={receiptPreview.fileName} />
+          ) : receiptPreview ? (
+            <img src={receiptPreview.url} alt={receiptPreview.fileName} />
+          ) : null}
+        </div>
+      </Modal>
+
+      <Modal
         title="Manual to‘lov qo‘shish"
         open={createModalOpen}
         okText="Yaratish"
@@ -285,13 +390,25 @@ export const PaymentsPage = () => {
               options={storeOptions}
               optionFilterProp="label"
               placeholder="Do‘konni tanlang"
+              onChange={selectStore}
             />
           </Form.Item>
-          <Form.Item name="amount" label="Summa" rules={[{ required: true, message: 'Summani kiriting' }]}>
-            <InputNumber min={1} precision={0} style={{ width: '100%' }} placeholder="399000" />
+          <Form.Item
+            name="amount"
+            label="Oylik tarif summasi"
+            rules={[{ required: true, message: 'Do‘konni tanlang' }]}
+          >
+            <InputNumber
+              readOnly
+              controls={false}
+              precision={0}
+              addonAfter="UZS"
+              style={{ width: '100%' }}
+              placeholder="Do‘kon tanlanganda avtomatik belgilanadi"
+            />
           </Form.Item>
-          <Form.Item name="currency" label="Valyuta" rules={[{ required: true }]}>
-            <Select options={currencyOptions} />
+          <Form.Item name="currency" hidden>
+            <Input />
           </Form.Item>
           <Form.Item name="note" label="Izoh">
             <Input.TextArea maxLength={500} rows={3} placeholder="Masalan: Click chek raqami yoki karta to‘lovi" />
@@ -303,7 +420,7 @@ export const PaymentsPage = () => {
         title="To‘lovni rad etish"
         open={Boolean(rejectTarget)}
         okText="Rad etish"
-        okButtonProps={{ danger: true }}
+        okButtonProps={{ danger: true, disabled: rejectNote.trim().length < 3 }}
         cancelText="Bekor qilish"
         confirmLoading={rejectMutation.isPending}
         onOk={() => {

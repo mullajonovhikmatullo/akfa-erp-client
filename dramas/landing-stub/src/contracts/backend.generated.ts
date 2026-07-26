@@ -2,7 +2,7 @@
 // Generated from backend OpenAPI. Do not edit manually.
 // Run: pnpm contracts:sync
 
-export type PlanCode = "START" | "BUSINESS" | "NETWORK"
+export type PlanCode = string
 
 export interface PlatformUser {
   "id": string
@@ -12,6 +12,7 @@ export interface PlatformUser {
   "rawRole": string
   "storeId": string | null
   "branchId": string | null
+  "mustChangePassword": boolean
 }
 
 export interface RegisterStorePayload {
@@ -21,11 +22,15 @@ export interface RegisterStorePayload {
   "email"?: string
   "username": string
   "password": string
-  "planCode"?: PlanCode
+  "confirmPassword": string
+  "planCode"?: PublicPlanCode
 }
 
+export type PublicPlanCode = string
+
 export interface RegisterStoreResult {
-  "accessToken": string
+  "handoffCode": string
+  "handoffExpiresAt": string
   "user": PlatformUser
   "store": RegisteredStore
   "branch": RegisteredBranch
@@ -37,6 +42,7 @@ export interface RegisteredStore {
   "name": string
   "slug": string
   "status": StoreStatus
+  "billingVersion": number
   "trialEndsAt": string
 }
 
@@ -52,4 +58,23 @@ export interface RegisteredSubscription {
   "status": string
   "trialEndsAt": string
   "nextPaymentDueAt": string
+}
+
+export interface ExchangeHandoffPayload {
+  "handoffCode": string
+}
+
+export interface CompleteAccountSetupPayload {
+  "setupCode": string
+  "newPassword": string
+  "confirmPassword": string
+}
+
+export interface PublicPlan {
+  "code": PublicPlanCode
+  "name": string
+  "monthlyPriceUzs": number
+  "maxBranches": number | null
+  "maxUsers": number | null
+  "maxProducts": number | null
 }

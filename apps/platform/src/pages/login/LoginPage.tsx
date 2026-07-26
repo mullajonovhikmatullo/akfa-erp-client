@@ -1,16 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Alert, Button, Input } from 'antd';
 import { Lock, ShieldCheck, Storefront, UserCircle } from '@phosphor-icons/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { routes } from '../../config/routes';
 import {
-  isPlatformOwner,
   loginPlatformOwner,
-  readPlatformToken,
-  readPlatformUser,
   savePlatformSession,
 } from '../../shared/auth/session';
+import { platformQueryClient } from '../../app/providers/AppProviders';
 
 type LoginFormState = {
   username: string;
@@ -39,12 +37,6 @@ export const LoginPage = () => {
 
   const redirectTo = useMemo(() => normalizeRedirect(searchParams.get('from')), [searchParams]);
 
-  useEffect(() => {
-    if (readPlatformToken() && isPlatformOwner(readPlatformUser())) {
-      navigate(redirectTo, { replace: true });
-    }
-  }, [navigate, redirectTo]);
-
   const updateField = (key: keyof LoginFormState, value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
     setError(null);
@@ -57,6 +49,8 @@ export const LoginPage = () => {
 
     try {
       const result = await loginPlatformOwner(form.username.trim(), form.password);
+      await platformQueryClient.cancelQueries();
+      platformQueryClient.clear();
       savePlatformSession(result);
       navigate(redirectTo, { replace: true });
     } catch (loginError) {

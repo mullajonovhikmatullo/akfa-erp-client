@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { App as AntdApp, Button, Input, Modal, Select, Space, Table, Tag } from 'antd';
-import { Buildings, CheckCircle, Clock, PauseCircle, WarningCircle } from '@phosphor-icons/react';
+import { App as AntdApp, Button, Input, Modal, Select, Space, Table, Tag, Tooltip } from 'antd';
+import {
+  Buildings,
+  CheckCircle,
+  Clock,
+  Copy,
+  LinkSimple,
+  PauseCircle,
+  WarningCircle,
+} from '@phosphor-icons/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlatformFlowApi, PlatformSeekApi } from '@store/platform-stub';
 import type { PlatformStore, StoreStatus } from '@store/platform-stub';
@@ -11,6 +19,7 @@ import {
   formatMoney,
   storeStatusLabels,
 } from '../../shared/lib/platformFormatters';
+import { createOwnerSetupUrl } from '../../shared/lib/ownerSetupUrl';
 
 interface CompaniesPageProps {
   initialStatus?: StoreStatus;
@@ -54,6 +63,16 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
     status: StoreStatus;
   } | null>(null);
   const [statusNote, setStatusNote] = useState('');
+  const [statusConfirmation, setStatusConfirmation] = useState('');
+  const [statusPassword, setStatusPassword] = useState('');
+  const [setupTarget, setSetupTarget] = useState<PlatformStore | null>(null);
+  const [setupPassword, setSetupPassword] = useState('');
+  const [setupResult, setSetupResult] = useState<{
+    storeName: string;
+    username: string;
+    setupCode: string;
+    setupExpiresAt: string;
+  } | null>(null);
 
   useEffect(() => {
     setStatus(initialStatus);
@@ -65,24 +84,75 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
     queryFn: () => PlatformSeekApi.listStores({ page, pageSize, search, status }),
   });
   const dashboardQuery = useQuery({
-    queryKey: ['dashboard'],
+    queryKey: ['platform-dashboard', 'metrics'],
     queryFn: PlatformSeekApi.dashboard,
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ storeId, nextStatus, note }: { storeId: string; nextStatus: StoreStatus; note?: string }) =>
-      PlatformFlowApi.updateStoreStatus({ storeId, status: nextStatus, note }),
+    mutationFn: ({
+      storeId,
+      nextStatus,
+      expectedVersion,
+      note,
+      confirmation,
+    }: {
+      storeId: string;
+      nextStatus: StoreStatus;
+      expectedVersion: number;
+      note?: string;
+      confirmation?: string;
+    }) =>
+      PlatformFlowApi.updateStoreStatus({
+        storeId,
+        status: nextStatus,
+        expectedVersion,
+        note,
+        confirmation,
+        currentPassword:
+          nextStatus === 'CANCELLED' ||
+          (pendingStatusChange?.store.status === 'CANCELLED' &&
+            (nextStatus === 'ACTIVE' || nextStatus === 'TRIALING'))
+            ? statusPassword
+            : undefined,
+      }),
     onSuccess: async () => {
       message.success('Do‘kon statusi yangilandi');
       setPendingStatusChange(null);
       setStatusNote('');
+      setStatusConfirmation('');
+      setStatusPassword('');
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
-        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-payments'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-dashboard'] }),
       ]);
     },
     onError: (error) => {
+      setStatusPassword('');
       message.error(error instanceof Error ? error.message : 'Statusni yangilab bo‘lmadi');
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-payments'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-dashboard'] }),
+      ]);
+    },
+  });
+  const setupMutation = useMutation({
+    mutationFn: (store: PlatformStore) =>
+      PlatformFlowApi.regenerateOwnerSetup(store.id, setupPassword),
+    onSuccess: (result, store) => {
+      setSetupTarget(null);
+      setSetupPassword('');
+      setSetupResult({
+        storeName: store.name,
+        username: result.owner.username,
+        setupCode: result.setupCode,
+        setupExpiresAt: result.setupExpiresAt,
+      });
+    },
+    onError: (error) => {
+      setSetupPassword('');
+      message.error(error instanceof Error ? error.message : 'Setup manzilini yangilab bo‘lmadi');
     },
   });
 
@@ -102,8 +172,21 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
     statusMutation.mutate({
       storeId: pendingStatusChange.store.id,
       nextStatus: pendingStatusChange.status,
+      expectedVersion: pendingStatusChange.store.billingVersion,
       note: statusNote,
+      confirmation: statusConfirmation,
     });
+  };
+
+  const openSetupRegeneration = (store: PlatformStore) => {
+    try {
+      createOwnerSetupUrl('configuration-check');
+      setSetupTarget(store);
+    } catch (error) {
+      message.error(
+        error instanceof Error ? error.message : 'Store login manzili konfiguratsiya qilinmagan',
+      );
+    }
   };
 
   return (
@@ -256,14 +339,36 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             {
               title: 'Boshqaruv',
               key: 'actions',
-              width: 180,
+              width: 220,
               render: (_value, store) => (
-                <Select<StoreStatus>
-                  value={store.status}
-                  options={statusOptions}
-                  onChange={(nextStatus) => setPendingStatusChange({ store, status: nextStatus })}
-                  style={{ width: 154 }}
-                />
+                <Space size={6}>
+                  <Select<StoreStatus>
+                    value={undefined}
+                    placeholder="Status"
+                    options={statusOptions.filter((option) =>
+                      store.allowedStatusTransitions.includes(option.value),
+                    )}
+                    disabled={store.allowedStatusTransitions.length === 0}
+                    onChange={(nextStatus) => setPendingStatusChange({ store, status: nextStatus })}
+                    style={{ width: 140 }}
+                  />
+                  {store.ownerAccount?.mustChangePassword &&
+                  store.ownerAccount.isActive &&
+                  store.status !== 'SUSPENDED' &&
+                  store.status !== 'CANCELLED' ? (
+                    <Tooltip title="Yangi setup manzili">
+                      <Button
+                        aria-label="Yangi setup manzili"
+                        icon={<LinkSimple size={18} />}
+                        loading={
+                          setupMutation.isPending &&
+                          setupMutation.variables?.id === store.id
+                        }
+                        onClick={() => openSetupRegeneration(store)}
+                      />
+                    </Tooltip>
+                  ) : null}
+                </Space>
               ),
             },
           ]}
@@ -276,10 +381,27 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
         okText="Tasdiqlash"
         cancelText="Bekor qilish"
         confirmLoading={statusMutation.isPending}
+        okButtonProps={{
+          disabled:
+            !pendingStatusChange ||
+              ((pendingStatusChange.status === 'SUSPENDED' || pendingStatusChange.status === 'CANCELLED') &&
+              statusNote.trim().length < 3) ||
+            (pendingStatusChange.status === 'CANCELLED' &&
+              (![
+                pendingStatusChange.store.name,
+                pendingStatusChange.store.slug,
+              ].includes(statusConfirmation.trim()) ||
+                statusPassword.length === 0)) ||
+            (pendingStatusChange.store.status === 'CANCELLED' &&
+              (pendingStatusChange.status === 'ACTIVE' || pendingStatusChange.status === 'TRIALING') &&
+              statusPassword.length === 0),
+        }}
         onOk={confirmStatusChange}
         onCancel={() => {
           setPendingStatusChange(null);
           setStatusNote('');
+          setStatusConfirmation('');
+          setStatusPassword('');
         }}
       >
         <div className="status-change-modal">
@@ -293,7 +415,108 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             onChange={(event) => setStatusNote(event.target.value)}
             maxLength={500}
             rows={3}
-            placeholder="Izoh"
+            placeholder={
+              pendingStatusChange?.status === 'SUSPENDED' || pendingStatusChange?.status === 'CANCELLED'
+                ? 'Sabab (majburiy)'
+                : 'Izoh'
+            }
+          />
+          {pendingStatusChange?.status === 'CANCELLED' ||
+          (pendingStatusChange?.store.status === 'CANCELLED' &&
+            (pendingStatusChange.status === 'ACTIVE' || pendingStatusChange.status === 'TRIALING')) ? (
+            <>
+              {pendingStatusChange.status === 'CANCELLED' ? <Input
+                value={statusConfirmation}
+                onChange={(event) => setStatusConfirmation(event.target.value)}
+                placeholder={`Tasdiqlash uchun “${pendingStatusChange.store.name}” deb yozing`}
+                maxLength={120}
+              /> : null}
+              <Input.Password
+                value={statusPassword}
+                onChange={(event) => setStatusPassword(event.target.value)}
+                autoComplete="current-password"
+                placeholder="Platform egasining joriy paroli"
+              />
+            </>
+          ) : null}
+        </div>
+      </Modal>
+
+      <Modal
+        title="Yangi setup manzilini yaratish"
+        open={Boolean(setupTarget)}
+        okText="Yaratish"
+        cancelText="Bekor qilish"
+        confirmLoading={setupMutation.isPending}
+        okButtonProps={{ disabled: setupPassword.length === 0 }}
+        onOk={() => {
+          if (!setupTarget || !setupPassword) return;
+          setupMutation.mutate(setupTarget);
+        }}
+        onCancel={() => {
+          setSetupTarget(null);
+          setSetupPassword('');
+        }}
+      >
+        <div className="status-change-modal">
+          <p>
+            <strong>{setupTarget?.name}</strong> uchun oldingi ishlatilmagan setup manzili bekor
+            qilinadi.
+          </p>
+          <Input.Password
+            value={setupPassword}
+            onChange={(event) => setSetupPassword(event.target.value)}
+            autoComplete="current-password"
+            placeholder="Platform egasining joriy paroli"
+            onPressEnter={() => {
+              if (setupTarget && setupPassword) {
+                setupMutation.mutate(setupTarget);
+              }
+            }}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        title="Do‘kon egasi uchun yangi setup"
+        open={Boolean(setupResult)}
+        footer={[
+          <Button
+            key="copy"
+            type="primary"
+            icon={<Copy size={18} />}
+            onClick={() => {
+              if (!setupResult) return;
+              void navigator.clipboard
+                .writeText(createOwnerSetupUrl(setupResult.setupCode))
+                .then(() => message.success('Setup manzili nusxalandi'))
+                .catch(() => message.error('Setup manzilini nusxalab bo‘lmadi'));
+            }}
+          >
+            Setup manzilini nusxalash
+          </Button>,
+          <Button key="close" onClick={() => setSetupResult(null)}>
+            Yopish
+          </Button>,
+        ]}
+        onCancel={() => setSetupResult(null)}
+      >
+        <div className="setup-result">
+          <div>
+            <span>Do‘kon</span>
+            <strong>{setupResult?.storeName}</strong>
+          </div>
+          <div>
+            <span>Login</span>
+            <strong>{setupResult?.username}</strong>
+          </div>
+          <div>
+            <span>Setup muddati</span>
+            <strong>{formatDateTime(setupResult?.setupExpiresAt ?? null)}</strong>
+          </div>
+          <Input
+            readOnly
+            value={setupResult ? createOwnerSetupUrl(setupResult.setupCode) : ''}
           />
         </div>
       </Modal>

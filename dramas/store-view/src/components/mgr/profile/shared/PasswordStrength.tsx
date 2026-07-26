@@ -8,7 +8,7 @@ export function PasswordStrength({ password, t }: PasswordStrengthProps) {
   if (!password) return null
 
   const checks = [
-    { label: t('pwd.minLen'), pass: password.length >= 6 },
+    { label: t('pwd.minLen'), pass: password.length >= 10 },
     { label: t('pwd.hasNum'), pass: /\d/.test(password) },
     { label: t('pwd.hasLetter'), pass: /[a-zA-Z]/.test(password) },
     { label: t('pwd.maxLen'), pass: password.length <= 100 },

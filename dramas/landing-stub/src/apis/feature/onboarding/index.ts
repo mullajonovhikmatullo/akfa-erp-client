@@ -1,11 +1,12 @@
-import type { RegisterStorePayload, RegisterStoreResult } from '../../../models/domain/onboarding'
-
-export const LANDING_TOKEN_KEY = 'store_access_token'
-export const LANDING_AUTH_STORE_KEY = 'store-auth'
+import type {
+  PublicPlan,
+  RegisterStorePayload,
+  RegisterStoreResult,
+} from '../../../models/domain/onboarding'
 
 type LandingImportMetaEnv = {
   VITE_API_URL?: string
-  VITE_ADMIN_URL?: string
+  VITE_STORE_LOGIN_URL?: string
   DEV?: boolean
 }
 
@@ -13,8 +14,34 @@ const getEnv = () => (import.meta as ImportMeta & { env?: LandingImportMetaEnv }
 
 const getApiBaseUrl = () => getEnv()?.VITE_API_URL ?? 'http://localhost:3000'
 
-export const getAdminUrl = () =>
-  getEnv()?.VITE_ADMIN_URL ?? (getEnv()?.DEV ? 'http://127.0.0.1:5173/auth/login' : '/auth/login')
+export const getAdminUrl = () => {
+  const env = getEnv()
+  if (!env?.VITE_STORE_LOGIN_URL && !env?.DEV) {
+    throw new Error('VITE_STORE_LOGIN_URL is required in production')
+  }
+
+  const url = new URL(
+    env?.VITE_STORE_LOGIN_URL ?? 'http://127.0.0.1:5173/auth/login',
+    globalThis.location?.origin ?? 'http://localhost',
+  )
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('VITE_STORE_LOGIN_URL must use http or https')
+  }
+  if (url.pathname === '/' || url.pathname === '') {
+    url.pathname = '/auth/login'
+  }
+  url.username = ''
+  url.password = ''
+  url.search = ''
+  return url.toString()
+}
+
+export const createAdminHandoffUrl = (handoffCode: string) => {
+  const base = getAdminUrl()
+  const url = new URL(base, globalThis.location?.origin ?? 'http://localhost')
+  url.hash = new URLSearchParams({ handoff: handoffCode }).toString()
+  return url.toString()
+}
 
 interface ApiEnvelope<T> {
   success: boolean
@@ -29,15 +56,12 @@ export class OnboardingApiError extends Error {
   }
 }
 
-export function persistAdminSession(result: RegisterStoreResult) {
-  globalThis.localStorage?.setItem(LANDING_TOKEN_KEY, result.accessToken)
-  globalThis.localStorage?.setItem(
-    LANDING_AUTH_STORE_KEY,
-    JSON.stringify({
-      state: { user: result.user },
-      version: 0,
-    }),
-  )
+async function parseResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
+  const body = (await response.json().catch(() => null)) as ApiEnvelope<T> | null
+  if (!response.ok || !body?.success) {
+    throw new OnboardingApiError(body?.message ?? fallbackMessage)
+  }
+  return body.data
 }
 
 export async function registerStore(payload: RegisterStorePayload): Promise<RegisterStoreResult> {
@@ -47,19 +71,25 @@ export async function registerStore(payload: RegisterStorePayload): Promise<Regi
     body: JSON.stringify(payload),
   })
 
-  const body = (await response.json().catch(() => null)) as ApiEnvelope<RegisterStoreResult> | null
+  return parseResponse(response, 'Admin ochish so‘rovini yuborib bo‘lmadi')
+}
 
-  if (!response.ok || !body?.success) {
-    throw new OnboardingApiError(body?.message ?? 'Admin ochish so‘rovini yuborib bo‘lmadi')
-  }
-
-  return body.data
+export async function listPublicPlans(): Promise<PublicPlan[]> {
+  const response = await fetch(`${getApiBaseUrl()}/public/plans`)
+  return parseResponse(response, 'Tariflarni yuklab bo‘lmadi')
 }
 
 export const LandingFlowApi = {
+  createAdminHandoffUrl,
   getAdminUrl,
-  persistAdminSession,
   registerStore,
 }
 
-export const onboardingApi = LandingFlowApi
+export const LandingSeekApi = {
+  listPublicPlans,
+}
+
+export const onboardingApi = {
+  ...LandingFlowApi,
+  ...LandingSeekApi,
+}

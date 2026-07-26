@@ -1,5 +1,6 @@
 export * from './feature/mgr/analytics'
 export * from './feature/mgr/branch'
+export * from './feature/mgr/billing'
 export * from './feature/mgr/category'
 export * from './feature/mgr/customer'
 export * from './feature/mgr/expense'

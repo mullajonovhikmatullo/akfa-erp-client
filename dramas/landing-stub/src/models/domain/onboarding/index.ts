@@ -1,4 +1,6 @@
 export type { PlanCode } from './plan-code'
+export type { PublicPlanCode } from './public-plan-code'
+export type { PublicPlan } from './public-plan'
 export type { PlatformUser } from './platform-user'
 export type { RegisterStorePayload } from './register-store-payload'
 export type { RegisterStoreResult } from './register-store-result'

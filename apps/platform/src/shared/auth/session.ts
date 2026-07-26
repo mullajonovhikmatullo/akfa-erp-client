@@ -35,6 +35,10 @@ export const savePlatformSession = ({ accessToken, user }: PlatformLoginResponse
   localStorage.setItem(PLATFORM_USER_KEY, JSON.stringify(user));
 };
 
+export const savePlatformUser = (user: PlatformUser) => {
+  localStorage.setItem(PLATFORM_USER_KEY, JSON.stringify(user));
+};
+
 export const clearPlatformSession = () => {
   localStorage.removeItem(PLATFORM_TOKEN_KEY);
   localStorage.removeItem(PLATFORM_USER_KEY);

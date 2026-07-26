@@ -21,6 +21,7 @@ import { useT } from '@/shared/lib/i18n';
 import { ROUTES } from '@/shared/config/routes';
 import type { Lang, Theme } from '@/app/stores/ui.store';
 import { ALL_NAV_ITEMS } from './navConfig';
+import { queryClient } from '@/app/providers';
 
 const ALL_BRANCHES_LABEL_KEY = 'header.allBranches';
 
@@ -125,8 +126,9 @@ export function AppHeader({ branches }: AppHeaderProps) {
       key: 'logout',
       icon: <SignOutIcon size={18} />,
       label: <span style={{ color: 'var(--danger)' }}>{t('header.logout')}</span>,
-      onClick: () => {
-        //
+      onClick: async () => {
+        await queryClient.cancelQueries();
+        queryClient.clear();
         zustandLogout();
         navigate(ROUTES.LOGIN);
       },

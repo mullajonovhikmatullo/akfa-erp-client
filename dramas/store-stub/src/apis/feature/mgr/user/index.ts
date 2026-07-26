@@ -1,16 +1,20 @@
-import { http } from '@store/store-shared'
+import { createTokenStore, http } from '@store/store-shared'
 import type { ApiResponse } from '@store/store-shared'
 import type {
   AdminPage,
   AdminPageQuery,
   ChangePasswordPayload,
+  CompleteAccountSetupPayload,
   CreateAdminPayload,
+  ExchangeHandoffPayload,
   LoginPayload,
   LoginResponse,
   UpdateAdminPayload,
   UpdateProfilePayload,
   User,
 } from '../../../../models/domain/user'
+
+const storeTokenStore = createTokenStore()
 
 const normalizeRole = (role: unknown): User['role'] =>
   role === 'SUPER_ADMIN' || role === 'super_admin' ? 'super_admin' : 'branch_admin'
@@ -38,6 +42,12 @@ const parseUser = (r: { data: unknown }) => {
 
 const login = (payload: LoginPayload) =>
   http.post<ApiResponse<LoginResponse>>('/auth/login', payload).then((r) => r.data.data)
+
+const exchangeHandoff = (payload: ExchangeHandoffPayload) =>
+  http.post<ApiResponse<LoginResponse>>('/auth/handoff/exchange', payload).then((r) => r.data.data)
+
+const completeAccountSetup = (payload: CompleteAccountSetupPayload) =>
+  http.post<ApiResponse<LoginResponse>>('/auth/setup/complete', payload).then((r) => r.data.data)
 
 const me = () => http.get<ApiResponse<User>>('/auth/me').then((r) => r.data.data)
 
@@ -70,7 +80,12 @@ const updateProfile = (payload: UpdateProfilePayload) =>
   http.patch<ApiResponse<User>>('/auth/profile', payload).then((r) => r.data.data)
 
 const changePassword = (payload: ChangePasswordPayload) =>
-  http.post('/auth/change-password', payload).then((r) => r.data)
+  http
+    .post<ApiResponse<{ message: string; accessToken: string }>>('/auth/change-password', payload)
+    .then((r) => {
+      storeTokenStore.set(r.data.data.accessToken)
+      return r.data
+    })
 
 export const UserSeekApi = {
   findUsers,
@@ -89,6 +104,8 @@ export const UserSeekApi = {
 
 export const UserFlowApi = {
   login,
+  exchangeHandoff,
+  completeAccountSetup,
   me,
   createAdmin,
   updateAdmin,
@@ -100,6 +117,8 @@ export const UserFlowApi = {
 
 export const userApi = {
   login,
+  exchangeHandoff,
+  completeAccountSetup,
   me,
   list: findUsers,
   listPaginated: findAdminsPage,

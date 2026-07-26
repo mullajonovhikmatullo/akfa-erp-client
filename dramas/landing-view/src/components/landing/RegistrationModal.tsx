@@ -1,16 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { ArrowRight, CheckCircle2, Loader2, X } from 'lucide-react';
 import {
-  getAdminUrl,
-  persistAdminSession,
-  type PlanCode,
+  createAdminHandoffUrl,
+  type PublicPlanCode,
   registerStore,
 } from '@store/landing-stub';
 
 interface RegistrationModalProps {
   open: boolean;
-  planCode: PlanCode;
+  planCode: PublicPlanCode;
   planName: string;
   onClose: () => void;
 }
@@ -22,6 +21,7 @@ type FormState = {
   email: string;
   username: string;
   password: string;
+  confirmPassword: string;
 };
 
 const initialForm: FormState = {
@@ -31,6 +31,7 @@ const initialForm: FormState = {
   email: '',
   username: '',
   password: '',
+  confirmPassword: '',
 };
 
 function buildUsername(storeName: string) {
@@ -47,8 +48,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createdStoreName, setCreatedStoreName] = useState<string | null>(null);
-
-  const adminUrl = useMemo(() => getAdminUrl(), []);
+  const [adminUrl, setAdminUrl] = useState<string | null>(null);
 
   if (!open) return null;
 
@@ -65,7 +65,14 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
     setIsSubmitting(true);
     setError(null);
 
+    if (form.password !== form.confirmPassword) {
+      setError('Parollar mos kelmadi');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      createAdminHandoffUrl('configuration-check');
       const result = await registerStore({
         storeName: form.storeName.trim(),
         ownerName: form.ownerName.trim(),
@@ -73,11 +80,12 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
         email: form.email.trim() || undefined,
         username: form.username.trim(),
         password: form.password,
+        confirmPassword: form.confirmPassword,
         planCode,
       });
 
-      persistAdminSession(result);
       setCreatedStoreName(result.store.name);
+      setAdminUrl(createAdminHandoffUrl(result.handoffCode));
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'So‘rovni yuborib bo‘lmadi');
     } finally {
@@ -89,6 +97,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
     setForm(initialForm);
     setError(null);
     setCreatedStoreName(null);
+    setAdminUrl(null);
     onClose();
   };
 
@@ -110,8 +119,8 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
           <div className="registration-success">
             <CheckCircle2 className="h-10 w-10" />
             <h4>{createdStoreName} admini tayyor</h4>
-            <p>Sinov muddati boshlandi. Kirish ma’lumotlari saqlandi.</p>
-            <a className="btn-primary" href={adminUrl}>
+            <p>Sinov muddati boshlandi. Bir martalik xavfsiz kirish tayyor.</p>
+            <a className="btn-primary" href={adminUrl ?? '#'}>
               Adminga o‘tish
               <ArrowRight className="h-4 w-4" />
             </a>
@@ -175,7 +184,18 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                 type="password"
                 value={form.password}
                 onChange={(event) => updateField('password', event.target.value)}
-                minLength={6}
+                minLength={10}
+                maxLength={100}
+                required
+              />
+            </label>
+            <label>
+              <span>Parolni tasdiqlang</span>
+              <input
+                type="password"
+                value={form.confirmPassword}
+                onChange={(event) => updateField('confirmPassword', event.target.value)}
+                minLength={10}
                 maxLength={100}
                 required
               />

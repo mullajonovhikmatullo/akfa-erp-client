@@ -9,10 +9,11 @@ type TFunc = (key: string) => string
 export interface LoginPanelProps {
   t: TFunc
   sessionExpired: boolean
+  externalError?: string | null
   onAuthenticated: (response: LoginResponse) => void
 }
 
-export function LoginPanel({ t, sessionExpired, onAuthenticated }: LoginPanelProps) {
+export function LoginPanel({ t, sessionExpired, externalError, onAuthenticated }: LoginPanelProps) {
   //
   return (
     <div className="login-shell">
@@ -38,13 +39,18 @@ export function LoginPanel({ t, sessionExpired, onAuthenticated }: LoginPanelPro
       <div className="login-form">
         <h1>{t('login.formTitle')}</h1>
         <p className="lead">{t('login.formLead')}</p>
-        <LoginForm t={t} sessionExpired={sessionExpired} onAuthenticated={onAuthenticated} />
+        <LoginForm
+          t={t}
+          sessionExpired={sessionExpired}
+          externalError={externalError}
+          onAuthenticated={onAuthenticated}
+        />
       </div>
     </div>
   )
 }
 
-function LoginForm({ t, sessionExpired, onAuthenticated }: LoginPanelProps) {
+function LoginForm({ t, sessionExpired, externalError, onAuthenticated }: LoginPanelProps) {
   //
   const { form, onSubmit, isLoading, clearCredentialErrors } = useLoginForm({ t, onAuthenticated })
   const {
@@ -62,6 +68,16 @@ function LoginForm({ t, sessionExpired, onAuthenticated }: LoginPanelProps) {
           icon={<ClockIcon size={18} weight="duotone" />}
           type="warning"
           message={t('login.sessionExpired')}
+          showIcon
+          style={{ marginBottom: 20, borderRadius: 8 }}
+        />
+      )}
+
+      {externalError && !hasRootError && (
+        <Alert
+          icon={<WarningIcon size={18} weight="duotone" />}
+          type="error"
+          message={externalError}
           showIcon
           style={{ marginBottom: 20, borderRadius: 8 }}
         />
