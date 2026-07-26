@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   App as AntdApp,
   Button,
@@ -12,7 +12,7 @@ import {
   Upload,
 } from 'antd';
 import type { UploadFile } from 'antd';
-import { CheckCircle, Eye, FileArrowUp, Receipt, WarningCircle } from '@phosphor-icons/react';
+import { CheckCircle, Eye, FileArrowUp, Receipt, WarningCircle, X } from '@phosphor-icons/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BillingFlowApi,
@@ -66,8 +66,19 @@ export function BillingPage() {
   const [form] = Form.useForm<PaymentForm>();
   const [modalOpen, setModalOpen] = useState(false);
   const [receiptFiles, setReceiptFiles] = useState<UploadFile[]>([]);
+  const [selectedReceiptPreview, setSelectedReceiptPreview] = useState<ReceiptPreview | null>(null);
+  const selectedReceiptPreviewUrlRef = useRef<string | null>(null);
   const [openingReceiptId, setOpeningReceiptId] = useState<string | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<ReceiptPreview | null>(null);
+
+  useEffect(
+    () => () => {
+      if (selectedReceiptPreviewUrlRef.current) {
+        URL.revokeObjectURL(selectedReceiptPreviewUrlRef.current);
+      }
+    },
+    [],
+  );
 
   useEffect(
     () => () => {
@@ -75,6 +86,29 @@ export function BillingPage() {
     },
     [receiptPreview?.url],
   );
+
+  const updateReceiptSelection = (fileList: UploadFile[]) => {
+    const nextFiles = fileList.slice(-1);
+    const nextFile = nextFiles[0]?.originFileObj;
+
+    if (selectedReceiptPreviewUrlRef.current) {
+      URL.revokeObjectURL(selectedReceiptPreviewUrlRef.current);
+    }
+
+    const nextPreview = nextFile
+      ? {
+          url: URL.createObjectURL(nextFile),
+          fileName: nextFile.name,
+          mimeType: nextFile.type,
+        }
+      : null;
+
+    selectedReceiptPreviewUrlRef.current = nextPreview?.url ?? null;
+    setReceiptFiles(nextFiles);
+    setSelectedReceiptPreview(nextPreview);
+  };
+
+  const clearReceiptSelection = () => updateReceiptSelection([]);
 
   const summaryQuery = useQuery({
     ...BillingSeekApi.fetch.summary(),
@@ -94,7 +128,7 @@ export function BillingPage() {
     onSuccess: async () => {
       message.success(t('billing.submitSuccess'));
       setModalOpen(false);
-      setReceiptFiles([]);
+      clearReceiptSelection();
       form.resetFields();
       await refresh();
     },
@@ -315,7 +349,7 @@ export function BillingPage() {
         onOk={() => void submitPayment()}
         onCancel={() => {
           setModalOpen(false);
-          setReceiptFiles([]);
+          clearReceiptSelection();
           form.resetFields();
         }}
       >
@@ -332,23 +366,48 @@ export function BillingPage() {
             <Select options={branchOptions} placeholder={t('billing.branchPlaceholder')} />
           </Form.Item>
           <Form.Item label={t('billing.receipt')}>
-            <Upload.Dragger
-              accept=".jpg,.jpeg,.png,.webp,.pdf"
-              maxCount={1}
-              fileList={receiptFiles}
-              beforeUpload={(file) => {
-                if (!ACCEPTED_RECEIPTS.includes(file.type) || file.size > MAX_RECEIPT_BYTES) {
-                  message.error(t('billing.receiptInvalid'));
-                  return Upload.LIST_IGNORE;
-                }
-                return false;
-              }}
-              onChange={({ fileList }) => setReceiptFiles(fileList.slice(-1))}
-            >
-              <FileArrowUp size={30} weight="duotone" />
-              <p>{t('billing.receiptDrop')}</p>
-              <span>{t('billing.receiptHint')}</span>
-            </Upload.Dragger>
+            {selectedReceiptPreview ? (
+              <div className="billing-receipt-preview">
+                <div className="billing-receipt-preview__header">
+                  <span title={selectedReceiptPreview.fileName}>{selectedReceiptPreview.fileName}</span>
+                  <Button
+                    type="text"
+                    danger
+                    htmlType="button"
+                    icon={<X size={16} />}
+                    onClick={clearReceiptSelection}
+                  >
+                    {t('common.cancel')}
+                  </Button>
+                </div>
+                <div className="billing-receipt-preview__content">
+                  {selectedReceiptPreview.mimeType === 'application/pdf' ? (
+                    <iframe src={selectedReceiptPreview.url} title={selectedReceiptPreview.fileName} />
+                  ) : (
+                    <img src={selectedReceiptPreview.url} alt={selectedReceiptPreview.fileName} />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Upload.Dragger
+                accept=".jpg,.jpeg,.png,.webp,.pdf"
+                maxCount={1}
+                fileList={receiptFiles}
+                showUploadList={false}
+                beforeUpload={(file) => {
+                  if (!ACCEPTED_RECEIPTS.includes(file.type) || file.size > MAX_RECEIPT_BYTES) {
+                    message.error(t('billing.receiptInvalid'));
+                    return Upload.LIST_IGNORE;
+                  }
+                  return false;
+                }}
+                onChange={({ fileList }) => updateReceiptSelection(fileList)}
+              >
+                <FileArrowUp size={30} weight="duotone" />
+                <p>{t('billing.receiptDrop')}</p>
+                <span>{t('billing.receiptHint')}</span>
+              </Upload.Dragger>
+            )}
           </Form.Item>
           <Form.Item name="note" label={t('billing.note')}>
             <Input.TextArea rows={3} maxLength={500} placeholder={t('billing.notePlaceholder')} />

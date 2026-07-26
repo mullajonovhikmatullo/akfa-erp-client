@@ -1,87 +1,73 @@
-import { Logo } from "./Logo";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { site } from "../../config/site";
+import { Logo } from "./Logo";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 4);
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
+    const handleScroll = () => setScrolled(window.scrollY > 6);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-40 w-full backdrop-blur-md transition-colors ${
-        scrolled
-          ? "bg-background/85 border-b border-border"
-          : "bg-background/60 border-b border-transparent"
-      }`}
-    >
-      <div className="container-page flex h-14 items-center justify-between gap-6">
-        <a href="#" aria-label={site.brand.name}>
+    <header className={`landing-header${scrolled ? " landing-header--scrolled" : ""}`}>
+      <div className="container-page landing-header__inner">
+        <a className="landing-header__logo" href="#" aria-label={site.brand.name}>
           <Logo markSize={28} />
         </a>
 
-        <nav className="hidden md:flex items-center gap-7" aria-label="Asosiy navigatsiya">
-          {site.nav.map((n) => (
-            <a
-              key={n.href}
-              href={n.href}
-              className="text-[13.5px] text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {n.label}
+        <nav className="landing-nav" aria-label="Asosiy navigatsiya">
+          {site.nav.map((item) => (
+            <a key={item.href} href={item.href}>
+              {item.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-2">
-          <a href="#" className="text-[13.5px] font-medium text-foreground/80 hover:text-foreground px-3 py-2">
+        <div className="landing-header__actions">
+          <a className="button button--ghost button--small" href="#">
             {site.cta.login}
           </a>
-          <a href="#tariflar" className="btn-primary text-[13.5px] px-3.5 py-2">
+          <a className="button button--primary button--small" href="#tariflar">
             {site.cta.primary}
           </a>
         </div>
 
         <button
+          className="landing-header__menu"
           type="button"
-          className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md border border-border"
           aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
-          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
         >
-          {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          {open ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {open && (
-        <div className="md:hidden border-t border-border bg-background">
-          <div className="container-page py-4 flex flex-col gap-1">
-            {site.nav.map((n) => (
-              <a
-                key={n.href}
-                href={n.href}
-                onClick={() => setOpen(false)}
-                className="py-2.5 text-[15px] text-foreground/90"
-              >
-                {n.label}
+      {open ? (
+        <div className="landing-mobile-menu">
+          <nav className="container-page" aria-label="Mobil navigatsiya">
+            {site.nav.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+                {item.label}
               </a>
             ))}
-            <div className="mt-3 flex flex-col gap-2">
-              <a href="#" className="btn-secondary w-full">
+            <div className="landing-mobile-menu__actions">
+              <a className="button button--ghost" href="#" onClick={() => setOpen(false)}>
                 {site.cta.login}
               </a>
-              <a href="#tariflar" className="btn-primary w-full">
+              <a className="button button--primary" href="#tariflar" onClick={() => setOpen(false)}>
                 {site.cta.primary}
               </a>
             </div>
-          </div>
+          </nav>
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

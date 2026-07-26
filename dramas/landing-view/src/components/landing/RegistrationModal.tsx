@@ -108,7 +108,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
         <div className="registration-modal__header">
           <div>
             <span className="registration-modal__eyebrow">{planName}</span>
-            <h3>Admin ochish</h3>
+            <h3>Bepul akkaunt yaratish</h3>
           </div>
           <button className="registration-modal__close" type="button" onClick={resetAndClose} aria-label="Yopish">
             <X className="h-4 w-4" />
@@ -118,7 +118,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
         {createdStoreName ? (
           <div className="registration-success">
             <CheckCircle2 className="h-10 w-10" />
-            <h4>{createdStoreName} admini tayyor</h4>
+            <h4>{createdStoreName} akkaunti tayyor</h4>
             <p>Sinov muddati boshlandi. Bir martalik xavfsiz kirish tayyor.</p>
             <a className="btn-primary" href={adminUrl ?? '#'}>
               Adminga o‘tish
@@ -205,7 +205,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
 
             <button className="btn-primary registration-form__submit" type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              Admin ochish
+              Akkaunt yaratish
             </button>
           </form>
         )}

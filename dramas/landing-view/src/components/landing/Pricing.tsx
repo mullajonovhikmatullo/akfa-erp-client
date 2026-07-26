@@ -1,22 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check } from "lucide-react";
-import { site } from "../../config/site";
-import { RegistrationModal } from "./RegistrationModal";
 import { LandingSeekApi } from "@store/landing-stub";
 import type { PublicPlan, PublicPlanCode } from "@store/landing-stub";
+import { site } from "../../config/site";
+import { RegistrationModal } from "./RegistrationModal";
 
-type DisplayPlan = (typeof site.pricing.plans)[number] & {
-  features: string[];
-};
-
-const formatLimit = (value: number | null, noun: string) =>
-  value === null ? `Cheklanmagan ${noun}` : `${value} tagacha ${noun}`;
+type DisplayPlan = (typeof site.pricing.plans)[number];
 
 export function Pricing() {
-  const p = site.pricing;
+  const pricing = site.pricing;
   const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
-  const [publicPlans, setPublicPlans] = useState<PublicPlan[] | null>(null);
-  const [plansError, setPlansError] = useState(false);
+  const [publicPlans, setPublicPlans] = useState<PublicPlan[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -25,110 +19,78 @@ export function Pricing() {
         if (active) setPublicPlans(plans);
       })
       .catch(() => {
-        if (active) setPlansError(true);
+        // Static tariflar landing ishlashi uchun doim mavjud.
       });
     return () => {
       active = false;
     };
   }, []);
 
-  const plans = useMemo<DisplayPlan[]>(() => {
-    const networkPlan = p.plans.find((plan) => plan.code === "NETWORK")!;
-    const billablePlans = (publicPlans ?? []).flatMap((plan) => {
-      const template = p.plans.find((item) => item.code === plan.code);
-      if (!template || template.code === "NETWORK") return [];
-
-      return [{
-        ...template,
-        name: plan.name,
-        price: new Intl.NumberFormat("uz-UZ").format(plan.monthlyPriceUzs),
-        features: [
-          formatLimit(plan.maxBranches, "filial"),
-          formatLimit(plan.maxUsers, "faol foydalanuvchi"),
-          formatLimit(plan.maxProducts, "faol mahsulot"),
-          ...template.features.slice(-2),
-        ],
-      }];
-    });
-
-    return [...billablePlans, networkPlan];
-  }, [p.plans, publicPlans]);
+  const plans = useMemo(
+    () =>
+      pricing.plans.map((plan) => {
+        const livePlan = plan.code === "NETWORK"
+          ? undefined
+          : publicPlans.find((item) => item.code === plan.code);
+        return livePlan
+          ? { ...plan, price: new Intl.NumberFormat("uz-UZ").format(livePlan.monthlyPriceUzs) }
+          : plan;
+      }),
+    [pricing.plans, publicPlans],
+  );
 
   return (
-    <section id="tariflar" className="py-20 sm:py-28 border-t border-border">
+    <section className="pricing-section" id="tariflar">
       <div className="container-page">
-        <div className="max-w-2xl">
-          <div className="eyebrow">Tariflar</div>
-          <h2 className="section-heading mt-3">{p.heading}</h2>
-          <p className="mt-3 text-muted-foreground">{p.note}</p>
+        <div className="section-heading section-heading--center">
+          <div className="section-kicker">Oddiy va shaffof narxlar</div>
+          <h2>{pricing.heading}</h2>
+          <p>{pricing.note}</p>
         </div>
 
-        {plansError ? (
-          <p className="mt-8 text-sm text-muted-foreground">
-            Ochiq tariflarni hozir yuklab bo‘lmadi. Individual tarif uchun bog‘lanishingiz mumkin.
-          </p>
-        ) : null}
-
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="pricing-grid">
           {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`relative rounded-2xl border p-6 sm:p-7 flex flex-col bg-card ${
-                plan.highlight
-                  ? "border-primary/40 ring-1 ring-primary/20"
-                  : "border-border"
-              }`}
-            >
-              {plan.highlight && plan.label && (
-                <div className="absolute -top-2.5 left-6 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-primary text-primary-foreground">
-                  {plan.label}
-                </div>
-              )}
-              <div className="flex items-center justify-between">
-                <div className="text-[15px] font-semibold">{plan.name}</div>
+            <article className={`pricing-card${plan.highlight ? " pricing-card--featured" : ""}`} key={plan.code}>
+              {plan.highlight ? <span className="pricing-card__badge">{plan.label}</span> : null}
+              <h3>{plan.name}</h3>
+              <div className={`pricing-card__price${plan.code === "NETWORK" ? " is-custom" : ""}`}>
+                <strong>{plan.price}</strong>
+                {plan.unit ? <span>{plan.unit}</span> : null}
               </div>
-              <div className="mt-4 flex items-baseline gap-1.5">
-                <div className="text-[30px] font-semibold tracking-tight tabular">
-                  {plan.price}
-                </div>
-                <div className="text-[13px] text-muted-foreground">{plan.unit}</div>
-              </div>
-              <ul className="mt-6 flex flex-col gap-2.5 flex-1">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-[13.5px]">
-                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
-                      <Check className="h-3 w-3" />
-                    </span>
-                    <span className="text-foreground/85">{f}</span>
+              <ul>
+                {plan.features.map((feature) => (
+                  <li key={feature}>
+                    <Check size={14} strokeWidth={2.5} />
+                    {feature}
                   </li>
                 ))}
               </ul>
               <button
+                className={`button ${plan.highlight ? "button--primary" : "button--ghost"}`}
                 type="button"
                 onClick={() => {
                   if (plan.code === "NETWORK") {
-                    window.location.href = `mailto:${site.contact.email}?subject=${encodeURIComponent("Network Admin tarifi")}`;
+                    window.location.href = `mailto:${site.contact.email}?subject=${encodeURIComponent("Store Manager Pro tarifi")}`;
                     return;
                   }
                   setSelectedPlan(plan);
                 }}
-                className={`mt-7 w-full ${plan.highlight ? "btn-primary" : "btn-secondary"}`}
               >
                 {plan.cta}
               </button>
-            </div>
+            </article>
           ))}
         </div>
       </div>
 
-      {selectedPlan && (
+      {selectedPlan ? (
         <RegistrationModal
           open
           planCode={selectedPlan.code as PublicPlanCode}
           planName={selectedPlan.name}
           onClose={() => setSelectedPlan(null)}
         />
-      )}
+      ) : null}
     </section>
   );
 }

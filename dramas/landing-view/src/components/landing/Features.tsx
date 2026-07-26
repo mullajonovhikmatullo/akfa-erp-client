@@ -1,72 +1,103 @@
-import { Check } from "lucide-react";
+import { Building2, CreditCard, ShoppingCart } from "lucide-react";
 import { site } from "../../config/site";
-import { DashboardMock } from "./DashboardMock";
-import { BranchesShot } from "./screenshots/BranchesShot";
-import { TransferShot } from "./screenshots/TransferShot";
-import { CustomersShot } from "./screenshots/CustomersShot";
-
-const screens = {
-  dashboard: DashboardMock,
-  branches: BranchesShot,
-  transfer: TransferShot,
-  customers: CustomersShot,
-};
 
 export function Features() {
   return (
-    <section id="imkoniyatlar" className="py-20 sm:py-28 border-t border-border">
+    <section className="features-section" id="imkoniyatlar">
       <div className="container-page">
-        <div className="max-w-2xl mb-14">
-          <div className="eyebrow">Imkoniyatlar</div>
-          <h2 className="section-heading mt-3">
-            Do‘kon boshqaruvi uchun ishlab chiqilgan tizim
-          </h2>
+        <div className="section-heading section-heading--center">
+          <h2>Asosiy imkoniyatlar</h2>
         </div>
 
-        <div className="flex flex-col gap-20 sm:gap-28">
-          {site.features.map((f, i) => {
-            const Screen = screens[f.screenshot];
-            const imageRight = f.imagePosition === "right";
-            return (
-              <div
-                key={f.id}
-                className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] gap-10 lg:gap-14 items-center"
-              >
-                <div className={imageRight ? "lg:order-1" : "lg:order-2"}>
-                  <div className="eyebrow">{f.eyebrow}</div>
-                  <h3 className="section-heading mt-3 text-[26px] sm:text-[32px]">
-                    {f.heading}
-                  </h3>
-                  <p className="mt-4 text-muted-foreground leading-relaxed">
-                    {f.description}
-                  </p>
-                  <ul className="mt-6 flex flex-col gap-3">
-                    {f.points.map((p) => (
-                      <li key={p} className="flex items-start gap-2.5 text-[14.5px]">
-                        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
-                          <Check className="h-3 w-3" />
-                        </span>
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-6 flex items-center gap-3 text-[13px] text-muted-foreground">
-                    <span className="tabular font-semibold text-foreground">0{i + 1}</span>
-                    <span className="h-px w-10 bg-border" />
-                    <span>{`0${site.features.length}`}</span>
-                  </div>
-                </div>
-
-                <div className={imageRight ? "lg:order-2" : "lg:order-1"}>
-                  <div className="transition-transform duration-500 hover:-translate-y-1">
-                    <Screen />
-                  </div>
-                </div>
+        <div className="features-grid">
+          {site.features.map((feature) => (
+            <article className="feature-card" key={feature.id}>
+              <FeatureVisual type={feature.visual} />
+              <div className="feature-card__copy">
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
               </div>
-            );
-          })}
+            </article>
+          ))}
         </div>
       </div>
     </section>
+  );
+}
+
+function FeatureVisual({ type }: { type: (typeof site.features)[number]["visual"] }) {
+  if (type === "chart") {
+    return (
+      <div className="feature-visual feature-visual--chart">
+        <div className="feature-mini-heading">
+          <div><span>Jami savdo</span><strong>92.3 M <small>so‘m</small></strong></div>
+          <CreditCard size={16} />
+        </div>
+        <svg viewBox="0 0 190 82" aria-hidden="true">
+          <g>
+            <path d="M4 16H186M4 38H186M4 60H186" />
+          </g>
+          <path className="mini-line mini-line--blue" d="M3 70 C20 69 23 60 35 58 S53 66 63 59 S76 16 89 16 S103 67 118 60 S138 43 151 51 S170 58 187 38" />
+          <path className="mini-line mini-line--orange" d="M3 72 C18 70 27 51 38 49 S55 68 68 61 S83 45 96 49 S111 68 128 61 S149 50 164 55 S178 62 188 56" />
+        </svg>
+        <div className="feature-mini-axis"><span>14 iy</span><span>18 iy</span><span>22 iy</span><span>26 iy</span></div>
+      </div>
+    );
+  }
+
+  if (type === "branches") {
+    return (
+      <div className="feature-visual feature-list-visual">
+        <strong><Building2 size={13} /> Main Branch</strong>
+        {[
+          ["Chilonzor filial", "Toshkent"],
+          ["Sergeli filial", "Toshkent"],
+          ["Yunusobod filial", "Toshkent"],
+        ].map(([name, city]) => (
+          <div key={name}><Building2 size={12} /><span>{name}<small>{city}</small></span></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (type === "transfers") {
+    return (
+      <div className="feature-visual feature-table-visual">
+        <div><b>ID</b><b>Jo‘natuvchi</b><b>Qabul qiluvchi</b></div>
+        <div><span>#T-003</span><span>Main Branch</span><span>Chilonzor filial</span></div>
+        <div><span>#T-002</span><span>Main Branch</span><span>Sergeli filial</span></div>
+        <div><span>#T-001</span><span>Chilonzor</span><span>Main Branch</span></div>
+      </div>
+    );
+  }
+
+  if (type === "customers") {
+    return (
+      <div className="feature-visual feature-customer-visual">
+        {[
+          ["A", "Alisher T.", "+998 90 123 45 67"],
+          ["M", "Madina Q.", "+998 99 876 54 33"],
+          ["B", "Bekzod A.", "+998 90 885 11 22"],
+        ].map(([letter, name, phone]) => (
+          <div key={name}>
+            <span>{letter}</span>
+            <p><strong>{name}</strong><small>{phone}</small></p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="feature-visual feature-sales-visual">
+      <div><b>So‘nggi sotuvlar</b><ShoppingCart size={14} /></div>
+      {[
+        ["#INV-1025", "26.07.2026", "2.4 M so‘m"],
+        ["#INV-1024", "26.07.2026", "1.8 M so‘m"],
+        ["#INV-1023", "25.07.2026", "3.1 M so‘m"],
+      ].map(([id, date, amount]) => (
+        <div key={id}><span>{id}</span><small>{date}</small><strong>{amount}</strong></div>
+      ))}
+    </div>
   );
 }

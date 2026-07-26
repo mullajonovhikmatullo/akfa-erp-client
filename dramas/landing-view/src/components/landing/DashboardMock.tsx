@@ -1,163 +1,208 @@
+import type { ReactNode } from "react";
 import {
-  LayoutDashboard,
-  Store,
-  ArrowLeftRight,
-  Users,
-  Package,
   BarChart3,
-  Settings,
-  Search,
   Bell,
+  Boxes,
+  Building2,
+  CalendarDays,
   ChevronDown,
-  TrendingUp,
-  Circle,
+  CircleUserRound,
+  ClipboardList,
+  CreditCard,
+  FileBarChart,
+  LayoutDashboard,
+  Package,
+  Plus,
+  Printer,
+  RefreshCw,
+  Settings,
+  ShoppingCart,
+  Store,
+  Truck,
+  Users,
 } from "lucide-react";
 import { site } from "../../config/site";
+import { Logo } from "./Logo";
+
+const salesDays = ["14 iy", "16 iy", "18 iy", "20 iy", "22 iy", "24 iy", "26 iy"];
 
 export function DashboardMock() {
-  const d = site.dashboard;
-  const max = Math.max(...d.chart.map((c) => c.value));
+  const dashboard = site.dashboard;
 
   return (
-    <div className="screenshot-frame text-[12px] leading-tight">
-      <div className="grid grid-cols-[180px_1fr] min-h-[520px]">
-        {/* Sidebar */}
-        <aside className="hidden sm:flex flex-col gap-1 border-r border-border bg-surface/60 p-3">
-          <div className="flex items-center gap-2 px-2 py-2">
-            <span className="grid h-6 w-6 place-items-center rounded-md bg-primary text-primary-foreground text-[11px] font-bold">
-              K
-            </span>
-            <span className="font-semibold text-[13px]">Kvon Admin</span>
-          </div>
-          <div className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 py-1">
-            Menyu
-          </div>
-          <SidebarItem icon={<LayoutDashboard className="h-3.5 w-3.5" />} label="Dashboard" active />
-          <SidebarItem icon={<BarChart3 className="h-3.5 w-3.5" />} label="Sotuvlar" />
-          <SidebarItem icon={<Store className="h-3.5 w-3.5" />} label="Filiallar" badge="4" />
-          <SidebarItem icon={<ArrowLeftRight className="h-3.5 w-3.5" />} label="Tarif" badge="aktiv" />
-          <SidebarItem icon={<Package className="h-3.5 w-3.5" />} label="Mahsulotlar" />
-          <SidebarItem icon={<Users className="h-3.5 w-3.5" />} label="Xodimlar" />
-          <SidebarItem icon={<BarChart3 className="h-3.5 w-3.5" />} label="Hisobotlar" />
-          <div className="mt-auto pt-3 border-t border-border">
-            <SidebarItem icon={<Settings className="h-3.5 w-3.5" />} label="Sozlamalar" />
+    <div className="dashboard-window">
+      <div className="dashboard-window__chrome">
+        <div className="dashboard-window__dots" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <Logo markSize={18} />
+        <div className="dashboard-window__chrome-meta">
+          <span className="dashboard-window__period">{dashboard.period}</span>
+          <Bell size={13} />
+          <span>O‘zbekcha</span>
+          <ChevronDown size={11} />
+        </div>
+      </div>
+
+      <div className="dashboard-layout">
+        <aside className="dashboard-sidebar">
+          <DashboardNavGroup title="Asosiy">
+            <DashboardNavItem icon={<LayoutDashboard />} label="Asosiy" active />
+          </DashboardNavGroup>
+          <DashboardNavGroup title="Savdo">
+            <DashboardNavItem icon={<ShoppingCart />} label="Sotuvlar" />
+            <DashboardNavItem icon={<ClipboardList />} label="Mijozlar" />
+          </DashboardNavGroup>
+          <DashboardNavGroup title="Ombor">
+            <DashboardNavItem icon={<Boxes />} label="Kategoriyalar" />
+            <DashboardNavItem icon={<Package />} label="Mahsulotlar" />
+            <DashboardNavItem icon={<Truck />} label="Transferlar" />
+          </DashboardNavGroup>
+          <DashboardNavGroup title="Moliya">
+            <DashboardNavItem icon={<CreditCard />} label="Xarajatlar" />
+            <DashboardNavItem icon={<FileBarChart />} label="Hisobotlar" />
+          </DashboardNavGroup>
+          <DashboardNavGroup title="Tahlil">
+            <DashboardNavItem icon={<BarChart3 />} label="Analitika" />
+          </DashboardNavGroup>
+          <DashboardNavGroup title="Boshqaruv">
+            <DashboardNavItem icon={<Building2 />} label="Filiallar" />
+            <DashboardNavItem icon={<Users />} label="Administratorlar" />
+          </DashboardNavGroup>
+          <div className="dashboard-sidebar__settings">
+            <DashboardNavItem icon={<Settings />} label="Sozlamalar" />
           </div>
         </aside>
 
-        {/* Main */}
-        <div className="flex flex-col">
-          {/* Topbar */}
-          <div className="flex items-center justify-between border-b border-border px-4 py-2.5 bg-card">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Search className="h-3.5 w-3.5" />
-              <span>Sotuv, filial yoki xodim qidiring…</span>
+        <div className="dashboard-main">
+          <div className="dashboard-main__topbar">
+            <div>
+              <span>Store Manager</span>
+              <strong>Asosiy</strong>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-surface">
-                <Circle className="h-2 w-2 fill-success text-success" />
-                <span className="text-[11px]">{d.period}</span>
-                <ChevronDown className="h-3 w-3 text-muted-foreground" />
-              </div>
-              <Bell className="h-3.5 w-3.5 text-muted-foreground" />
-              <div className="flex items-center gap-1.5">
-                <div className="h-6 w-6 rounded-full bg-accent-soft grid place-items-center text-[10px] font-semibold">
-                  ZM
-                </div>
-                <span className="text-[11px] font-medium hidden sm:inline">{d.company}</span>
-              </div>
+            <div className="dashboard-main__branch">
+              <Store size={13} />
+              {dashboard.company}
+              <ChevronDown size={11} />
+              <CircleUserRound size={18} />
+              <strong>Admin</strong>
             </div>
           </div>
 
-          <div className="p-4 flex flex-col gap-4 bg-surface/40">
-            <div className="flex items-end justify-between">
+          <div className="dashboard-content">
+            <div className="dashboard-heading">
               <div>
-                <div className="text-[11px] text-muted-foreground">{d.company}</div>
-                <div className="text-[15px] font-semibold">Tenant dashboard</div>
+                <h3>Boshqaruv paneli</h3>
+                <p>Xush kelibsiz, Admin</p>
               </div>
-              <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-success">
-                <Circle className="h-2 w-2 fill-success text-success" />
-                {d.status}
+              <div className="dashboard-heading__actions">
+                <button type="button">
+                  <Plus size={11} />
+                  Yangi sotuv
+                </button>
+                <button type="button">
+                  <Printer size={11} />
+                  Hisobotga chiqarish
+                </button>
+                <button type="button">
+                  <RefreshCw size={11} />
+                  Yangilash
+                </button>
+                <button className="is-primary" type="button">
+                  <BarChart3 size={11} />
+                  Tahlilni ochish
+                </button>
               </div>
             </div>
 
-            {/* Metrics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {d.metrics.map((m) => (
-                <div key={m.label} className="rounded-lg bg-card border border-border p-3">
-                  <div className="text-[10.5px] text-muted-foreground">{m.label}</div>
-                  <div className="mt-1 flex items-baseline gap-1 tabular">
-                    <span className="text-[15px] font-semibold text-foreground">{m.value}</span>
-                    <span className="text-[10px] text-muted-foreground">{m.unit}</span>
+            <div className="dashboard-trial">
+              <div>
+                <strong>Tekshiruv davri</strong>
+                <span>14 Jul 2026 – 26 Jul 2026</span>
+              </div>
+              <div>
+                <CalendarDays size={12} />
+                <span>14.07.2026</span>
+                <i />
+                <span>26.07.2026</span>
+              </div>
+            </div>
+
+            <div className="dashboard-metrics">
+              {dashboard.metrics.map((metric) => (
+                <div className={`dashboard-metric dashboard-metric--${metric.tone}`} key={metric.label}>
+                  <div>
+                    <span>{metric.label}</span>
+                    <MetricIcon tone={metric.tone} />
                   </div>
-                  <div className="mt-1 inline-flex items-center gap-1 text-[10px] text-success">
-                    <TrendingUp className="h-3 w-3" />
-                    {m.delta}
-                  </div>
+                  <strong>
+                    {metric.value} <small>{metric.unit}</small>
+                  </strong>
+                  <p>{metric.tone === "red" ? "To‘lanmagan etkazib" : "O‘tgan oyga nisbatan"}</p>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-2.5">
-              {/* Chart */}
-              <div className="rounded-lg bg-card border border-border p-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-[12px] font-semibold">Haftalik savdo</div>
-                  <div className="text-[10px] text-muted-foreground">mln so‘m</div>
+            <div className="dashboard-analytics">
+              <div className="dashboard-chart-card">
+                <div className="dashboard-card-title">
+                  <strong>Savdo dinamikasi</strong>
+                  <span>14 Jul 2026 – 26 Jul 2026</span>
                 </div>
-                <div className="mt-3 flex items-end gap-2 h-32">
-                  {d.chart.map((c, i) => {
-                    const h = (c.value / max) * 100;
-                    const peak = c.value === max;
-                    return (
-                      <div key={c.day} className="flex-1 flex flex-col items-center gap-1.5">
-                        <div className="w-full flex items-end h-full">
-                          <div
-                            className={`w-full rounded-[3px] ${peak ? "bg-primary" : "bg-primary/25"}`}
-                            style={{ height: `${h}%`, animation: `fade-up 0.6s ${0.05 * i}s both` }}
-                          />
-                        </div>
-                        <div className="text-[9.5px] text-muted-foreground tabular">{c.value}</div>
-                        <div className="text-[10px] font-medium">{c.day}</div>
-                      </div>
-                    );
-                  })}
+                <div className="dashboard-line-chart">
+                  <span className="dashboard-line-chart__axis">60.0 M</span>
+                  <span className="dashboard-line-chart__axis">45.0 M</span>
+                  <span className="dashboard-line-chart__axis">30.0 M</span>
+                  <span className="dashboard-line-chart__axis">15.0 M</span>
+                  <svg viewBox="0 0 420 172" role="img" aria-label="Savdo dinamikasi grafigi">
+                    <g className="chart-grid">
+                      <path d="M20 22H410M20 60H410M20 98H410M20 136H410" />
+                      <path d="M75 14V145M130 14V145M185 14V145M240 14V145M295 14V145M350 14V145" />
+                    </g>
+                    <path className="chart-line chart-line--blue" d="M20 140 C55 137 65 124 84 124 S118 137 140 130 S177 118 198 112 S229 26 249 26 S275 139 303 131 S335 116 355 112 S389 121 410 105" />
+                    <path className="chart-line chart-line--orange" d="M20 141 C57 139 70 118 91 113 S125 137 150 133 S184 121 207 123 S238 104 260 112 S292 134 315 128 S348 107 370 117 S392 129 410 121" />
+                    <path className="chart-line chart-line--red" d="M20 143 C61 142 75 134 96 135 S130 142 151 139 S189 128 212 131 S245 119 267 126 S302 139 324 136 S360 125 382 130 S400 137 410 133" />
+                  </svg>
+                  <div className="dashboard-line-chart__labels">
+                    {salesDays.map((day) => <span key={day}>{day}</span>)}
+                  </div>
                 </div>
               </div>
 
-              {/* Branches */}
-              <div className="rounded-lg bg-card border border-border p-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-[12px] font-semibold">Filiallar reytingi</div>
-                  <div className="text-[10px] text-muted-foreground">Bugun</div>
+              <div className="dashboard-share-card">
+                <div className="dashboard-card-title">
+                  <strong>Tushum ulushi</strong>
+                  <span>14 Jul 2026</span>
                 </div>
-                <div className="mt-2 flex flex-col divide-y divide-border">
-                  {d.branches.map((b, i) => (
-                    <div key={b.name} className="flex items-center gap-2 py-1.5">
-                      <div className="w-4 text-[10px] font-semibold text-muted-foreground tabular">
-                        {i + 1}
-                      </div>
-                      <div className="flex-1 text-[11.5px] font-medium">{b.name}</div>
-                      <div className="text-[11px] tabular font-semibold">{b.value}</div>
+                <div className="dashboard-share-card__body">
+                  <div className="dashboard-donut">
+                    <div>
+                      <span>Jami</span>
+                      <strong>92.8 M</strong>
                     </div>
-                  ))}
+                  </div>
+                  <ul>
+                    {dashboard.branches.map((branch, index) => (
+                      <li key={branch.name}>
+                        <span style={{ backgroundColor: branch.color }} />
+                        <div>
+                          <strong>{branch.name}</strong>
+                          <small>{branch.value}</small>
+                        </div>
+                        <b>{[72, 17, 8, 3][index]}%</b>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
 
-            {/* Activity */}
-            <div className="rounded-lg bg-card border border-border p-3">
-              <div className="text-[12px] font-semibold mb-2">So‘nggi harakatlar</div>
-              <ul className="flex flex-col gap-1.5">
-                {d.activity.map((a, i) => (
-                  <li key={i} className="flex items-center gap-2 text-[11.5px]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                    <span className="text-foreground/85">{a}</span>
-                    <span className="ml-auto text-[10px] text-muted-foreground tabular">
-                      {["2 min", "14 min", "38 min", "1 s"][i]} oldin
-                    </span>
-                  </li>
-                ))}
-              </ul>
+            <div className="dashboard-summary-row">
+              <div><span>O‘rtacha chek</span><strong>2.5 M so‘m</strong></div>
+              <div><span>Joriy oy daromadi</span><strong className="is-success">0.0 M so‘m</strong></div>
+              <div><span>Qarzdorlar soni</span><strong className="is-danger">29</strong></div>
             </div>
           </div>
         </div>
@@ -166,32 +211,27 @@ export function DashboardMock() {
   );
 }
 
-function SidebarItem({
-  icon,
-  label,
-  active,
-  badge,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  active?: boolean;
-  badge?: string;
-}) {
+function DashboardNavGroup({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div
-      className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-[11.5px] ${
-        active
-          ? "bg-primary-soft text-primary font-semibold"
-          : "text-foreground/75 hover:bg-surface"
-      }`}
-    >
-      <span className={active ? "text-primary" : "text-muted-foreground"}>{icon}</span>
-      <span className="flex-1">{label}</span>
-      {badge && (
-        <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded-sm bg-accent-soft text-foreground">
-          {badge}
-        </span>
-      )}
+    <div className="dashboard-nav-group">
+      <span>{title}</span>
+      {children}
     </div>
   );
+}
+
+function DashboardNavItem({ icon, label, active = false }: { icon: ReactNode; label: string; active?: boolean }) {
+  return (
+    <div className={`dashboard-nav-item${active ? " is-active" : ""}`}>
+      {icon}
+      <strong>{label}</strong>
+    </div>
+  );
+}
+
+function MetricIcon({ tone }: { tone: string }) {
+  if (tone === "blue") return <ShoppingCart size={13} />;
+  if (tone === "green") return <CreditCard size={13} />;
+  if (tone === "red") return <Package size={13} />;
+  return <ClipboardList size={13} />;
 }
