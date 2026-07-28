@@ -13,7 +13,9 @@ let socket: Socket | null = null;
 export function getSocket(): Socket {
   //
   if (!socket) {
-    socket = io(BASE_URL, {
+    const apiBasePath = BASE_URL.replace(/\/$/, '');
+    socket = io({
+      path: `${apiBasePath}/socket.io`,
       autoConnect: false,
       transports: ['websocket', 'polling'],
     });

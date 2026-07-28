@@ -1,9 +1,15 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { ApiError } from '@/shared/types';
 
-export const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+export const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 const TOKEN_KEY = 'store_access_token';
 const AUTH_STORE_KEY = 'store-auth';
+const APP_BASE_PATH = import.meta.env.BASE_URL ?? '/';
+const withAppBasePath = (path: string) => {
+  //
+  const base = APP_BASE_PATH.replace(/\/?$/, '/');
+  return `${base}${path.replace(/^\//, '')}`;
+};
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -31,7 +37,7 @@ apiClient.interceptors.response.use(
 
     if (error.response?.status === 401 && !isAuthEndpoint && tokenStore.get()) {
       tokenStore.clearAll();
-      window.location.href = '/auth/login?reason=expired';
+      window.location.href = withAppBasePath('/auth/login?reason=expired');
     }
 
     return Promise.reject(error);

@@ -22,6 +22,18 @@ const resolveEnvBaseUrl = () => {
   return meta.env?.VITE_API_URL
 }
 
+const resolveAppBasePath = () => {
+  //
+  const meta = import.meta as ImportMeta & { env?: Record<string, string | undefined> }
+  return meta.env?.BASE_URL ?? '/'
+}
+
+const withAppBasePath = (path: string) => {
+  //
+  const base = resolveAppBasePath().replace(/\/?$/, '/')
+  return `${base}${path.replace(/^\//, '')}`
+}
+
 export const createTokenStore = ({
   tokenKey = DEFAULT_TOKEN_KEY,
   storage = globalThis.localStorage,
@@ -32,7 +44,7 @@ export const createTokenStore = ({
 })
 
 export const createHttpClient = ({
-  baseURL = resolveEnvBaseUrl() ?? 'http://localhost:3000',
+  baseURL = resolveEnvBaseUrl() ?? '/api',
   timeout = 60_000,
   onUnauthorized,
   ...tokenOptions
@@ -67,7 +79,7 @@ export const createHttpClient = ({
           tokenStore.clear()
           storage?.removeItem('store-auth')
           if (globalThis.window?.location) {
-            globalThis.window.location.href = '/auth/login?reason=expired'
+            globalThis.window.location.href = withAppBasePath('/auth/login?reason=expired')
           }
         }
       }

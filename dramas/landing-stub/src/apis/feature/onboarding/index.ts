@@ -12,23 +12,19 @@ type LandingImportMetaEnv = {
 
 const getEnv = () => (import.meta as ImportMeta & { env?: LandingImportMetaEnv }).env
 
-const getApiBaseUrl = () => getEnv()?.VITE_API_URL ?? 'http://localhost:3000'
+const getApiBaseUrl = () => getEnv()?.VITE_API_URL ?? '/api'
 
 export const getAdminUrl = () => {
   const env = getEnv()
-  if (!env?.VITE_STORE_LOGIN_URL && !env?.DEV) {
-    throw new Error('VITE_STORE_LOGIN_URL is required in production')
-  }
-
   const url = new URL(
-    env?.VITE_STORE_LOGIN_URL ?? 'http://127.0.0.1:5173/auth/login',
+    env?.VITE_STORE_LOGIN_URL ?? '/store/auth/login',
     globalThis.location?.origin ?? 'http://localhost',
   )
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     throw new Error('VITE_STORE_LOGIN_URL must use http or https')
   }
   if (url.pathname === '/' || url.pathname === '') {
-    url.pathname = '/auth/login'
+    url.pathname = '/store/auth/login'
   }
   url.username = ''
   url.password = ''

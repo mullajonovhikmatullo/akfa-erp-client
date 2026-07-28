@@ -281,9 +281,11 @@ export function NewSaleForm({ t, isSuper, userBranchId, exchangeRate, onSuccess 
   const submitSale = (values: SaleFormValues) => {
     //
     const safePaidAmount = clampPaidAmount(values.paidAmount)
+    const saleBranchId = values.branchId ?? branchFilter
 
     createSale.mutate(
       {
+        branchId: saleBranchId,
         saleType: values.saleType,
         customerId: values.customerId || undefined,
         paymentMethod: values.paymentMethod,

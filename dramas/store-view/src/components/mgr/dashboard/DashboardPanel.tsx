@@ -1,6 +1,6 @@
 import { useMemo, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, DatePicker, Empty, Skeleton } from 'antd';
+import { Alert, Button, DatePicker, Empty, Skeleton } from 'antd';
 import {
   ArrowClockwiseIcon,
   ArrowsLeftRightIcon,
@@ -160,6 +160,8 @@ export function DashboardPanel({
 
   const isLoading = periodDashboard.isLoading || sales.isLoading || expenses.isLoading || inventory.isLoading || debt.isLoading;
   const isFetching = periodDashboard.isFetching || sales.isFetching || expenses.isFetching || inventory.isFetching || debt.isFetching;
+  const hasAnalyticsError = periodDashboard.isError || sales.isError || expenses.isError || inventory.isError || debt.isError;
+  const isDashboardUnavailable = periodDashboard.isError && !periodDashboard.data;
 
   const trendData = useMemo(() => {
     //
@@ -332,8 +334,30 @@ export function DashboardPanel({
         />
       </div>
 
+      {hasAnalyticsError && (
+        <Alert
+          type="error"
+          showIcon
+          message={t('dashboard.loadErrorTitle')}
+          description={t('dashboard.loadErrorDescription')}
+          action={
+            <Button size="small" onClick={refetchAll}>
+              {t('common.refresh')}
+            </Button>
+          }
+          style={{ marginBottom: 14 }}
+        />
+      )}
+
       {isLoading ? (
         <DashboardSkeleton />
+      ) : isDashboardUnavailable ? (
+        <div className="card" style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dashboard.loadErrorTitle')} />
+          <Button type="primary" icon={<ArrowClockwiseIcon size={18} />} onClick={refetchAll}>
+            {t('common.refresh')}
+          </Button>
+        </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>

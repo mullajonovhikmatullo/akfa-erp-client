@@ -23,6 +23,7 @@ function vendorChunkName(packageName: string) {
 }
 
 export default defineConfig({
+  base: '/store/',
   envDir: fileURLToPath(new URL('../..', import.meta.url)),
   plugins: [react(), tsconfigPaths()],
   publicDir: fileURLToPath(new URL('../../shared-public', import.meta.url)),
@@ -174,5 +175,12 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 })
