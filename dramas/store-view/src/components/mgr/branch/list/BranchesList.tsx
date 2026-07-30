@@ -30,10 +30,10 @@ type AssignBranchFormValues = {
 export interface BranchesListProps {
   t: Translate
   currentUser?: User | null
-  isSuper?: boolean
+  isStoreOwner?: boolean
 }
 
-export function BranchesList({ t, currentUser, isSuper = false }: BranchesListProps) {
+export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { data: result, isLoading, isFetching, refetch } = useBranchesPage(page, pageSize)
@@ -78,7 +78,7 @@ export function BranchesList({ t, currentUser, isSuper = false }: BranchesListPr
     //
     const admin = branchAdmins.find((user) => user.branchId === branchId)
     if (admin) return admin
-    if (isSuper && currentUser?.branchId === branchId) return currentUser
+    if (isStoreOwner && currentUser?.branchId === branchId) return currentUser
     return null
   }
 

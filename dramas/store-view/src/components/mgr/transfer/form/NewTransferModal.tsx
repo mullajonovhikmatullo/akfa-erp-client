@@ -19,7 +19,7 @@ interface NewTransferModalProps {
   t: (key: string) => string
   open: boolean
   onClose: () => void
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   exchangeRate: number
 }
@@ -53,7 +53,7 @@ function findDefaultBranch(branches: Branch[]) {
   return mainBranch?.id ?? firstBranch?.id
 }
 
-export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exchangeRate }: NewTransferModalProps) {
+export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId, exchangeRate }: NewTransferModalProps) {
   //
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
@@ -61,7 +61,7 @@ export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exch
   const createTransfer = useCreateTransfer()
   const { control, handleSubmit, reset, setValue, watch } = useForm<TransferFormValues>({
     defaultValues: {
-      fromBranchId: isSuper ? undefined : (userBranchId ?? undefined),
+      fromBranchId: isStoreOwner ? undefined : (userBranchId ?? undefined),
       toBranchId: undefined,
       note: '',
       cart: [],
@@ -78,7 +78,7 @@ export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exch
 
   const defaultFromBranchId = useMemo(() => findDefaultBranch(branches), [branches])
 
-  const sourceBranchId = isSuper ? fromBranchId : (userBranchId ?? undefined)
+  const sourceBranchId = isStoreOwner ? fromBranchId : (userBranchId ?? undefined)
   const { data: inventoryRecords = [], isLoading: inventoryLoading } = useInventoryRecords(
     sourceBranchId ? { branchId: sourceBranchId } : undefined,
     { enabled: Boolean(sourceBranchId) },
@@ -87,13 +87,13 @@ export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exch
 
   useEffect(() => {
     //
-    if (isSuper && open && defaultFromBranchId && !fromBranchId) {
+    if (isStoreOwner && open && defaultFromBranchId && !fromBranchId) {
       setValue('fromBranchId', defaultFromBranchId)
     }
-    if (!isSuper) {
+    if (!isStoreOwner) {
       setValue('fromBranchId', userBranchId ?? undefined)
     }
-  }, [defaultFromBranchId, fromBranchId, isSuper, open, setValue, userBranchId])
+  }, [defaultFromBranchId, fromBranchId, isStoreOwner, open, setValue, userBranchId])
 
   useEffect(() => {
     //
@@ -186,13 +186,13 @@ export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exch
     hasValidQuantities &&
     toBranchId !== undefined &&
     toBranchId !== sourceBranchId &&
-    (isSuper ? fromBranchId !== undefined : Boolean(userBranchId))
+    (isStoreOwner ? fromBranchId !== undefined : Boolean(userBranchId))
 
   const submitTransfer = (values: TransferFormValues) => {
     //
     createTransfer.mutate(
       {
-        fromBranchId: isSuper ? values.fromBranchId : undefined,
+        fromBranchId: isStoreOwner ? values.fromBranchId : undefined,
         toBranchId: values.toBranchId!,
         items: values.cart.map((item) => ({
           productId: item.productId,
@@ -205,7 +205,7 @@ export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exch
         onSuccess: () => {
           //
           reset({
-            fromBranchId: isSuper ? defaultFromBranchId : (userBranchId ?? undefined),
+            fromBranchId: isStoreOwner ? defaultFromBranchId : (userBranchId ?? undefined),
             toBranchId: undefined,
             note: '',
             cart: [],
@@ -241,7 +241,7 @@ export function NewTransferModal({ t, open, onClose, isSuper, userBranchId, exch
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
           <div>
             <Label>{t('transferModal.labelFrom')}</Label>
-            {isSuper ? (
+            {isStoreOwner ? (
               <Controller
                 name="fromBranchId"
                 control={control}

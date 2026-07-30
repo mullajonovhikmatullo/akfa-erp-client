@@ -18,7 +18,7 @@ interface ProductFormModalProps {
   open: boolean
   product?: Product | null
   onClose: () => void
-  isSuper: boolean
+  isStoreOwner: boolean
 }
 
 function findDefaultBranch(branches: Branch[]) {
@@ -33,7 +33,7 @@ function findDefaultBranch(branches: Branch[]) {
   return mainBranch?.id ?? firstBranch?.id
 }
 
-export function ProductFormModal({ t, open, product, onClose, isSuper }: ProductFormModalProps) {
+export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: ProductFormModalProps) {
   //
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imageChanges, setImageChanges] = useState(createEmptyProductImageChanges)
@@ -86,10 +86,10 @@ export function ProductFormModal({ t, open, product, onClose, isSuper }: Product
 
   useEffect(() => {
     //
-    if (open && !isEdit && isSuper && defaultBranchId && !branchId) {
+    if (open && !isEdit && isStoreOwner && defaultBranchId && !branchId) {
       setValue('branchId', defaultBranchId, { shouldValidate: true })
     }
-  }, [open, isEdit, isSuper, defaultBranchId, branchId, setValue])
+  }, [open, isEdit, isStoreOwner, defaultBranchId, branchId, setValue])
 
   useEffect(() => {
     setImageFiles([])
@@ -195,7 +195,7 @@ export function ProductFormModal({ t, open, product, onClose, isSuper }: Product
           />
         </div>
 
-        {!isEdit && isSuper ? (
+        {!isEdit && isStoreOwner ? (
           <Controller
             name="branchId"
             control={control}

@@ -43,7 +43,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
   const t = useT();
   const user = useAuthStore((s) => s.user);
   const zustandLogout = useAuthStore((s) => s.logout);
-  const isSuper = useAuthStore((s) => s.isSuper)();
+  const isStoreOwner = useAuthStore((s) => s.isStoreOwner)();
 
   const activeBranchId = useUIStore((s) => s.activeBranchId);
   const exchangeRate = useUIStore((s) => s.exchangeRate);
@@ -184,7 +184,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
             </button>
           </Dropdown>
 
-          {isSuper ? (
+          {isStoreOwner ? (
             <Controller
               name="activeBranchId"
               control={branchControl}

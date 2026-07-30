@@ -6,8 +6,8 @@ import { useT } from '@/shared/lib/i18n'
 export function SalesPage() {
   //
   const t = useT()
-  const { isSuper, branchId } = useCurrentUser()
+  const { isStoreOwner, branchId } = useCurrentUser()
   const exchangeRate = useUIStore((state) => state.exchangeRate)
 
-  return <SalesList t={t} isSuper={isSuper} userBranchId={branchId} exchangeRate={exchangeRate} />
+  return <SalesList t={t} isStoreOwner={isStoreOwner} userBranchId={branchId} exchangeRate={exchangeRate} />
 }

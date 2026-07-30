@@ -13,7 +13,7 @@ interface CustomerFormModalProps {
   customer?: Customer | null
   onClose: () => void
   onCreated?: (customer: Customer) => void
-  isSuper: boolean
+  isStoreOwner: boolean
   branchId?: string | null
   branches: Branch[]
   branchesLoading?: boolean
@@ -25,7 +25,7 @@ export function CustomerFormModal({
   customer,
   onClose,
   onCreated,
-  isSuper,
+  isStoreOwner,
   branchId,
   branches,
   branchesLoading,
@@ -34,7 +34,7 @@ export function CustomerFormModal({
   const { form, onSubmit, isPending, isEdit } = useCustomerForm({
     t,
     customer,
-    isSuper,
+    isStoreOwner,
     branchId,
     branches,
     branchesLoading,
@@ -65,7 +65,7 @@ export function CustomerFormModal({
       ]}
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
-        {isSuper && !isEdit && (
+        {isStoreOwner && !isEdit && (
           <Controller
             name="branchId"
             control={control}

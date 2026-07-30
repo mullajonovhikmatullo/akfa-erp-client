@@ -5,7 +5,7 @@ import { useT } from '@/shared/lib/i18n'
 export function BranchesPage() {
   //
   const t = useT()
-  const { user: currentUser, isSuper } = useCurrentUser()
+  const { user: currentUser, isStoreOwner } = useCurrentUser()
 
-  return <BranchesList t={t} currentUser={currentUser} isSuper={isSuper} />
+  return <BranchesList t={t} currentUser={currentUser} isStoreOwner={isStoreOwner} />
 }

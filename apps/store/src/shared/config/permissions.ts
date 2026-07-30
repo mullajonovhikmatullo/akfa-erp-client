@@ -24,7 +24,7 @@ export type Permission =
   | 'settings:global'
   | 'billing:manage';
 
-const SUPER_ADMIN_PERMISSIONS: Permission[] = [
+const STORE_OWNER_PERMISSIONS: Permission[] = [
   'branch:switch',
   'branch:create',
   'branch:edit',
@@ -65,7 +65,7 @@ const BRANCH_ADMIN_PERMISSIONS: Permission[] = [
 ];
 
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
-  super_admin: SUPER_ADMIN_PERMISSIONS,
+  store_owner: STORE_OWNER_PERMISSIONS,
   branch_admin: BRANCH_ADMIN_PERMISSIONS,
 };
 

@@ -57,7 +57,7 @@ type ProductFiltersForm = {
 interface ProductsListProps {
   t: (key: string) => string
   canManage: boolean
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   activeBranchId?: string
 }
@@ -84,7 +84,7 @@ function normaliseImportLookupValue(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ')
 }
 
-export function ProductsList({ t, canManage, isSuper, userBranchId, activeBranchId }: ProductsListProps) {
+export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeBranchId }: ProductsListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
 
@@ -122,7 +122,7 @@ export function ProductsList({ t, canManage, isSuper, userBranchId, activeBranch
   const { data: categories = [] } = useCategories()
   const deleteProduct = useDeleteProduct()
   const defaultProductCategoryName = categories[0]?.name ?? ''
-  const importBranchId = userBranchId ?? (isSuper && activeBranchId !== '__all__' ? activeBranchId : undefined)
+  const importBranchId = userBranchId ?? (isStoreOwner && activeBranchId !== '__all__' ? activeBranchId : undefined)
   const unitHintText = PRODUCT_IMPORT_UNITS.map((unit) => `${unit} / ${t(`units.${unit}`)}`).join(', ')
   const productImportHints = [
     {
@@ -658,7 +658,7 @@ export function ProductsList({ t, canManage, isSuper, userBranchId, activeBranch
         />
       </div>
 
-      <ProductFormModal t={t} isSuper={isSuper} open={editProduct !== undefined} product={editProduct ?? null} onClose={() => setEditProduct(undefined)} />
+      <ProductFormModal t={t} isStoreOwner={isStoreOwner} open={editProduct !== undefined} product={editProduct ?? null} onClose={() => setEditProduct(undefined)} />
       <ProductDetailDrawer t={t} product={drawerProduct} onClose={() => setDrawerProduct(null)} />
     </>
   )

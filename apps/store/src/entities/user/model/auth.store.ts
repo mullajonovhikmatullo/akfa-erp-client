@@ -14,7 +14,7 @@ interface AuthActions {
   logout: () => void;
   setUser: (user: User) => void;
   can: (permission: Permission) => boolean;
-  isSuper: () => boolean;
+  isStoreOwner: () => boolean;
 }
 
 type AuthStore = AuthState & AuthActions;
@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthStore>()(
 
         can: (permission) => can(get().user?.role, permission),
 
-        isSuper: () => get().user?.role === 'super_admin',
+        isStoreOwner: () => get().user?.role === 'store_owner',
       }),
       {
         name: 'store-auth',

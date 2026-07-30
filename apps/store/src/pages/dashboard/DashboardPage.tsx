@@ -9,9 +9,9 @@ export function DashboardPage() {
   //
   const t = useT()
   const navigate = useNavigate()
-  const { user, isSuper, branchId } = useCurrentUser()
+  const { user, isStoreOwner, branchId } = useCurrentUser()
   const lowStockThreshold = useUIStore((state) => state.lowStockThreshold)
-  const scopedBranchId = !isSuper && branchId ? branchId : undefined
+  const scopedBranchId = !isStoreOwner && branchId ? branchId : undefined
   const firstName = user?.name?.split(' ')[0] ?? 'Admin'
 
   return (

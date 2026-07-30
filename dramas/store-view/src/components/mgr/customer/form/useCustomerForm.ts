@@ -10,7 +10,7 @@ interface UseCustomerFormOptions {
   t: (key: string) => string
   customer?: Customer | null
   onSuccess?: (customer: Customer) => void
-  isSuper: boolean
+  isStoreOwner: boolean
   branchId?: string | null
   branches: Branch[]
   branchesLoading?: boolean
@@ -20,7 +20,7 @@ export function useCustomerForm({
   t,
   customer,
   onSuccess,
-  isSuper,
+  isStoreOwner,
   branchId,
   branches,
   branchesLoading = false,
@@ -79,7 +79,7 @@ export function useCustomerForm({
         { onSuccess },
       )
     } else {
-      const resolvedBranchId = isSuper ? values.branchId : branchId ?? undefined
+      const resolvedBranchId = isStoreOwner ? values.branchId : branchId ?? undefined
       const balanceAmount = values.balance ?? 0
       const signedBalance = balanceAmount === 0 ? 0 : values.balanceType === 'debt' ? balanceAmount : -balanceAmount
       createMutation.mutate(
@@ -89,5 +89,5 @@ export function useCustomerForm({
     }
   })
 
-  return { form, onSubmit, isPending, isEdit, isSuper, branches, branchesLoading }
+  return { form, onSubmit, isPending, isEdit, isStoreOwner, branches, branchesLoading }
 }
