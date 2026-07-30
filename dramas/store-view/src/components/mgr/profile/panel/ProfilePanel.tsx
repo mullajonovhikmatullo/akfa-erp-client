@@ -140,7 +140,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
     .join('')
     .toUpperCase()
 
-  const roleLabel = user?.role === 'super_admin' ? t('role.super_admin') : t('role.branch_admin')
+  const roleLabel = user?.role === 'store_owner' ? t('role.store_owner') : t('role.branch_admin')
 
   return (
     <div style={{ maxWidth: 680, margin: '0 auto' }}>

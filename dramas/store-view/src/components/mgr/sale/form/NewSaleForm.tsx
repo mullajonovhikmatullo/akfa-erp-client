@@ -19,7 +19,7 @@ import { clearSaleDraft, readSaleDraft, writeSaleDraft } from './saleDraft'
 
 interface NewSaleFormProps {
   t: (key: string) => string
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   exchangeRate: number
   onSuccess?: () => void
@@ -86,7 +86,7 @@ function createCartKey(productId: string) {
   return `${productId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-export function NewSaleForm({ t, isSuper, userBranchId, exchangeRate, onSuccess }: NewSaleFormProps) {
+export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuccess }: NewSaleFormProps) {
   //
   const branchFilter = userBranchId ?? undefined
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
@@ -620,7 +620,7 @@ export function NewSaleForm({ t, isSuper, userBranchId, exchangeRate, onSuccess 
         customer={null}
         onClose={() => setCreatingCustomer(false)}
         onCreated={handleCustomerCreated}
-        isSuper={isSuper}
+        isStoreOwner={isStoreOwner}
         branchId={userBranchId}
         branches={branches}
         branchesLoading={branchesLoading}

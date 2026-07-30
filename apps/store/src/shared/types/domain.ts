@@ -1,6 +1,6 @@
 export type Currency = 'UZS' | 'USD';
 export type PriceMode = 'retail' | 'wholesale';
-export type UserRole = 'super_admin' | 'branch_admin';
+export type UserRole = 'store_owner' | 'branch_admin';
 export type TransferStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED';
 export type CustomerType = 'retail' | 'wholesale';
 

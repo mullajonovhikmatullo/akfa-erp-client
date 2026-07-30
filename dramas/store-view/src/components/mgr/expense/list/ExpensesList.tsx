@@ -27,11 +27,11 @@ type ExpenseFiltersForm = {
 
 interface ExpensesListProps {
   t: (key: string) => string
-  isSuper: boolean
+  isStoreOwner: boolean
   exchangeRate: number
 }
 
-export function ExpensesList({ t, isSuper, exchangeRate }: ExpensesListProps) {
+export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<ExpenseFiltersForm>({
@@ -244,7 +244,7 @@ export function ExpensesList({ t, isSuper, exchangeRate }: ExpensesListProps) {
               }}
             />
           </Tooltip>
-          {isSuper ? (
+          {isStoreOwner ? (
             <Button icon={<TagIcon size={18} />} onClick={() => setManagingCategories(true)}>
               {t('nav.categories')}
             </Button>

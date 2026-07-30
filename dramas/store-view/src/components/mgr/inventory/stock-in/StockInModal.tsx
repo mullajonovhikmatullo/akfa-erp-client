@@ -17,7 +17,7 @@ interface StockInModalProps {
   t: (key: string) => string
   open: boolean
   onClose: () => void
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   exchangeRate: number
 }
@@ -50,7 +50,7 @@ function findDefaultBranch(branches: Branch[]) {
   return mainBranch?.id ?? firstBranch?.id
 }
 
-export function StockInModal({ t, open, onClose, isSuper, userBranchId, exchangeRate }: StockInModalProps) {
+export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exchangeRate }: StockInModalProps) {
   //
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
@@ -58,7 +58,7 @@ export function StockInModal({ t, open, onClose, isSuper, userBranchId, exchange
   const stockInBatch = useStockInBatch(t)
   const { control, handleSubmit, reset, setValue, watch } = useForm<StockInFormValues>({
     defaultValues: {
-      branchId: isSuper ? undefined : (userBranchId ?? undefined),
+      branchId: isStoreOwner ? undefined : (userBranchId ?? undefined),
       cart: [],
     },
   })
@@ -74,13 +74,13 @@ export function StockInModal({ t, open, onClose, isSuper, userBranchId, exchange
 
   useEffect(() => {
     //
-    if (isSuper && open && defaultBranchId && !branchId) {
+    if (isStoreOwner && open && defaultBranchId && !branchId) {
       setValue('branchId', defaultBranchId)
     }
-    if (!isSuper) {
+    if (!isStoreOwner) {
       setValue('branchId', userBranchId ?? undefined)
     }
-  }, [branchId, defaultBranchId, isSuper, open, setValue, userBranchId])
+  }, [branchId, defaultBranchId, isStoreOwner, open, setValue, userBranchId])
 
   const addProduct = (productId: string) => {
     //
@@ -125,13 +125,13 @@ export function StockInModal({ t, open, onClose, isSuper, userBranchId, exchange
 
   const totalCost = cart.reduce((sum, item) => sum + Math.max(item.quantity, 0) * item.costPriceUzs, 0)
   const hasValidQuantities = cart.every((item) => item.quantity >= MIN_QTY)
-  const canSubmit = cart.length > 0 && hasValidQuantities && (isSuper ? Boolean(branchId) : Boolean(userBranchId))
+  const canSubmit = cart.length > 0 && hasValidQuantities && (isStoreOwner ? Boolean(branchId) : Boolean(userBranchId))
 
   const submitStockIn = (values: StockInFormValues) => {
     //
     stockInBatch.mutate(
       values.cart.map((item) => ({
-        branchId: isSuper ? values.branchId : undefined,
+        branchId: isStoreOwner ? values.branchId : undefined,
         productId: item.productId,
         quantity: Math.max(item.quantity, MIN_QTY),
         costPriceUzs: item.costPriceUzs,
@@ -141,7 +141,7 @@ export function StockInModal({ t, open, onClose, isSuper, userBranchId, exchange
         onSuccess: () => {
           //
           reset({
-            branchId: isSuper ? defaultBranchId : (userBranchId ?? undefined),
+            branchId: isStoreOwner ? defaultBranchId : (userBranchId ?? undefined),
             cart: [],
           })
           onClose()
@@ -172,7 +172,7 @@ export function StockInModal({ t, open, onClose, isSuper, userBranchId, exchange
       ]}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {isSuper ? (
+        {isStoreOwner ? (
           <div>
             <Label>{t('stockIn.labelBranch')}</Label>
             <Controller

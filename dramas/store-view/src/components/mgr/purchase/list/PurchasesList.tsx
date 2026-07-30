@@ -23,12 +23,12 @@ type PurchaseFiltersForm = {
 
 interface PurchasesListProps {
   t: (key: string) => string
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   exchangeRate: number
 }
 
-export function PurchasesList({ t, isSuper, userBranchId, exchangeRate }: PurchasesListProps) {
+export function PurchasesList({ t, isStoreOwner, userBranchId, exchangeRate }: PurchasesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<PurchaseFiltersForm>({
@@ -294,7 +294,7 @@ export function PurchasesList({ t, isSuper, userBranchId, exchangeRate }: Purcha
         />
       </div>
 
-      <StockInModal t={t} isSuper={isSuper} userBranchId={userBranchId} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
+      <StockInModal t={t} isStoreOwner={isStoreOwner} userBranchId={userBranchId} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
     </>
   )
 }

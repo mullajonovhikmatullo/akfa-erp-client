@@ -64,7 +64,7 @@ export function DashboardLayout() {
               <strong>{trialDaysLeft}</strong>
               <span>{t('trial.daysLeft')}</span>
             </div>
-            {user?.role === 'super_admin' ? (
+            {user?.role === 'store_owner' ? (
               <Link className="trial-banner__action" to={ROUTES.BILLING}>
                 {t('trial.paymentAction')}
               </Link>
@@ -78,7 +78,7 @@ export function DashboardLayout() {
             banner
             message={t('billing.overdueTitle')}
             description={t('billing.overdueDescription')}
-            action={user?.role === 'super_admin' ? (
+            action={user?.role === 'store_owner' ? (
               <Link className="billing-alert-action" to={ROUTES.BILLING}>
                 {t('billing.payButton')}
               </Link>

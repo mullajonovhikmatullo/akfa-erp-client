@@ -17,7 +17,7 @@ import type {
 const storeTokenStore = createTokenStore()
 
 const normalizeRole = (role: unknown): User['role'] =>
-  role === 'SUPER_ADMIN' || role === 'super_admin' ? 'super_admin' : 'branch_admin'
+  role === 'STORE_OWNER' || role === 'store_owner' ? 'store_owner' : 'branch_admin'
 
 const normalizeUser = (u: Record<string, unknown>): User =>
   ({

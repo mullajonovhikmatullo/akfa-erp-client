@@ -5,7 +5,7 @@ import { useT } from '@/shared/lib/i18n'
 export function CustomersPage() {
   //
   const t = useT()
-  const { can, isSuper, branchId } = useCurrentUser()
+  const { can, isStoreOwner, branchId } = useCurrentUser()
 
-  return <CustomersList t={t} canManage={can('customers:create')} isSuper={isSuper} branchId={branchId} />
+  return <CustomersList t={t} canManage={can('customers:create')} isStoreOwner={isStoreOwner} branchId={branchId} />
 }

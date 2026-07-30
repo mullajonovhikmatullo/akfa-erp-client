@@ -6,8 +6,8 @@ import { useT } from '@/shared/lib/i18n'
 export function TransfersPage() {
   //
   const t = useT()
-  const { isSuper, branchId, user } = useCurrentUser()
+  const { isStoreOwner, branchId, user } = useCurrentUser()
   const exchangeRate = useUIStore((state) => state.exchangeRate)
 
-  return <TransfersList t={t} isSuper={isSuper} userBranchId={branchId} userId={user?.id} exchangeRate={exchangeRate} />
+  return <TransfersList t={t} isStoreOwner={isStoreOwner} userBranchId={branchId} userId={user?.id} exchangeRate={exchangeRate} />
 }

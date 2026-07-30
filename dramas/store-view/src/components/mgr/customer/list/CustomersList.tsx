@@ -34,11 +34,11 @@ type CustomerFiltersForm = {
 interface CustomersListProps {
   t: (key: string) => string
   canManage: boolean
-  isSuper: boolean
+  isStoreOwner: boolean
   branchId?: string | null
 }
 
-export function CustomersList({ t, canManage, isSuper, branchId }: CustomersListProps) {
+export function CustomersList({ t, canManage, isStoreOwner, branchId }: CustomersListProps) {
   //
   const [searchParams, setSearchParams] = useSearchParams()
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
@@ -262,12 +262,12 @@ export function CustomersList({ t, canManage, isSuper, branchId }: CustomersList
                 entityLabel={t('nav.customers')}
                 templateHeaders={['fullName', 'phone', 'address', 'balance', 'branchId']}
                 templateExamples={[
-                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0', isSuper ? defaultCustomerBranchId : ''],
-                  ['Nilufar Tosheva', '', '', '150000', isSuper ? defaultCustomerBranchId : ''],
+                  ['Alisher Karimov', '+998901234567', 'Tashkent, Chilonzor', '0', isStoreOwner ? defaultCustomerBranchId : ''],
+                  ['Nilufar Tosheva', '', '', '150000', isStoreOwner ? defaultCustomerBranchId : ''],
                 ]}
                 templateFileName="customers_template.xlsx"
                 hints={
-                  isSuper
+                  isStoreOwner
                     ? [
                         {
                           label: t('common.branch'),
@@ -296,7 +296,7 @@ export function CustomersList({ t, canManage, isSuper, branchId }: CustomersList
 
                   const branchFromRow = getField(raw, 'branchId')
                   if (branchFromRow && !isUuid(branchFromRow)) return { index, raw, error: "branchId UUID formatida bo'lishi kerak" }
-                  if (isSuper && !branchFromRow) return { index, raw, error: 'branchId kiritilishi shart' }
+                  if (isStoreOwner && !branchFromRow) return { index, raw, error: 'branchId kiritilishi shart' }
 
                   return {
                     index,
@@ -404,7 +404,7 @@ export function CustomersList({ t, canManage, isSuper, branchId }: CustomersList
         open={editCustomer !== undefined}
         customer={editCustomer ?? null}
         onClose={() => setEditCustomer(undefined)}
-        isSuper={isSuper}
+        isStoreOwner={isStoreOwner}
         branchId={branchId}
         branches={branches}
         branchesLoading={branchesLoading}

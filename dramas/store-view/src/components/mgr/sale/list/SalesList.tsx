@@ -20,12 +20,12 @@ type SalesFiltersForm = {
 
 interface SalesListProps {
   t: (key: string) => string
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   exchangeRate: number
 }
 
-export function SalesList({ t, isSuper, userBranchId, exchangeRate }: SalesListProps) {
+export function SalesList({ t, isStoreOwner, userBranchId, exchangeRate }: SalesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<SalesFiltersForm>({
@@ -190,7 +190,7 @@ export function SalesList({ t, isSuper, userBranchId, exchangeRate }: SalesListP
       </div>
 
       {tab === 'new' ? (
-        <NewSaleForm t={t} isSuper={isSuper} userBranchId={userBranchId} exchangeRate={exchangeRate} />
+        <NewSaleForm t={t} isStoreOwner={isStoreOwner} userBranchId={userBranchId} exchangeRate={exchangeRate} />
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div

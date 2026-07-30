@@ -30,13 +30,13 @@ type TransferFiltersForm = {
 
 interface TransfersListProps {
   t: (key: string) => string
-  isSuper: boolean
+  isStoreOwner: boolean
   userBranchId?: string | null
   userId?: string | null
   exchangeRate: number
 }
 
-export function TransfersList({ t, isSuper, userBranchId, userId, exchangeRate }: TransfersListProps) {
+export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeRate }: TransfersListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<TransferFiltersForm>({
@@ -150,8 +150,8 @@ export function TransfersList({ t, isSuper, userBranchId, userId, exchangeRate }
         //
         if (transfer.status !== 'PENDING') return null
         const isReceiverBranch = transfer.toBranch.id === userBranchId
-        const canComplete = !isSuper && isReceiverBranch
-        const canCancel = isSuper || (!isReceiverBranch && transfer.initiatedBy.id === userId)
+        const canComplete = !isStoreOwner && isReceiverBranch
+        const canCancel = isStoreOwner || (!isReceiverBranch && transfer.initiatedBy.id === userId)
         return (
           <div style={{ display: 'flex', gap: 4 }}>
             {canComplete ? (
@@ -252,7 +252,7 @@ export function TransfersList({ t, isSuper, userBranchId, userId, exchangeRate }
 
       <NewTransferModal
         t={t}
-        isSuper={isSuper}
+        isStoreOwner={isStoreOwner}
         userBranchId={userBranchId}
         exchangeRate={exchangeRate}
         open={creating}
