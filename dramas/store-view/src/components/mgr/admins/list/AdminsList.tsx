@@ -351,7 +351,7 @@ export function AdminsList({ t }: AdminsListProps) {
                 control={control}
                 rules={{
                   required: t('admins.passwordRequired'),
-                  minLength: { value: 10, message: t('pwd.minLen') },
+                  minLength: { value: 6, message: t('pwd.minLen') },
                 }}
                 render={({ field }) => (
                   <Input.Password

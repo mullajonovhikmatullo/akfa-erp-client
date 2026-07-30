@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { ArrowRight, CheckCircle2, Loader2, X } from 'lucide-react';
 import {
   createAdminHandoffUrl,
+  getAdminUrl,
   type PublicPlanCode,
   registerStore,
 } from '@store/landing-stub';
@@ -120,7 +121,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
             <CheckCircle2 className="h-10 w-10" />
             <h4>{createdStoreName} akkaunti tayyor</h4>
             <p>Sinov muddati boshlandi. Bir martalik xavfsiz kirish tayyor.</p>
-            <a className="btn-primary" href={adminUrl ?? '#'}>
+            <a className="btn-primary" href={adminUrl ?? getAdminUrl()}>
               Adminga o‘tish
               <ArrowRight className="h-4 w-4" />
             </a>
@@ -184,7 +185,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                 type="password"
                 value={form.password}
                 onChange={(event) => updateField('password', event.target.value)}
-                minLength={10}
+                minLength={6}
                 maxLength={100}
                 required
               />
@@ -195,7 +196,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                 type="password"
                 value={form.confirmPassword}
                 onChange={(event) => updateField('confirmPassword', event.target.value)}
-                minLength={10}
+                minLength={6}
                 maxLength={100}
                 required
               />

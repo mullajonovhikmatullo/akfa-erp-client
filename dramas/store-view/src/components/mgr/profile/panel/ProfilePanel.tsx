@@ -45,7 +45,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   const passwordSchema = z
     .object({
       currentPassword: z.string().min(1),
-      newPassword: z.string().min(10).max(100),
+      newPassword: z.string().min(6).max(100),
       confirmPassword: z.string().min(1),
     })
     .refine((value) => value.newPassword === value.confirmPassword, {

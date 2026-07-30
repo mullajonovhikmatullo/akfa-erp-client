@@ -6,7 +6,7 @@ export function Problem() {
   const problem = site.problem;
 
   return (
-    <section className="problem-section">
+    <section className="problem-section" id="biz-haqimizda">
       <div className="container-page problem-section__grid">
         <div className="problem-section__content">
           <div className="section-kicker">Muammo va yechim</div>

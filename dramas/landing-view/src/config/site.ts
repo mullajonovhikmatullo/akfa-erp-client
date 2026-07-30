@@ -213,15 +213,27 @@ export const site = {
     columns: [
       {
         title: "Aloqa",
-        links: ["+998 71 200 20 20", "hello@storemanager.uz", "Toshkent, O‘zbekiston"],
+        links: [
+          { label: "+998 71 200 20 20", href: "tel:+998712002020" },
+          { label: "hello@storemanager.uz", href: "mailto:hello@storemanager.uz" },
+          { label: "Toshkent, O‘zbekiston", href: "https://maps.google.com/?q=Toshkent%2C+O%27zbekiston" },
+        ],
       },
       {
         title: "Mahsulot",
-        links: ["Imkoniyatlar", "Tariflar", "Qanday ishlaydi", "Yangiliklar"],
+        links: [
+          { label: "Imkoniyatlar", href: "#imkoniyatlar" },
+          { label: "Tariflar", href: "#tariflar" },
+          { label: "Qanday ishlaydi", href: "#qanday-ishlaydi" },
+          { label: "Savollar", href: "#savollar" },
+        ],
       },
       {
         title: "Kompaniya",
-        links: ["Biz haqimizda", "Blog", "Aloqa"],
+        links: [
+          { label: "Biz haqimizda", href: "#biz-haqimizda" },
+          { label: "Aloqa", href: "mailto:hello@storemanager.uz" },
+        ],
       },
     ],
     copyright: "© 2026 Store Manager. Barcha huquqlar himoyalangan.",

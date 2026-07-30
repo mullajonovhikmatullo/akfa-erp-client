@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { getAdminUrl } from "@store/landing-stub";
 import { site } from "../../config/site";
 import { Logo } from "./Logo";
+
+const storeLoginUrl = getAdminUrl();
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -17,7 +20,7 @@ export function Header() {
   return (
     <header className={`landing-header${scrolled ? " landing-header--scrolled" : ""}`}>
       <div className="container-page landing-header__inner">
-        <a className="landing-header__logo" href="#" aria-label={site.brand.name}>
+        <a className="landing-header__logo" href="/" aria-label={site.brand.name}>
           <Logo markSize={28} />
         </a>
 
@@ -30,7 +33,7 @@ export function Header() {
         </nav>
 
         <div className="landing-header__actions">
-          <a className="button button--ghost button--small" href="#">
+          <a className="button button--ghost button--small" href={storeLoginUrl}>
             {site.cta.login}
           </a>
           <a className="button button--primary button--small" href="#tariflar">
@@ -58,7 +61,7 @@ export function Header() {
               </a>
             ))}
             <div className="landing-mobile-menu__actions">
-              <a className="button button--ghost" href="#" onClick={() => setOpen(false)}>
+              <a className="button button--ghost" href={storeLoginUrl} onClick={() => setOpen(false)}>
                 {site.cta.login}
               </a>
               <a className="button button--primary" href="#tariflar" onClick={() => setOpen(false)}>

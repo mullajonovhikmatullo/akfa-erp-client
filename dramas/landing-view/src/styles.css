@@ -48,9 +48,9 @@
   --surface: #f7f9fd;
   --surface-2: #f1f5fb;
   --muted-foreground: #687895;
-  --primary: #3262df;
-  --primary-strong: #244fc9;
-  --primary-soft: #edf3ff;
+  --primary: #0476d0;
+  --primary-strong: #03558f;
+  --primary-soft: #eaf6ff;
   --accent: #f39b45;
   --accent-soft: #fff4e8;
   --success: #3aa76d;
@@ -201,7 +201,7 @@
 }
 
 .button:focus-visible {
-  outline: 3px solid rgb(50 98 223 / 0.18);
+  outline: 3px solid rgb(4 118 208 / 0.18);
   outline-offset: 2px;
 }
 
@@ -213,14 +213,14 @@
 
 .button--primary {
   border-color: var(--primary);
-  background: linear-gradient(135deg, #3d6ceb, #2857d6);
+  background: linear-gradient(135deg, #1599e8, #0476d0);
   color: #fff;
-  box-shadow: 0 8px 20px -12px rgb(50 98 223 / 0.9);
+  box-shadow: 0 8px 20px -12px rgb(4 118 208 / 0.9);
 }
 
 .button--primary:hover {
-  background: linear-gradient(135deg, #3463e1, #204ac1);
-  box-shadow: 0 11px 24px -12px rgb(50 98 223 / 0.9);
+  background: linear-gradient(135deg, #0476d0, #035fa7);
+  box-shadow: 0 11px 24px -12px rgb(4 118 208 / 0.9);
 }
 
 .button--outline {
@@ -263,25 +263,15 @@
 
 .brand-logo__mark {
   flex: 0 0 auto;
-  filter: drop-shadow(0 4px 8px rgb(36 79 201 / 0.14));
+  filter: drop-shadow(0 4px 8px rgb(4 118 208 / 0.2));
 }
 
 .brand-logo__wordmark {
-  display: inline-flex;
-  align-items: baseline;
-  color: var(--foreground);
-  font-size: 15px;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.brand-logo__wordmark strong {
-  font-weight: 800;
-}
-
-.brand-logo__wordmark span {
   color: var(--primary);
-  font-weight: 650;
+  font-size: 1em;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
 }
 
 .landing-header {
@@ -1181,7 +1171,7 @@
   border-radius: 50%;
   background: #fff;
   color: var(--primary);
-  box-shadow: 0 7px 20px -10px rgb(50 98 223 / 0.5);
+  box-shadow: 0 7px 20px -10px rgb(4 118 208 / 0.5);
 }
 
 .problem-photo {
@@ -1602,7 +1592,7 @@
 
 .pricing-card--featured {
   border-color: #7297f3;
-  box-shadow: 0 18px 44px -30px rgb(50 98 223 / 0.42);
+  box-shadow: 0 18px 44px -30px rgb(4 118 208 / 0.42);
 }
 
 .pricing-card__badge {
@@ -1759,9 +1749,9 @@
   padding: 32px 46px;
   border-radius: 11px;
   background:
-    linear-gradient(125deg, #3168e9 0%, #3363df 58%, #2855d3 100%);
+    linear-gradient(125deg, #1599e8 0%, #0476d0 58%, #03558f 100%);
   color: #fff;
-  box-shadow: 0 20px 45px -30px rgb(37 77 187 / 0.64);
+  box-shadow: 0 20px 45px -30px rgb(4 91 158 / 0.64);
 }
 
 .final-cta__pattern {
@@ -1981,7 +1971,7 @@
 
 .registration-form input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgb(50 98 223 / 0.14);
+  box-shadow: 0 0 0 3px rgb(4 118 208 / 0.14);
 }
 
 .registration-form__error {

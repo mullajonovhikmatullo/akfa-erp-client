@@ -12,15 +12,17 @@ type TFunc = (key: string) => string
 interface UseLoginFormOptions {
   t: TFunc
   onAuthenticated: (response: LoginResponse) => void
+  initialUsername?: string
+  onBeforeSubmit?: (values: LoginFormValues) => void
 }
 
-export function useLoginForm({ t, onAuthenticated }: UseLoginFormOptions) {
+export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBeforeSubmit }: UseLoginFormOptions) {
   //
   const schema = useMemo(() => createLoginSchema(t), [t])
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { username: '', password: '' },
+    defaultValues: { username: initialUsername, password: '' },
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   })
@@ -34,9 +36,8 @@ export function useLoginForm({ t, onAuthenticated }: UseLoginFormOptions) {
     },
     onError: (error: unknown) => {
       //
-      const httpError = error as { isAxiosError?: boolean; response?: { status?: number; data?: { message?: string } } }
+      const httpError = error as { isAxiosError?: boolean; code?: string; response?: { status?: number } }
       const status = httpError.response?.status
-      const message = httpError.response?.data?.message ?? ''
 
       if (status === 401) {
         form.setError('root', {
@@ -48,10 +49,26 @@ export function useLoginForm({ t, onAuthenticated }: UseLoginFormOptions) {
         return
       }
 
-      if (status === 403) {
+      if (status === 403 || status === 423) {
         form.setError('root', {
           type: 'disabled',
           message: t('login.errorDisabled'),
+        })
+        return
+      }
+
+      if (status === 429) {
+        form.setError('root', {
+          type: 'rate-limit',
+          message: t('login.errorRateLimit'),
+        })
+        return
+      }
+
+      if (status === 408 || status === 504 || httpError.code === 'ECONNABORTED' || httpError.code === 'ETIMEDOUT') {
+        form.setError('root', {
+          type: 'timeout',
+          message: t('login.errorTimeout'),
         })
         return
       }
@@ -64,9 +81,17 @@ export function useLoginForm({ t, onAuthenticated }: UseLoginFormOptions) {
         return
       }
 
+      if (status && status >= 500) {
+        form.setError('root', {
+          type: 'server',
+          message: t('login.errorServer'),
+        })
+        return
+      }
+
       form.setError('root', {
-        type: status ? 'server' : 'unknown',
-        message: message || t('login.errorServer'),
+        type: status ? 'request' : 'unknown',
+        message: t(status ? 'login.errorRequest' : 'login.errorServer'),
       })
     },
   })
@@ -74,6 +99,7 @@ export function useLoginForm({ t, onAuthenticated }: UseLoginFormOptions) {
   const onSubmit = form.handleSubmit((values) => {
     //
     form.clearErrors('root')
+    onBeforeSubmit?.(values)
     mutate(values)
   })
 
