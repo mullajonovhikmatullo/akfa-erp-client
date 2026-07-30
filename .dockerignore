@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+.git
+.env
+.env.test
+.DS_Store
+.pnpm-store
+.turbo
+playwright-report
+test-results

@@ -154,8 +154,11 @@ const deleteProductImage = ({ productId, imageId }: { productId: string; imageId
     .delete<ApiResponse<Raw[]>>(`/products/${productId}/images/${imageId}`)
     .then((response) => response.data.data.map(parseProductImage))
 
+const normalizeProductImageUrl = (url: string) =>
+  url.startsWith('/api/') ? url.replace(/^\/api/, '') : url
+
 const downloadProductImage = (url: string) =>
-  http.get<Blob>(url, { responseType: 'blob' }).then((response) => response.data)
+  http.get<Blob>(normalizeProductImageUrl(url), { responseType: 'blob' }).then((response) => response.data)
 
 const findProductInventory = (productId: string) =>
   http

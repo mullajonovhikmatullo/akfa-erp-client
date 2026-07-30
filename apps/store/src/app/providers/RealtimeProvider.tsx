@@ -10,6 +10,13 @@ import { ROUTES } from '@/shared/config/routes';
 import { connectSocket, getSocket, type TransferChangedPayload } from '@/shared/realtime/socket';
 import { useT } from '@/shared/lib/i18n';
 
+const APP_BASE_PATH = import.meta.env.BASE_URL ?? '/';
+const withAppBasePath = (path: string) => {
+  //
+  const base = APP_BASE_PATH.replace(/\/?$/, '/');
+  return `${base}${path.replace(/^\//, '')}`;
+};
+
 export function RealtimeProvider({ children }: { children: ReactNode }) {
   //
   const t = useT();
@@ -55,7 +62,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
           queryClient.cancelQueries().finally(() => {
             queryClient.clear();
             logout();
-            globalThis.window?.location.assign(`${ROUTES.LOGIN}?reason=expired`);
+            globalThis.window?.location.assign(withAppBasePath(`${ROUTES.LOGIN}?reason=expired`));
           }),
         )
         .finally(() => {
