@@ -4,6 +4,7 @@ import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
+import { UzbekPhoneInput } from '@store/store-shared/ui/uzbek-phone-input'
 import type { Customer } from '@store/store-stub'
 import { useCustomerForm } from './useCustomerForm'
 
@@ -99,7 +100,7 @@ export function CustomerFormModal({
             control={control}
             render={({ field }) => (
               <Form.Item label={t('customerForm.labelPhone')} required validateStatus={errors.phone ? 'error' : undefined} help={errors.phone?.message}>
-                <Input {...field} {...blockAutofill('store-customer-phone')} inputMode="tel" placeholder="+998901234567" />
+                <UzbekPhoneInput {...field} status={errors.phone ? 'error' : undefined} />
               </Form.Item>
             )}
           />

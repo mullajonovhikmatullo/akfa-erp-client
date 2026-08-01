@@ -151,8 +151,8 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
         </div>
       </div>
 
-      <div className="card" style={{ padding: 24, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+      <div className="card" style={{ padding: 18, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
           <div
             style={{
               width: 64,
@@ -160,7 +160,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #1e4dd8, #1e4dd8cc)',
               color: '#fff',
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
@@ -171,7 +171,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
             {initials}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>{user?.name}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{user?.name}</div>
             <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 2 }}>
               @{user?.username} · {roleLabel}
             </div>
@@ -193,7 +193,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
         </div>
 
         <form onSubmit={profileForm.handleSubmit(handleProfileSave)} autoComplete="off">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <ProfileField label={t('profile.fullName')} error={profileForm.formState.errors.fullName?.message}>
               <Controller
                 control={profileForm.control}
@@ -243,7 +243,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
         </form>
       </div>
 
-      <div className="card" style={{ padding: 24 }}>
+      <div className="card" style={{ padding: 18 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
           <LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-3)' }} />
           <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{t('profile.changePassword')}</span>
@@ -258,7 +258,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
         />
 
         <form onSubmit={passwordForm.handleSubmit(handlePasswordSave)} autoComplete="off">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <ProfileField label={t('profile.currentPassword')} error={passwordForm.formState.errors.currentPassword?.message} required>
               <Controller
                 control={passwordForm.control}
@@ -274,7 +274,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
               />
             </ProfileField>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <ProfileField label={t('profile.newPassword')} error={passwordForm.formState.errors.newPassword?.message} required>
                 <Controller
                   control={passwordForm.control}

@@ -278,19 +278,19 @@ export function CategoriesList({ t }: CategoriesListProps) {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.total')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{totalCategories}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalCategories}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.active')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{active}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{active}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.inactive')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: inactive > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{inactive}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: inactive > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{inactive}</div>
         </div>
       </div>
 

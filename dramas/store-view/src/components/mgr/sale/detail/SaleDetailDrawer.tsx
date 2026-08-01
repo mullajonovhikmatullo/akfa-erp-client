@@ -64,7 +64,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
               #{(sale.id.split('-')[0] ?? '').toUpperCase()}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 8px' }}>
-              <h2 style={{ margin: 0, fontSize: 18 }}>{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
+              <h2 style={{ margin: 0, fontSize: 16 }}>{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
               <StatusBadge tone={sale.saleType === 'RETAIL' ? 'muted' : 'info'}>{SALE_TYPE_LABELS[sale.saleType]}</StatusBadge>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--ink-3)' }}>

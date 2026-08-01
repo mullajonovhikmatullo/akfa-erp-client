@@ -113,7 +113,7 @@ function NavItem({
       onClick={onClick}
     >
       <span className="sb-item__icon">
-        {Icon && <Icon size={20} weight={isActive ? 'fill' : 'regular'} />}
+        {Icon && <Icon size={18} weight={isActive ? 'fill' : 'regular'} />}
       </span>
       {collapsed && showBadge && (
         <Badge count={badgeCount} overflowCount={200} className="sb-item__badge sb-item__badge--collapsed" />
@@ -133,7 +133,7 @@ function NavItem({
                e.preventDefault(); e.stopPropagation(); onToggleFav(item.key); }}
             aria-label={isFav ? 'Sevimlilardan olib tashlash' : "Sevimlilarga qo'shish"}
           >
-            <StarIcon size={12} weight={isFav ? 'fill' : 'regular'} />
+            <StarIcon size={11} weight={isFav ? 'fill' : 'regular'} />
           </button>
         </>
       )}
@@ -199,7 +199,7 @@ function AccordionGroup({
     <div className={clsx('sb-group', isOpen && 'sb-group--open')}>
       <button className="sb-group__header" type="button" onClick={onToggle}>
         <span className="sb-group__label">{groupLabel}</span>
-        <CaretRightIcon size={10} className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
+        <CaretRightIcon size={9} className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
       </button>
       <div className="sb-group__items" style={style}>
         <div ref={ref} className="sb-group__items-inner">
@@ -265,7 +265,7 @@ function FavoritesSection({
   return (
     <div className="sb-fav-section">
       <div className="sb-fav-section__header">
-        <PushPinIcon size={10} weight="fill" className="sb-fav-section__pin" />
+        <PushPinIcon size={9} weight="fill" className="sb-fav-section__pin" />
         <span>{t('header.quickAccess')}</span>
       </div>
       <div className="sb-group__items-inner">
@@ -349,7 +349,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
           type="button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <ArrowLineRightIcon size={18} /> : <ArrowLineLeftIcon size={18} />}
+          {collapsed ? <ArrowLineRightIcon size={16} /> : <ArrowLineLeftIcon size={16} />}
         </button>
       </div>
 

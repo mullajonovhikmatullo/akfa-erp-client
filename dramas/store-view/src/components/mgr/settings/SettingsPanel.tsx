@@ -74,7 +74,7 @@ export function SettingsPanel({
       <div className="grid-2">
         <div className="card">
           <SectionTitle>{t('settings.currency')}</SectionTitle>
-          <div className="col" style={{ gap: 14 }}>
+          <div className="col" style={{ gap: 12 }}>
             <div>
               <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.displayCurrency')}</div>
               <Controller

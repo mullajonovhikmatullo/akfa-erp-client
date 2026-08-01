@@ -44,7 +44,7 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
                 {displayedProduct.sku}
               </div>
             ) : null}
-            <h2 style={{ margin: '6px 0 4px', fontSize: 20 }}>{displayedProduct.name}</h2>
+            <h2 style={{ margin: '6px 0 4px', fontSize: 18 }}>{displayedProduct.name}</h2>
             {displayedProduct.description ? (
               <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '4px 0 8px' }}>{displayedProduct.description}</p>
             ) : null}

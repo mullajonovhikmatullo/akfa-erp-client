@@ -248,25 +248,25 @@ export function AdminsList({ t }: AdminsListProps) {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.total')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{total}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{total}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('admins.statAssigned')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{assigned}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{assigned}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('admins.statUnassigned')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: unassigned > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{unassigned}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: unassigned > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{unassigned}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('admins.statBranches')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>
             {assigned} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-3)' }}>/ {branches.length}</span>
           </div>
         </div>

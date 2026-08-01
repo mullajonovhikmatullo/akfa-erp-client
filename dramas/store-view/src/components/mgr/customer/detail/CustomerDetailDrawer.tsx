@@ -108,14 +108,14 @@ export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDra
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: 700,
                 marginBottom: 12,
               }}
             >
               {customer.fullName.charAt(0).toUpperCase()}
             </div>
-            <h2 style={{ margin: '0 0 4px', fontSize: 20 }}>{customer.fullName}</h2>
+            <h2 style={{ margin: '0 0 4px', fontSize: 18 }}>{customer.fullName}</h2>
             {customer.phone && <div style={{ fontSize: 13, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{customer.phone}</div>}
             {customer.address && <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 2 }}>{customer.address}</div>}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
@@ -148,7 +148,7 @@ export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDra
             >
               <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>{t('customers.drawerCurrentBalance')}</span>
               <div style={{ textAlign: 'right' }}>
-                <div className="num" style={{ fontSize: 18, fontWeight: 700 }}>
+                <div className="num" style={{ fontSize: 16, fontWeight: 700 }}>
                   <MoneyDisplay amount={Math.abs(currentBalance)} currency="UZS" />
                 </div>
                 <StatusBadge tone={balanceTone}>{balanceLabel || '—'}</StatusBadge>

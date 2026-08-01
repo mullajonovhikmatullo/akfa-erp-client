@@ -13,9 +13,11 @@ import { toast } from 'sonner'
 import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { formatDate } from '@store/store-shared/lib/formatters'
+import { isValidUzbekMobilePhone } from '@store/store-shared/lib/uzbek-phone'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
+import { UzbekPhoneInput } from '@store/store-shared/ui/uzbek-phone-input'
 import type { BranchPayload, User } from '@store/store-stub'
 import { useAssignBranch, useUsers } from '../../admins/hooks/useAdminUsers'
 import { usePagination } from '../../shared/hooks/usePagination'
@@ -343,19 +345,19 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('branches.statTotal')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{total}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{total}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('branches.statWithAdmin')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((user) => !!user.branchId).length}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{branchAdmins.filter((user) => !!user.branchId).length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('branches.statUnassigned')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((user) => !user.branchId).length}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{branchAdmins.filter((user) => !user.branchId).length}</div>
         </div>
       </div>
 
@@ -419,19 +421,24 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
               )}
             />
           </Form.Item>
-          <Form.Item label={t('common.phone')}>
+          <Form.Item
+            label={t('common.phone')}
+            validateStatus={branchErrors.phone ? 'error' : undefined}
+            help={branchErrors.phone?.message}
+          >
             <Controller
               name="phone"
               control={branchControl}
+              rules={{
+                validate: (value) => !value || isValidUzbekMobilePhone(value) || t('validation.phoneInvalid'),
+              }}
               render={({ field }) => (
-                <Input
+                <UzbekPhoneInput
                   ref={field.ref}
                   onBlur={field.onBlur}
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  {...blockAutofill('store-branch-phone')}
-                  inputMode="tel"
-                  placeholder={t('branches.phonePlaceholder')}
+                  status={branchErrors.phone ? 'error' : undefined}
                 />
               )}
             />

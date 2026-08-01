@@ -276,7 +276,7 @@ function SalesTab({ data, loading, t }: { data?: ReturnType<typeof useSalesRepor
   const grandTotal = data.summary.totalRevenue || 1;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {/* Summary row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
         <KpiCard label={t('analytics.kpiRevenue')} value={<MoneyDisplay amount={data.summary.totalRevenue} currency="UZS" />} sub={`${data.summary.saleCount} ${t('analytics.saleSuffix')}`} tone="primary" />
@@ -284,7 +284,7 @@ function SalesTab({ data, loading, t }: { data?: ReturnType<typeof useSalesRepor
         <KpiCard label={t('analytics.kpiDebtShort')} value={<MoneyDisplay amount={data.summary.outstandingDebt} currency="UZS" />} sub={t('analytics.subUnpaid')} tone="danger" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {/* By type */}
         <div className="card">
           <SectionTitle>{t('analytics.byType')}</SectionTitle>
@@ -362,7 +362,7 @@ function ExpensesTab({ data, loading, t }: { data?: ReturnType<typeof useExpense
   const grandTotal = data.summary.total || 1;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'flex-start' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
       {/* Period chart (bar) */}
       <div className="card">
         <SectionTitle>{t('analytics.byPeriod')}</SectionTitle>
@@ -425,7 +425,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
   if (loading || !data) return <Skeleton active paragraph={{ rows: 8 }} />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {/* Stock by branch */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {data.stockByBranch.map((b) => (
@@ -433,7 +433,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
               {b.branchName}
             </div>
-            <div className="num" style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
+            <div className="num" style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
               <MoneyDisplay amount={b.stockValueUzs} currency="UZS" />
             </div>
             <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
@@ -446,7 +446,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {/* Low stock */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -582,7 +582,7 @@ function DebtTab({
   }));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {/* Summary */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
         <KpiCard label={t('analytics.totalDebt')} value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={`${data.summary.debtorCount} ${t('analytics.debtorSuffix')}`} tone="danger" />
@@ -746,7 +746,7 @@ function KpiCard({ label, value, sub, tone = 'muted' }: { label: string; value: 
   return (
     <div className="card" style={{ padding: '14px 16px' }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{label}</div>
-      <div className="num" style={{ fontSize: 18, fontWeight: 700, color: TONE_COLORS[tone] }}>{value}</div>
+      <div className="num" style={{ fontSize: 16, fontWeight: 700, color: TONE_COLORS[tone] }}>{value}</div>
       <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>{sub}</div>
     </div>
   );

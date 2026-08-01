@@ -43,6 +43,10 @@
       "types": "./dist/@types/lib/productPricing.d.ts",
       "import": "./dist/lib/product-pricing.js"
     },
+    "./lib/uzbek-phone": {
+      "types": "./dist/@types/lib/uzbekPhone.d.ts",
+      "import": "./dist/lib/uzbek-phone.js"
+    },
     "./ui/app-modal": {
       "types": "./dist/@types/ui/AppModal/AppModal.d.ts",
       "import": "./dist/ui/app-modal.js"
@@ -74,6 +78,10 @@
     "./ui/status-badge": {
       "types": "./dist/@types/ui/StatusBadge/StatusBadge.d.ts",
       "import": "./dist/ui/status-badge.js"
+    },
+    "./ui/uzbek-phone-input": {
+      "types": "./dist/@types/ui/UzbekPhoneInput/UzbekPhoneInput.d.ts",
+      "import": "./dist/ui/uzbek-phone-input.js"
     }
   },
   "scripts": {

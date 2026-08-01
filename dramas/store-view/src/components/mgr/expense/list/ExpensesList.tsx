@@ -293,7 +293,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
                 >
                   {category.name}
                 </div>
-                <div className="num" style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
+                <div className="num" style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
                   <MoneyDisplay amount={category.total} currency="UZS" />
                 </div>
                 <div style={{ height: 4, borderRadius: 2, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
@@ -308,7 +308,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
         </div>
       ) : null}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'flex-start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div
             style={{

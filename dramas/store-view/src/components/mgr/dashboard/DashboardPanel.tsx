@@ -352,15 +352,15 @@ export function DashboardPanel({
       {isLoading ? (
         <DashboardSkeleton />
       ) : isDashboardUnavailable ? (
-        <div className="card" style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+        <div className="card" style={{ padding: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dashboard.loadErrorTitle')} />
           <Button type="primary" icon={<ArrowClockwiseIcon size={18} />} onClick={refetchAll}>
             {t('common.refresh')}
           </Button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
             <MetricCard
               icon={<ShoppingCartIcon size={28} weight="duotone" />}
               label={t('dashboard.periodSales')}
@@ -391,7 +391,7 @@ export function DashboardPanel({
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             <div className="card">
               <div className="card-head">
                 <h3>{t('dashboard.salesTrendTitle')}</h3>
@@ -410,7 +410,7 @@ export function DashboardPanel({
                 <h3>{t('dashboard.paymentMix')}</h3>
                 <span className="meta">{periodMeta}</span>
               </div>
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
                 <PaymentDonutChart data={paymentChartData} total={paymentTotal} totalLabel={t('common.total')} />
                 <div style={{ flex: '1 1 0', minWidth: 180, display: 'flex', flexDirection: 'column', gap: 7 }}>
                   {paymentChartData.map((item) => (
@@ -427,13 +427,13 @@ export function DashboardPanel({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
             <SmallStat label={t('dashboard.avgOrderValue')} value={<MoneyDisplay amount={avgOrderValue} currency="UZS" compact />} tone="muted" />
             <SmallStat label={t('dashboard.periodNetProfit')} value={<MoneyDisplay amount={periodDashboard.data?.profit.netProfit ?? 0} currency="UZS" compact />} tone={(periodDashboard.data?.profit.netProfit ?? 0) >= 0 ? 'success' : 'danger'} />
             <SmallStat label={t('dashboard.expenseCount')} value={expenseCount.toLocaleString('ru-RU')} tone="warning" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             <div className="card">
               <div className="card-head">
                 <h3>{t('dashboard.topProducts')}</h3>
@@ -494,7 +494,7 @@ export function DashboardPanel({
             </ListPanel>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             <ListPanel
               title={t('dashboard.topDebtors')}
               action={t('dashboard.allDebtors')}
@@ -577,8 +577,8 @@ function TopProductsTooltip({
 function DashboardSkeleton() {
   //
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="kpi" style={{ minHeight: 126 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
@@ -596,12 +596,12 @@ function DashboardSkeleton() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         <SkeletonPanel height={310} rows={3} />
         <SkeletonPanel height={220} rows={5} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="card" style={{ padding: '14px 16px' }}>
             <Skeleton.Input active size="small" style={{ width: 120 }} />
@@ -612,12 +612,12 @@ function DashboardSkeleton() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         <SkeletonPanel height={260} rows={2} />
         <SkeletonPanel height={260} rows={5} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         <SkeletonPanel height={220} rows={4} />
         <SkeletonPanel height={220} rows={4} />
       </div>
@@ -653,7 +653,7 @@ function MetricCard({ icon, label, value, sub, tone }: { icon: ReactNode; label:
     <div className="kpi" style={{ minHeight: 126 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
         <div className="label">{label}</div>
-        <span style={{ color: COLORS[tone], fontSize: 20 }}>{icon}</span>
+        <span style={{ color: COLORS[tone], fontSize: 18 }}>{icon}</span>
       </div>
       <div className="value">{value}</div>
       <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{sub}</div>
@@ -667,7 +667,7 @@ function SmallStat({ label, value, tone }: { label: string; value: ReactNode; to
   return (
     <div className="card" style={{ padding: '14px 16px' }}>
       <div style={{ color: 'var(--ink-3)', fontSize: 12, marginBottom: 6 }}>{label}</div>
-      <div className="num" style={{ fontSize: 20, fontWeight: 800, color: COLORS[tone] }}>{value}</div>
+      <div className="num" style={{ fontSize: 18, fontWeight: 800, color: COLORS[tone] }}>{value}</div>
     </div>
   );
 }
@@ -997,7 +997,7 @@ function SnapshotTile({ icon, label, value, tone }: { icon: ReactNode; label: st
       <div style={{ minWidth: 0, color: 'var(--ink-2)', fontSize: 13, fontWeight: 650, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {label}
       </div>
-      <div className="num" style={{ fontSize: 18, fontWeight: 800, color: COLORS[tone], textAlign: 'right' }}>{value}</div>
+      <div className="num" style={{ fontSize: 16, fontWeight: 800, color: COLORS[tone], textAlign: 'right' }}>{value}</div>
     </div>
   );
 }
