@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Badge, Button, Select, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, EyeIcon } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, EyeIcon, PlusIcon } from '@phosphor-icons/react'
 import { SALE_TYPE_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
@@ -178,8 +178,12 @@ export function SalesList({ t, isStoreOwner, userBranchId, exchangeRate }: Sales
           <div className="sub">{t('sales.subtitle')}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button type={tab === 'new' ? 'primary' : 'default'} onClick={() => setTab('new')}>
-            + {t('dashboard.newSale')}
+          <Button
+            type={tab === 'new' ? 'primary' : 'default'}
+            icon={<PlusIcon size={13} weight="bold" />}
+            onClick={() => setTab('new')}
+          >
+            {t('dashboard.newSale')}
           </Button>
           <Badge count={totalWithDebt} offset={[-6, 4]}>
             <Button type={tab === 'history' ? 'primary' : 'default'} onClick={() => setTab('history')}>

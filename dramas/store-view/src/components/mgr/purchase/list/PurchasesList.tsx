@@ -199,7 +199,7 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, exchangeRate }: P
           <Tooltip title={t('common.refresh')}>
             <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
           </Tooltip>
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
             {t('purchases.newPurchase')}
           </Button>
         </div>

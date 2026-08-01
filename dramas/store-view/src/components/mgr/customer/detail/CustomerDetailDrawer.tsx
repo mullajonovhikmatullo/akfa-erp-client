@@ -186,7 +186,7 @@ export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDra
                             <MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />
                           </div>
                           {!isPaying && (
-                            <Button size="small" icon={<PlusIcon size={16} />} style={{ marginTop: 6 }} onClick={() => startPayment(sale)}>
+                            <Button size="small" icon={<PlusIcon size={13} />} style={{ marginTop: 6 }} onClick={() => startPayment(sale)}>
                               {t('sales.drawerAddPayment')}
                             </Button>
                           )}

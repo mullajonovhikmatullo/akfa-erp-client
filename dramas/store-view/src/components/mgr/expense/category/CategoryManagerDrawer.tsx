@@ -78,7 +78,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
         />
         <Button
           type="primary"
-          icon={<PlusIcon size={18} weight="bold" />}
+          icon={<PlusIcon size={13} weight="bold" />}
           loading={createCat.isPending}
           disabled={!newName.trim()}
           onClick={handleSubmit(submitCreate)}

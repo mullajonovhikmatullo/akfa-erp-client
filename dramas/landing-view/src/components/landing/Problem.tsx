@@ -1,67 +1,36 @@
-import { ArrowRight, Check, TrendingUp, X } from "lucide-react";
-import storeOwnerPhoto from "../../assets/store-owner.jpg";
+import { BarChart3, Boxes, Building2, CreditCard, PackageSearch, TrendingUp } from "lucide-react";
 import { site } from "../../config/site";
 
+const benefits = [
+  { icon: BarChart3, title: "Real vaqt tahlili va hisobotlar", text: "Savdo, tushum, foyda va xarajatlarni real vaqtda kuzating." },
+  { icon: Building2, title: "Filiallar bo‘yicha yagona nazorat", text: "Barcha filiallaringiz faoliyatini bitta panelda boshqaring." },
+  { icon: Boxes, title: "Zaxira va ombor nazorati", text: "Mahsulot qoldiqlari, kirim va transferlarni oson boshqaring." },
+  { icon: CreditCard, title: "To‘lovlar va qarzlar nazorati", text: "Naqd va to‘lovlarni kuzatib, qarzdorlarni boshqaring." },
+];
+
 export function Problem() {
-  const problem = site.problem;
-
   return (
-    <section className="problem-section" id="biz-haqimizda">
-      <div className="container-page problem-section__grid">
-        <div className="problem-section__content">
-          <div className="section-kicker">Muammo va yechim</div>
-          <h2>{problem.heading}</h2>
-
-          <div className="problem-compare">
-            <CompareCard variant="before" title={problem.before.title} items={problem.before.items} />
-            <div className="problem-compare__arrow" aria-hidden="true">
-              <ArrowRight size={23} />
-            </div>
-            <CompareCard variant="after" title={problem.after.title} items={problem.after.items} />
+    <section className="problem-section" id="kompaniya">
+      <div className="container-page">
+        <div className="section-heading section-heading--center problem-section__heading" data-reveal="up">
+          <h2>{site.problem.heading}</h2>
+          <p>Barcha jarayonlaringizni markazdan boshqaring va biznesingizni rivojlantiring.</p>
+        </div>
+        <div className="benefits-layout">
+          <div className="benefits-list" data-reveal-group>
+            {benefits.map(({ icon: Icon, title, text }) => (
+              <article key={title} data-reveal="left"><span><Icon size={19} /></span><div><h3>{title}</h3><p>{text}</p></div></article>
+            ))}
+          </div>
+          <div className="benefits-dashboard" aria-label="Mavion ko‘rsatkichlari" data-reveal="scale">
+            <div className="benefits-stat benefits-stat--income"><small>Joriy daromad</small><strong>346.7 M <i>so‘m</i></strong><em>+16%</em><svg viewBox="0 0 190 45"><path d="M2 37 C24 35 29 21 45 25 S67 35 84 24 S108 14 124 22 S151 30 188 7" /></svg></div>
+            <div className="benefits-stat benefits-stat--branches"><small>Faol filiallar</small><strong>12</strong><em>+2</em></div>
+            <div className="benefits-stat benefits-stat--products"><small>Mahsulotlar soni</small><strong>1 248</strong><div className="benefits-bars"><i/><i/><i/><i/><i/><i/></div></div>
+            <div className="benefits-stat benefits-stat--top"><small>Top mahsulotlar</small>{["Mineral suv", "Shakar", "Kofe", "Guruch"].map((x,i)=><p key={x}><PackageSearch size={13}/><span>{x}</span><b>{["12.4K","9.1K","7.8K","6.2K"][i]}</b></p>)}</div>
+            <TrendingUp className="benefits-bg-icon" size={120} />
           </div>
         </div>
-
-        <figure className="problem-photo">
-          <img src={storeOwnerPhoto} alt="Store Manager tizimida ishlayotgan savdo biznesi egasi" />
-          <figcaption>
-            <span>Bugungi savdo</span>
-            <strong>12.4 M so‘m</strong>
-            <small>
-              <TrendingUp size={12} />
-              +18% vs kecha
-            </small>
-            <svg viewBox="0 0 130 34" aria-hidden="true">
-              <path d="M2 28 C12 27 15 19 24 21 S38 29 47 23 S60 12 70 16 S82 25 92 18 S108 6 128 8" />
-            </svg>
-          </figcaption>
-        </figure>
       </div>
     </section>
-  );
-}
-
-function CompareCard({
-  variant,
-  title,
-  items,
-}: {
-  variant: "before" | "after";
-  title: string;
-  items: readonly string[];
-}) {
-  const positive = variant === "after";
-
-  return (
-    <div className={`compare-card compare-card--${variant}`}>
-      <h3>{title}</h3>
-      <ul>
-        {items.map((item) => (
-          <li key={item}>
-            <span>{positive ? <Check size={13} /> : <X size={13} />}</span>
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }

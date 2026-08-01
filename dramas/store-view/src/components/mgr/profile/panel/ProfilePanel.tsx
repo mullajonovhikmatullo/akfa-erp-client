@@ -158,7 +158,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
               width: 64,
               height: 64,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #1e4dd8, #1e4dd8cc)',
+              background: 'linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, transparent))',
               color: '#fff',
               fontSize: 20,
               fontWeight: 700,

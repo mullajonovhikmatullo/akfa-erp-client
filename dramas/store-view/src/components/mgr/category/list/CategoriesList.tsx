@@ -267,7 +267,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
               refetchSummary()
             }}
           />
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
             {t('categories.newCategory')}
           </Button>
         </div>

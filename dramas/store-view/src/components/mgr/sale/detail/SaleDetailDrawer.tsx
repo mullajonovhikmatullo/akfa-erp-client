@@ -132,7 +132,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
                   </div>
                 ) : (
                   <Button
-                    icon={<PlusIcon size={18} />}
+                    icon={<PlusIcon size={13} />}
                     onClick={() => {
                       //
                       reset({ amount: 0, method: 'CASH_UZS' })

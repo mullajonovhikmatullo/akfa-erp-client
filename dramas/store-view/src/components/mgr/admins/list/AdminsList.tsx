@@ -237,7 +237,7 @@ export function AdminsList({ t }: AdminsListProps) {
               onClick={() => refetch()}
             />
           </Tooltip>
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
             {t('admins.newAdmin')}
           </Button>
         </div>

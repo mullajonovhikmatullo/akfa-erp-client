@@ -6,7 +6,7 @@ export function FinalCTA() {
   return (
     <section className="final-cta-section">
       <div className="container-page">
-        <div className="final-cta">
+        <div className="final-cta" data-reveal="scale">
           <div className="final-cta__pattern" aria-hidden="true" />
           <div>
             <h2>{cta.heading}</h2>

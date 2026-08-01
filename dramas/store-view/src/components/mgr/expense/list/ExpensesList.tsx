@@ -245,11 +245,11 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
             />
           </Tooltip>
           {isStoreOwner ? (
-            <Button icon={<TagIcon size={18} />} onClick={() => setManagingCategories(true)}>
+            <Button icon={<TagIcon size={13} />} onClick={() => setManagingCategories(true)}>
               {t('nav.categories')}
             </Button>
           ) : null}
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
             {t('expenses.newExpense')}
           </Button>
         </div>

@@ -307,7 +307,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
                 createFn={(data) => customerApi.create(data)}
                 onComplete={() => refetch()}
               />
-              <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setEditCustomer(null)}>
+              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditCustomer(null)}>
                 {t('customers.newCustomer')}
               </Button>
             </>

@@ -28,6 +28,19 @@ type FormState = {
   confirmPassword: string;
 };
 
+function FieldError({ message }: { message?: string }) {
+  return (
+    <small
+      className="registration-form__field-error"
+      data-visible={Boolean(message)}
+      title={message}
+      aria-live="polite"
+    >
+      {message || '\u00a0'}
+    </small>
+  );
+}
+
 const initialForm: FormState = {
   storeName: '',
   ownerName: '',
@@ -178,12 +191,12 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                     aria-invalid={Boolean(errors.storeName)}
                     autoFocus
                   />
-                  {errors.storeName && <small>{errors.storeName.message}</small>}
+                  <FieldError message={errors.storeName?.message} />
                 </label>
                 <label>
                   <span>Do‘kon egasi</span>
                   <input {...register('ownerName')} placeholder="Ism va familiya" aria-invalid={Boolean(errors.ownerName)} />
-                  {errors.ownerName && <small>{errors.ownerName.message}</small>}
+                  <FieldError message={errors.ownerName?.message} />
                 </label>
                 <label>
                   <span>Telefon raqami</span>
@@ -201,12 +214,12 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                       />
                     )}
                   />
-                  {errors.phone && <small>{errors.phone.message}</small>}
+                  <FieldError message={errors.phone?.message} />
                 </label>
                 <label className="registration-form__field--wide">
                   <span>Email <em>ixtiyoriy</em></span>
                   <input {...register('email')} type="email" placeholder="name@example.com" aria-invalid={Boolean(errors.email)} />
-                  {errors.email && <small>{errors.email.message}</small>}
+                  <FieldError message={errors.email?.message} />
                 </label>
               </div>
             </section>
@@ -225,12 +238,12 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                     placeholder="Login kiriting"
                     aria-invalid={Boolean(errors.username)}
                   />
-                  {errors.username && <small>{errors.username.message}</small>}
+                  <FieldError message={errors.username?.message} />
                 </label>
                 <label>
                   <span>Parol</span>
                   <input {...register('password')} type="password" placeholder="Kamida 6 ta belgi" aria-invalid={Boolean(errors.password)} />
-                  {errors.password && <small>{errors.password.message}</small>}
+                  <FieldError message={errors.password?.message} />
                 </label>
                 <label>
                   <span>Parolni tasdiqlang</span>
@@ -240,7 +253,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                     placeholder="Parolni qayta kiriting"
                     aria-invalid={Boolean(errors.confirmPassword)}
                   />
-                  {errors.confirmPassword && <small>{errors.confirmPassword.message}</small>}
+                  <FieldError message={errors.confirmPassword?.message} />
                 </label>
               </div>
             </section>

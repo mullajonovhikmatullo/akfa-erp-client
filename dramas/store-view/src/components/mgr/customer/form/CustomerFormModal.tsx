@@ -34,6 +34,7 @@ export function CustomerFormModal({
   //
   const { form, onSubmit, isPending, isEdit } = useCustomerForm({
     t,
+    open,
     customer,
     isStoreOwner,
     branchId,

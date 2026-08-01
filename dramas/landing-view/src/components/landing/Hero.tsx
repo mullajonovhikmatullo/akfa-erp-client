@@ -9,7 +9,7 @@ export function Hero() {
     <section className="landing-hero">
       <div className="landing-hero__glow" aria-hidden="true" />
       <div className="container-page landing-hero__grid">
-        <div className="landing-hero__copy">
+        <div className="landing-hero__copy" data-reveal="up">
           <div className="pill-label">{hero.eyebrow}</div>
           <h1>{hero.heading}</h1>
           <p>{hero.supporting}</p>
@@ -31,7 +31,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="landing-hero__dashboard">
+        <div className="landing-hero__dashboard" data-reveal="scale">
           <DashboardMock />
         </div>
       </div>

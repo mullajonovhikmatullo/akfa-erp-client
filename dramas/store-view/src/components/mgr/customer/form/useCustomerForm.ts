@@ -8,6 +8,7 @@ import { createCustomerSchema, type CustomerFormValues } from './customerSchema'
 
 interface UseCustomerFormOptions {
   t: (key: string) => string
+  open: boolean
   customer?: Customer | null
   onSuccess?: (customer: Customer) => void
   isStoreOwner: boolean
@@ -18,6 +19,7 @@ interface UseCustomerFormOptions {
 
 export function useCustomerForm({
   t,
+  open,
   customer,
   onSuccess,
   isStoreOwner,
@@ -44,7 +46,7 @@ export function useCustomerForm({
 
   useEffect(() => {
     //
-    if (customer) {
+    if (open && customer) {
       form.reset({
         fullName: customer.fullName,
         phone: customer.phone ?? '',
@@ -62,7 +64,7 @@ export function useCustomerForm({
         branchId: undefined,
       })
     }
-  }, [customer, form])
+  }, [customer, form, open])
 
   const createMutation = useCreateCustomer()
   const updateMutation = useUpdateCustomer()

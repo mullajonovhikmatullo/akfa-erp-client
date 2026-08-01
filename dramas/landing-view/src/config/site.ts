@@ -1,11 +1,11 @@
 export const site = {
   brand: {
-    name: "Store Manager",
-    tagline: "Ko‘p filialli savdo bizneslari uchun boshqaruv tizimi.",
+    name: "Mavion",
+    tagline: "Filiallaringizni yagona tizimda boshqarish uchun eng qulay yechim.",
   },
   contact: {
-    phone: "+998 71 200 20 20",
-    email: "hello@storemanager.uz",
+    phone: "+998 94 602 28 24",
+    email: "hellomavionuz@gmail.com",
     address: "Toshkent, O‘zbekiston",
   },
   nav: [
@@ -13,19 +13,20 @@ export const site = {
     { label: "Qanday ishlaydi", href: "#qanday-ishlaydi" },
     { label: "Tariflar", href: "#tariflar" },
     { label: "Savollar", href: "#savollar" },
+    { label: "Kompaniya", href: "#kompaniya" },
   ],
   cta: {
     login: "Kirish",
-    primary: "Bepul boshlash",
+    primary: "1 oy bepul sinab ko‘ring",
   },
   hero: {
-    eyebrow: "Ko‘p filialli savdo uchun yagona tizim",
-    heading: "Barcha filiallaringizni bitta joydan boshqaring",
+    eyebrow: "1 oy bepul · Hech qanday karta kerak emas",
+    heading: "Barcha filiallaringizni yagona tizimda boshqaring",
     supporting:
-      "Sotuvlar, filiallar, mahsulot transferlari va mijozlar bilan ishlash jarayonlarini sodda va tushunarli ERP tizimida boshqaring.",
-    primaryCta: "Bepul boshlash",
-    secondaryCta: "Tizimni ko‘rish",
-    trial: "14 kunlik bepul sinov",
+      "Savdolar, tushumlar, xarajatlar va zaxiralarni real vaqtda kuzating. Bugun boshlang va tizimdan 1 oy bepul foydalaning!",
+    primaryCta: "1 oy bepul sinab ko‘ring",
+    secondaryCta: "Demo ko‘rish",
+    trial: "1 oy to‘liq bepul",
     note: "Karta talab qilinmaydi",
   },
   dashboard: {
@@ -45,11 +46,11 @@ export const site = {
     ],
   },
   trust: {
-    line: "Bizga ishonayotgan bizneslar",
-    logos: ["Baraka Market", "Orzu Home", "Ideal Savdo", "Nova Retail"],
+    line: "Boshlash uchun hammasi tayyor",
+    logos: ["1 oy bepul", "Karta talab qilinmaydi", "Tez sozlash", "Istalgan vaqtda bekor qilish", "Yordam doimo yoningizda"],
   },
   problem: {
-    heading: "Filiallar ko‘paygani sari nazorat murakkablashmasligi kerak",
+    heading: "Nega Mavion bilan boshqarish oson?",
     before: {
       title: "Avval: parokanda jarayonlar",
       items: [
@@ -61,7 +62,7 @@ export const site = {
       ],
     },
     after: {
-      title: "Store Manager bilan: yagona tizim",
+      title: "Mavion bilan: yagona tizim",
       items: [
         "Barcha filiallar bitta panelda",
         "Real vaqt rejimida ma’lumotlar",
@@ -127,8 +128,8 @@ export const site = {
     ],
   },
   pricing: {
-    heading: "Sizga mos tarifni tanlang",
-    note: "Barcha tariflarda 14 kunlik bepul sinov mavjud.",
+    heading: "1 oy bepul sinovdan keyin tariflar",
+    note: "Bepul sinov muddati tugagach, o‘z biznesingizga mos tarifni tanlang.",
     plans: [
       {
         code: "START" as const,
@@ -179,8 +180,8 @@ export const site = {
   },
   faq: [
     {
-      q: "Store Manager qanday bizneslar uchun mos?",
-      a: "Store Manager chakana savdo, supermarket, kiyim-kechak, uy-ro‘zg‘or va ko‘p filialli boshqa savdo bizneslari uchun mos.",
+      q: "Mavion qanday bizneslar uchun mos?",
+      a: "Mavion chakana savdo, supermarket, kiyim-kechak, uy-ro‘zg‘or va ko‘p filialli boshqa savdo bizneslari uchun mos.",
     },
     {
       q: "Tizimni o‘rnatish va ishga tushirish qancha vaqt oladi?",
@@ -204,18 +205,18 @@ export const site = {
     },
   ],
   finalCta: {
-    heading: "Filiallaringizni yagona tizimda boshqarishni boshlang",
-    text: "14 kun davomida Store Manager imkoniyatlarini bepul sinab ko‘ring.",
-    primary: "Bepul akkaunt yaratish",
-    secondary: "Tariflarni ko‘rish",
+    heading: "Barcha filiallaringizni yagona tizimda boshqaring",
+    text: "Bugun boshlang va tizimdan 1 oy to‘liq bepul foydalaning!",
+    primary: "1 oy bepul sinab ko‘ring",
+    secondary: "Demo ko‘rish",
   },
   footer: {
     columns: [
       {
         title: "Aloqa",
         links: [
-          { label: "+998 71 200 20 20", href: "tel:+998712002020" },
-          { label: "hello@storemanager.uz", href: "mailto:hello@storemanager.uz" },
+          { label: "+998 94 602 28 24", href: "tel:+998946022824" },
+          { label: "hellomavionuz@gmail.com", href: "mailto:hellomavionuz@gmail.com" },
           { label: "Toshkent, O‘zbekiston", href: "https://maps.google.com/?q=Toshkent%2C+O%27zbekiston" },
         ],
       },
@@ -232,11 +233,11 @@ export const site = {
         title: "Kompaniya",
         links: [
           { label: "Biz haqimizda", href: "#biz-haqimizda" },
-          { label: "Aloqa", href: "mailto:hello@storemanager.uz" },
+          { label: "Aloqa", href: "mailto:hellomavionuz@gmail.com" },
         ],
       },
     ],
-    copyright: "© 2026 Store Manager. Barcha huquqlar himoyalangan.",
+    copyright: "© 2026 Mavion. Barcha huquqlar himoyalangan.",
   },
   subscriptionFlow: {
     heading: "Tizimni ishga tushirish oson",
@@ -246,9 +247,9 @@ export const site = {
   productDetail: {
     heading: "Barcha filiallar yagona ko‘rinishda",
     records: [
-      { id: "SM-10582", owner: "Baraka Market", adminUrl: "baraka.storemanager.uz", plan: "Business", source: "Landing", status: "Faol" },
-      { id: "SM-10581", owner: "Orzu Home", adminUrl: "orzu.storemanager.uz", plan: "Start", source: "Landing", status: "Kutilmoqda" },
-      { id: "SM-10580", owner: "Ideal Savdo", adminUrl: "ideal.storemanager.uz", plan: "Pro", source: "Platform admin", status: "Tekshiruvda" },
+      { id: "MV-10582", owner: "Baraka Market", adminUrl: "baraka.mavion.uz", plan: "Business", source: "Landing", status: "Faol" },
+      { id: "MV-10581", owner: "Orzu Home", adminUrl: "orzu.mavion.uz", plan: "Start", source: "Landing", status: "Kutilmoqda" },
+      { id: "MV-10580", owner: "Ideal Savdo", adminUrl: "ideal.mavion.uz", plan: "Pro", source: "Platform admin", status: "Tekshiruvda" },
     ],
   },
   testimonials: [

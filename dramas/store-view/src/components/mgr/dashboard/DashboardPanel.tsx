@@ -279,16 +279,16 @@ export function DashboardPanel({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <Button icon={<PlusIcon size={18} />} onClick={onNewSale}>
+          <Button icon={<PlusIcon size={13} />} onClick={onNewSale}>
             {t('dashboard.newSale')}
           </Button>
-          <Button icon={<BoxArrowDownIcon size={18} />} onClick={onStockIn}>
+          <Button icon={<BoxArrowDownIcon size={13} />} onClick={onStockIn}>
             {t('dashboard.stockIn')}
           </Button>
-          <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll}>
+          <Button icon={<ArrowClockwiseIcon size={13} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll}>
             {t('common.refresh')}
           </Button>
-          <Button type="primary" icon={<ChartLineUpIcon size={18} weight="bold" />} onClick={onOpenAnalytics}>
+          <Button type="primary" icon={<ChartLineUpIcon size={13} weight="bold" />} onClick={onOpenAnalytics}>
             {t('dashboard.openAnalytics')}
           </Button>
         </div>

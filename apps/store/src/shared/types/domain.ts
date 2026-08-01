@@ -144,7 +144,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   CARD: 'Karta',
   TRANSFER: "O'tkazma",
   MIXED: 'Aralash',
-  CREDIT: 'Nasiya',
+  CREDIT: 'Qarzga',
 };
 
 export interface SaleListItem {

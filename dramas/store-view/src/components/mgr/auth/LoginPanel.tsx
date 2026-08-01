@@ -84,17 +84,13 @@ export function LoginPanel(props: LoginPanelProps) {
               </button>
             </Dropdown>
           </div>
-          <div className="mavion-login__heading">
-            <p className="mavion-login__form-eyebrow">
-              <span aria-hidden="true" />
-              {props.t('login.panelEyebrow')}
-            </p>
-            <h1>{props.t('login.formTitle')}</h1>
-            <p>
-              {props.t('login.formLead')} {props.t('login.formDescription')}
-            </p>
+          <div className="mavion-login__auth-card">
+            <div className="mavion-login__heading">
+              <h1>{props.t('login.formTitle')}</h1>
+              <p>{props.t('login.formDescription')}</p>
+            </div>
+            <LoginForm {...props} />
           </div>
-          <LoginForm {...props} />
         </div>
 
         <p className="mavion-login__form-footer">{props.t('login.copyright')}</p>
@@ -247,10 +243,6 @@ function LoginForm({ t, sessionExpired, externalError, onAuthenticated }: LoginP
         </button>
       </div>
 
-      <p className="mavion-login__support">
-        {t('login.supportQuestion')}{' '}
-        <a href="mailto:hello@storemanager.uz?subject=Mavion%20login%20yordami">{t('login.supportLink')}</a>
-      </p>
     </form>
   )
 }

@@ -202,7 +202,7 @@ export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeR
           <Tooltip title={t('common.refresh')}>
             <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
           </Tooltip>
-          <Button type="primary" icon={<ArrowsLeftRightIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<ArrowsLeftRightIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
             {t('transfers.newTransfer')}
           </Button>
         </div>

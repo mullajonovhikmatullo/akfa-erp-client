@@ -24,6 +24,7 @@ import {
 import type { Icon } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useTransfers } from '@store/store-view/transfer';
+import { MavionBrand } from '@store/store-view/auth';
 import { useAuthStore } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useT } from '@/shared/lib/i18n';
@@ -337,12 +338,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
     >
       {/* Brand */}
       <div className="sb-brand">
-        <span className="sb-logo" />
-        {!collapsed && (
-          <span className="sb-brand__name">
-            Store <span className="sb-brand__sub">Manager</span>
-          </span>
-        )}
+        <MavionBrand compact />
         <button
           className="sidebar-toggle sb-brand__toggle"
           onClick={toggleSidebar}
@@ -380,7 +376,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
       {/* Footer */}
       <div className="sb-footer">
         {!collapsed && (
-          <span className="sb-footer__version">v1.0 · Store Manager</span>
+          <span className="sb-footer__version">v1.0 · Mavion</span>
         )}
       </div>
     </aside>

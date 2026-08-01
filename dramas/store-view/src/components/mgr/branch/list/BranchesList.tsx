@@ -268,7 +268,7 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
             <Button
               size="small"
               type="text"
-              icon={<UserPlusIcon size={18} />}
+              icon={<UserPlusIcon size={13} />}
               onClick={(event) => {
                 //
                 event.stopPropagation()
@@ -334,7 +334,7 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
               onClick={() => refetch()}
             />
           </Tooltip>
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
             {t('branches.newBranch')}
           </Button>
         </div>

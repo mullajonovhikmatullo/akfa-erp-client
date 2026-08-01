@@ -145,7 +145,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
         </button>
 
         <div className="crumbs">
-          Store Manager · <strong>{pageLabel}</strong>
+          Mavion · <strong>{pageLabel}</strong>
         </div>
 
         <div className="grow" />
@@ -227,7 +227,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
 
 function UserAvatar({ name, size = 28 }: { name?: string; size?: number }) {
   //
-  const tone = '#1e4dd8';
+  const tone = '#0476D0';
   const initials = (name ?? '?')
     .split(' ')
     .slice(0, 2)

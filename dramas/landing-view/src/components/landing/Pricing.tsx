@@ -42,15 +42,15 @@ export function Pricing() {
   return (
     <section className="pricing-section" id="tariflar">
       <div className="container-page">
-        <div className="section-heading section-heading--center">
+        <div className="section-heading section-heading--center" data-reveal="up">
           <div className="section-kicker">Oddiy va shaffof narxlar</div>
           <h2>{pricing.heading}</h2>
           <p>{pricing.note}</p>
         </div>
 
-        <div className="pricing-grid">
+        <div className="pricing-grid" data-reveal-group>
           {plans.map((plan) => (
-            <article className={`pricing-card${plan.highlight ? " pricing-card--featured" : ""}`} key={plan.code}>
+            <article className={`pricing-card${plan.highlight ? " pricing-card--featured" : ""}`} key={plan.code} data-reveal="up">
               {plan.highlight ? <span className="pricing-card__badge">{plan.label}</span> : null}
               <h3>{plan.name}</h3>
               <div className={`pricing-card__price${plan.code === "NETWORK" ? " is-custom" : ""}`}>
@@ -70,7 +70,7 @@ export function Pricing() {
                 type="button"
                 onClick={() => {
                   if (plan.code === "NETWORK") {
-                    window.location.href = `mailto:${site.contact.email}?subject=${encodeURIComponent("Store Manager Pro tarifi")}`;
+                    window.location.href = `mailto:${site.contact.email}?subject=${encodeURIComponent("Mavion Pro tarifi")}`;
                     return;
                   }
                   setSelectedPlan(plan);

@@ -360,7 +360,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
                     />
                   )}
                 />
-                <Button icon={<PlusIcon size={18} />} onClick={() => setCreatingCustomer(true)}>
+                <Button icon={<PlusIcon size={13} />} onClick={() => setCreatingCustomer(true)}>
                   {t('customers.newCustomer')}
                 </Button>
               </div>

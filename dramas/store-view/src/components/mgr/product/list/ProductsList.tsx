@@ -519,7 +519,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   refetchProductSummary()
                 }}
               />
-              <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setEditProduct(null)}>
+              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditProduct(null)}>
                 {t('products.newProduct')}
               </Button>
             </>

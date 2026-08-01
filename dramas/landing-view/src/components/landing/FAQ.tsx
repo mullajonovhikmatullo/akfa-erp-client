@@ -8,20 +8,22 @@ export function FAQ() {
   return (
     <section className="faq-section" id="savollar">
       <div className="container-page faq-section__inner">
-        <div className="section-heading section-heading--center">
+        <div className="section-heading section-heading--center" data-reveal="up">
           <h2>Ko‘p so‘raladigan savollar</h2>
         </div>
 
-        <div className="faq-list">
+        <div className="faq-list" data-reveal-group>
           {site.faq.map((item, index) => {
             const isOpen = open === index;
             return (
-              <article className={`faq-item${isOpen ? " is-open" : ""}`} key={item.q}>
+              <article className={`faq-item${isOpen ? " is-open" : ""}`} key={item.q} data-reveal="up">
                 <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : index)}>
                   <span>{item.q}</span>
                   <ChevronDown size={17} />
                 </button>
-                {isOpen ? <p>{item.a}</p> : null}
+                <div className="faq-item__answer" aria-hidden={!isOpen}>
+                  <p>{item.a}</p>
+                </div>
               </article>
             );
           })}

@@ -13,15 +13,15 @@ export function HowItWorks() {
   return (
     <section className="steps-section" id="qanday-ishlaydi">
       <div className="container-page">
-        <div className="section-heading section-heading--center">
+        <div className="section-heading section-heading--center" data-reveal="up">
           <h2>{section.heading}</h2>
         </div>
 
-        <ol className="steps-grid">
+        <ol className="steps-grid" data-reveal-group>
           {section.steps.map((step, index) => {
             const Icon = stepIcons[step.icon];
             return (
-              <li className="step-card" key={step.n}>
+              <li className="step-card" key={step.n} data-reveal="up">
                 <span className="step-card__number">{step.n}</span>
                 <Icon className="step-card__icon" size={33} strokeWidth={1.7} />
                 <div>

@@ -30,8 +30,8 @@ const BASE_TOKENS = {
 
 const LIGHT_TOKENS = {
   ...BASE_TOKENS,
-  colorPrimary: '#1e4dd8',
-  colorInfo: '#1e4dd8',
+  colorPrimary: '#0476D0',
+  colorInfo: '#0476D0',
   colorBorder: '#e6e9ef',
   colorBorderSecondary: '#eef0f4',
   colorBgBase: '#f8fafc',
@@ -41,8 +41,8 @@ const LIGHT_TOKENS = {
 
 const DARK_TOKENS = {
   ...BASE_TOKENS,
-  colorPrimary: '#4f7cff',
-  colorInfo: '#4f7cff',
+  colorPrimary: '#28A9F4',
+  colorInfo: '#28A9F4',
   colorBorder: '#334155',
   colorBorderSecondary: '#243047',
   colorBgBase: '#0f172a',
@@ -432,7 +432,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           Table: {
             headerBg: isDark ? '#1a2236' : '#f3f5f9',
             headerColor: isDark ? '#94a3b8' : '#475569',
-            rowHoverBg: isDark ? 'rgba(79,124,255,.06)' : '#f8fafc',
+            rowHoverBg: isDark ? 'rgba(40,169,244,.07)' : 'rgba(4,118,208,.035)',
             borderColor: isDark ? '#334155' : '#e6e9ef',
             cellFontSize: 12,
             cellFontSizeMD: 12,
@@ -447,8 +447,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           },
           Menu: {
             itemBg: 'transparent',
-            itemSelectedBg: isDark ? 'rgba(79,124,255,.12)' : 'rgba(30,77,216,.08)',
-            itemSelectedColor: isDark ? '#4f7cff' : '#1e4dd8',
+            itemSelectedBg: isDark ? 'rgba(40,169,244,.13)' : 'rgba(4,118,208,.08)',
+            itemSelectedColor: isDark ? '#28A9F4' : '#0476D0',
             itemHoverBg: isDark ? 'rgba(255,255,255,.05)' : 'rgba(15,23,42,.04)',
           },
         },
