@@ -7,6 +7,9 @@ import type {
   BatchSummary,
   InventoryFilters,
   InventoryRecord,
+  ReceiptItemsPage,
+  ReceiptPage,
+  ReceiptPageQuery,
   StockBatch,
   StockInPayload,
 } from '../../../../models/domain/inventory'
@@ -29,6 +32,9 @@ const parseInventoryRecord = (raw: Raw): InventoryRecord => ({
   quantity: Number(raw.quantity),
   product: {
     ...(raw.product as InventoryRecord['product']),
+    lowStockThreshold: (raw.product as Record<string, unknown>).lowStockThreshold != null
+      ? Number((raw.product as Record<string, unknown>).lowStockThreshold)
+      : null,
   },
 })
 
@@ -43,8 +49,8 @@ const findInventoryRecords = (params?: InventoryFilters) =>
 const findStockBatches = (params?: BatchFilters) =>
   http.get('/inventory/batches', { params }).then((response) => (response.data.data as Raw[]).map(parseBatch))
 
-const findStockBatchSummary = (): Promise<BatchSummary> =>
-  http.get('/inventory/batches/summary').then((response) => {
+const findStockBatchSummary = (params?: Pick<BatchFilters, 'branchId'>): Promise<BatchSummary> =>
+  http.get('/inventory/batches/summary', { params }).then((response) => {
     //
     const body = response.data.data as BatchSummary
     return {
@@ -76,11 +82,35 @@ const findStockBatchesPage = (params: BatchPageQuery): Promise<BatchPage> =>
     }
   })
 
+const findReceiptsPage = (params: ReceiptPageQuery): Promise<ReceiptPage> =>
+  http.get('/inventory/receipts', { params }).then((response) => {
+    const body = response.data.data as { items: Array<Record<string, unknown>>; total: number }
+    return {
+      total: Number(body.total),
+      items: body.items.map((item) => ({
+        ...(item as unknown as ReceiptPage['items'][number]),
+        productCount: Number(item.productCount),
+        pieceQuantity: Number(item.pieceQuantity),
+        kgQuantity: Number(item.kgQuantity),
+        totalCostUzs: Number(item.totalCostUzs),
+        remainingValueUzs: Number(item.remainingValueUzs),
+      })),
+    }
+  })
+
+const findReceiptItemsPage = (receiptId: string, page: number, pageSize: number): Promise<ReceiptItemsPage> =>
+  http.get(`/inventory/receipts/${receiptId}/items`, { params: { page, pageSize } }).then((response) => {
+    const body = response.data.data as { items: Raw[]; total: number }
+    return { items: body.items.map(parseBatch), total: Number(body.total) }
+  })
+
 export const InventorySeekApi = {
   findInventoryRecords,
   findStockBatches,
   findStockBatchSummary,
   findStockBatchesPage,
+  findReceiptsPage,
+  findReceiptItemsPage,
   fetch: {
     findInventoryRecords: (params?: InventoryFilters) => ({
       queryKey: ['inventory', 'list', params] as const,
@@ -90,13 +120,21 @@ export const InventorySeekApi = {
       queryKey: ['inventory', 'batches', params] as const,
       queryFn: () => findStockBatches(params),
     }),
-    findStockBatchSummary: () => ({
-      queryKey: ['inventory', 'batches', 'summary'] as const,
-      queryFn: findStockBatchSummary,
+    findStockBatchSummary: (params?: Pick<BatchFilters, 'branchId'>) => ({
+      queryKey: ['inventory', 'batches', 'summary', params] as const,
+      queryFn: () => findStockBatchSummary(params),
     }),
     findStockBatchesPage: (params: BatchPageQuery) => ({
       queryKey: ['inventory', 'batches', 'paginated', params.page, params.pageSize, params] as const,
       queryFn: () => findStockBatchesPage(params),
+    }),
+    findReceiptsPage: (params: ReceiptPageQuery) => ({
+      queryKey: ['inventory', 'receipts', 'paginated', params] as const,
+      queryFn: () => findReceiptsPage(params),
+    }),
+    findReceiptItemsPage: (receiptId: string, page: number, pageSize: number) => ({
+      queryKey: ['inventory', 'receipts', receiptId, 'items', page, pageSize] as const,
+      queryFn: () => findReceiptItemsPage(receiptId, page, pageSize),
     }),
   },
 }

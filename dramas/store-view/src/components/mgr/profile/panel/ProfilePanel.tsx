@@ -34,19 +34,27 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   const changePassword = useChangePassword()
 
   const profileSchema = z.object({
-    fullName: z.string().min(2, t('pwd.minLen')).max(100),
+    fullName: z
+      .string()
+      .trim()
+      .min(2, t('profile.validation.fullNameMin'))
+      .max(100, t('profile.validation.fullNameMax')),
     username: z
       .string()
-      .min(3)
-      .max(50)
-      .regex(/^[a-zA-Z0-9_]+$/),
+      .trim()
+      .min(3, t('profile.validation.usernameMin'))
+      .max(50, t('profile.validation.usernameMax'))
+      .regex(/^[a-zA-Z0-9_]+$/, t('profile.validation.usernameFormat')),
   })
 
   const passwordSchema = z
     .object({
-      currentPassword: z.string().min(1),
-      newPassword: z.string().min(6).max(100),
-      confirmPassword: z.string().min(1),
+      currentPassword: z.string().min(1, t('profile.validation.currentPasswordRequired')),
+      newPassword: z
+        .string()
+        .min(6, t('profile.validation.newPasswordMin'))
+        .max(100, t('profile.validation.newPasswordMax')),
+      confirmPassword: z.string().min(1, t('profile.validation.confirmPasswordRequired')),
     })
     .refine((value) => value.newPassword === value.confirmPassword, {
       message: t('profile.passwordMismatch'),
@@ -68,6 +76,14 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
     resolver: zodResolver(passwordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   })
+
+  useEffect(() => {
+    const hasProfileErrors = Object.keys(profileForm.formState.errors).length > 0
+    const hasPasswordErrors = Object.keys(passwordForm.formState.errors).length > 0
+
+    if (hasProfileErrors) void profileForm.trigger()
+    if (hasPasswordErrors) void passwordForm.trigger()
+  }, [t, profileForm.trigger, passwordForm.trigger])
 
   useEffect(() => {
     //
@@ -106,9 +122,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
         setProfileEditing(false)
       },
       onError: (error: unknown) => {
-        //
-        const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-        toast.error(message ?? t('profile.updateError'))
+        toast.error(t('profile.updateError'))
       },
     })
   }
@@ -127,7 +141,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
         if (message?.includes("noto'g'ri") || message?.toLowerCase().includes('incorrect')) {
           passwordForm.setError('currentPassword', { message: t('profile.passwordWrong') })
         } else {
-          toast.error(message ?? t('profile.passwordError'))
+          toast.error(t('profile.passwordError'))
         }
       },
     })

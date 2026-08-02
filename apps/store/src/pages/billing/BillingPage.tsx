@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   App as AntdApp,
   Button,
   Form,
   Input,
   Modal,
-  Select,
   Space,
   Table,
   Tag,
@@ -35,6 +34,15 @@ const formatMoney = (amount: number) =>
 const formatDate = (value?: string | null) =>
   value ? new Intl.DateTimeFormat('uz-UZ', { dateStyle: 'medium' }).format(new Date(value)) : '—';
 
+const formatClearDate = (value?: string | null) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}.${month}.${date.getFullYear()}`;
+};
+
 const readFileAsBase64 = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -49,7 +57,6 @@ const readFileAsBase64 = (file: File) =>
   });
 
 type PaymentForm = {
-  branchId: string;
   note?: string;
 };
 
@@ -57,6 +64,7 @@ type ReceiptPreview = {
   url: string;
   fileName: string;
   mimeType: string;
+  note: string | null;
 };
 
 export function BillingPage() {
@@ -125,12 +133,10 @@ export function BillingPage() {
 
   const submitMutation = useMutation({
     mutationFn: BillingFlowApi.submitPayment,
-    onSuccess: async () => {
+    onSuccess: () => {
       message.success(t('billing.submitSuccess'));
       setModalOpen(false);
-      clearReceiptSelection();
-      form.resetFields();
-      await refresh();
+      void refresh();
     },
     onError: (error) => {
       message.error(error instanceof Error ? error.message : t('billing.submitError'));
@@ -138,14 +144,19 @@ export function BillingPage() {
     },
   });
 
+  const closePaymentModal = () => {
+    setModalOpen(false);
+  };
+
+  const resetPaymentModal = () => {
+    clearReceiptSelection();
+    form.resetFields();
+    if (!submitMutation.isPending) submitMutation.reset();
+  };
+
   const summary = summaryQuery.data;
   const payments = paymentsQuery.data ?? [];
   const hasPendingPayment = payments.some((payment) => payment.status === 'PENDING');
-  const branchOptions = useMemo(
-    () => (summary?.branches ?? []).map((branch) => ({ label: branch.name, value: branch.id })),
-    [summary?.branches],
-  );
-
   const submitPayment = async () => {
     const values = await form.validateFields();
     const upload = receiptFiles[0]?.originFileObj;
@@ -159,7 +170,6 @@ export function BillingPage() {
     }
 
     const payload: SubmitTenantPaymentPayload = {
-      branchId: values.branchId,
       paidAt: new Date().toISOString(),
       note: values.note?.trim() || undefined,
       receipt: {
@@ -181,6 +191,7 @@ export function BillingPage() {
         url,
         fileName: payment.receiptMedia.fileName,
         mimeType: payment.receiptMedia.mimeType,
+        note: payment.note,
       });
     } catch (error) {
       message.error(error instanceof Error ? error.message : t('billing.receiptOpenError'));
@@ -207,8 +218,6 @@ export function BillingPage() {
           icon={<Receipt size={18} weight="duotone" />}
           disabled={!summary?.plan || hasPendingPayment}
           onClick={() => {
-            const firstBranch = summary?.branches[0]?.id;
-            if (firstBranch) form.setFieldValue('branchId', firstBranch);
             setModalOpen(true);
           }}
         >
@@ -231,7 +240,7 @@ export function BillingPage() {
         </div>
         <div>
           <span>{t('billing.nextDue')}</span>
-          <strong>{formatDate(summary?.subscription?.nextPaymentDueAt ?? summary?.subscription?.trialEndsAt)}</strong>
+          <strong>{formatClearDate(summary?.subscription?.nextPaymentDueAt ?? summary?.subscription?.trialEndsAt)}</strong>
         </div>
       </div>
 
@@ -258,15 +267,9 @@ export function BillingPage() {
           rowKey="id"
           loading={paymentsQuery.isLoading}
           dataSource={payments}
-          scroll={{ x: 980 }}
+          scroll={{ x: 800 }}
           pagination={{ pageSize: 10, hideOnSinglePage: true }}
           columns={[
-            {
-              title: t('billing.branch'),
-              key: 'branch',
-              width: 180,
-              render: (_value, payment) => payment.branch?.name ?? '—',
-            },
             {
               title: t('billing.amount'),
               key: 'amount',
@@ -322,7 +325,9 @@ export function BillingPage() {
       <Modal
         title={receiptPreview?.fileName ?? t('billing.receipt')}
         open={Boolean(receiptPreview)}
-        width={880}
+        width={620}
+        centered
+        className="billing-receipt-modal"
         footer={
           <Button type="primary" onClick={() => setReceiptPreview(null)}>
             {t('common.close')}
@@ -330,6 +335,10 @@ export function BillingPage() {
         }
         onCancel={() => setReceiptPreview(null)}
       >
+        <div className="billing-receipt-note">
+          <span>{t('billing.note')}</span>
+          <p>{receiptPreview?.note?.trim() || '—'}</p>
+        </div>
         <div className="receipt-preview">
           {receiptPreview?.mimeType === 'application/pdf' ? (
             <iframe src={receiptPreview.url} title={receiptPreview.fileName} />
@@ -347,24 +356,17 @@ export function BillingPage() {
         confirmLoading={submitMutation.isPending}
         okButtonProps={{ disabled: receiptFiles.length === 0 }}
         onOk={() => void submitPayment()}
-        onCancel={() => {
-          setModalOpen(false);
-          clearReceiptSelection();
-          form.resetFields();
-        }}
+        onCancel={closePaymentModal}
+        afterClose={resetPaymentModal}
+        destroyOnHidden
+        maskClosable
+        keyboard
       >
         <Form<PaymentForm> form={form} layout="vertical">
           <div className="billing-modal-amount">
             <span>{t('billing.amountToPay')}</span>
             <strong>{formatMoney(summary?.plan?.monthlyPriceUzs ?? 0)}</strong>
           </div>
-          <Form.Item
-            name="branchId"
-            label={t('billing.branch')}
-            rules={[{ required: true, message: t('billing.branchRequired') }]}
-          >
-            <Select options={branchOptions} placeholder={t('billing.branchPlaceholder')} />
-          </Form.Item>
           <Form.Item label={t('billing.receipt')}>
             {selectedReceiptPreview ? (
               <div className="billing-receipt-preview">

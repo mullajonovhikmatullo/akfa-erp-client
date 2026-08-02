@@ -20,7 +20,7 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
   const displayedProduct = productDetail ?? product
 
   return (
-    <Drawer title={null} open={Boolean(product)} onClose={onClose} width={540} styles={{ body: { padding: 0 } }} destroyOnHidden>
+    <Drawer rootClassName="ant-drawer-root" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} styles={{ body: { padding: 0 } }} destroyOnHidden>
       {displayedProduct ? (
         <>
           <ProductImageGallery

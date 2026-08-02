@@ -8,6 +8,10 @@ export function TransfersPage() {
   const t = useT()
   const { isStoreOwner, branchId, user } = useCurrentUser()
   const exchangeRate = useUIStore((state) => state.exchangeRate)
+  const activeBranchId = useUIStore((state) => state.activeBranchId)
+  const scopedBranchId = isStoreOwner
+    ? activeBranchId !== '__all__' ? activeBranchId : undefined
+    : branchId ?? undefined
 
-  return <TransfersList t={t} isStoreOwner={isStoreOwner} userBranchId={branchId} userId={user?.id} exchangeRate={exchangeRate} />
+  return <TransfersList t={t} isStoreOwner={isStoreOwner} userBranchId={scopedBranchId} branchId={scopedBranchId} userId={user?.id} exchangeRate={exchangeRate} />
 }

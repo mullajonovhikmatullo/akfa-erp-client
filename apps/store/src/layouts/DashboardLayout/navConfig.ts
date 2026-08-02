@@ -53,6 +53,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
       { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'categories', permission: 'category:manage' },
       { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'products', permission: 'products:create' },
       { key: 'purchases', path: ROUTES.PURCHASES, label: 'Кирим', icon: 'purchases', permission: 'purchases:view' },
+      { key: 'inventory', path: ROUTES.INVENTORY, label: 'Омбор қолдиғи', icon: 'inventory', permission: 'purchases:view' },
       { key: 'transfers', path: ROUTES.TRANSFERS, label: 'Трансферлар', icon: 'transfers', permission: 'transfers:view' },
     ],
   },

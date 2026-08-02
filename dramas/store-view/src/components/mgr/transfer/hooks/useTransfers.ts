@@ -30,6 +30,7 @@ export function useCreateTransfer() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: transferKeys.all })
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       toast.success('Transfer yaratildi')
     },
@@ -71,6 +72,7 @@ export function useCancelTransfer() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: transferKeys.all })
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       toast.success('Transfer bekor qilindi')
     },

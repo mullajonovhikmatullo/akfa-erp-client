@@ -61,6 +61,7 @@ export type StockMovementType = 'STOCK_IN' | 'STOCK_OUT' | 'ADJUSTMENT' | 'TRANS
 
 export interface StockBatch {
   id: string
+  receiptId: string
   initialQty: number
   remainingQty: number
   costPriceUzs: number
@@ -69,7 +70,7 @@ export interface StockBatch {
   receivedAt: string
   createdAt: string
   branch: { id: string; name: string }
-  product: { id: string; name: string; sku: string | null; unit: ProductUnit }
+  product: { id: string; name: string; sku: string | null; unit: ProductUnit; lowStockThreshold?: number | null }
   createdBy: { id: string; fullName: string }
 }
 
@@ -136,6 +137,7 @@ export interface Customer {
   isActive: boolean
   branchId: string
   branch: { id: string; name: string }
+  branchLinks?: { branchId: string; branch: { id: string; name: string } }[]
   createdAt: string
   updatedAt: string
 }

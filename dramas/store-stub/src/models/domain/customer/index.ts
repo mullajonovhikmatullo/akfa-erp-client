@@ -17,3 +17,9 @@ export type UpdateCustomerPayload = UpdateCustomerRequest
 export interface CustomerDetail extends Customer {
   recentSales: RecentSale[]
 }
+
+export interface CustomerPhoneCheckResult {
+  customer: Customer | null
+  linkedToBranch: boolean
+  normalizedPhone: string | null
+}

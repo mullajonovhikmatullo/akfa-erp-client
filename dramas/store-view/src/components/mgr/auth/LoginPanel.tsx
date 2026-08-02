@@ -33,10 +33,10 @@ export interface LoginPanelProps {
 
 const rememberedUsernameKey = 'mavion-remembered-username'
 const languageOptions: Array<{ value: LoginLanguage; label: string }> = [
-  { value: 'uz-la', label: 'O‘zbekcha' },
-  { value: 'uz-cy', label: 'Ўзбекча' },
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'English' },
+  { value: 'uz-la', label: "O'z" },
+  { value: 'uz-cy', label: 'Ўз' },
+  { value: 'ru', label: 'Рус' },
+  { value: 'en', label: 'Eng' },
 ]
 
 function readRememberedUsername() {

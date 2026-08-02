@@ -9,6 +9,7 @@ export interface AnalyticsQuery {
   period?: AnalyticsPeriod
   limit?: number
   lowStockThreshold?: number
+  topProductsSort?: 'revenue' | 'quantity'
 }
 
 export interface DashboardData {

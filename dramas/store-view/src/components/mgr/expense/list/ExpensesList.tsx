@@ -28,10 +28,11 @@ type ExpenseFiltersForm = {
 interface ExpensesListProps {
   t: (key: string) => string
   isStoreOwner: boolean
+  branchId?: string
   exchangeRate: number
 }
 
-export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProps) {
+export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: ExpensesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<ExpenseFiltersForm>({
@@ -56,6 +57,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
     isFetching,
     refetch,
   } = useExpenses({
+    branchId,
     categoryId: filters.categoryId,
     ...dateFilters,
     limit: 200,
@@ -65,6 +67,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
     isFetching: isSummaryFetching,
     refetch: refetchCategorySummary,
   } = useExpenseCategorySummary({
+    branchId,
     categoryId: filters.categoryId,
     ...dateFilters,
     limit: KPI_CATEGORY_LIMIT,
@@ -391,7 +394,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
         </div>
       </div>
 
-      <ExpenseFormModal t={t} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
+      <ExpenseFormModal t={t} exchangeRate={exchangeRate} branchId={branchId} open={creating} onClose={() => setCreating(false)} />
       <CategoryManagerDrawer t={t} open={managingCategories} onClose={() => setManagingCategories(false)} />
     </>
   )

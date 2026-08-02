@@ -373,7 +373,6 @@ export interface TenantBillingSummary {
 export type PlanCode = string
 
 export interface SubmitTenantPaymentPayload {
-  "branchId": string
   "paidAt"?: string
   "note"?: string
   "receipt": {

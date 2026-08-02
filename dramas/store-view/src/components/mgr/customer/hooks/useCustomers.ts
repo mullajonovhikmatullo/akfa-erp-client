@@ -30,6 +30,21 @@ export function useCustomerDetail(id: string | null) {
   })
 }
 
+export function useCustomerPhoneCheck(phone: string, branchId?: string, enabled = true) {
+  const { queryKey, queryFn } = CustomerSeekApi.fetch.checkCustomerPhone(phone, branchId)
+  return useQuery({ queryKey, queryFn, enabled: enabled && Boolean(phone) && Boolean(branchId), staleTime: 0 })
+}
+
+export function useLinkCustomerBranch() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ customerId, branchId }: { customerId: string; branchId?: string }) =>
+      CustomerFlowApi.linkCustomerBranch(customerId, branchId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: customerKeys.all }),
+    onError: () => toast.error("Mijozni filialga biriktirishda xatolik"),
+  })
+}
+
 export function useCreateCustomer() {
   //
   const queryClient = useQueryClient()
@@ -41,7 +56,10 @@ export function useCreateCustomer() {
       queryClient.invalidateQueries({ queryKey: customerKeys.all })
       toast.success("Mijoz muvaffaqiyatli qo'shildi")
     },
-    onError: () => toast.error("Mijoz qo'shishda xatolik"),
+    onError: (error: unknown) => {
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(message ?? "Mijoz qo'shishda xatolik")
+    },
   })
 }
 

@@ -34,9 +34,10 @@ type AnalyticsFiltersForm = {
 export interface AnalyticsWorkspaceProps {
   t: TFunc;
   lowStockThreshold: number;
+  branchId?: string;
 }
 
-export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceProps) {
+export function AnalyticsWorkspace({ t, lowStockThreshold, branchId }: AnalyticsWorkspaceProps) {
   //
   const [tab, setTab] = useState<Tab>('dashboard');
   const [overduePage, setOverduePage] = useState(1);
@@ -55,6 +56,7 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
   const { period, dateRange } = watch();
 
   const query: AnalyticsQuery = {
+    branchId,
     from: dateRange[0]?.toISOString(),
     to: dateRange[1]?.toISOString(),
     period,
@@ -68,6 +70,7 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
   const inventoryReport = useInventoryReport(query);
   const customerDebt = useCustomerDebt(query);
   const debtSales = useSales({
+    branchId: query.branchId,
     from: query.from,
     to: query.to,
     hasDebt: true,
@@ -79,7 +82,7 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
   useEffect(() => {
     //
     setOverduePage(1);
-  }, [query.from, query.to, debtScope, debtDeadlineFilter, debtCustomerId, debtSaleType, debtSort]);
+  }, [query.branchId, query.from, query.to, debtScope, debtDeadlineFilter, debtCustomerId, debtSaleType, debtSort]);
 
   const handleDebtScopeChange = (value: DebtScope) => {
     //

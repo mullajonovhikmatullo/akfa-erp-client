@@ -36,12 +36,13 @@ export function DashboardLayout() {
 
   useEffect(() => {
     //
+    if (user?.role === 'store_owner') return;
     if (!user?.branchId) return;
     const hasUserBranch = branches.some((branch) => branch.id === user.branchId);
     if (hasUserBranch && activeBranchId !== user.branchId) {
       setActiveBranch(user.branchId);
     }
-  }, [activeBranchId, branches, setActiveBranch, user?.branchId]);
+  }, [activeBranchId, branches, setActiveBranch, user?.branchId, user?.role]);
 
   return (
     <div className={clsx('app-shell', sidebarCollapsed && 'app-shell--collapsed')}>

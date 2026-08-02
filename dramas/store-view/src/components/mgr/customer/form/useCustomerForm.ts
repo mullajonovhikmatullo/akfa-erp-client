@@ -40,7 +40,7 @@ export function useCustomerForm({
       balance: 0,
       balanceType: 'credit',
       isActive: true,
-      branchId: undefined,
+      branchId: branchId ?? undefined,
     },
   })
 
@@ -61,10 +61,10 @@ export function useCustomerForm({
         balance: 0,
         balanceType: 'credit',
         isActive: true,
-        branchId: undefined,
+        branchId: branchId ?? undefined,
       })
     }
-  }, [customer, form, open])
+  }, [branchId, customer, form, open])
 
   const createMutation = useCreateCustomer()
   const updateMutation = useUpdateCustomer()

@@ -32,11 +32,12 @@ interface TransfersListProps {
   t: (key: string) => string
   isStoreOwner: boolean
   userBranchId?: string | null
+  branchId?: string
   userId?: string | null
   exchangeRate: number
 }
 
-export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeRate }: TransfersListProps) {
+export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId, exchangeRate }: TransfersListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<TransferFiltersForm>({
@@ -47,6 +48,7 @@ export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeR
   const [confirmingTransfer, setConfirmingTransfer] = useState<Transfer | null>(null)
 
   const { data: transfers = [], isLoading, isFetching, refetch } = useTransfers({
+    branchId,
     status: filters.status,
     limit: 100,
   })
@@ -260,6 +262,7 @@ export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeR
       />
       <Modal
         open={Boolean(confirmingTransfer)}
+        width={760}
         title={t('transfers.confirmReceiptTitle')}
         okText={t('transfers.confirmReceiptOk')}
         cancelText={t('transfers.confirmReceiptCancel')}
@@ -279,11 +282,12 @@ export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeR
             <div style={{ display: 'grid', gap: 8, fontSize: 13 }}>
               <InfoRow label={t('transfers.confirmReceiptRoute')} value={`${confirmingTransfer.fromBranch.name} → ${confirmingTransfer.toBranch.name}`} />
               <InfoRow label={t('transfers.confirmReceiptItems')} value={`${confirmingTransfer.items.length} ${t('transfers.itemTypeSuffix')}`} />
-              <InfoRow label={t('transfers.colCost')} value={<MoneyDisplay amount={confirmingTotal} currency="UZS" />} />
+              <InfoRow label={t('transfers.colTotal')} value={<MoneyDisplay amount={confirmingTotal} currency="UZS" />} />
             </div>
             <Table<Transfer['items'][number]>
               size="small"
               pagination={false}
+              scroll={{ x: 650 }}
               rowKey="id"
               dataSource={confirmingTransfer.items}
               columns={[
@@ -300,6 +304,29 @@ export function TransfersList({ t, isStoreOwner, userBranchId, userId, exchangeR
                   render: (_, item) => (
                     <span className="num">
                       {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
+                    </span>
+                  ),
+                },
+                {
+                  title: t('transfers.colCost'),
+                  key: 'unitCost',
+                  width: 165,
+                  align: 'right',
+                  render: (_, item) => (
+                    <span className="num" style={{ whiteSpace: 'nowrap' }}>
+                      <MoneyDisplay amount={item.unitCostUzs} currency="UZS" />
+                      <span style={{ marginLeft: 4, color: 'var(--ink-3)', fontSize: 11 }}>/ {t(`units.${item.product.unit}`)}</span>
+                    </span>
+                  ),
+                },
+                {
+                  title: t('transfers.colTotal'),
+                  key: 'totalCost',
+                  width: 150,
+                  align: 'right',
+                  render: (_, item) => (
+                    <span className="num" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
                     </span>
                   ),
                 },

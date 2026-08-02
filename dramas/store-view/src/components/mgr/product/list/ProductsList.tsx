@@ -113,7 +113,12 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
   })
   const products = result?.items ?? []
   const total = result?.total ?? 0
-  const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } = useStockBatches()
+  const scopedBranchId = isStoreOwner
+    ? activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
+    : userBranchId ?? undefined
+  const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } = useStockBatches({
+    branchId: scopedBranchId,
+  })
   const { data: productSummary, refetch: refetchProductSummary } = useProductSummary()
   const activeProducts = productSummary?.totalActive ?? 0
   const inactiveProducts = productSummary?.totalInactive ?? 0
@@ -122,7 +127,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
   const { data: categories = [] } = useCategories()
   const deleteProduct = useDeleteProduct()
   const defaultProductCategoryName = categories[0]?.name ?? ''
-  const importBranchId = userBranchId ?? (isStoreOwner && activeBranchId !== '__all__' ? activeBranchId : undefined)
+  const importBranchId = scopedBranchId
   const unitHintText = PRODUCT_IMPORT_UNITS.map((unit) => `${unit} / ${t(`units.${unit}`)}`).join(', ')
   const productImportHints = [
     {

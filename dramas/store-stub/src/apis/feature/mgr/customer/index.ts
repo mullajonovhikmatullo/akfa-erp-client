@@ -4,6 +4,7 @@ import type {
   Customer,
   CustomerDetail,
   CustomerFilters,
+  CustomerPhoneCheckResult,
   RecentSale,
   UpdateCustomerPayload,
 } from '../../../../models/domain/customer'
@@ -36,6 +37,15 @@ const updateCustomer = ({ id, payload }: { id: string; payload: UpdateCustomerPa
 
 const deleteCustomer = (id: string) => http.delete(`/customers/${id}`)
 
+const checkCustomerPhone = (phone: string, branchId?: string): Promise<CustomerPhoneCheckResult> =>
+  http.get('/customers/check-phone', { params: { phone, branchId } }).then((response) => {
+    const data = response.data.data as CustomerPhoneCheckResult & { customer: Record<string, unknown> | null }
+    return { ...data, customer: data.customer ? parseCustomer(data.customer) : null }
+  })
+
+const linkCustomerBranch = (id: string, branchId?: string) =>
+  http.post(`/customers/${id}/branches`, { branchId }).then((response) => parseCustomer(response.data.data))
+
 export const CustomerSeekApi = {
   findCustomers,
   findCustomer,
@@ -48,6 +58,10 @@ export const CustomerSeekApi = {
       queryKey: ['customers', 'findCustomer', id] as const,
       queryFn: () => findCustomer(id),
     }),
+    checkCustomerPhone: (phone: string, branchId?: string) => ({
+      queryKey: ['customers', 'checkPhone', phone, branchId] as const,
+      queryFn: () => checkCustomerPhone(phone, branchId),
+    }),
   },
 }
 
@@ -55,6 +69,7 @@ export const CustomerFlowApi = {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  linkCustomerBranch,
 }
 
 export const customerApi = {

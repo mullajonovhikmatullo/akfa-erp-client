@@ -20,18 +20,16 @@ import { useUIStore } from '@/app/stores/ui.store';
 import { useT } from '@/shared/lib/i18n';
 import { ROUTES } from '@/shared/config/routes';
 import type { Lang, Theme } from '@/app/stores/ui.store';
-import { ALL_NAV_ITEMS } from './navConfig';
+import { ALL_NAV_ITEMS, NAV_GROUPS_DEF } from './navConfig';
 import { queryClient } from '@/app/providers';
-
-const ALL_BRANCHES_LABEL_KEY = 'header.allBranches';
 
 interface AppHeaderProps {
   branches: Array<{ id: string; name: string }>;
 }
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
-  { value: 'uz-cy', label: "O'z (кирил)" },
-  { value: 'uz-la', label: "O'z (lotin)" },
+  { value: 'uz-cy', label: 'Ўз' },
+  { value: 'uz-la', label: "O'z" },
   { value: 'ru', label: 'Рус' },
   { value: 'en', label: 'Eng' },
 ];
@@ -89,22 +87,30 @@ export function AppHeader({ branches }: AppHeaderProps) {
     return location.pathname.startsWith(n.path);
   });
   const pageLabel = currentNav ? t(`nav.${currentNav.key}`) : t('nav.dashboard');
+  const currentGroup = NAV_GROUPS_DEF.find((group) =>
+    group.items.some((item) => item.key === currentNav?.key),
+  );
+  const groupLabel = currentGroup ? t(currentGroup.groupLabelKey) : t('nav.group.main');
 
   const langMenuItems = LANG_OPTIONS.map((opt) => ({
     key: opt.value,
     label: opt.label,
     onClick: () => setLang(opt.value),
   }));
+  const userRoleLabel = user?.role ? t(`role.${user.role}`) : '';
 
   const profileMenuItems = [
     {
       key: 'header',
       type: 'group' as const,
       label: (
-        <div style={{ padding: '4px 0', minWidth: 220 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{user?.name}</div>
-          <div style={{ fontSize: 11, color: 'var(--ink-3)', textTransform: 'capitalize', marginTop: 2 }}>
-            {user?.role?.replace('_', ' ')} · {userBranch?.name?.split(' — ')[0] ?? t('header.allBranches')}
+        <div className="profile-menu__summary">
+          <div className="profile-menu__name">{user?.name}</div>
+          <div className="profile-menu__meta">
+            <span className="profile-menu__role">{userRoleLabel}</span>
+            <span className="profile-menu__branch">
+              {userBranch?.name?.split(' — ')[0] ?? t('header.allBranches')}
+            </span>
           </div>
         </div>
       ),
@@ -144,46 +150,12 @@ export function AppHeader({ branches }: AppHeaderProps) {
           {sidebarCollapsed ? <ArrowLineRightIcon size={20} /> : <ArrowLineLeftIcon size={20} />}
         </button>
 
-        <div className="crumbs">
-          Mavion · <strong>{pageLabel}</strong>
+        <div className="topbar__page-context">
+          <span className="topbar__section-label">{groupLabel}</span>
+          <strong className="topbar__page-title">{pageLabel}</strong>
         </div>
 
-        <div className="grow" />
-
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span className="tagpill info topbar-hide-mobile">
-            <MoneyIcon size={13} weight="duotone" />
-            1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
-          </span>
-
-          {/* Theme toggle */}
-          <Tooltip title={isDarkActive ? t('settings.themeLight') : t('settings.themeDark')} placement="bottom">
-            <button
-              type="button"
-              onClick={toggleDark}
-              className="sidebar-toggle topbar-hide-mobile"
-              style={{ fontSize: 15 }}
-            >
-              {isDarkActive ? <SunIcon size={20} /> : <MoonIcon size={20} />}
-            </button>
-          </Tooltip>
-
-          {/* Language selector */}
-          <Dropdown
-            menu={{ items: langMenuItems, selectedKeys: [lang] }}
-            trigger={['click']}
-            placement="bottomRight"
-          >
-            <button
-              type="button"
-              className="sidebar-toggle topbar-hide-mobile"
-              style={{ fontSize: 11, fontWeight: 700, gap: 4, width: 'auto', padding: '0 10px', minWidth: 56 }}
-            >
-              <GlobeIcon size={16} />
-              {currentLangLabel}
-            </button>
-          </Dropdown>
-
+        <div className="topbar__branch-control">
           {isStoreOwner ? (
             <Controller
               name="activeBranchId"
@@ -192,12 +164,10 @@ export function AppHeader({ branches }: AppHeaderProps) {
                 <Select
                   value={field.value}
                   onChange={(value) => {
-                    //
                     field.onChange(value);
                     setActiveBranch(value);
                   }}
-                  className="topbar-hide-mobile"
-                  style={{ minWidth: 220 }}
+                  className="topbar__branch-select topbar-hide-mobile"
                   suffixIcon={<MapPinIcon size={16} />}
                   options={[
                     { value: '__all__', label: t('header.allBranches') },
@@ -211,9 +181,51 @@ export function AppHeader({ branches }: AppHeaderProps) {
               <span className="dot" /> {activeBranch?.name ?? userBranch?.name}
             </span>
           )}
+        </div>
 
-          <Dropdown menu={{ items: profileMenuItems }} trigger={['click']} placement="bottomRight">
-            <button className="profile-trigger" type="button">
+        <div className="grow" />
+
+        <div className="topbar__actions">
+          <span className="tagpill info topbar__exchange topbar-hide-mobile">
+            <MoneyIcon size={13} weight="duotone" />
+            1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
+          </span>
+
+          {/* Language selector */}
+          <Dropdown
+            menu={{ items: langMenuItems, selectedKeys: [lang] }}
+            trigger={['click']}
+            placement="bottomRight"
+            overlayClassName="topbar-language-menu"
+          >
+            <button
+              type="button"
+              className="sidebar-toggle topbar__language topbar-hide-mobile"
+            >
+              <GlobeIcon size={16} />
+              {currentLangLabel}
+            </button>
+          </Dropdown>
+
+          {/* Theme toggle */}
+          <Tooltip title={isDarkActive ? t('settings.themeLight') : t('settings.themeDark')} placement="bottom">
+            <button
+              type="button"
+              onClick={toggleDark}
+              className="sidebar-toggle topbar__icon-button topbar-hide-mobile"
+            >
+              {isDarkActive ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+            </button>
+          </Tooltip>
+
+          <Dropdown
+            menu={{ items: profileMenuItems }}
+            trigger={['click']}
+            placement="bottomRight"
+            overlayClassName="profile-menu-popup"
+            destroyOnHidden
+          >
+            <button className="profile-trigger topbar__profile" type="button">
               <UserAvatar name={user?.name} size={28} />
               <span className="profile-name">{user?.name?.split(' ')[0]}</span>
               <CaretDownIcon size={12} color="currentColor" />

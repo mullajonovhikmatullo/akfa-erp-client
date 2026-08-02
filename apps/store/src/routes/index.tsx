@@ -20,6 +20,7 @@ import {
   CategoriesPage,
   ProfilePage,
   BillingPage,
+  InventoryPage,
 } from './LazyRoutes';
 
 const PageLoader = () => (
@@ -53,6 +54,7 @@ export function AppRouter() {
               <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
               <Route path={ROUTES.SALES} element={<SalesPage />} />
               <Route path={ROUTES.PURCHASES} element={<PurchasesPage />} />
+              <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
               <Route path={ROUTES.EXPENSES} element={<ExpensesPage />} />
               <Route path={ROUTES.TRANSFERS} element={<TransfersPage />} />
               <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />

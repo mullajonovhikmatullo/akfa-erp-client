@@ -55,9 +55,10 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
 
   const { data: customers = [], isLoading, isFetching, refetch } = useCustomers({
     search: filters.search || undefined,
+    branchId: branchId ?? undefined,
   })
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
-  const defaultCustomerBranchId = branches[0]?.id ?? ''
+  const defaultCustomerBranchId = branchId ?? branches[0]?.id ?? ''
   const deleteMutation = useDeactivateCustomer()
 
   const totalDebt = customers.reduce((sum, customer) => sum + (customer.balance > 0 ? customer.balance : 0), 0)

@@ -61,7 +61,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
   }
 
   return (
-    <Drawer title={t('categoryDrawer.title')} open={open} onClose={onClose} width={440} destroyOnHidden>
+    <Drawer rootClassName="ant-drawer-root" title={t('categoryDrawer.title')} open={open} onClose={onClose} width={440} closable={{ placement: 'end' }} destroyOnHidden>
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         <Controller
           name="newName"

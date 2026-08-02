@@ -1,7 +1,7 @@
 import { ConfigProvider, theme as antdTheme } from 'antd';
 import type { Locale } from 'antd/es/locale';
 import type { ReactNode } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { useUIStore } from '@/app/stores/ui.store';
 import { normalizeLang, type Lang } from '@/shared/lib/lang';
 
@@ -57,7 +57,13 @@ const SHARED_COMPONENTS = {
   InputNumber: { controlHeight: 34 },
   Form: { itemMarginBottom: 12, labelFontSize: 12 },
   Card: { paddingLG: 16, headerFontSize: 13, headerHeight: 44 },
-  Modal: { titleFontSize: 15 },
+  Modal: {
+    titleFontSize: 16,
+    titleLineHeight: 1.35,
+    padding: 20,
+    paddingContentHorizontalLG: 20,
+    borderRadiusLG: 16,
+  },
   Drawer: { footerPaddingBlock: 10, footerPaddingInline: 14 },
 };
 
@@ -390,33 +396,24 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const themeMode = useUIStore((s) => s.theme);
   const lang = useUIStore((s) => s.lang);
 
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    //
-    if (themeMode === 'dark') return true;
-    if (themeMode === 'light') return false;
+  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
     return typeof window !== 'undefined'
       ? window.matchMedia('(prefers-color-scheme: dark)').matches
       : false;
   });
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && systemIsDark);
 
   useEffect(() => {
-    //
-    if (themeMode !== 'system') {
-      setIsDark(themeMode === 'dark');
-      return;
-    }
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    setSystemIsDark(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setSystemIsDark(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [themeMode]);
+  }, []);
 
-  useEffect(() => {
-    //
+  useLayoutEffect(() => {
     const html = document.documentElement;
-    if (isDark) html.classList.add('dark');
-    else html.classList.remove('dark');
+    html.classList.toggle('dark', isDark);
   }, [isDark]);
 
   const locale = ANTD_LOCALES[normalizeLang(lang)];

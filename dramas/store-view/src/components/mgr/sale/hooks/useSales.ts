@@ -29,7 +29,7 @@ export function useSalesPage(page: number, pageSize: number, filters?: SaleFilte
   return useQuery({
     queryKey,
     queryFn,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
   })
 }
 

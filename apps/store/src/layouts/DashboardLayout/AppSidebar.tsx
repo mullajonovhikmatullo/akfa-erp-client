@@ -52,6 +52,7 @@ const SIDEBAR_ICONS: Record<string, Icon> = {
   billing: ReceiptIcon,
   products: PackageIcon,
   purchases: BoxArrowDownIcon,
+  inventory: PackageIcon,
   sales: ShoppingCartIcon,
   settings: GearIcon,
   transfers: ArrowsLeftRightIcon,
@@ -336,7 +337,6 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
         mobileOpen && 'sidebar--mobile-open',
       )}
     >
-      {/* Brand */}
       <div className="sb-brand">
         <MavionBrand compact />
         <button

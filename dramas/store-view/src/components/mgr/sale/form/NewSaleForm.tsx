@@ -99,7 +99,12 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
     isActive: true,
     ...(branchFilter ? { branchId: branchFilter } : {}),
   }
-  const { data: customers = [], isLoading: customersLoading, refetch: refetchCustomers } = useCustomers(customerFilters)
+  const {
+    data: customers = [],
+    isLoading: customersLoading,
+    isFetching: customersFetching,
+    refetch: refetchCustomers,
+  } = useCustomers(customerFilters)
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
   const productSelectLoading = Boolean(branchFilter) && (productsLoading || batchesLoading)
 
@@ -122,6 +127,20 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   const [paidAmountError, setPaidAmountError] = useState(false)
   const [productSelectKey, setProductSelectKey] = useState(0)
   const [creatingCustomer, setCreatingCustomer] = useState(false)
+  const [optimisticCustomer, setOptimisticCustomer] = useState<Customer | null>(null)
+
+  const customerOptions = useMemo(() => {
+    // Keep a just-created customer selectable while the invalidated list query refetches.
+    const visibleCustomers = optimisticCustomer && !customers.some((customer) => customer.id === optimisticCustomer.id)
+      ? [optimisticCustomer, ...customers]
+      : customers
+
+    return visibleCustomers.map((customer) => ({
+      value: customer.id,
+      label: customer.phone ? `${customer.fullName} · ${customer.phone}` : customer.fullName,
+    }))
+  }, [customers, optimisticCustomer])
+  const customerOptionIds = useMemo(() => new Set(customerOptions.map((option) => option.value)), [customerOptions])
 
   const stockByProductId = useMemo(() => {
     //
@@ -262,6 +281,19 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   }, [branchFilter, formBranchId, reset, setValue])
 
   useEffect(() => {
+    setOptimisticCustomer(null)
+  }, [branchFilter])
+
+  useEffect(() => {
+    // Drafts may contain a deleted customer or one belonging to another branch.
+    // Never leave that orphaned id as the Select's visible label.
+    if (!customerId || customersLoading || customersFetching || optimisticCustomer) return
+    if (!customerOptionIds.has(customerId)) {
+      setValue('customerId', undefined, { shouldDirty: true })
+    }
+  }, [customerId, customerOptionIds, customersFetching, customersLoading, optimisticCustomer, setValue])
+
+  useEffect(() => {
     //
     writeSaleDraft({
       branchId: formBranchId,
@@ -310,8 +342,13 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
 
   const handleCustomerCreated = (customer: Customer) => {
     //
-    refetchCustomers()
+    setOptimisticCustomer(customer)
     setValue('customerId', customer.id, { shouldDirty: true })
+    void refetchCustomers().then((result) => {
+      if (result.data?.some((item) => item.id === customer.id)) {
+        setOptimisticCustomer((current) => current?.id === customer.id ? null : current)
+      }
+    })
   }
 
   return (
@@ -347,16 +384,16 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
                       showSearch
                       allowClear
                       optionFilterProp="label"
-                      value={field.value}
-                      onChange={field.onChange}
+                      value={field.value && customerOptionIds.has(field.value) ? field.value : undefined}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        if (value !== optimisticCustomer?.id) setOptimisticCustomer(null)
+                      }}
                       placeholder={t('newSale.customerPlaceholder')}
                       style={{ width: '100%' }}
                       loading={customersLoading}
                       notFoundContent={customersLoading ? <SelectLoadingContent /> : undefined}
-                      options={customers.map((customer) => ({
-                        value: customer.id,
-                        label: customer.phone ? `${customer.fullName} · ${customer.phone}` : customer.fullName,
-                      }))}
+                      options={customerOptions}
                     />
                   )}
                 />

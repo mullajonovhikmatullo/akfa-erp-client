@@ -45,6 +45,7 @@ export function AppModal({
 
   return (
     <Modal
+      className="app-modal"
       title={title}
       open={open}
       onCancel={onClose}

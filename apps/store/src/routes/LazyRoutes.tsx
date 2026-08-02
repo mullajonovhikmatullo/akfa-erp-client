@@ -23,6 +23,10 @@ export const PurchasesPage = lazy(() =>
   import('@/pages/purchases/PurchasesPage').then((m) => ({ default: m.PurchasesPage })),
 );
 
+export const InventoryPage = lazy(() =>
+  import('@/pages/inventory/InventoryPage').then((m) => ({ default: m.InventoryPage })),
+);
+
 export const ExpensesPage = lazy(() =>
   import('@/pages/expenses/ExpensesPage').then((m) => ({ default: m.ExpensesPage })),
 );

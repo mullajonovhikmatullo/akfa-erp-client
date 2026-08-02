@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Badge, Button, Select, Tooltip } from 'antd'
 import { ArrowClockwiseIcon, EyeIcon, PlusIcon } from '@phosphor-icons/react'
 import { SALE_TYPE_LABELS } from '@store/store-shared/core'
-import { formatDate } from '@store/store-shared/lib/formatters'
+import { formatDateTime } from '@store/store-shared/lib/formatters'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -22,10 +22,11 @@ interface SalesListProps {
   t: (key: string) => string
   isStoreOwner: boolean
   userBranchId?: string | null
+  branchId?: string
   exchangeRate: number
 }
 
-export function SalesList({ t, isStoreOwner, userBranchId, exchangeRate }: SalesListProps) {
+export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRate }: SalesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<SalesFiltersForm>({
@@ -39,7 +40,12 @@ export function SalesList({ t, isStoreOwner, userBranchId, exchangeRate }: Sales
   const [drawerSale, setDrawerSale] = useState<SaleListItem | null>(null)
   const hasDebtFilter = filters.hasDebt === undefined ? undefined : filters.hasDebt === 'true'
 
+  useEffect(() => {
+    onPageChange(1, pageSize)
+  }, [branchId])
+
   const { data: result, isLoading, isFetching, refetch } = useSalesPage(page, pageSize, {
+    branchId,
     saleType: filters.saleType,
     hasDebt: hasDebtFilter,
   })
@@ -65,7 +71,7 @@ export function SalesList({ t, isStoreOwner, userBranchId, exchangeRate }: Sales
       title: t('common.date'),
       dataIndex: 'createdAt',
       width: 120,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>,
+      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)', whiteSpace: 'nowrap' }}>{formatDateTime(value)}</span>,
     },
     {
       title: t('nav.customers'),

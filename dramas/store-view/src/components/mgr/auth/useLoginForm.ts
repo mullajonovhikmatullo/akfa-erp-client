@@ -32,7 +32,7 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
     onSuccess: (response) => {
       //
       onAuthenticated(response)
-      toast.success(`${t('login.welcomeToast')}, ${response.user.name.split(' ')[0]}!`)
+      toast.success(`${t('login.welcomeToast')}, ${response.user.name.split(' ')[0]}!`, { duration: 2200 })
     },
     onError: (error: unknown) => {
       //
