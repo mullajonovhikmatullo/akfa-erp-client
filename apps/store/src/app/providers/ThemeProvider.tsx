@@ -2,6 +2,11 @@ import { ConfigProvider, theme as antdTheme } from 'antd';
 import type { Locale } from 'antd/es/locale';
 import type { ReactNode } from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import 'dayjs/locale/ru';
+import 'dayjs/locale/uz';
+import 'dayjs/locale/uz-latn';
 import { useUIStore } from '@/app/stores/ui.store';
 import { normalizeLang, type Lang } from '@/shared/lib/lang';
 
@@ -395,6 +400,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   //
   const themeMode = useUIStore((s) => s.theme);
   const lang = useUIStore((s) => s.lang);
+  const normalizedLang = normalizeLang(lang);
+  const dayjsLocale = normalizedLang === 'uz-cy' ? 'uz' : normalizedLang === 'uz-la' ? 'uz-latn' : normalizedLang;
+  dayjs.locale(dayjsLocale);
 
   const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
     return typeof window !== 'undefined'
@@ -416,7 +424,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     html.classList.toggle('dark', isDark);
   }, [isDark]);
 
-  const locale = ANTD_LOCALES[normalizeLang(lang)];
+  useLayoutEffect(() => {
+    document.documentElement.lang = normalizedLang;
+  }, [normalizedLang]);
+
+  const locale = ANTD_LOCALES[normalizedLang];
 
   return (
     <ConfigProvider

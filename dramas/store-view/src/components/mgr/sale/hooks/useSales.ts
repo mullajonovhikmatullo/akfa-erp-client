@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { SaleFlowApi, SaleSeekApi } from '@store/store-stub'
-import type { AddPaymentPayload, CreateSalePayload, SaleFilters } from '@store/store-stub'
+import type { AddPaymentPayload, CreateSalePayload, DebtPaymentFilters, SaleFilters } from '@store/store-stub'
 import { customerKeys } from '../../customer/hooks/useCustomers'
 
 export const saleKeys = {
@@ -42,6 +42,11 @@ export function useSaleDetail(id: string | null) {
     queryFn: query?.queryFn ?? (() => Promise.reject(new Error('Sale id is required'))),
     enabled: Boolean(id),
   })
+}
+
+export function useDebtPayments(filters: DebtPaymentFilters) {
+  const { queryKey, queryFn } = SaleSeekApi.fetch.findDebtPayments(filters)
+  return useQuery({ queryKey, queryFn, staleTime: 0 })
 }
 
 export function useCreateSale(t: (key: string) => string) {

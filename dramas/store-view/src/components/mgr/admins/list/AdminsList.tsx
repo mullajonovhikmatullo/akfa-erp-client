@@ -231,15 +231,15 @@ export function AdminsList({ t }: AdminsListProps) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
+            {t('admins.newAdmin')}
+          </Button>
           <Tooltip title={t('common.refresh')}>
             <Button
               icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
               onClick={() => refetch()}
             />
           </Tooltip>
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
-            {t('admins.newAdmin')}
-          </Button>
         </div>
       </div>
 

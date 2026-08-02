@@ -271,17 +271,17 @@ export function DashboardPanel({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <Button icon={<PlusIcon size={13} />} onClick={onNewSale}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={onNewSale}>
             {t('dashboard.newSale')}
           </Button>
           <Button icon={<BoxArrowDownIcon size={13} />} onClick={onStockIn}>
             {t('dashboard.stockIn')}
           </Button>
+          <Button icon={<ChartLineUpIcon size={13} />} onClick={onOpenAnalytics}>
+            {t('dashboard.openAnalytics')}
+          </Button>
           <Button icon={<ArrowClockwiseIcon size={13} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll}>
             {t('common.refresh')}
-          </Button>
-          <Button type="primary" icon={<ChartLineUpIcon size={13} weight="bold" />} onClick={onOpenAnalytics}>
-            {t('dashboard.openAnalytics')}
           </Button>
         </div>
       </div>
@@ -578,7 +578,7 @@ function TopProductsTooltip({
         <span className="dashboard-chart-tooltip__marker" style={{ background: item.color, color: item.color }} />
         <div className="dashboard-chart-tooltip__title-wrap">
           <div className="dashboard-chart-tooltip__title">{item.name}</div>
-          {item.sku && <div className="dashboard-chart-tooltip__meta">SKU: {item.sku}</div>}
+          {item.sku && <div className="dashboard-chart-tooltip__meta">{t('products.productCode')}: {item.sku}</div>}
         </div>
       </div>
       <div className="dashboard-chart-tooltip__rows">

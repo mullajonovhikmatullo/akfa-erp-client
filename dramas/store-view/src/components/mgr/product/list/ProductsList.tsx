@@ -175,7 +175,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
       ),
     },
     {
-      title: 'SKU',
+      title: t('products.productCode'),
       dataIndex: 'sku',
       width: 140,
       responsiveHide: true,
@@ -361,7 +361,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
         <div>
           <h1>{t('nav.products')}</h1>
           <div className="sub">
-            <strong>{totalProducts} SKU</strong> ·{' '}
+            <strong>{totalProducts} {t('analytics.skuSuffix')}</strong> ·{' '}
             <span style={{ color: 'var(--success)' }}>
               {activeProducts} {t('common.active')}
             </span>{' '}
@@ -372,11 +372,11 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={handleRefresh} />
-          </Tooltip>
           {canManage ? (
             <>
+              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditProduct(null)}>
+                {t('products.newProduct')}
+              </Button>
               <ExcelImportButton<CreateProductPayload>
                 t={t}
                 entityLabel={t('nav.products')}
@@ -418,7 +418,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
 
                   const sku = getField(raw, 'sku') || undefined
                   if (sku && (sku.length > 100 || !/^[A-Za-z0-9_-]+$/.test(sku))) {
-                    return { index, raw, error: "sku faqat harf, raqam, tire va pastki chiziqdan iborat bo'lishi kerak" }
+                    return { index, raw, error: t('validation.skuPattern') }
                   }
 
                   const categoryName = getField(raw, 'categoryName') || getField(raw, 'category')
@@ -524,11 +524,11 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   refetchProductSummary()
                 }}
               />
-              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditProduct(null)}>
-                {t('products.newProduct')}
-              </Button>
             </>
           ) : null}
+          <Tooltip title={t('common.refresh')}>
+            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={handleRefresh} />
+          </Tooltip>
         </div>
       </div>
 

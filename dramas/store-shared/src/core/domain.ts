@@ -203,6 +203,15 @@ export interface SalePayment {
   receivedBy: { id: string; fullName: string }
 }
 
+export interface DebtPayment extends SalePayment {
+  sale: {
+    id: string
+    debtAmountUzs: number
+    branch: { id: string; name: string }
+    customer: { id: string; fullName: string; phone: string | null } | null
+  }
+}
+
 export interface SaleDetail extends SaleListItem {
   items: SaleLineItem[]
   payments: SalePayment[]

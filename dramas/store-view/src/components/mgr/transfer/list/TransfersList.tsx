@@ -201,12 +201,12 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
-          </Tooltip>
           <Button type="primary" icon={<ArrowsLeftRightIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
             {t('transfers.newTransfer')}
           </Button>
+          <Tooltip title={t('common.refresh')}>
+            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+          </Tooltip>
         </div>
       </div>
 

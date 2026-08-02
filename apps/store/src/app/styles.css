@@ -500,7 +500,9 @@ html.dark .billing-modal-amount{ background:rgba(40,169,244,.1); }
 
 .app-shell .ant-tag { font-size: 10.5px; line-height: 18px; padding-inline: 6px; }
 .app-shell .ant-space { gap: 8px !important; }
-.app-shell .ant-pagination { margin-block: 10px 0 !important; }
+.app-shell .ant-table-wrapper > .ant-pagination {
+  margin: 12px 14px 14px !important;
+}
 .app-shell .ant-table-wrapper .ant-btn-sm { height: 26px; padding-inline: 7px; }
 
 /* Login */
@@ -4186,6 +4188,14 @@ html.dark .ant-drawer-root .ant-btn-primary:disabled,html.dark .ant-drawer-root 
 }
 
 /* Customer debt payment — compact, stable drawer workflow. */
+.customer-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.customer-tabs button{padding:9px 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--ink-3);font-size:13px;font-weight:650;cursor:pointer}
+.customer-tabs button.is-active{border-bottom-color:var(--primary);color:var(--primary)}
+.debt-payment-filters{display:grid;grid-template-columns:minmax(250px,1.2fr) minmax(190px,1fr) minmax(170px,.8fr) auto;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);align-items:center}
+.debt-payment-filters__total{color:var(--ink-3);font-size:12.5px;white-space:nowrap;text-align:right}
+.debt-payment-filters__total strong{color:var(--ink-1)}
+@media(max-width:900px){.debt-payment-filters{grid-template-columns:1fr 1fr}.debt-payment-filters__total{text-align:left}}
+@media(max-width:600px){.debt-payment-filters{grid-template-columns:1fr}.debt-payment-filters__total{text-align:left}}
 .customer-payment-list{display:flex;flex-direction:column;gap:9px;margin-bottom:18px}
 .customer-payment-card{
   overflow:hidden;

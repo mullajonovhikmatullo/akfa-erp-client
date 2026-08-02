@@ -237,12 +237,9 @@ export function CategoriesList({ t }: CategoriesListProps) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button
-              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
-              onClick={handleRefresh}
-            />
-          </Tooltip>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
+            {t('categories.newCategory')}
+          </Button>
           <ExcelImportButton<CreateCategoryPayload>
             t={t}
             entityLabel={t('nav.categories')}
@@ -267,9 +264,12 @@ export function CategoriesList({ t }: CategoriesListProps) {
               refetchSummary()
             }}
           />
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
-            {t('categories.newCategory')}
-          </Button>
+          <Tooltip title={t('common.refresh')}>
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={handleRefresh}
+            />
+          </Tooltip>
         </div>
       </div>
 

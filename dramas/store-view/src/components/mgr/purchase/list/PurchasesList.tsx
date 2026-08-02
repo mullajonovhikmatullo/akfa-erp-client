@@ -133,12 +133,12 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
           <div className="sub">{t('purchases.receiptsSubtitle')}</div>
         </div>
         <div className="purchase-page-actions">
-          <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={receiptsQuery.isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => void receiptsQuery.refetch()} />
-          </Tooltip>
           <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
             {t('purchases.newPurchase')}
           </Button>
+          <Tooltip title={t('common.refresh')}>
+            <Button icon={<ArrowClockwiseIcon size={18} className={receiptsQuery.isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => void receiptsQuery.refetch()} />
+          </Tooltip>
         </div>
       </div>
 

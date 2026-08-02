@@ -158,7 +158,7 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
             control={control}
             render={({ field }) => (
               <Form.Item label={t('productForm.labelSku')} validateStatus={errors.sku ? 'error' : undefined} help={errors.sku?.message}>
-                <Input {...field} {...blockAutofill('store-product-sku')} placeholder="PRF-A60-WHT" style={{ fontFamily: 'monospace' }} />
+                <Input {...field} {...blockAutofill('store-product-sku')} placeholder={t('productForm.skuPlaceholder')} style={{ fontFamily: 'monospace' }} />
               </Form.Item>
             )}
           />

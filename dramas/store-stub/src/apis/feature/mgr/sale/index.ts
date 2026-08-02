@@ -2,6 +2,8 @@ import { http } from '@store/store-shared'
 import type {
   AddPaymentPayload,
   CreateSalePayload,
+  DebtPaymentPage,
+  DebtPaymentFilters,
   SaleDetail,
   SaleFilters,
   SaleListItem,
@@ -49,6 +51,21 @@ const findSalesPage = (params: SalePageQuery): Promise<SalePage> =>
 
 const findSale = (id: string) => http.get(`/sales/${id}`).then((response) => parseSaleDetail(response.data.data))
 
+const findDebtPayments = (params: DebtPaymentFilters): Promise<DebtPaymentPage> =>
+  http.get('/sales/payments', { params }).then((response) => {
+    const body = response.data.data as DebtPaymentPage
+    return {
+      ...body,
+      items: body.items.map((payment) => ({
+        ...payment,
+        amountUzs: Number(payment.amountUzs),
+        amountUsd: Number(payment.amountUsd),
+        usdToUzsRate: payment.usdToUzsRate != null ? Number(payment.usdToUzsRate) : null,
+        sale: { ...payment.sale, debtAmountUzs: Number(payment.sale.debtAmountUzs) },
+      })),
+    }
+  })
+
 const createSale = (payload: CreateSalePayload) => http.post('/sales', payload).then((response) => parseSaleDetail(response.data.data))
 
 const addPayment = ({ saleId, payload }: { saleId: string; payload: AddPaymentPayload }) =>
@@ -61,6 +78,7 @@ export const SaleSeekApi = {
   findSales,
   findSalesPage,
   findSale,
+  findDebtPayments,
   fetch: {
     findSales: (params?: SaleFilters) => ({
       queryKey: ['sales', 'findSales', params] as const,
@@ -73,6 +91,10 @@ export const SaleSeekApi = {
     findSale: (id: string) => ({
       queryKey: ['sales', 'findSale', id] as const,
       queryFn: () => findSale(id),
+    }),
+    findDebtPayments: (params: DebtPaymentFilters) => ({
+      queryKey: ['sales', 'debtPayments', params] as const,
+      queryFn: () => findDebtPayments(params),
     }),
   },
 }

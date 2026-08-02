@@ -218,6 +218,14 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
+            {t('expenses.newExpense')}
+          </Button>
+          {isStoreOwner ? (
+            <Button icon={<TagIcon size={13} />} onClick={() => setManagingCategories(true)}>
+              {t('nav.categories')}
+            </Button>
+          ) : null}
           <Controller
             name="dateRange"
             control={control}
@@ -247,14 +255,6 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
               }}
             />
           </Tooltip>
-          {isStoreOwner ? (
-            <Button icon={<TagIcon size={13} />} onClick={() => setManagingCategories(true)}>
-              {t('nav.categories')}
-            </Button>
-          ) : null}
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
-            {t('expenses.newExpense')}
-          </Button>
         </div>
       </div>
 
