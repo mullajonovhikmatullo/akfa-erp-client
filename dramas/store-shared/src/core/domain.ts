@@ -125,7 +125,7 @@ export interface InventoryRecord {
   quantity: number
   updatedAt: string
   branch: { id: string; name: string }
-  product: { id: string; name: string; sku: string | null; unit: ProductUnit }
+  product: { id: string; name: string; sku: string | null; unit: ProductUnit; lowStockThreshold?: number | null }
 }
 
 export interface Customer {
