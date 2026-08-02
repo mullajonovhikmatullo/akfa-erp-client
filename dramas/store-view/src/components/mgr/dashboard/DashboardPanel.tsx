@@ -539,7 +539,7 @@ function TopProductsCard({ t, query, periodMeta }: { t: TFunc; query: AnalyticsQ
             />
             <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: DASH_TICK }} width={120} interval={0} tickFormatter={(value) => String(value).length > 18 ? `${String(value).slice(0, 18)}...` : String(value)} />
             <Tooltip
-              content={<TopProductsTooltip revenueLabel={t('common.revenue')} quantityLabel={t('dashboard.soldQuantity')} unitLabel={(unit) => t(`units.${unit}`)} />}
+              content={<TopProductsTooltip revenueLabel={t('common.revenue')} quantityLabel={t('dashboard.soldQuantity')} skuLabel={t('products.productCode')} unitLabel={(unit) => t(`units.${unit}`)} />}
               cursor={{ fill: 'var(--primary-soft)', fillOpacity: 0.58, radius: 8 }}
               allowEscapeViewBox={{ x: false, y: false }}
               offset={12}
@@ -560,12 +560,14 @@ function TopProductsTooltip({
   payload,
   revenueLabel,
   quantityLabel,
+  skuLabel,
   unitLabel,
 }: {
   active?: boolean;
   payload?: ReadonlyArray<{ payload?: TopProductChartDatum }>;
   revenueLabel: string;
   quantityLabel: string;
+  skuLabel: string;
   unitLabel: (unit: string) => string;
 }) {
   //
@@ -578,7 +580,7 @@ function TopProductsTooltip({
         <span className="dashboard-chart-tooltip__marker" style={{ background: item.color, color: item.color }} />
         <div className="dashboard-chart-tooltip__title-wrap">
           <div className="dashboard-chart-tooltip__title">{item.name}</div>
-          {item.sku && <div className="dashboard-chart-tooltip__meta">{t('products.productCode')}: {item.sku}</div>}
+          {item.sku && <div className="dashboard-chart-tooltip__meta">{skuLabel}: {item.sku}</div>}
         </div>
       </div>
       <div className="dashboard-chart-tooltip__rows">
