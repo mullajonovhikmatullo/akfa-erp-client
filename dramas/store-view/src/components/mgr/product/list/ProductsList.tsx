@@ -663,7 +663,14 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
         />
       </div>
 
-      <ProductFormModal t={t} isStoreOwner={isStoreOwner} open={editProduct !== undefined} product={editProduct ?? null} onClose={() => setEditProduct(undefined)} />
+      <ProductFormModal
+        t={t}
+        isStoreOwner={isStoreOwner}
+        open={editProduct !== undefined}
+        product={editProduct ?? null}
+        onSaved={handleRefresh}
+        onClose={() => setEditProduct(undefined)}
+      />
       <ProductDetailDrawer t={t} product={drawerProduct} onClose={() => setDrawerProduct(null)} />
     </>
   )

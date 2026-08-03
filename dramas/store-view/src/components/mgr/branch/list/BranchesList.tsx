@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, Form, Input, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd'
+import { Alert, Button, Form, Input, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd'
+import { useNavigate } from 'react-router-dom'
 import {
   ArrowClockwiseIcon,
+  ArrowUpRight,
   PencilSimpleIcon,
   PlusIcon,
   StorefrontIcon,
@@ -37,10 +39,14 @@ export interface BranchesListProps {
 
 export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesListProps) {
   //
+  const navigate = useNavigate()
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { data: result, isLoading, isFetching, refetch } = useBranchesPage(page, pageSize)
   const branches = result?.items ?? []
   const total = result?.total ?? 0
+  const maxBranches = currentUser?.store?.plan?.maxBranches
+  const branchLimitReached = typeof maxBranches === 'number' && total >= maxBranches
+  const [branchLimitNoticeDismissed, setBranchLimitNoticeDismissed] = useState(false)
   const { data: users = [], isLoading: usersLoading } = useUsers()
 
   const createMutation = useCreateBranch()
@@ -74,6 +80,10 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
   const [branchModalOpen, setBranchModalOpen] = useState(false)
   const [assignTarget, setAssignTarget] = useState<Branch | null>(null)
 
+  useEffect(() => {
+    if (!branchLimitReached) setBranchLimitNoticeDismissed(false)
+  }, [branchLimitReached])
+
   const branchAdmins = users.filter((user) => user.role === 'branch_admin')
 
   function getAssignedUser(branchId: string) {
@@ -86,6 +96,7 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
 
   function openCreate() {
     //
+    if (branchLimitReached) return
     setEditTarget(null)
     resetBranchForm({ name: '', address: '', phone: '' })
     setBranchModalOpen(true)
@@ -326,9 +337,36 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
           <div className="sub">
             {total} {t('branches.statSuffix')} · {branchAdmins.length} {t('admins.subtitleSuffix')}
           </div>
+          {branchLimitReached && !branchLimitNoticeDismissed && maxBranches !== undefined && maxBranches !== null && (
+            <Alert
+              className="branch-limit-alert"
+              type="warning"
+              showIcon
+              closable
+              onClose={() => setBranchLimitNoticeDismissed(true)}
+              message={t('branches.limitReached').replace('{limit}', String(maxBranches))}
+              action={
+                <Button
+                  className="branch-limit-upgrade-button"
+                  type="primary"
+                  size="small"
+                  icon={<ArrowUpRight size={15} weight="bold" />}
+                  onClick={() => navigate('/billing')}
+                >
+                  {t('branches.upgradePlan')}
+                </Button>
+              }
+              style={{ marginTop: 10 }}
+            />
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
+          <Button
+            type="primary"
+            icon={<PlusIcon size={13} weight="bold" />}
+            onClick={openCreate}
+            disabled={branchLimitReached}
+          >
             {t('branches.newBranch')}
           </Button>
           <Tooltip title={t('common.refresh')}>

@@ -191,6 +191,11 @@ export interface UpdateStoreStatusPayload {
   "currentPassword"?: string
 }
 
+export interface UpdateStorePlanPayload {
+  "planId": string
+  "expectedVersion": number
+}
+
 export interface PlatformPayment {
   "id": string
   "amount": number

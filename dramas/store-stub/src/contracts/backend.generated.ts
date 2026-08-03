@@ -359,6 +359,9 @@ export interface TenantBillingSummary {
   "code"?: PlanCode
   "name"?: string
   "monthlyPriceUzs"?: number
+  "maxBranches"?: number | null
+  "maxUsers"?: number | null
+  "maxProducts"?: number | null
 } | null
   "subscription": {
   "status"?: string

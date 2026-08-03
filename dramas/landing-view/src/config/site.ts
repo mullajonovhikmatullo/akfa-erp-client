@@ -17,16 +17,16 @@ export const site = {
   ],
   cta: {
     login: "Kirish",
-    primary: "1 oy bepul sinab ko‘ring",
+    primary: "14 kun bepul sinab ko‘ring",
   },
   hero: {
-    eyebrow: "1 oy bepul · Hech qanday karta kerak emas",
+    eyebrow: "14 kun bepul · Hech qanday karta kerak emas",
     heading: "Barcha filiallaringizni yagona tizimda boshqaring",
     supporting:
-      "Savdolar, tushumlar, xarajatlar va zaxiralarni real vaqtda kuzating. Bugun boshlang va tizimdan 1 oy bepul foydalaning!",
-    primaryCta: "1 oy bepul sinab ko‘ring",
+      "Savdolar, tushumlar, xarajatlar va zaxiralarni real vaqtda kuzating. Bugun boshlang va tizimdan 14 kun bepul foydalaning!",
+    primaryCta: "14 kun bepul sinab ko‘ring",
     secondaryCta: "Demo ko‘rish",
-    trial: "1 oy to‘liq bepul",
+    trial: "14 kun to‘liq bepul",
     note: "Karta talab qilinmaydi",
   },
   dashboard: {
@@ -47,7 +47,7 @@ export const site = {
   },
   trust: {
     line: "Boshlash uchun hammasi tayyor",
-    logos: ["1 oy bepul", "Karta talab qilinmaydi", "Tez sozlash", "Istalgan vaqtda bekor qilish", "Yordam doimo yoningizda"],
+    logos: ["14 kun bepul", "Karta talab qilinmaydi", "Tez sozlash", "Istalgan vaqtda bekor qilish", "Yordam doimo yoningizda"],
   },
   problem: {
     heading: "Nega Mavion bilan boshqarish oson?",
@@ -128,8 +128,8 @@ export const site = {
     ],
   },
   pricing: {
-    heading: "1 oy bepul sinovdan keyin tariflar",
-    note: "Bepul sinov muddati tugagach, o‘z biznesingizga mos tarifni tanlang.",
+    heading: "Avval 14 kun bepul sinovdan foydalaning",
+    note: "Barcha tariflarda 14 kun bepul. To‘lov faqat sinov muddati tugagach, tanlangan tarif bo‘yicha boshlanadi.",
     plans: [
       {
         code: "START" as const,
@@ -140,11 +140,11 @@ export const site = {
         label: "",
         features: [
           "Bitta asos filial",
-          "5 tagacha filial",
+          "2 tagacha filial",
           "Asosiy hisobotlar",
           "E-mail qo‘llab-quvvatlash",
         ],
-        cta: "Tanlash",
+        cta: "Bepul sinovni boshlash",
       },
       {
         code: "BUSINESS" as const,
@@ -154,12 +154,12 @@ export const site = {
         highlight: true,
         label: "Eng ko‘p tanlanadi",
         features: [
-          "Cheksiz filial",
+          "5 tagacha filial",
           "Kengaytirilgan hisobotlar",
           "Transferlar nazorati",
           "Prioritet qo‘llab-quvvatlash",
         ],
-        cta: "Tanlash",
+        cta: "Bepul sinovni boshlash",
       },
       {
         code: "NETWORK" as const,
@@ -206,8 +206,8 @@ export const site = {
   ],
   finalCta: {
     heading: "Barcha filiallaringizni yagona tizimda boshqaring",
-    text: "Bugun boshlang va tizimdan 1 oy to‘liq bepul foydalaning!",
-    primary: "1 oy bepul sinab ko‘ring",
+    text: "Bugun boshlang va tizimdan 14 kun to‘liq bepul foydalaning!",
+    primary: "14 kun bepul sinab ko‘ring",
     secondary: "Demo ko‘rish",
   },
   footer: {

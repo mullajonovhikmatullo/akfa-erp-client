@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ArrowRight, CheckCircle2, Loader2, Store, UserRound, X } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Eye, EyeOff, Loader2, Store, UserRound, X } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { UzbekPhoneInput } from '../ui/UzbekPhoneInput';
@@ -114,6 +114,8 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [createdStoreName, setCreatedStoreName] = useState<string | null>(null);
   const [adminUrl, setAdminUrl] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   if (!open) return null;
 
@@ -144,6 +146,8 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
     setSubmitError(null);
     setCreatedStoreName(null);
     setAdminUrl(null);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     onClose();
   };
 
@@ -242,17 +246,44 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                 </label>
                 <label>
                   <span>Parol</span>
-                  <input {...register('password')} type="password" placeholder="Kamida 6 ta belgi" aria-invalid={Boolean(errors.password)} />
+                  <div className="registration-form__password-control">
+                    <input
+                      {...register('password')}
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Kamida 6 ta belgi"
+                      aria-invalid={Boolean(errors.password)}
+                    />
+                    <button
+                      className="registration-form__password-toggle"
+                      type="button"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      aria-label={showPassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
                   <FieldError message={errors.password?.message} />
                 </label>
                 <label>
                   <span>Parolni tasdiqlang</span>
-                  <input
-                    {...register('confirmPassword')}
-                    type="password"
-                    placeholder="Parolni qayta kiriting"
-                    aria-invalid={Boolean(errors.confirmPassword)}
-                  />
+                  <div className="registration-form__password-control">
+                    <input
+                      {...register('confirmPassword')}
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Parolni qayta kiriting"
+                      aria-invalid={Boolean(errors.confirmPassword)}
+                    />
+                    <button
+                      className="registration-form__password-toggle"
+                      type="button"
+                      onClick={() => setShowConfirmPassword((visible) => !visible)}
+                      aria-label={showConfirmPassword ? 'Tasdiqlash parolini yashirish' : 'Tasdiqlash parolini ko‘rsatish'}
+                      aria-pressed={showConfirmPassword}
+                    >
+                      {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
                   <FieldError message={errors.confirmPassword?.message} />
                 </label>
               </div>

@@ -18,6 +18,7 @@ interface ProductFormModalProps {
   open: boolean
   product?: Product | null
   onClose: () => void
+  onSaved?: () => void
   isStoreOwner: boolean
 }
 
@@ -33,7 +34,7 @@ function findDefaultBranch(branches: Branch[]) {
   return mainBranch?.id ?? firstBranch?.id
 }
 
-export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: ProductFormModalProps) {
+export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOwner }: ProductFormModalProps) {
   //
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imageChanges, setImageChanges] = useState(createEmptyProductImageChanges)
@@ -44,8 +45,9 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
   const handleSuccess = useCallback(() => {
     setImageFiles([])
     setImageChanges(createEmptyProductImageChanges())
+    onSaved?.()
     onClose()
-  }, [onClose])
+  }, [onClose, onSaved])
   const {
     form,
     onSubmit,

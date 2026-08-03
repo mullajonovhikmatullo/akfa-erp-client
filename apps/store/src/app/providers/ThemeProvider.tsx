@@ -1,4 +1,4 @@
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import type { Locale } from 'antd/es/locale';
 import type { ReactNode } from 'react';
 import { useState, useEffect, useLayoutEffect } from 'react';
@@ -463,7 +463,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         },
       }}
     >
-      {children}
+      <AntdApp>
+        {children}
+      </AntdApp>
     </ConfigProvider>
   );
 }

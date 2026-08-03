@@ -16,14 +16,12 @@ export function FAQ() {
           {site.faq.map((item, index) => {
             const isOpen = open === index;
             return (
-              <article className={`faq-item${isOpen ? " is-open" : ""}`} key={item.q} data-reveal="up">
+              <article className={`faq-item${isOpen ? " is-open" : ""}`} key={item.q}>
                 <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : index)}>
                   <span>{item.q}</span>
                   <ChevronDown size={17} />
                 </button>
-                <div className="faq-item__answer" aria-hidden={!isOpen}>
-                  <p>{item.a}</p>
-                </div>
+                <p className={`faq-item__answer${isOpen ? " is-open" : ""}`}>{item.a}</p>
               </article>
             );
           })}
