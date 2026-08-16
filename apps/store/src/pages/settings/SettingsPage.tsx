@@ -14,20 +14,16 @@ export function SettingsPage() {
   const setDisplayCurrency = useUIStore((state) => state.setDisplayCurrency)
   const exchangeRate = useUIStore((state) => state.exchangeRate)
   const setExchangeRate = useUIStore((state) => state.setExchangeRate)
-  const lowStockThreshold = useUIStore((state) => state.lowStockThreshold)
-  const setLowStockThreshold = useUIStore((state) => state.setLowStockThreshold)
 
   return (
     <SettingsPanel
       t={t}
       displayCurrency={displayCurrency}
       exchangeRate={exchangeRate}
-      lowStockThreshold={lowStockThreshold}
       lang={lang}
       theme={theme}
       onDisplayCurrencyChange={setDisplayCurrency}
       onExchangeRateChange={setExchangeRate}
-      onLowStockThresholdChange={setLowStockThreshold}
       onLangChange={(value: SettingsLang) => setLang(value)}
       onThemeChange={(value: SettingsTheme) => setTheme(value)}
     />

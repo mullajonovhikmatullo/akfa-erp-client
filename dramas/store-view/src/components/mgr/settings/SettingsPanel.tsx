@@ -11,7 +11,6 @@ export type SettingsTheme = 'light' | 'dark' | 'system'
 interface SettingsFormValues {
   displayCurrency: Currency
   exchangeRate: number
-  lowStockThreshold: number
   lang: SettingsLang
   theme: SettingsTheme
 }
@@ -20,7 +19,6 @@ export interface SettingsPanelProps extends SettingsFormValues {
   t: TFunc
   onDisplayCurrencyChange: (currency: Currency) => void
   onExchangeRateChange: (rate: number) => void
-  onLowStockThresholdChange: (threshold: number) => void
   onLangChange: (lang: SettingsLang) => void
   onThemeChange: (theme: SettingsTheme) => void
 }
@@ -29,12 +27,10 @@ export function SettingsPanel({
   t,
   displayCurrency,
   exchangeRate,
-  lowStockThreshold,
   lang,
   theme,
   onDisplayCurrencyChange,
   onExchangeRateChange,
-  onLowStockThresholdChange,
   onLangChange,
   onThemeChange,
 }: SettingsPanelProps) {
@@ -43,7 +39,6 @@ export function SettingsPanel({
     defaultValues: {
       displayCurrency,
       exchangeRate,
-      lowStockThreshold,
       lang,
       theme,
     },
@@ -54,11 +49,10 @@ export function SettingsPanel({
     reset({
       displayCurrency,
       exchangeRate,
-      lowStockThreshold,
       lang,
       theme,
     })
-  }, [displayCurrency, exchangeRate, lang, lowStockThreshold, reset, theme])
+  }, [displayCurrency, exchangeRate, lang, reset, theme])
 
   return (
     <>
@@ -119,32 +113,6 @@ export function SettingsPanel({
               />
               <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 6 }}>{t('settings.exchangeRateNote')}</div>
             </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <SectionTitle>{t('settings.threshold')}</SectionTitle>
-          <div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.lowStockThreshold')}</div>
-            <Controller
-              name="lowStockThreshold"
-              control={control}
-              render={({ field }) => (
-                <InputNumber
-                  value={field.value}
-                  min={1}
-                  onChange={(nextValue) => {
-                    //
-                    const value = Number(nextValue) || 0
-                    field.onChange(value)
-                    onLowStockThresholdChange(value)
-                  }}
-                  style={{ width: 180 }}
-                  addonAfter={t('settings.units')}
-                />
-              )}
-            />
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 6 }}>{t('settings.thresholdNote')}</div>
           </div>
         </div>
 

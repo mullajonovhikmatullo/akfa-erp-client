@@ -108,7 +108,6 @@ export interface DashboardPanelProps {
   t: TFunc;
   firstName: string;
   branchId?: string | null;
-  lowStockThreshold: number;
   onNewSale: () => void;
   onStockIn: () => void;
   onOpenAnalytics: () => void;
@@ -120,7 +119,6 @@ export function DashboardPanel({
   t,
   firstName,
   branchId,
-  lowStockThreshold,
   onNewSale,
   onStockIn,
   onOpenAnalytics,
@@ -144,13 +142,12 @@ export function DashboardPanel({
 
   const periodQuery: AnalyticsQuery = {
     ...branchParam,
-    lowStockThreshold,
     from: rangeStart.toISOString(),
     to: rangeEnd.toISOString(),
     period: chartPeriod,
     limit: TOP_PRODUCTS_LIMIT,
   };
-  const inventoryQuery: AnalyticsQuery = { ...branchParam, lowStockThreshold, limit: 5 };
+  const inventoryQuery: AnalyticsQuery = { ...branchParam, limit: 5 };
   const salesQuery: AnalyticsQuery = { ...periodQuery, topProductsSort: 'revenue' };
 
   const periodDashboard = useDashboard(periodQuery);
@@ -397,21 +394,21 @@ export function DashboardPanel({
               />
             </div>
 
-            <div className="card">
+            <div className="card dashboard-payment-card">
               <div className="card-head">
                 <h3>{t('dashboard.paymentMix')}</h3>
                 <span className="meta">{periodMeta}</span>
               </div>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+              <div className="dashboard-payment-card__content">
                 <PaymentDonutChart data={paymentChartData} total={paymentTotal} totalLabel={t('common.total')} />
-                <div style={{ flex: '1 1 0', minWidth: 180, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <div className="dashboard-payment-card__legend">
                   {paymentChartData.map((item) => (
                     <LegendRow
                       key={item.name}
                       color={item.color}
                       label={item.name}
                       percent={item.percent}
-                      value={<MoneyDisplay amount={item.value} currency="UZS" compact />}
+                      value={<MoneyDisplay amount={item.value} currency="UZS" />}
                     />
                   ))}
                 </div>
@@ -883,6 +880,7 @@ function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentChartDatu
         )}
       </svg>
       <div
+        className="dashboard-payment-card__total"
         style={{
           position: 'absolute',
           inset: 62,
@@ -899,7 +897,7 @@ function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentChartDatu
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4 }}>{totalLabel}</div>
           <div className="num" style={{ fontSize: 17, fontWeight: 800 }}>
-            <MoneyDisplay amount={total} currency="UZS" compact />
+            <MoneyDisplay amount={total} currency="UZS" />
           </div>
         </div>
       </div>

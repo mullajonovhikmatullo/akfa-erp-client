@@ -93,6 +93,7 @@ export interface CreateProductRequest {
   "unit": ProductUnit
   "categoryId"?: string
   "branchId"?: string
+  "lowStockThreshold"?: number | null
   "costPriceUzs": number
   "retailPriceUzs": number
   "wholesalePriceUzs": number
@@ -199,6 +200,7 @@ export interface ProductResponse {
   "description"?: string | null
   "sku"?: string | null
   "unit"?: ProductUnit
+  "lowStockThreshold"?: string | null
   "costPriceUzs"?: string
   "retailPriceUzs"?: string
   "wholesalePriceUzs"?: string
@@ -306,6 +308,7 @@ export interface UpdateProductRequest {
   "sku"?: string
   "unit"?: ProductUnit
   "categoryId"?: string
+  "lowStockThreshold"?: number | null
   "costPriceUzs"?: number
   "retailPriceUzs"?: number
   "wholesalePriceUzs"?: number

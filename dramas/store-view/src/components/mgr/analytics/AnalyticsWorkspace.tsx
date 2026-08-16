@@ -33,11 +33,10 @@ type AnalyticsFiltersForm = {
 
 export interface AnalyticsWorkspaceProps {
   t: TFunc;
-  lowStockThreshold: number;
   branchId?: string;
 }
 
-export function AnalyticsWorkspace({ t, lowStockThreshold, branchId }: AnalyticsWorkspaceProps) {
+export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
   //
   const [tab, setTab] = useState<Tab>('dashboard');
   const [overduePage, setOverduePage] = useState(1);
@@ -61,7 +60,6 @@ export function AnalyticsWorkspace({ t, lowStockThreshold, branchId }: Analytics
     to: dateRange[1]?.toISOString(),
     period,
     limit: 10,
-    lowStockThreshold,
   };
 
   const dashboard = useDashboard(query);

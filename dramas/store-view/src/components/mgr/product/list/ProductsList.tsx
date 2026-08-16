@@ -222,6 +222,19 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
       render: (value: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[value]}</StatusBadge>,
     },
     {
+      title: t('products.colLowStock'),
+      key: 'lowStockThreshold',
+      width: 125,
+      responsiveHide: true,
+      render: (_: unknown, product: Product) => product.lowStockThreshold == null ? (
+        <span style={{ color: 'var(--ink-4)' }}>—</span>
+      ) : (
+        <span className="num" style={{ color: 'var(--warning)', fontWeight: 600 }}>
+          {product.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}
+        </span>
+      ),
+    },
+    {
       title: t('products.colCost'),
       key: 'cost',
       width: 150,
@@ -385,6 +398,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   'description',
                   'sku',
                   'unit',
+                  'lowStockThreshold',
                   'categoryName',
                   'costPriceUzs',
                   'retailPriceUzs',
@@ -394,8 +408,8 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   'wholesalePriceUsd',
                 ]}
                 templateExamples={[
-                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', t('units.PIECE'), defaultProductCategoryName, '65000', '85000', '75000', '', '', ''],
-                  ['Mahsulot B', '', 'PRF-002', t('units.KG'), defaultProductCategoryName, '', '', '', '9.00', '12.50', '10.00'],
+                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', t('units.PIECE'), '50', defaultProductCategoryName, '65000', '85000', '75000', '', '', ''],
+                  ['Mahsulot B', '', 'PRF-002', t('units.KG'), '5', defaultProductCategoryName, '', '', '', '9.00', '12.50', '10.00'],
                 ]}
                 templateFileName="products_template.xlsx"
                 hints={productImportHints}
@@ -432,6 +446,15 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   const legacyCategoryId = getField(raw, 'categoryId') || undefined
                   if (legacyCategoryId && !isUuid(legacyCategoryId)) return { index, raw, error: "categoryId UUID formatida bo'lishi kerak" }
                   const categoryId = matchedCategory?.id ?? legacyCategoryId
+
+                  const thresholdRaw = getField(raw, 'lowStockThreshold')
+                  const lowStockThreshold = parseExcelNumber(thresholdRaw)
+                  if (thresholdRaw && (lowStockThreshold === undefined || !Number.isFinite(lowStockThreshold))) {
+                    return { index, raw, error: 'lowStockThreshold noto\'g\'ri kiritilgan' }
+                  }
+                  if (lowStockThreshold !== undefined && (lowStockThreshold < 0 || Math.abs(lowStockThreshold * 10000 - Math.round(lowStockThreshold * 10000)) >= 1e-9)) {
+                    return { index, raw, error: 'lowStockThreshold manfiy bo\'lmasligi va 4 xonagacha kasr bo\'lishi kerak' }
+                  }
 
                   const readPrice = (field: string) => {
                     //
@@ -508,6 +531,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                       categoryId,
                       branchId: importBranchId,
                       unit,
+                      lowStockThreshold,
                       costPriceUzs,
                       retailPriceUzs,
                       wholesalePriceUzs,

@@ -82,6 +82,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   const wholesaleUzs = watch('wholesalePriceUzs')
   const retailUsd = watch('retailPriceUsd')
   const wholesaleUsd = watch('wholesalePriceUsd')
+  const unit = watch('unit')
   const branchId = watch('branchId')
 
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
@@ -196,6 +197,28 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
             )}
           />
         </div>
+
+        <Controller
+          name="lowStockThreshold"
+          control={control}
+          render={({ field }) => (
+            <Form.Item
+              label={t('productForm.lowStockThreshold')}
+              extra={t('productForm.lowStockThresholdNote')}
+            >
+              <InputNumber
+                value={field.value ?? undefined}
+                min={0}
+                step={unit === 'KG' ? 0.1 : 1}
+                precision={unit === 'KG' ? 4 : 0}
+                onChange={(value) => field.onChange(value ?? undefined)}
+                style={{ width: 220 }}
+                addonAfter={t(`units.${unit}`)}
+                placeholder="—"
+              />
+            </Form.Item>
+          )}
+        />
 
         {!isEdit && isStoreOwner ? (
           <Controller

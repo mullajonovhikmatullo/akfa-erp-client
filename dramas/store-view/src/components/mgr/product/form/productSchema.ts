@@ -15,6 +15,7 @@ export const createProductSchema = (t: (key: string) => string) => {
       description: z.string().max(1000).optional().or(z.literal('')),
       sku: z.string().max(100).regex(/^[A-Za-z0-9_-]*$/, t('validation.skuPattern')).optional().or(z.literal('')),
       unit: z.enum(UNITS, { error: t('validation.unitRequired') }),
+      lowStockThreshold: z.number().nonnegative(t('validation.thresholdNegative')).multipleOf(0.0001).optional(),
       categoryId: z.string().uuid(t('validation.categoryRequired')).optional().or(z.literal('')),
       branchId: z.string().uuid(t('productForm.placeholderBranch')).optional().or(z.literal('')),
       priceCurrency: z.enum(['UZS', 'USD']),

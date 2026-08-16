@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button, Input, Select, Table, Tag } from 'antd';
-import { ArrowClockwiseIcon, MagnifyingGlassIcon, PackageIcon } from '@phosphor-icons/react';
+import { ArrowClockwiseIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
+import { AuthenticatedProductImage, useProducts } from '@store/store-view/product';
 import { useInventoryRecords } from '@store/store-view/inventory';
 import type { InventoryRecord, ProductUnit } from '@store/store-stub';
 import { useUIStore } from '@/app/stores/ui.store';
@@ -11,6 +12,7 @@ type StockRow = {
   productId: string;
   name: string;
   sku: string | null;
+  primaryThumbnailUrl: string | null;
   unit: ProductUnit;
   quantity: number;
   branches: Set<string>;
@@ -29,6 +31,11 @@ export function InventoryPage() {
   const activeBranchId = useUIStore((state) => state.activeBranchId);
   const [search, setSearch] = useState('');
   const [quantityFilter, setQuantityFilter] = useState<QuantityFilter>('all');
+  const { data: products = [] } = useProducts();
+  const productImagesById = useMemo(
+    () => new Map(products.map((product) => [product.id, product.primaryThumbnailUrl ?? product.primaryImageUrl ?? null])),
+    [products],
+  );
   const scopedBranchId = isStoreOwner
     ? activeBranchId !== '__all__' ? activeBranchId : undefined
     : branchId ?? undefined;
@@ -47,6 +54,7 @@ export function InventoryPage() {
           productId: record.product.id,
           name: record.product.name,
           sku: record.product.sku,
+          primaryThumbnailUrl: productImagesById.get(record.product.id) ?? null,
           unit: record.product.unit,
           quantity: record.quantity,
           branches: new Set([record.branch.name]),
@@ -56,7 +64,7 @@ export function InventoryPage() {
       }
     }
     return [...grouped.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }, [inventoryQuery.data]);
+  }, [inventoryQuery.data, productImagesById]);
 
   const filteredRows = useMemo(() => {
     const needle = search.trim().toLocaleLowerCase();
@@ -156,7 +164,12 @@ export function InventoryPage() {
               key: 'product',
               render: (_value, row) => (
                 <div className="inventory-product-cell">
-                  <span><PackageIcon size={16} weight="duotone" /></span>
+                  <AuthenticatedProductImage
+                    url={row.primaryThumbnailUrl}
+                    alt={row.name}
+                    width={42}
+                    height={42}
+                  />
                   <div><strong>{row.name}</strong><small>{row.sku || '—'}</small></div>
                 </div>
               ),

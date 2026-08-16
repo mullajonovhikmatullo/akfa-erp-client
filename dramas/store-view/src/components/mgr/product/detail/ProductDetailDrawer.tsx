@@ -51,6 +51,11 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
               {displayedProduct.category ? <StatusBadge tone="info">{displayedProduct.category.name}</StatusBadge> : null}
               <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[displayedProduct.unit]}</StatusBadge>
+              {displayedProduct.lowStockThreshold != null ? (
+                <StatusBadge tone="warning">
+                  {t('products.drawerLowStockThreshold')}: {displayedProduct.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[displayedProduct.unit]}
+                </StatusBadge>
+              ) : null}
               {displayedProduct.isActive ? (
                 <StatusBadge tone="success" dot>
                   {t('common.active')}

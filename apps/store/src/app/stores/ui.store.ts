@@ -16,7 +16,6 @@ interface UIState {
   mobileSidebarOpen: boolean;
   displayCurrency: Currency;
   exchangeRate: number;
-  lowStockThreshold: number;
   sidebarFavorites: string[];
 }
 
@@ -30,7 +29,6 @@ interface UIActions {
   closeMobileSidebar: () => void;
   setDisplayCurrency: (currency: Currency) => void;
   setExchangeRate: (rate: number) => void;
-  setLowStockThreshold: (threshold: number) => void;
   toggleFavorite: (key: string) => void;
 }
 
@@ -48,7 +46,6 @@ export const useUIStore = create<UIStore>()(
         mobileSidebarOpen: false,
         displayCurrency: 'UZS',
         exchangeRate: 12_650,
-        lowStockThreshold: 50,
         sidebarFavorites: [],
 
         setActiveBranch: (id) => set({ activeBranchId: id }, false, 'ui/setActiveBranch'),
@@ -65,8 +62,6 @@ export const useUIStore = create<UIStore>()(
           set({ displayCurrency }, false, 'ui/setDisplayCurrency'),
         setExchangeRate: (exchangeRate) =>
           set({ exchangeRate }, false, 'ui/setExchangeRate'),
-        setLowStockThreshold: (lowStockThreshold) =>
-          set({ lowStockThreshold }, false, 'ui/setLowStockThreshold'),
         toggleFavorite: (key) =>
           set(
             (s) => ({
@@ -86,7 +81,6 @@ export const useUIStore = create<UIStore>()(
           density: s.density,
           displayCurrency: s.displayCurrency,
           exchangeRate: s.exchangeRate,
-          lowStockThreshold: s.lowStockThreshold,
           sidebarCollapsed: s.sidebarCollapsed,
           sidebarFavorites: s.sidebarFavorites,
         }),

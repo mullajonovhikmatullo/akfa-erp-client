@@ -11,7 +11,6 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const { user, isStoreOwner, branchId } = useCurrentUser()
   const activeBranchId = useUIStore((state) => state.activeBranchId)
-  const lowStockThreshold = useUIStore((state) => state.lowStockThreshold)
   const scopedBranchId = isStoreOwner
     ? activeBranchId !== '__all__' ? activeBranchId : undefined
     : branchId ?? undefined
@@ -22,7 +21,6 @@ export function DashboardPage() {
       t={t}
       firstName={firstName}
       branchId={scopedBranchId}
-      lowStockThreshold={lowStockThreshold}
       onNewSale={() => navigate(ROUTES.SALES)}
       onStockIn={() => navigate(ROUTES.PURCHASES)}
       onOpenAnalytics={() => navigate(ROUTES.ANALYTICS)}

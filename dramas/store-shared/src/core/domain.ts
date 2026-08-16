@@ -103,6 +103,7 @@ export interface Product {
   description: string | null
   sku: string | null
   unit: ProductUnit
+  lowStockThreshold: number | null
   categoryId: string | null
   category: { id: string; name: string } | null
   costPriceUzs: number

@@ -421,6 +421,11 @@ html.dark .billing-plan-card--personal .ant-btn{ border-color:rgba(167,139,250,.
 .dashboard-metric-kpi .value .money-currency{font-size:.62em;letter-spacing:0}
 .dashboard-top-products__controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}
 .dashboard-top-products__controls .ant-segmented{flex:0 0 auto}
+.dashboard-payment-card__content{display:flex;align-items:center;justify-content:flex-start;gap:12px;min-width:0;flex-wrap:wrap}
+.dashboard-payment-card__legend{display:flex;flex:1 1 0;min-width:180px;flex-direction:column;gap:7px}
+.dashboard-payment-card__legend .num{line-height:1.25;overflow-wrap:anywhere;white-space:normal}
+.dashboard-payment-card__total{overflow:hidden}
+.dashboard-payment-card__total .num{display:block;max-width:100%;font-size:clamp(10px,1.1vw,13px)!important;line-height:1.2;overflow-wrap:anywhere;white-space:normal}
 @media(max-width:640px){
   .dashboard-top-products__controls{width:100%;justify-content:space-between}
   .dashboard-top-products__controls .meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

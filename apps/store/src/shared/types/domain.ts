@@ -86,6 +86,7 @@ export interface Product {
   description: string | null;
   sku: string | null;
   unit: ProductUnit;
+  lowStockThreshold: number | null;
   categoryId: string | null;
   category: { id: string; name: string } | null;
   costPriceUzs: number;
@@ -104,7 +105,7 @@ export interface InventoryRecord {
   quantity: number;
   updatedAt: string;
   branch: { id: string; name: string };
-  product: { id: string; name: string; sku: string | null; unit: ProductUnit };
+  product: { id: string; name: string; sku: string | null; unit: ProductUnit; lowStockThreshold?: number | null };
 }
 
 export interface Customer {
