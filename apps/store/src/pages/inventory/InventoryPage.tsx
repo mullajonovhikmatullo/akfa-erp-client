@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Button, Input, Select, Table, Tag } from 'antd';
 import { ArrowClockwiseIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { AuthenticatedProductImage, useProducts } from '@store/store-view/product';
-import { useInventoryRecords, useStockBatchSummary } from '@store/store-view/inventory';
+import { useInventoryRecords, useStockBatchSummary, useStockBatches } from '@store/store-view/inventory';
 import { MoneyDisplay } from '@store/store-shared/ui/money-display';
 import type { InventoryRecord, ProductUnit } from '@store/store-stub';
 import { useUIStore } from '@/app/stores/ui.store';
@@ -41,7 +41,12 @@ export function InventoryPage() {
     ? activeBranchId !== '__all__' ? activeBranchId : undefined
     : branchId ?? undefined;
   const inventoryQuery = useInventoryRecords(scopedBranchId ? { branchId: scopedBranchId } : undefined);
+  const stockBatchesQuery = useStockBatches(scopedBranchId ? { branchId: scopedBranchId } : undefined);
   const { data: stockSummary } = useStockBatchSummary({ branchId: scopedBranchId });
+  const stockedProductIds = useMemo(
+    () => new Set((stockBatchesQuery.data ?? []).map((batch) => batch.product.id)),
+    [stockBatchesQuery.data],
+  );
 
   const rows = useMemo(() => {
     const grouped = new Map<string, StockRow>();
@@ -185,7 +190,11 @@ export function InventoryPage() {
               title: t('inventory.branches'),
               key: 'branches',
               width: 150,
-              render: (_value, row) => <Tag>{row.branches.size}</Tag>,
+              render: (_value, row) => (
+                <div className="inventory-branches-cell" title={[...row.branches].join(', ')}>
+                  {[...row.branches].map((branchName) => <Tag key={branchName}>{branchName}</Tag>)}
+                </div>
+              ),
             },
             {
               title: t('inventory.unit'),
@@ -201,15 +210,26 @@ export function InventoryPage() {
               width: 190,
               align: 'right',
               sorter: (a, b) => a.quantity - b.quantity,
-              render: (quantity: number, row) => (
-                <div className="inventory-quantity-cell">
-                  <strong className="inventory-quantity">{formatQuantity(quantity)} <small>{t(`units.${row.unit}`)}</small></strong>
-                  {quantity <= 0 ? <Tag color="red">{t('inventory.statusOut')}</Tag> : null}
-                  {quantity > 0 && row.lowStockThreshold != null && quantity <= row.lowStockThreshold
-                    ? <Tag color="orange">{t('inventory.statusLow')}</Tag>
-                    : null}
-                </div>
-              ),
+              render: (quantity: number, row) => {
+                const notStockedYet =
+                  stockBatchesQuery.data !== undefined &&
+                  !stockBatchesQuery.isError &&
+                  !stockedProductIds.has(row.productId)
+
+                return (
+                  <div className="inventory-quantity-cell">
+                    <strong className="inventory-quantity">{formatQuantity(quantity)} <small>{t(`units.${row.unit}`)}</small></strong>
+                    {quantity <= 0 ? (
+                      <Tag color={notStockedYet ? 'blue' : 'red'}>
+                        {t(notStockedYet ? 'inventory.statusNotStocked' : 'inventory.statusOut')}
+                      </Tag>
+                    ) : null}
+                    {quantity > 0 && row.lowStockThreshold != null && quantity <= row.lowStockThreshold
+                      ? <Tag color="orange">{t('inventory.statusLow')}</Tag>
+                      : null}
+                  </div>
+                )
+              },
             },
           ]}
         />

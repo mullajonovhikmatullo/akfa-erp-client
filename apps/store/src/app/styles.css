@@ -269,6 +269,8 @@ html.dark .trial-banner--urgent .trial-banner__remaining span{ color:#e2a29d; }
 .inventory-product-cell div{display:flex;min-width:0;flex-direction:column;gap:2px}
 .inventory-product-cell strong{overflow:hidden;color:var(--ink-2);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
 .inventory-product-cell small{color:var(--ink-3);font-size:10px}
+.inventory-branches-cell{display:flex;align-items:center;gap:4px;max-width:100%;overflow:hidden;flex-wrap:wrap}
+.inventory-branches-cell .ant-tag{max-width:100%;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .inventory-quantity{color:var(--primary);font-size:14px;white-space:nowrap}
 .inventory-quantity small{color:var(--ink-3);font-size:10px;font-weight:600}
 .inventory-quantity-cell{display:flex;align-items:center;justify-content:flex-end;gap:7px}
