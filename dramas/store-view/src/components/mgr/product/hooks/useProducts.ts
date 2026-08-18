@@ -67,7 +67,6 @@ export function useCreateProduct() {
     mutationFn: ProductFlowApi.createProduct,
     onSuccess: (product) => {
       //
-      queryClient.invalidateQueries({ queryKey: productKeys.all })
       toast.success(`"${product.name}" mahsulot qo'shildi`)
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
@@ -85,7 +84,6 @@ export function useUpdateProduct() {
     mutationFn: ({ id, payload }: { id: string; payload: UpdateProductPayload }) => ProductFlowApi.updateProduct({ id, payload }),
     onSuccess: (product) => {
       //
-      queryClient.invalidateQueries({ queryKey: productKeys.all })
       toast.success(`"${product.name}" yangilandi`)
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {

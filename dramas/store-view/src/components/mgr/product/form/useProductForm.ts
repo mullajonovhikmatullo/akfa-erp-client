@@ -15,6 +15,7 @@ import { createProductSchema, type ProductFormValues } from './productSchema'
 
 interface UseProductFormOptions {
   t: (key: string) => string
+  open: boolean
   product?: Product | null
   imageFiles: File[]
   onImageFilesChange: (files: File[]) => void
@@ -32,9 +33,9 @@ const emptyValues: ProductFormValues = {
   categoryId: '',
   branchId: '',
   priceCurrency: 'UZS',
-  costPriceUzs: 0,
-  retailPriceUzs: 0,
-  wholesalePriceUzs: 0,
+  costPriceUzs: undefined,
+  retailPriceUzs: undefined,
+  wholesalePriceUzs: undefined,
   costPriceUsd: undefined,
   retailPriceUsd: undefined,
   wholesalePriceUsd: undefined,
@@ -43,6 +44,7 @@ const emptyValues: ProductFormValues = {
 
 export function useProductForm({
   t,
+  open,
   product,
   imageFiles,
   onImageFilesChange,
@@ -62,10 +64,13 @@ export function useProductForm({
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(schema),
     defaultValues: emptyValues,
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
   })
 
   useEffect(() => {
-    //
+    if (!open) return
+
     if (product) {
       const hasUsdOnly = !product.retailPriceUzs && !!product.retailPriceUsd
       form.reset({
@@ -89,7 +94,7 @@ export function useProductForm({
     }
 
     form.reset(emptyValues)
-  }, [form, product])
+  }, [form, open, product])
 
   const createMutation = useCreateProduct()
   const updateMutation = useUpdateProduct()

@@ -60,6 +60,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
     resetFlow,
   } = useProductForm({
     t,
+    open,
     product,
     imageFiles,
     onImageFilesChange: setImageFiles,
@@ -71,6 +72,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
     control,
     formState: { errors },
     watch,
+    clearErrors,
     setValue,
   } = form
 
@@ -90,7 +92,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   useEffect(() => {
     //
     if (open && !isEdit && isStoreOwner && defaultBranchId && !branchId) {
-      setValue('branchId', defaultBranchId, { shouldValidate: true })
+      setValue('branchId', defaultBranchId, { shouldValidate: false })
     }
   }, [open, isEdit, isStoreOwner, defaultBranchId, branchId, setValue])
 
@@ -111,6 +113,14 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   const handleCurrencyChange = (value: string | number) => {
     //
     const currency = value as 'UZS' | 'USD'
+    clearErrors([
+      'costPriceUzs',
+      'retailPriceUzs',
+      'wholesalePriceUzs',
+      'costPriceUsd',
+      'retailPriceUsd',
+      'wholesalePriceUsd',
+    ])
     setValue('priceCurrency', currency, { shouldValidate: false })
     if (currency === 'UZS') {
       setValue('costPriceUsd', undefined)
