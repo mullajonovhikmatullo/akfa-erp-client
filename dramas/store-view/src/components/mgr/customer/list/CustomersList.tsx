@@ -327,9 +327,9 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
         </div>}
       </div>
 
-      <div className="customer-tabs">
-        <button className={activeTab === 'customers' ? 'is-active' : ''} onClick={() => setActiveTab('customers')}>{t('customers.tabCustomers')}</button>
-        <button className={activeTab === 'payments' ? 'is-active' : ''} onClick={() => setActiveTab('payments')}>{t('customers.tabPayments')}</button>
+      <div className="customer-tabs" role="tablist" aria-label={t('nav.customers')}>
+        <button type="button" role="tab" aria-selected={activeTab === 'customers'} className={activeTab === 'customers' ? 'is-active' : ''} onClick={() => setActiveTab('customers')}>{t('customers.tabCustomers')}</button>
+        <button type="button" role="tab" aria-selected={activeTab === 'payments'} className={activeTab === 'payments' ? 'is-active' : ''} onClick={() => setActiveTab('payments')}>{t('customers.tabPayments')}</button>
       </div>
 
       {activeTab === 'customers' ? <><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>

@@ -3595,30 +3595,61 @@ html.dark .app-shell .ant-btn-primary.ant-btn-disabled{
   border-color:var(--glass-border-subtle);
   background:var(--glass-bg-soft);
 }
+.app-shell .ant-segmented,
 .ant-modal-root .ant-segmented{
   padding:3px;
-  border:1px solid var(--glass-border-subtle);
-  box-shadow:inset 0 1px var(--glass-border);
+  border:1px solid #bfd3e5;
+  border-radius:10px;
+  background:linear-gradient(180deg,rgba(233,242,249,.92),rgba(220,235,246,.78));
+  box-shadow:inset 0 1px rgba(255,255,255,.82),0 5px 14px -12px rgba(23,71,119,.34);
 }
+.app-shell .ant-segmented-item,
+.ant-modal-root .ant-segmented-item{
+  position:relative;
+  z-index:1;
+  border:1px solid transparent;
+  border-radius:7px;
+  color:var(--ink-3);
+  font-weight:620;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
+}
+.app-shell .ant-segmented-item:not(.ant-segmented-item-selected):hover,
+.ant-modal-root .ant-segmented-item:not(.ant-segmented-item-selected):hover{
+  background:rgba(255,255,255,.56);
+  color:#1d6b9f;
+}
+.app-shell .ant-segmented-thumb,
+.ant-modal-root .ant-segmented-thumb,
+.app-shell .ant-segmented-item-selected,
 .ant-modal-root .ant-segmented-item-selected{
-  color:var(--primary);
-  font-weight:650;
-  box-shadow:0 5px 14px -10px color-mix(in srgb,var(--primary) 50%,transparent),inset 0 1px rgba(255,255,255,.5);
+  border:1px solid #8fc5e9 !important;
+  border-radius:7px;
+  background:linear-gradient(180deg,#ffffff 0%,#e8f5ff 100%) !important;
+  color:#075b98 !important;
+  font-weight:720;
+  box-shadow:inset 0 1px rgba(255,255,255,.94),0 5px 12px -9px rgba(4,118,208,.62) !important;
 }
+html.dark .app-shell .ant-segmented,
 html.dark .ant-modal-root .ant-segmented{
   border-color:rgba(112,157,194,.18);
   background:rgba(8,21,38,.48);
   box-shadow:inset 0 1px rgba(151,205,239,.045);
 }
-html.dark .ant-modal-root .ant-segmented-item-selected{
-  background:linear-gradient(180deg,rgba(34,72,103,.9),rgba(25,57,86,.92)) !important;
-  color:#8fd5fb !important;
-  box-shadow:inset 0 1px rgba(180,222,248,.1),0 6px 16px -12px rgba(0,0,0,.8) !important;
-}
+html.dark .app-shell .ant-segmented-item:not(.ant-segmented-item-selected),
 html.dark .ant-modal-root .ant-segmented-item:not(.ant-segmented-item-selected){color:#91a4ba}
+html.dark .app-shell .ant-segmented-item:not(.ant-segmented-item-selected):hover,
 html.dark .ant-modal-root .ant-segmented-item:not(.ant-segmented-item-selected):hover{
   background:rgba(76,124,161,.1);
   color:#c2d3e2;
+}
+html.dark .app-shell .ant-segmented-thumb,
+html.dark .ant-modal-root .ant-segmented-thumb,
+html.dark .app-shell .ant-segmented-item-selected,
+html.dark .ant-modal-root .ant-segmented-item-selected{
+  border-color:rgba(78,157,205,.34) !important;
+  background:linear-gradient(180deg,rgba(34,72,103,.9),rgba(25,57,86,.92)) !important;
+  color:#8fd5fb !important;
+  box-shadow:inset 0 1px rgba(180,222,248,.1),0 6px 16px -12px rgba(0,0,0,.8) !important;
 }
 html.dark .ant-modal-root .ant-radio-button-wrapper{
   border-color:rgba(112,157,194,.18) !important;
@@ -4294,10 +4325,62 @@ html.dark .ant-drawer-root .ant-btn-primary:disabled,html.dark .ant-drawer-root 
   border-color:rgba(126,151,179,.18) !important;background:rgba(52,67,88,.5) !important;color:#718096 !important;box-shadow:inset 0 1px rgba(255,255,255,.035) !important;
 }
 
-/* Customer debt payment — compact, stable drawer workflow. */
-.customer-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)}
-.customer-tabs button{padding:9px 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--ink-3);font-size:13px;font-weight:650;cursor:pointer}
-.customer-tabs button.is-active{border-bottom-color:var(--primary);color:var(--primary)}
+/* Shared tabs — the active surface must remain obvious in light mode. */
+.customer-tabs,.analytics-tabs{
+  display:flex;
+  gap:4px;
+  margin-bottom:16px;
+  padding:4px;
+  overflow-x:auto;
+  border:1px solid #d5e2ed;
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(245,249,252,.94),rgba(232,241,248,.8));
+  box-shadow:inset 0 1px rgba(255,255,255,.86),0 7px 18px -18px rgba(23,71,119,.45);
+  scrollbar-width:thin;
+}
+.customer-tabs button,.analytics-tabs button{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:7px 14px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:var(--ink-3);
+  font-size:13px;
+  font-weight:650;
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.customer-tabs button:hover:not(.is-active),.analytics-tabs button:hover:not(.is-active){
+  background:rgba(255,255,255,.62);
+  color:#1d6b9f;
+}
+.customer-tabs button.is-active,.analytics-tabs button.is-active{
+  border-color:#8fc5e9;
+  background:linear-gradient(180deg,#ffffff 0%,#e8f5ff 100%);
+  color:#075b98;
+  box-shadow:inset 0 1px rgba(255,255,255,.94),0 6px 13px -10px rgba(4,118,208,.62);
+}
+.customer-tabs button:focus-visible,.analytics-tabs button:focus-visible{
+  outline:3px solid rgba(4,118,208,.18);
+  outline-offset:1px;
+}
+html.dark .customer-tabs,html.dark .analytics-tabs{
+  border-color:rgba(112,157,194,.18);
+  background:rgba(8,21,38,.48);
+  box-shadow:inset 0 1px rgba(151,205,239,.045);
+}
+html.dark .customer-tabs button:not(.is-active),html.dark .analytics-tabs button:not(.is-active){color:#91a4ba}
+html.dark .customer-tabs button:hover:not(.is-active),html.dark .analytics-tabs button:hover:not(.is-active){
+  background:rgba(76,124,161,.1);
+  color:#c2d3e2;
+}
+html.dark .customer-tabs button.is-active,html.dark .analytics-tabs button.is-active{
+  border-color:rgba(78,157,205,.34);
+  background:linear-gradient(180deg,rgba(34,72,103,.9),rgba(25,57,86,.92));
+  color:#8fd5fb;
+  box-shadow:inset 0 1px rgba(180,222,248,.1),0 6px 16px -12px rgba(0,0,0,.8);
+}
 .debt-payment-filters{display:grid;grid-template-columns:minmax(250px,1.2fr) minmax(190px,1fr) minmax(170px,.8fr) auto;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);align-items:center}
 .debt-payment-filters__total{color:var(--ink-3);font-size:12.5px;white-space:nowrap;text-align:right}
 .debt-payment-filters__total strong{color:var(--ink-1)}

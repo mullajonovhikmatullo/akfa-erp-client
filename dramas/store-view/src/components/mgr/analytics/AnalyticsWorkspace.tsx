@@ -170,22 +170,15 @@ export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
       </div>
 
       {/* Tab bar */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 0 }}>
+      <div className="analytics-tabs" role="tablist" aria-label={t('analytics.title')}>
         {TABS.map((tabItem) => (
           <button
             key={tabItem.key}
+            type="button"
+            role="tab"
+            aria-selected={tab === tabItem.key}
+            className={tab === tabItem.key ? 'is-active' : undefined}
             onClick={() => setTab(tabItem.key)}
-            style={{
-              padding: '8px 16px',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: 600,
-              color: tab === tabItem.key ? 'var(--primary)' : 'var(--ink-3)',
-              borderBottom: tab === tabItem.key ? '2px solid var(--primary)' : '2px solid transparent',
-              marginBottom: -1,
-            }}
           >
             {tabItem.label}
           </button>
