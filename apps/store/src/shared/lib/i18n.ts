@@ -633,6 +633,8 @@ const TRANSLATIONS: Translations = {
     // CategoryDrawer
     'categoryDrawer.title': 'Харажат категориялари',
     'categoryDrawer.placeholderNewName': 'Янги категория номи',
+    'categoryDrawer.nameRequired': 'Номни киритинг',
+    'categoryDrawer.nameMax': 'Ном 100 та белгидан ошмаслиги керак',
     'categoryDrawer.emptyCategories': 'Категориялар йўқ',
     'categoryDrawer.expenseCountSuffix': 'та харажат',
     'categoryDrawer.popconfirmTitle': 'Ўчирилсинми?',
@@ -1563,6 +1565,8 @@ const TRANSLATIONS: Translations = {
     // CategoryDrawer
     'categoryDrawer.title': 'Xarajat kategoriyalari',
     'categoryDrawer.placeholderNewName': 'Yangi kategoriya nomi',
+    'categoryDrawer.nameRequired': 'Nomni kiriting',
+    'categoryDrawer.nameMax': 'Nom 100 ta belgidan oshmasligi kerak',
     'categoryDrawer.emptyCategories': "Kategoriyalar yo'q",
     'categoryDrawer.expenseCountSuffix': 'ta xarajat',
     'categoryDrawer.popconfirmTitle': "O'chirilsinmi?",
@@ -2485,6 +2489,8 @@ const TRANSLATIONS: Translations = {
     // CategoryDrawer
     'categoryDrawer.title': 'Категории расходов',
     'categoryDrawer.placeholderNewName': 'Название новой категории',
+    'categoryDrawer.nameRequired': 'Введите название',
+    'categoryDrawer.nameMax': 'Название не должно превышать 100 символов',
     'categoryDrawer.emptyCategories': 'Категорий нет',
     'categoryDrawer.expenseCountSuffix': 'расходов',
     'categoryDrawer.popconfirmTitle': 'Удалить?',
@@ -3408,6 +3414,8 @@ const TRANSLATIONS: Translations = {
     // CategoryDrawer
     'categoryDrawer.title': 'Expense Categories',
     'categoryDrawer.placeholderNewName': 'New category name',
+    'categoryDrawer.nameRequired': 'Enter a name',
+    'categoryDrawer.nameMax': 'Name must not exceed 100 characters',
     'categoryDrawer.emptyCategories': 'No categories yet',
     'categoryDrawer.expenseCountSuffix': 'expenses',
     'categoryDrawer.popconfirmTitle': 'Delete?',

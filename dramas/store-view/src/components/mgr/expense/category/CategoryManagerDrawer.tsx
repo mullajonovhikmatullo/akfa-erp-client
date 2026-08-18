@@ -31,7 +31,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
   const deleteCat = useDeleteExpenseCategory()
 
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { control, handleSubmit, resetField, setValue, getValues, watch } = useForm<CategoryManagerFormValues>({
+  const { control, handleSubmit, resetField, setValue, getValues, watch, formState: { errors } } = useForm<CategoryManagerFormValues>({
     defaultValues: {
       newName: '',
       editName: '',
@@ -53,27 +53,38 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
     setValue('editName', category.name)
   }
 
-  const saveEdit = (id: string) => {
+  const saveEdit = (id: string, rawName = getValues('editName')) => {
     //
-    const name = getValues('editName').trim()
+    const name = rawName.trim()
     if (!name) return
     updateCat.mutate({ id, payload: { name } }, { onSuccess: () => setEditingId(null) })
   }
 
+  const submitEdit = (id: string) => {
+    handleSubmit((values) => saveEdit(id, values.editName))()
+  }
+
   return (
     <Drawer rootClassName="ant-drawer-root" title={t('categoryDrawer.title')} open={open} onClose={onClose} width={440} closable={{ placement: 'end' }} destroyOnHidden>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 20 }}>
         <Controller
           name="newName"
           control={control}
+          rules={{
+            validate: (value) => value.trim().length > 0 || t('categoryDrawer.nameRequired'),
+            maxLength: { value: 100, message: t('categoryDrawer.nameMax') },
+          }}
           render={({ field }) => (
-            <Input
-              {...field}
-              {...blockAutofill('store-expense-category-new-name')}
-              placeholder={t('categoryDrawer.placeholderNewName')}
-              onPressEnter={handleSubmit(submitCreate)}
-              style={{ flex: 1 }}
-            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Input
+                {...field}
+                {...blockAutofill('store-expense-category-new-name')}
+                placeholder={t('categoryDrawer.placeholderNewName')}
+                onPressEnter={handleSubmit(submitCreate)}
+                status={errors.newName ? 'error' : undefined}
+              />
+              {errors.newName?.message ? <div style={{ marginTop: 4, color: 'var(--danger)', fontSize: 11 }}>{errors.newName.message}</div> : null}
+            </div>
           )}
         />
         <Button
@@ -112,21 +123,28 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
                   <Controller
                     name="editName"
                     control={control}
+                    rules={{
+                      validate: (value) => value.trim().length > 0 || t('categoryDrawer.nameRequired'),
+                      maxLength: { value: 100, message: t('categoryDrawer.nameMax') },
+                    }}
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        {...blockAutofill(`store-expense-category-edit-${category.id}`)}
-                        onPressEnter={() => saveEdit(category.id)}
-                        style={{ flex: 1 }}
-                        autoFocus
-                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <Input
+                          {...field}
+                          {...blockAutofill(`store-expense-category-edit-${category.id}`)}
+                          onPressEnter={() => submitEdit(category.id)}
+                          status={errors.editName ? 'error' : undefined}
+                          autoFocus
+                        />
+                        {errors.editName?.message ? <div style={{ marginTop: 4, color: 'var(--danger)', fontSize: 11 }}>{errors.editName.message}</div> : null}
+                      </div>
                     )}
                   />
                   <Button
                     size="small"
                     type="primary"
                     icon={<CheckIcon size={16} weight="bold" />}
-                    onClick={() => saveEdit(category.id)}
+                    onClick={() => submitEdit(category.id)}
                     loading={updateCat.isPending}
                     disabled={!editName.trim()}
                   />
