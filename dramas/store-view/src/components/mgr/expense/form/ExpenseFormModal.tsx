@@ -223,7 +223,14 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: E
           control={control}
           render={({ field }) => (
             <Form.Item label={t('expenseForm.labelNote')}>
-              <Input.TextArea {...field} {...blockAutofill('store-expense-description')} rows={2} placeholder={t('expenseForm.placeholderNote')} />
+              <Input.TextArea
+                {...field}
+                {...blockAutofill('store-expense-description')}
+                rows={2}
+                maxLength={500}
+                showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
+                placeholder={t('expenseForm.placeholderNote')}
+              />
             </Form.Item>
           )}
         />

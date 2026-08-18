@@ -78,7 +78,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
 
   const defaultFromBranchId = useMemo(() => findDefaultBranch(branches), [branches])
 
-  const sourceBranchId = isStoreOwner ? fromBranchId : (userBranchId ?? undefined)
+  const sourceBranchId = isStoreOwner ? (userBranchId ?? defaultFromBranchId) : (userBranchId ?? undefined)
   const { data: inventoryRecords = [], isLoading: inventoryLoading } = useInventoryRecords(
     sourceBranchId ? { branchId: sourceBranchId } : undefined,
     { enabled: Boolean(sourceBranchId) },
@@ -87,13 +87,12 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
 
   useEffect(() => {
     //
-    if (isStoreOwner && open && defaultFromBranchId && !fromBranchId) {
-      setValue('fromBranchId', defaultFromBranchId)
+    if (open && sourceBranchId && fromBranchId !== sourceBranchId) {
+      setValue('fromBranchId', sourceBranchId)
+      setValue('toBranchId', undefined)
+      replace([])
     }
-    if (!isStoreOwner) {
-      setValue('fromBranchId', userBranchId ?? undefined)
-    }
-  }, [defaultFromBranchId, fromBranchId, isStoreOwner, open, setValue, userBranchId])
+  }, [fromBranchId, open, replace, setValue, sourceBranchId])
 
   useEffect(() => {
     //
@@ -116,15 +115,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
     [products, stockByProductId],
   )
 
-  const availableFrom = branches.filter((branch) => branch.id !== toBranchId)
   const availableTo = branches.filter((branch) => branch.id !== sourceBranchId)
-
-  const handleFromBranchChange = (branchId: string) => {
-    //
-    setValue('fromBranchId', branchId)
-    if (toBranchId === branchId) setValue('toBranchId', undefined)
-    replace([])
-  }
 
   const addProduct = (productId: string) => {
     //
@@ -186,13 +177,13 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
     hasValidQuantities &&
     toBranchId !== undefined &&
     toBranchId !== sourceBranchId &&
-    (isStoreOwner ? fromBranchId !== undefined : Boolean(userBranchId))
+    Boolean(sourceBranchId)
 
   const submitTransfer = (values: TransferFormValues) => {
     //
     createTransfer.mutate(
       {
-        fromBranchId: isStoreOwner ? values.fromBranchId : undefined,
+        fromBranchId: sourceBranchId,
         toBranchId: values.toBranchId!,
         items: values.cart.map((item) => ({
           productId: item.productId,
@@ -205,7 +196,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
         onSuccess: () => {
           //
           reset({
-            fromBranchId: isStoreOwner ? defaultFromBranchId : (userBranchId ?? undefined),
+            fromBranchId: sourceBranchId,
             toBranchId: undefined,
             note: '',
             cart: [],
@@ -241,31 +232,9 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
           <div>
             <Label>{t('transferModal.labelFrom')}</Label>
-            {isStoreOwner ? (
-              <Controller
-                name="fromBranchId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onChange={(value) => {
-                      //
-                      field.onChange(value)
-                      handleFromBranchChange(value)
-                    }}
-                    placeholder={t('transferModal.placeholderBranch')}
-                    style={{ width: '100%' }}
-                    loading={branchesLoading}
-                    notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-                    options={availableFrom.map((branch) => ({ value: branch.id, label: branch.name }))}
-                  />
-                )}
-              />
-            ) : (
-              <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
-                {branches.find((branch) => branch.id === userBranchId)?.name ?? t('transferModal.yourBranch')}
-              </div>
-            )}
+            <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
+              {branches.find((branch) => branch.id === sourceBranchId)?.name ?? t('transferModal.yourBranch')}
+            </div>
           </div>
           <div>
             <Label>{t('transferModal.labelTo')}</Label>
@@ -483,6 +452,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
                 rows={2}
                 placeholder={t('transferModal.placeholderNote')}
                 maxLength={500}
+                showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
               />
             )}
           />

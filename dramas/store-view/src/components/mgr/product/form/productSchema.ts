@@ -12,7 +12,7 @@ export const createProductSchema = (t: (key: string) => string) => {
   return z
     .object({
       name: z.string().min(1, t('validation.nameRequired')).max(200, t('validation.nameMax')),
-      description: z.string().max(1000).optional().or(z.literal('')),
+      description: z.string().max(500).optional().or(z.literal('')),
       sku: z.string().max(100).regex(/^[A-Za-z0-9_-]*$/, t('validation.skuPattern')).optional().or(z.literal('')),
       unit: z.enum(UNITS, { error: t('validation.unitRequired') }),
       lowStockThreshold: z.number().nonnegative(t('validation.thresholdNegative')).multipleOf(0.0001).optional(),

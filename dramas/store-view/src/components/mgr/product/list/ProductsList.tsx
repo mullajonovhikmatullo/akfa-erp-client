@@ -428,7 +428,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   }
 
                   const description = getField(raw, 'description') || undefined
-                  if (description && description.length > 1000) return { index, raw, error: 'description 1000 belgidan oshmasligi kerak' }
+                  if (description && description.length > 500) return { index, raw, error: 'description 500 belgidan oshmasligi kerak' }
 
                   const sku = getField(raw, 'sku') || undefined
                   if (sku && (sku.length > 100 || !/^[A-Za-z0-9_-]+$/.test(sku))) {

@@ -755,7 +755,12 @@ export function BillingPage() {
             )}
           </Form.Item>
           <Form.Item name="note" label={t('billing.note')}>
-            <Input.TextArea rows={3} maxLength={500} placeholder={t('billing.notePlaceholder')} />
+            <Input.TextArea
+              rows={3}
+              maxLength={500}
+              showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
+              placeholder={t('billing.notePlaceholder')}
+            />
           </Form.Item>
           <Space className="billing-security-note" size={8}>
             <CheckCircle size={18} weight="duotone" />

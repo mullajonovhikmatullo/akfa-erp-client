@@ -13,5 +13,5 @@ export function TransfersPage() {
     ? activeBranchId !== '__all__' ? activeBranchId : undefined
     : branchId ?? undefined
 
-  return <TransfersList t={t} isStoreOwner={isStoreOwner} userBranchId={scopedBranchId} branchId={scopedBranchId} userId={user?.id} exchangeRate={exchangeRate} />
+  return <TransfersList t={t} isStoreOwner={isStoreOwner} userBranchId={isStoreOwner ? (branchId ?? undefined) : scopedBranchId} branchId={scopedBranchId} userId={user?.id} exchangeRate={exchangeRate} />
 }

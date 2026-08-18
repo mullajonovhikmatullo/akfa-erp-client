@@ -376,7 +376,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
                   placeholder={t('categories.descPlaceholder')}
                   rows={3}
                   maxLength={500}
-                  showCount
+                  showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
                 />
               )}
             />

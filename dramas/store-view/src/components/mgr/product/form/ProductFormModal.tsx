@@ -415,6 +415,8 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
                 {...field}
                 {...blockAutofill('store-product-description')}
                 rows={2}
+                maxLength={500}
+                showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
                 placeholder={t('productForm.placeholderDescription')}
               />
             </Form.Item>

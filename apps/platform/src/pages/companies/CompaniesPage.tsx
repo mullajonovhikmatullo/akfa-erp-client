@@ -500,6 +500,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             value={statusNote}
             onChange={(event) => setStatusNote(event.target.value)}
             maxLength={500}
+            showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
             rows={3}
             placeholder={
               pendingStatusChange?.status === 'SUSPENDED' || pendingStatusChange?.status === 'CANCELLED'

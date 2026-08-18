@@ -417,7 +417,12 @@ export const PaymentsPage = () => {
             <Input />
           </Form.Item>
           <Form.Item name="note" label="Izoh">
-            <Input.TextArea maxLength={500} rows={3} placeholder="Masalan: Click chek raqami yoki karta to‘lovi" />
+            <Input.TextArea
+              maxLength={500}
+              showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
+              rows={3}
+              placeholder="Masalan: Click chek raqami yoki karta to‘lovi"
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -445,6 +450,7 @@ export const PaymentsPage = () => {
             value={rejectNote}
             onChange={(event) => setRejectNote(event.target.value)}
             maxLength={500}
+            showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
             rows={3}
             placeholder="Rad etish sababi"
           />
