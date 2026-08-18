@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { Button, Input, Select, Table, Tag } from 'antd';
 import { ArrowClockwiseIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { AuthenticatedProductImage, useProducts } from '@store/store-view/product';
-import { useInventoryRecords } from '@store/store-view/inventory';
+import { useInventoryRecords, useStockBatchSummary } from '@store/store-view/inventory';
+import { MoneyDisplay } from '@store/store-shared/ui/money-display';
 import type { InventoryRecord, ProductUnit } from '@store/store-stub';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useCurrentUser } from '@/entities/user';
@@ -40,6 +41,7 @@ export function InventoryPage() {
     ? activeBranchId !== '__all__' ? activeBranchId : undefined
     : branchId ?? undefined;
   const inventoryQuery = useInventoryRecords(scopedBranchId ? { branchId: scopedBranchId } : undefined);
+  const { data: stockSummary } = useStockBatchSummary({ branchId: scopedBranchId });
 
   const rows = useMemo(() => {
     const grouped = new Map<string, StockRow>();
@@ -121,6 +123,11 @@ export function InventoryPage() {
           <span>{t('inventory.totalWeight')}</span>
           <strong>{formatQuantity(totals.KG)}</strong>
           <small>{t('units.KG')}</small>
+        </div>
+        <div className="inventory-summary__card">
+          <span>{t('inventory.stockValue')}</span>
+          <strong><MoneyDisplay amount={stockSummary?.totalRemainingValueUzs ?? 0} currency="UZS" /></strong>
+          <small>{t('inventory.stockValueHint')}</small>
         </div>
       </div>
 

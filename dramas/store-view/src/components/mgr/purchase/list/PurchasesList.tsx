@@ -146,7 +146,6 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
         <KpiBox label={t('purchases.kpiReceipts')} value={total} hint={t('purchases.kpiReceiptsHint')} />
         <KpiBox label={t('purchases.kpiProductLines')} value={summary?.totalBatches ?? 0} hint={t('purchases.kpiProductLinesHint')} />
         <KpiBox label={t('purchases.kpiValue')} value={<MoneyDisplay amount={summary?.totalCostUzs ?? 0} currency="UZS" />} hint={t('purchases.kpiValueHint')} />
-        <KpiBox label={t('purchases.kpiRemainingValue')} value={<MoneyDisplay amount={summary?.totalRemainingValueUzs ?? 0} currency="UZS" />} hint={t('purchases.kpiRemainingValueHint')} tone="success" />
       </div>
 
       <div className="card purchase-receipts-card">
