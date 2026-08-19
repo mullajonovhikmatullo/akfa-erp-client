@@ -21,6 +21,7 @@ export interface UpdateProfilePayload {
 
 export interface UpdateProfilePhotoPayload {
   base64Photo: string
+  thumbnailPhoto: string
 }
 
 export interface ChangePasswordPayload {
