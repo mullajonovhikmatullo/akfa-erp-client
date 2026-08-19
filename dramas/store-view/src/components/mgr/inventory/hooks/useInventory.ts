@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { InventoryFlowApi, InventorySeekApi } from '@store/store-stub'
 import type { BatchFilters, InventoryFilters, ReceiptPageQuery, StockInPayload } from '@store/store-stub'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 
 export const inventoryKeys = {
   all: ['inventory'] as const,
@@ -89,9 +90,8 @@ export function useStockInBatch(t: (key: string) => string) {
         message?: string
         response?: { data?: { message?: string } }
       }
-      const message = typedError.response?.data?.message
       const isTimeout = typedError.code === 'ECONNABORTED' || typedError.message?.includes('timeout')
-      toast.error(isTimeout ? t('stockIn.timeoutError') : (message ?? t('stockIn.error')))
+      toast.error(isTimeout ? t('stockIn.timeoutError') : getLocalizedApiErrorMessage(error, t, 'stockIn.error'))
     },
   })
 }

@@ -74,7 +74,7 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
   })
 
   const { data: categories = [] } = useExpenseCategories()
-  const deleteExpense = useDeleteExpense()
+  const deleteExpense = useDeleteExpense(t)
 
   const fallbackGrandTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0)
   const fallbackByCategory = categories

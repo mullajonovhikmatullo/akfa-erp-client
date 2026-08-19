@@ -96,8 +96,8 @@ export function useProductForm({
     form.reset(emptyValues)
   }, [form, open, product])
 
-  const createMutation = useCreateProduct()
-  const updateMutation = useUpdateProduct()
+  const createMutation = useCreateProduct(t)
+  const updateMutation = useUpdateProduct(t)
   const isPending = createMutation.isPending || updateMutation.isPending || isUploading
 
   const resetFlow = useCallback(() => {
@@ -266,7 +266,7 @@ export function useProductForm({
       onImageFilesChange(remainingFiles)
       onImageChangesChange(remainingChanges)
       await queryClient.invalidateQueries({ queryKey: ['products'] }).catch(() => undefined)
-      const message = getApiErrorMessage(error, t('productImages.actionError'))
+      const message = getApiErrorMessage(error, t, 'productImages.actionError')
       setImageUploadError(message)
       toast.error(message)
       return false

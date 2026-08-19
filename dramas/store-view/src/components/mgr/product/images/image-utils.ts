@@ -16,6 +16,7 @@ export function validateProductImageFile(file: File, t: Translate) {
   return null
 }
 
-export function getApiErrorMessage(error: unknown, fallback: string) {
-  return (error as { response?: { data?: { message?: string } } })?.response?.data?.message ?? fallback
+export function getApiErrorMessage(error: unknown, t: Translate, fallbackKey: string) {
+  return getLocalizedApiErrorMessage(error, t, fallbackKey)
 }
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'

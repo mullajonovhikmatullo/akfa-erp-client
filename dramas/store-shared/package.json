@@ -31,6 +31,10 @@
       "types": "./dist/@types/lib/autofill.d.ts",
       "import": "./dist/lib/autofill.js"
     },
+    "./lib/api-error": {
+      "types": "./dist/@types/lib/apiError.d.ts",
+      "import": "./dist/lib/api-error.js"
+    },
     "./lib/formatters": {
       "types": "./dist/@types/lib/formatters.d.ts",
       "import": "./dist/lib/formatters.js"

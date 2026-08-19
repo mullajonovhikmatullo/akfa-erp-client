@@ -27,6 +27,7 @@ export default defineConfig({
         lib: entry('./src/lib/index.ts'),
         ui: entry('./src/ui/index.ts'),
         'lib/autofill': entry('./src/lib/autofill.ts'),
+        'lib/api-error': entry('./src/lib/apiError.ts'),
         'lib/formatters': entry('./src/lib/formatters.ts'),
         'lib/parse-excel': entry('./src/lib/parseExcel.ts'),
         'lib/product-pricing': entry('./src/lib/productPricing.ts'),

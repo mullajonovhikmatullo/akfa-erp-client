@@ -58,7 +58,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
   const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true })
-  const createTransfer = useCreateTransfer()
+  const createTransfer = useCreateTransfer(t)
   const { control, handleSubmit, reset, setValue, watch } = useForm<TransferFormValues>({
     defaultValues: {
       fromBranchId: isStoreOwner ? undefined : (userBranchId ?? undefined),

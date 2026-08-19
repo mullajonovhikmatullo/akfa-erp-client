@@ -125,7 +125,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
   const totalProducts = activeProducts + inactiveProducts
 
   const { data: categories = [] } = useCategories()
-  const deleteProduct = useDeleteProduct()
+  const deleteProduct = useDeleteProduct(t)
   const defaultProductCategoryName = categories[0]?.name ?? ''
   const importBranchId = scopedBranchId
   const unitHintText = PRODUCT_IMPORT_UNITS.map((unit) => `${unit} / ${t(`units.${unit}`)}`).join(', ')

@@ -1,12 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ExpenseFlowApi, ExpenseSeekApi } from '@store/store-stub'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 import type {
   CreateExpenseCategoryPayload,
   CreateExpensePayload,
   ExpenseFilters,
   UpdateExpenseCategoryPayload,
 } from '@store/store-stub'
+
+type Translate = (key: string) => string
 
 export const expenseKeys = {
   all: ['expenses'] as const,
@@ -38,7 +41,7 @@ export function useExpenseCategorySummary(filters?: ExpenseFilters) {
   return useQuery({ queryKey, queryFn })
 }
 
-export function useCreateExpense() {
+export function useCreateExpense(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -48,17 +51,16 @@ export function useCreateExpense() {
       //
       queryClient.invalidateQueries({ queryKey: expenseKeys.all })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      toast.success('Xarajat qayd qilindi')
+      toast.success(t('expenses.createSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? "Xarajat qo'shishda xatolik")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'expenses.createError'))
     },
   })
 }
 
-export function useDeleteExpense() {
+export function useDeleteExpense(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -70,17 +72,16 @@ export function useDeleteExpense() {
         queryClient.invalidateQueries({ queryKey: expenseKeys.all }),
         queryClient.invalidateQueries({ queryKey: ['analytics'] }),
       ])
-      toast.success("Xarajat o'chirildi")
+      toast.success(t('expenses.deleteSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? "O'chirishda xatolik")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'expenses.deleteError'))
     },
   })
 }
 
-export function useCreateExpenseCategory() {
+export function useCreateExpenseCategory(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -89,17 +90,16 @@ export function useCreateExpenseCategory() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() })
-      toast.success("Kategoriya qo'shildi")
+      toast.success(t('expenseCategories.createSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? 'Xatolik')
+      toast.error(getLocalizedApiErrorMessage(error, t, 'expenseCategories.createError'))
     },
   })
 }
 
-export function useUpdateExpenseCategory() {
+export function useUpdateExpenseCategory(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -110,12 +110,13 @@ export function useUpdateExpenseCategory() {
       //
       queryClient.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() })
       queryClient.invalidateQueries({ queryKey: expenseKeys.categorySummaryRoot() })
-      toast.success('Kategoriya yangilandi')
+      toast.success(t('expenseCategories.updateSuccess'))
     },
+    onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'expenseCategories.updateError')),
   })
 }
 
-export function useDeleteExpenseCategory() {
+export function useDeleteExpenseCategory(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -127,12 +128,11 @@ export function useDeleteExpenseCategory() {
         queryClient.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() }),
         queryClient.invalidateQueries({ queryKey: expenseKeys.categorySummaryRoot() }),
       ])
-      toast.success("Kategoriya o'chirildi")
+      toast.success(t('expenseCategories.deleteSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? "O'chirishda xatolik")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'expenseCategories.deleteError'))
     },
   })
 }

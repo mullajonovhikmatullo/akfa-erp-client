@@ -56,7 +56,7 @@ export function CustomerFormModal({
   const formBranchId = useWatch({ control, name: 'branchId' })
   const targetBranchId = isStoreOwner ? formBranchId : branchId ?? undefined
   const phoneCheck = useCustomerPhoneCheck(phone, targetBranchId, !isEdit && open && isValidUzbekMobilePhone(phone))
-  const linkCustomer = useLinkCustomerBranch()
+  const linkCustomer = useLinkCustomerBranch(t)
   const existingCustomer = phoneCheck.data?.customer ?? null
 
   const useExistingCustomer = () => {

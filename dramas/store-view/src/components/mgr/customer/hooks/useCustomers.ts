@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { CustomerFlowApi, CustomerSeekApi } from '@store/store-stub'
 import type { CreateCustomerPayload, CustomerFilters, UpdateCustomerPayload } from '@store/store-stub'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
+
+type Translate = (key: string) => string
 
 export const customerKeys = {
   all: ['customers'] as const,
@@ -35,17 +38,17 @@ export function useCustomerPhoneCheck(phone: string, branchId?: string, enabled 
   return useQuery({ queryKey, queryFn, enabled: enabled && Boolean(phone) && Boolean(branchId), staleTime: 0 })
 }
 
-export function useLinkCustomerBranch() {
+export function useLinkCustomerBranch(t: Translate) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ customerId, branchId }: { customerId: string; branchId?: string }) =>
       CustomerFlowApi.linkCustomerBranch(customerId, branchId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: customerKeys.all }),
-    onError: () => toast.error("Mijozni filialga biriktirishda xatolik"),
+    onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'customers.linkError')),
   })
 }
 
-export function useCreateCustomer() {
+export function useCreateCustomer(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -54,16 +57,15 @@ export function useCreateCustomer() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: customerKeys.all })
-      toast.success("Mijoz muvaffaqiyatli qo'shildi")
+      toast.success(t('customers.createSuccess'))
     },
     onError: (error: unknown) => {
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? "Mijoz qo'shishda xatolik")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'customers.createError'))
     },
   })
 }
 
-export function useUpdateCustomer() {
+export function useUpdateCustomer(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -73,13 +75,13 @@ export function useUpdateCustomer() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: customerKeys.all })
-      toast.success('Mijoz yangilandi')
+      toast.success(t('customers.updateSuccess'))
     },
-    onError: () => toast.error('Yangilashda xatolik'),
+    onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'customers.updateError')),
   })
 }
 
-export function useDeactivateCustomer() {
+export function useDeactivateCustomer(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -88,12 +90,11 @@ export function useDeactivateCustomer() {
     onSuccess: async () => {
       //
       await queryClient.invalidateQueries({ queryKey: customerKeys.all })
-      toast.success("Mijoz o'chirildi")
+      toast.success(t('customers.deleteSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? "O'chirishda xatolik")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'customers.deleteError'))
     },
   })
 }

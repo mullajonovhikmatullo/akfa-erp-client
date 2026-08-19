@@ -66,8 +66,8 @@ export function useCustomerForm({
     }
   }, [branchId, customer, form, open])
 
-  const createMutation = useCreateCustomer()
-  const updateMutation = useUpdateCustomer()
+  const createMutation = useCreateCustomer(t)
+  const updateMutation = useUpdateCustomer(t)
   const isPending = createMutation.isPending || updateMutation.isPending
 
   const onSubmit = form.handleSubmit((values) => {

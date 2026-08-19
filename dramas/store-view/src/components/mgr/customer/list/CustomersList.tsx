@@ -61,7 +61,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
   })
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
   const defaultCustomerBranchId = branchId ?? branches[0]?.id ?? ''
-  const deleteMutation = useDeactivateCustomer()
+  const deleteMutation = useDeactivateCustomer(t)
 
   const totalDebt = customers.reduce((sum, customer) => sum + (customer.balance > 0 ? customer.balance : 0), 0)
   const totalCredit = customers.reduce((sum, customer) => sum + (customer.balance < 0 ? -customer.balance : 0), 0)

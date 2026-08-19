@@ -30,7 +30,7 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: E
   //
   const schema = useMemo(() => createExpenseSchema(t), [t])
   const { data: categories = [], isLoading: categoriesLoading } = useExpenseCategories()
-  const createExpense = useCreateExpense()
+  const createExpense = useCreateExpense(t)
 
   const {
     control,

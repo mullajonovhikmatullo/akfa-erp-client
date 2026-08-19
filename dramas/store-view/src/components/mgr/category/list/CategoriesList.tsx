@@ -7,6 +7,7 @@ import type { Category } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { getField } from '@store/store-shared/lib/parse-excel'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -101,7 +102,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
             setModalOpen(false)
           },
           onError: (error: unknown) =>
-            toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.updateError')),
+            toast.error(getLocalizedApiErrorMessage(error, t, 'categories.updateError')),
         },
       )
     } else {
@@ -116,7 +117,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
           setModalOpen(false)
         },
         onError: (error: unknown) =>
-          toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.createError')),
+          toast.error(getLocalizedApiErrorMessage(error, t, 'categories.createError')),
       })
     }
   }
@@ -208,7 +209,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
               deleteMutation.mutate(category.id, {
                 onSuccess: () => toast.success(t('categories.deleteSuccess')),
                 onError: (error: unknown) =>
-                  toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.deleteError')),
+                  toast.error(getLocalizedApiErrorMessage(error, t, 'categories.deleteError')),
               })
             }}
             onPopupClick={(event) => event.stopPropagation()}

@@ -30,11 +30,6 @@ function readAndClearAuthFragment() {
   return { handoffCode, setupCode }
 }
 
-function getApiMessage(error: unknown): string | null {
-  const response = (error as { response?: { data?: { message?: unknown } } }).response
-  return typeof response?.data?.message === 'string' ? response.data.message : null
-}
-
 function isTransientAuthError(error: unknown): boolean {
   const status = (error as { response?: { status?: unknown } }).response?.status
   return typeof status !== 'number' || status === 429 || status >= 500
@@ -111,10 +106,7 @@ export function LoginPage() {
   const setupMutation = useMutation({
     mutationFn: UserFlowApi.completeAccountSetup,
     onSuccess: handleAuthenticated,
-    onError: (error) => {
-      const message = getApiMessage(error)
-      setAuthError(message?.toLowerCase().includes('password') ? message : t('login.setupInvalid'))
-    },
+    onError: () => setAuthError(t('login.setupInvalid')),
   })
 
   const submitSetup = () => {

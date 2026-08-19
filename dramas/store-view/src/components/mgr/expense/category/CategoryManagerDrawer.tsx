@@ -26,9 +26,9 @@ type CategoryManagerFormValues = {
 export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawerProps) {
   //
   const { data: categories = [], isLoading } = useExpenseCategories(true)
-  const createCat = useCreateExpenseCategory()
-  const updateCat = useUpdateExpenseCategory()
-  const deleteCat = useDeleteExpenseCategory()
+  const createCat = useCreateExpenseCategory(t)
+  const updateCat = useUpdateExpenseCategory(t)
+  const deleteCat = useDeleteExpenseCategory(t)
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const { control, handleSubmit, resetField, setValue, getValues, watch, formState: { errors } } = useForm<CategoryManagerFormValues>({

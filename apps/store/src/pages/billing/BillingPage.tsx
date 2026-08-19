@@ -35,47 +35,11 @@ import {
   type StoreStatus,
   type TenantPayment,
 } from '@store/store-stub';
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error';
 import { useT } from '@/shared/lib/i18n';
 
 const MAX_RECEIPT_BYTES = 4 * 1024 * 1024;
 const ACCEPTED_RECEIPTS = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-
-function getApiErrorMessage(error: unknown, fallback: string) {
-  const source = error as {
-    response?: { data?: unknown };
-    data?: unknown;
-    message?: unknown;
-  };
-  const payloads = [source.response?.data, source.data, error];
-
-  for (const payload of payloads) {
-    if (!payload || typeof payload !== 'object') continue;
-    const record = payload as { message?: unknown; errors?: unknown };
-    if (typeof record.message === 'string' && record.message.trim()) {
-      return record.message.trim();
-    }
-
-    if (Array.isArray(record.errors)) {
-      const messages = record.errors
-        .map((item) =>
-          item && typeof item === 'object' && 'message' in item
-            ? (item as { message?: unknown }).message
-            : item,
-        )
-        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
-      if (messages.length > 0) return messages.join(' ');
-    }
-
-    if (record.errors && typeof record.errors === 'object') {
-      const messages = Object.values(record.errors as Record<string, unknown>)
-        .flatMap((value) => (Array.isArray(value) ? value : [value]))
-        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
-      if (messages.length > 0) return messages.join(' ');
-    }
-  }
-
-  return typeof source.message === 'string' && source.message.trim() ? source.message : fallback;
-}
 
 const formatMoney = (amount: number, currency: 'UZS' | 'USD' = 'UZS') =>
   new Intl.NumberFormat('uz-UZ', {
@@ -396,7 +360,7 @@ export function BillingPage() {
 
       await submitMutation.mutateAsync(payload);
     } catch (error) {
-      const errorMessage = getApiErrorMessage(error, t('billing.submitError'));
+      const errorMessage = getLocalizedApiErrorMessage(error, t, 'billing.submitError');
       messageApi.error(errorMessage);
       await queryClient
         .refetchQueries({ queryKey: ['tenant-billing', 'payments'], type: 'active' })
@@ -422,7 +386,7 @@ export function BillingPage() {
         note: payment.note,
       });
     } catch (error) {
-      messageApi.error(error instanceof Error ? error.message : t('billing.receiptOpenError'));
+      messageApi.error(getLocalizedApiErrorMessage(error, t, 'billing.receiptOpenError'));
     } finally {
       setOpeningReceiptId(null);
     }

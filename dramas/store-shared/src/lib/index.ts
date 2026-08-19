@@ -1,4 +1,5 @@
 export * from './autofill'
+export * from './apiError'
 export * from './formatters'
 export * from './parseExcel'
 export * from './productPricing'

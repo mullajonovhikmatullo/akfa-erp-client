@@ -53,8 +53,8 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
     limit: 100,
   })
 
-  const completeTransfer = useCompleteTransfer()
-  const cancelTransfer = useCancelTransfer()
+  const completeTransfer = useCompleteTransfer(t)
+  const cancelTransfer = useCancelTransfer(t)
 
   const pendingCount = transfers.filter((transfer) => transfer.status === 'PENDING').length
   const confirmingTotal = confirmingTransfer?.items.reduce((sum, item) => sum + item.totalCostUzs, 0) ?? 0

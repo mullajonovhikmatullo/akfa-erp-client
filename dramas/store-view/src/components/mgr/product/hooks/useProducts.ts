@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ProductFlowApi, ProductSeekApi } from '@store/store-stub'
 import type { ProductListParams, UpdateProductPayload } from '@store/store-stub'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
+
+type Translate = (key: string) => string
 
 export const productKeys = {
   all: ['products'] as const,
@@ -59,7 +62,7 @@ export function useProductInventory(productId: string | null) {
   })
 }
 
-export function useCreateProduct() {
+export function useCreateProduct(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -67,16 +70,16 @@ export function useCreateProduct() {
     mutationFn: ProductFlowApi.createProduct,
     onSuccess: (product) => {
       //
-      toast.success(`"${product.name}" mahsulot qo'shildi`)
+      toast.success(t('products.createSuccess').replace('{name}', product.name))
     },
-    onError: (error: { response?: { data?: { message?: string } } }) => {
+    onError: (error: unknown) => {
       //
-      toast.error(error.response?.data?.message ?? "Mahsulot qo'shishda xato")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'products.createError'))
     },
   })
 }
 
-export function useUpdateProduct() {
+export function useUpdateProduct(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -84,16 +87,16 @@ export function useUpdateProduct() {
     mutationFn: ({ id, payload }: { id: string; payload: UpdateProductPayload }) => ProductFlowApi.updateProduct({ id, payload }),
     onSuccess: (product) => {
       //
-      toast.success(`"${product.name}" yangilandi`)
+      toast.success(t('products.updateSuccess').replace('{name}', product.name))
     },
-    onError: (error: { response?: { data?: { message?: string } } }) => {
+    onError: (error: unknown) => {
       //
-      toast.error(error.response?.data?.message ?? 'Yangilashda xato')
+      toast.error(getLocalizedApiErrorMessage(error, t, 'products.updateError'))
     },
   })
 }
 
-export function useDeleteProduct() {
+export function useDeleteProduct(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -102,11 +105,11 @@ export function useDeleteProduct() {
     onSuccess: async () => {
       //
       await queryClient.invalidateQueries({ queryKey: productKeys.all })
-      toast.success("Mahsulot o'chirildi")
+      toast.success(t('products.deleteSuccess'))
     },
-    onError: () => {
+    onError: (error: unknown) => {
       //
-      toast.error("O'chirishda xato yuz berdi")
+      toast.error(getLocalizedApiErrorMessage(error, t, 'products.deleteError'))
     },
   })
 }
