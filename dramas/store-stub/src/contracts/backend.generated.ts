@@ -191,6 +191,8 @@ export interface LoginResponse {
   "rawRole": string
   "storeId": string | null
   "branchId": string | null
+  "base64Photo"?: string | null
+  "thumbnailPhoto"?: string | null
 }
 }
 

@@ -19,6 +19,10 @@ export interface UpdateProfilePayload {
   username?: string
 }
 
+export interface UpdateProfilePhotoPayload {
+  base64Photo: string
+}
+
 export interface ChangePasswordPayload {
   currentPassword: string
   newPassword: string

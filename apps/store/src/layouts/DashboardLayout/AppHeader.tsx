@@ -105,12 +105,15 @@ export function AppHeader({ branches }: AppHeaderProps) {
       type: 'group' as const,
       label: (
         <div className="profile-menu__summary">
-          <div className="profile-menu__name">{user?.name}</div>
-          <div className="profile-menu__meta">
-            <span className="profile-menu__role">{userRoleLabel}</span>
-            <span className="profile-menu__branch">
-              {userBranch?.name?.split(' — ')[0] ?? t('header.allBranches')}
-            </span>
+          <UserAvatar name={user?.name} photo={user?.thumbnailPhoto} size={40} />
+          <div className="profile-menu__identity">
+            <div className="profile-menu__name">{user?.name}</div>
+            <div className="profile-menu__meta">
+              <span className="profile-menu__role">{userRoleLabel}</span>
+              <span className="profile-menu__branch">
+                {userBranch?.name?.split(' — ')[0] ?? t('header.allBranches')}
+              </span>
+            </div>
           </div>
         </div>
       ),
@@ -226,7 +229,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
             destroyOnHidden
           >
             <button className="profile-trigger topbar__profile" type="button">
-              <UserAvatar name={user?.name} size={28} />
+              <UserAvatar name={user?.name} photo={user?.thumbnailPhoto} size={28} />
               <span className="profile-name">{user?.name?.split(' ')[0]}</span>
               <CaretDownIcon size={12} color="currentColor" />
             </button>
@@ -237,7 +240,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
   );
 }
 
-function UserAvatar({ name, size = 28 }: { name?: string; size?: number }) {
+function UserAvatar({ name, photo, size = 28 }: { name?: string; photo?: string | null; size?: number }) {
   //
   const tone = '#0476D0';
   const initials = (name ?? '?')
@@ -262,7 +265,13 @@ function UserAvatar({ name, size = 28 }: { name?: string; size?: number }) {
         flexShrink: 0,
       }}
     >
-      {initials}
+      {photo ? (
+        <img
+          src={photo}
+          alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+        />
+      ) : initials}
     </span>
   );
 }

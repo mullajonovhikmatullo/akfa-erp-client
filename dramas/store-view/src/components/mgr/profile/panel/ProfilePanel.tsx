@@ -1,25 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Alert, Button, Divider, Input } from 'antd'
+import { Alert, Button, Divider, Image, Input, Popconfirm } from 'antd'
 import {
   CheckIcon,
   LockIcon,
   PencilSimpleIcon,
+  TrashIcon,
+  UploadSimpleIcon,
   ShieldCheckIcon,
   UserCircleIcon,
   XIcon,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 import type { User } from '@store/store-stub'
-import { useChangePassword, useUpdateProfile } from '../../admins/hooks/useAdminUsers'
+import {
+  useChangePassword,
+  useDeleteProfilePhoto,
+  useUpdateProfile,
+  useUpdateProfilePhoto,
+} from '../../admins/hooks/useAdminUsers'
 import { MaskedInput } from '../shared/MaskedInput'
 import { PasswordStrength } from '../shared/PasswordStrength'
 import { ProfileField } from '../shared/ProfileField'
 
 type Translate = (key: string) => string
+
+const PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
+const PROFILE_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('Invalid file result'))
+    reader.onerror = () => reject(reader.error ?? new Error('Could not read file'))
+    reader.readAsDataURL(file)
+  })
+}
 
 export interface ProfilePanelProps {
   t: Translate
@@ -30,7 +50,10 @@ export interface ProfilePanelProps {
 export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   //
   const [profileEditing, setProfileEditing] = useState(false)
+  const photoInputRef = useRef<HTMLInputElement>(null)
   const updateProfile = useUpdateProfile(onUserUpdated)
+  const updateProfilePhoto = useUpdateProfilePhoto(onUserUpdated)
+  const deleteProfilePhoto = useDeleteProfilePhoto(onUserUpdated)
   const changePassword = useChangePassword()
 
   const profileSchema = z.object({
@@ -147,6 +170,44 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
     })
   }
 
+  async function handlePhotoSelected(event: ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget
+    const file = input.files?.[0]
+    input.value = ''
+    if (!file) return
+
+    if (!PROFILE_PHOTO_TYPES.has(file.type)) {
+      toast.error(t('profile.photoInvalidType'))
+      return
+    }
+    if (file.size > PROFILE_PHOTO_MAX_BYTES) {
+      toast.error(t('profile.photoTooLarge'))
+      return
+    }
+
+    try {
+      const base64Photo = await readFileAsDataUrl(file)
+      updateProfilePhoto.mutate(
+        { base64Photo },
+        {
+          onSuccess: () => toast.success(t('profile.photoUpdateSuccess')),
+          onError: (error: unknown) =>
+            toast.error(getLocalizedApiErrorMessage(error, t, 'profile.photoUpdateError')),
+        },
+      )
+    } catch {
+      toast.error(t('profile.photoReadError'))
+    }
+  }
+
+  function handlePhotoDelete() {
+    deleteProfilePhoto.mutate(undefined, {
+      onSuccess: () => toast.success(t('profile.photoRemoveSuccess')),
+      onError: (error: unknown) =>
+        toast.error(getLocalizedApiErrorMessage(error, t, 'profile.photoRemoveError')),
+    })
+  }
+
   const initials = (user?.name ?? '?')
     .split(' ')
     .slice(0, 2)
@@ -166,29 +227,65 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
       </div>
 
       <div className="card" style={{ padding: 18, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, transparent))',
-              color: '#fff',
-              fontSize: 20,
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            {initials}
+        <div className="profile-photo-row">
+          <div className="profile-photo-avatar">
+            {user?.base64Photo ? (
+              <Image
+                src={user.thumbnailPhoto ?? user.base64Photo}
+                alt={user.name}
+                width={88}
+                height={88}
+                preview={{
+                  src: user.base64Photo,
+                  mask: t('profile.photoPreview'),
+                }}
+              />
+            ) : (
+              <span className="profile-photo-initials">{initials}</span>
+            )}
           </div>
-          <div>
+          <div className="profile-photo-content">
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{user?.name}</div>
             <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 2 }}>
               @{user?.username} · {roleLabel}
             </div>
+            <div className="profile-photo-actions">
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+                onChange={handlePhotoSelected}
+              />
+              <Button
+                size="small"
+                icon={<UploadSimpleIcon size={16} />}
+                loading={updateProfilePhoto.isPending}
+                disabled={deleteProfilePhoto.isPending}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                {user?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
+              </Button>
+              {user?.base64Photo ? (
+                <Popconfirm
+                  title={t('profile.photoRemoveConfirm')}
+                  okText={t('profile.photoRemove')}
+                  cancelText={t('common.cancel')}
+                  okButtonProps={{ danger: true, loading: deleteProfilePhoto.isPending }}
+                  onConfirm={handlePhotoDelete}
+                >
+                  <Button
+                    size="small"
+                    danger
+                    icon={<TrashIcon size={16} />}
+                    disabled={updateProfilePhoto.isPending}
+                  >
+                    {t('profile.photoRemove')}
+                  </Button>
+                </Popconfirm>
+              ) : null}
+            </div>
+            <div className="profile-photo-hint">{t('profile.photoHint')}</div>
           </div>
         </div>
 

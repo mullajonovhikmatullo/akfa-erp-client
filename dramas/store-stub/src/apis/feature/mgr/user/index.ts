@@ -10,6 +10,7 @@ import type {
   LoginPayload,
   LoginResponse,
   UpdateAdminPayload,
+  UpdateProfilePhotoPayload,
   UpdateProfilePayload,
   User,
 } from '../../../../models/domain/user'
@@ -79,6 +80,12 @@ const assignBranch = ({ userId, branchId }: { userId: string; branchId: string |
 const updateProfile = (payload: UpdateProfilePayload) =>
   http.patch<ApiResponse<User>>('/auth/profile', payload).then((r) => r.data.data)
 
+const updateProfilePhoto = (payload: UpdateProfilePhotoPayload) =>
+  http.put<ApiResponse<User>>('/auth/profile/photo', payload).then((r) => r.data.data)
+
+const deleteProfilePhoto = () =>
+  http.delete<ApiResponse<User>>('/auth/profile/photo').then((r) => r.data.data)
+
 const changePassword = (payload: ChangePasswordPayload) =>
   http
     .post<ApiResponse<{ message: string; accessToken: string }>>('/auth/change-password', payload)
@@ -112,6 +119,8 @@ export const UserFlowApi = {
   deleteAdmin,
   assignBranch,
   updateProfile,
+  updateProfilePhoto,
+  deleteProfilePhoto,
   changePassword,
 }
 
@@ -127,5 +136,7 @@ export const userApi = {
   delete: deleteAdmin,
   assignBranch: (userId: string, branchId: string | null) => assignBranch({ userId, branchId }),
   updateProfile,
+  updateProfilePhoto,
+  deleteProfilePhoto,
   changePassword,
 }

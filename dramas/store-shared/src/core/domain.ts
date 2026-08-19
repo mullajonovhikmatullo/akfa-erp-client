@@ -23,6 +23,8 @@ export interface User {
   username: string
   role: UserRole
   branchId: string | null
+  base64Photo?: string | null
+  thumbnailPhoto?: string | null
   isActive?: boolean
   createdAt?: string
   store?: {
