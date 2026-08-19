@@ -777,6 +777,7 @@ const TRANSLATIONS: Translations = {
     'transferModal.colCost': 'Тан нархи',
     'transferModal.colTotal': 'Жами',
     'transferModal.totalCostLabel': 'Жами тан нархи:',
+    'transferModal.insufficientStock': 'Танланган миқдор омбордаги мавжуд миқдордан кўп.',
     'transferModal.labelNote': 'Изоҳ (ихтиёрий)',
     'transferModal.placeholderNote': 'Трансфер ҳақида қўшимча маълумот...',
     // Login
@@ -1709,6 +1710,7 @@ const TRANSLATIONS: Translations = {
     'transferModal.colCost': 'Tan narxi',
     'transferModal.colTotal': 'Jami',
     'transferModal.totalCostLabel': 'Jami tan narxi:',
+    'transferModal.insufficientStock': "Tanlangan miqdor ombordagi mavjud miqdordan ko'p.",
     'transferModal.labelNote': 'Izoh (ixtiyoriy)',
     'transferModal.placeholderNote': "Transfer haqida qo'shimcha ma'lumot...",
     // Login
@@ -2633,6 +2635,7 @@ const TRANSLATIONS: Translations = {
     'transferModal.colCost': 'Себестоимость',
     'transferModal.colTotal': 'Итого',
     'transferModal.totalCostLabel': 'Итого себестоимость:',
+    'transferModal.insufficientStock': 'Выбранное количество превышает доступный остаток на складе.',
     'transferModal.labelNote': 'Примечание (необязательно)',
     'transferModal.placeholderNote': 'Дополнительная информация о переводе...',
     // Login
@@ -3558,6 +3561,7 @@ const TRANSLATIONS: Translations = {
     'transferModal.colCost': 'Cost Price',
     'transferModal.colTotal': 'Total',
     'transferModal.totalCostLabel': 'Total cost:',
+    'transferModal.insufficientStock': 'The selected quantity exceeds the available stock.',
     'transferModal.labelNote': 'Note (optional)',
     'transferModal.placeholderNote': 'Additional transfer information...',
     // Login

@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { Button, Empty, Input, InputNumber, Select, Table } from 'antd'
+import { Alert, Button, Empty, Input, InputNumber, Select, Table } from 'antd'
 import { MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
@@ -133,10 +133,10 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
     })
   }
 
-  const clampQty = (value: number, max: number) => {
+  const normalizeQty = (value: number) => {
     //
     const integerValue = Math.floor(Number.isFinite(value) ? value : MIN_QTY)
-    return Math.min(Math.max(integerValue, MIN_QTY), Math.max(max, MIN_QTY))
+    return Math.max(integerValue, MIN_QTY)
   }
 
   const updateItem = (key: string, patch: Partial<CartItem>) => {
@@ -145,8 +145,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
     if (index < 0) return
     const item = cart[index]
     if (!item) return
-    const stock = stockByProductId.get(item.productId) ?? 0
-    const quantity = patch.quantity == null ? item.quantity : clampQty(patch.quantity, stock)
+    const quantity = patch.quantity == null ? item.quantity : normalizeQty(patch.quantity)
     update(index, { ...item, ...patch, quantity })
   }
 
@@ -166,6 +165,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
   }
 
   const totalCost = cart.reduce((sum, item) => sum + item.quantity * item.unitCostUzs, 0)
+  const insufficientStockItems = cart.filter((item) => item.quantity > (stockByProductId.get(item.productId) ?? 0))
   const hasValidQuantities = cart.every((item) => {
     //
     const stock = stockByProductId.get(item.productId) ?? 0
@@ -313,12 +313,32 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
           <Empty description={t('transferModal.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: '16px 0' }} />
         ) : (
           <>
+            {insufficientStockItems.length > 0 ? (
+              <Alert
+                type="warning"
+                showIcon
+                message={t('transferModal.insufficientStock')}
+                description={(
+                  <div style={{ display: 'grid', gap: 2 }}>
+                    {insufficientStockItems.map((item) => {
+                      //
+                      const stock = stockByProductId.get(item.productId) ?? 0
+                      return (
+                        <div key={item._key}>
+                          <strong>{item.product.name}</strong>: {t('newSale.availableStock')} {stock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              />
+            ) : null}
             <Table<CartItem>
               size="small"
               pagination={false}
               rowKey="_key"
               dataSource={cart}
-              scroll={{ x: 860 }}
+              scroll={{ x: 970 }}
               columns={[
                 {
                   title: t('transferModal.colProduct'),
@@ -350,7 +370,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
                 {
                   title: t('transferModal.colQty'),
                   key: 'qty',
-                  width: 220,
+                  width: 240,
                   render: (_, item) => {
                     //
                     const stock = stockByProductId.get(item.productId) ?? 0
@@ -367,17 +387,18 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
                   },
                 },
                 {
-                  title: t('transferModal.colStock'),
+                  title: t('newSale.colRemainingStock'),
                   key: 'stock',
                   width: 140,
                   align: 'right',
                   render: (_, item) => {
                     //
                     const stock = stockByProductId.get(item.productId) ?? 0
-                    const remainingStock = Math.max(0, stock - item.quantity)
+                    const hasInsufficientStock = item.quantity > stock
+                    const remainingStock = stock - item.quantity
                     return (
-                      <span className="num" style={{ fontWeight: 700, fontSize: 12 }}>
-                        {remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
+                      <span className="num" style={{ color: hasInsufficientStock ? 'var(--danger)' : undefined, fontWeight: 700, fontSize: 12 }}>
+                        {hasInsufficientStock ? '—' : `${remainingStock.toLocaleString('ru-RU')} ${t(`units.${item.product.unit}`)}`}
                       </span>
                     )
                   },
@@ -401,22 +422,19 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
                 {
                   title: t('transferModal.colTotal'),
                   key: 'total',
-                  width: 150,
+                  width: 200,
                   align: 'right',
                   render: (_, item) => (
                     <span
                       className="num"
                       style={{
                         display: 'inline-block',
-                        maxWidth: 140,
                         fontWeight: 700,
                         fontSize: 13,
                         whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
                       }}
                     >
-                      <MoneyDisplay amount={item.quantity * item.unitCostUzs} currency="UZS" compact />
+                      <MoneyDisplay amount={item.quantity * item.unitCostUzs} currency="UZS" />
                     </span>
                   ),
                 },
@@ -432,9 +450,9 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
               <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('transferModal.totalCostLabel')}</span>
               <span
                 className="num"
-                style={{ display: 'inline-block', maxWidth: 180, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                style={{ display: 'inline-block', fontWeight: 800, fontSize: 15, whiteSpace: 'nowrap' }}
               >
-                <MoneyDisplay amount={totalCost} currency="UZS" compact />
+                <MoneyDisplay amount={totalCost} currency="UZS" />
               </span>
             </div>
           </>
@@ -495,11 +513,12 @@ function QuantityStepper({
       <InputNumber
         value={value > 0 ? value : null}
         onChange={(value) => onChange(value == null ? null : Number(value))}
+        onFocus={(event) => event.target.select()}
         min={MIN_QTY}
-        max={effectiveMax}
         step={1}
         precision={0}
         controls={false}
+        status={value > max ? 'error' : undefined}
         placeholder="0"
         style={{ width: '100%' }}
         formatter={(value) => `${value ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}

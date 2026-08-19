@@ -183,20 +183,30 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
           <h1>{t('nav.sales')}</h1>
           <div className="sub">{t('sales.subtitle')}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button
-            type={tab === 'new' ? 'primary' : 'default'}
-            icon={<PlusIcon size={13} weight="bold" />}
-            onClick={() => setTab('new')}
-          >
-            {t('dashboard.newSale')}
-          </Button>
-          <Badge count={totalWithDebt} offset={[-6, 4]}>
-            <Button type={tab === 'history' ? 'primary' : 'default'} onClick={() => setTab('history')}>
-              {t('sales.historyBtn')} ({total})
-            </Button>
+      </div>
+
+      <div className="sales-tabs" role="tablist" aria-label={t('nav.sales')}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'new'}
+          className={tab === 'new' ? 'is-active' : undefined}
+          onClick={() => setTab('new')}
+        >
+          <PlusIcon size={14} weight="bold" />
+          {t('dashboard.newSale')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'history'}
+          className={tab === 'history' ? 'is-active' : undefined}
+          onClick={() => setTab('history')}
+        >
+          <Badge count={totalWithDebt} size="small" offset={[8, 0]}>
+            <span>{t('sales.historyBtn')} ({total})</span>
           </Badge>
-        </div>
+        </button>
       </div>
 
       {tab === 'new' ? (

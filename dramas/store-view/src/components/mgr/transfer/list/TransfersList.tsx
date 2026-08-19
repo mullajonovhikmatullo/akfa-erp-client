@@ -152,7 +152,7 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
         //
         if (transfer.status !== 'PENDING') return null
         const isReceiverBranch = transfer.toBranch.id === userBranchId
-        const canComplete = !isStoreOwner && isReceiverBranch
+        const canComplete = isReceiverBranch
         const canCancel = isStoreOwner || (!isReceiverBranch && transfer.initiatedBy.id === userId)
         return (
           <div style={{ display: 'flex', gap: 4 }}>
