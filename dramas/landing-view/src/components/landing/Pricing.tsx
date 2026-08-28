@@ -8,6 +8,7 @@ import { RegistrationModal } from "./RegistrationModal";
 type DisplayPlan = (typeof site.pricing.plans)[number];
 
 export function Pricing() {
+  //
   const pricing = site.pricing;
   const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
   const [publicPlans, setPublicPlans] = useState<PublicPlan[]>([]);
@@ -19,7 +20,7 @@ export function Pricing() {
         if (active) setPublicPlans(plans);
       })
       .catch(() => {
-        // Static tariflar landing ishlashi uchun doim mavjud.
+        //
       });
     return () => {
       active = false;

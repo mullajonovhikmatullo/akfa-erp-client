@@ -2,7 +2,7 @@ import type {
   PublicPlan,
   RegisterStorePayload,
   RegisterStoreResult,
-} from '../../../models/domain/onboarding'
+} from '~/contracts/backend.generated'
 
 type LandingImportMetaEnv = {
   VITE_API_URL?: string
