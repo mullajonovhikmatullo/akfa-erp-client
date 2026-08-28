@@ -1,5 +1,5 @@
 import { CalendarCheck, CircleHelp, Clock3, CreditCard, ShieldCheck } from "lucide-react";
-import { site } from "../../config/site";
+import { useI18n } from "../../i18n/I18nProvider";
 
 const logos = [
   { icon: CalendarCheck, tone: "green" },
@@ -10,17 +10,19 @@ const logos = [
 ];
 
 export function Trust() {
+  const { t } = useI18n();
+
   return (
-    <section className="trust-strip" aria-label={site.trust.line}>
+    <section className="trust-strip" aria-label={t.trust.heading}>
       <div className="container-page">
-        <p data-reveal="up">{site.trust.line}</p>
+        <p data-reveal="up">{t.trust.heading}</p>
         <div className="trust-strip__logos" data-reveal-group>
-          {site.trust.logos.map((name, index) => {
+          {t.trust.items.map((name, index) => {
             const item = logos[index];
             if (!item) return null;
             const Icon = item.icon;
             return (
-              <div className={`trust-logo trust-logo--${item.tone}`} key={name} data-reveal="up">
+              <div className={`trust-logo trust-logo--${item.tone}`} key={`trust-item-${index}`} data-reveal="up">
                 <Icon size={25} strokeWidth={2} />
                 <strong>{name}</strong>
               </div>

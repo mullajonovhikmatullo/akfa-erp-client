@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FAQ } from './components/landing/FAQ';
 import { Features } from './components/landing/Features';
 import { FinalCTA } from './components/landing/FinalCTA';
@@ -8,8 +9,11 @@ import { HowItWorks } from './components/landing/HowItWorks';
 import { Pricing } from './components/landing/Pricing';
 import { Problem } from './components/landing/Problem';
 import { Trust } from './components/landing/Trust';
+import { I18nProvider } from './i18n/I18nProvider';
 
-export const LandingPage = () => {
+function LandingContent() {
+  // Reveal elements once as they enter the viewport. Keeping this observer here
+  // avoids repeating animation setup in every section component.
   useEffect(() => {
     const elements = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
     if (!('IntersectionObserver' in window)) {
@@ -45,5 +49,10 @@ export const LandingPage = () => {
       <Footer />
     </div>
   );
-};
-import { useEffect } from 'react';
+}
+
+export const LandingPage = () => (
+  <I18nProvider>
+    <LandingContent />
+  </I18nProvider>
+);

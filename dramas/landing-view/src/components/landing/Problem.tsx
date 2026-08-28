@@ -1,32 +1,43 @@
 import { BarChart3, Boxes, Building2, CreditCard, PackageSearch, TrendingUp } from "lucide-react";
-import { site } from "../../config/site";
+import { useI18n } from "../../i18n/I18nProvider";
 
-const benefits = [
-  { icon: BarChart3, title: "Real vaqt tahlili va hisobotlar", text: "Savdo, tushum, foyda va xarajatlarni real vaqtda kuzating." },
-  { icon: Building2, title: "Filiallar bo‘yicha yagona nazorat", text: "Barcha filiallaringiz faoliyatini bitta panelda boshqaring." },
-  { icon: Boxes, title: "Zaxira va ombor nazorati", text: "Mahsulot qoldiqlari, kirim va transferlarni oson boshqaring." },
-  { icon: CreditCard, title: "To‘lovlar va qarzlar nazorati", text: "Naqd va to‘lovlarni kuzatib, qarzdorlarni boshqaring." },
-];
+const benefitIcons = [BarChart3, Building2, Boxes, CreditCard] as const;
+const productValues = [12_400, 9_100, 7_800, 6_200] as const;
 
 export function Problem() {
+  const { locale, t } = useI18n();
+  const { problem } = t;
+  const compactNumber = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
+
   return (
     <section className="problem-section" id="kompaniya">
       <div className="container-page">
         <div className="section-heading section-heading--center problem-section__heading" data-reveal="up">
-          <h2>{site.problem.heading}</h2>
-          <p>Barcha jarayonlaringizni markazdan boshqaring va biznesingizni rivojlantiring.</p>
+          <h2>{problem.heading}</h2>
+          <p>{problem.supporting}</p>
         </div>
         <div className="benefits-layout">
           <div className="benefits-list" data-reveal-group>
-            {benefits.map(({ icon: Icon, title, text }) => (
-              <article key={title} data-reveal="left"><span><Icon size={19} /></span><div><h3>{title}</h3><p>{text}</p></div></article>
-            ))}
+            {problem.benefits.map(({ title, text }, index) => {
+              const Icon = benefitIcons[index];
+              return Icon ? (
+                <article key={`benefit-${index}`} data-reveal="left">
+                  <span><Icon size={19} /></span>
+                  <div><h3>{title}</h3><p>{text}</p></div>
+                </article>
+              ) : null;
+            })}
           </div>
-          <div className="benefits-dashboard" aria-label="Mavion ko‘rsatkichlari" data-reveal="scale">
-            <div className="benefits-stat benefits-stat--income"><small>Joriy daromad</small><strong>346.7 M <i>so‘m</i></strong><em>+16%</em><svg viewBox="0 0 190 45"><path d="M2 37 C24 35 29 21 45 25 S67 35 84 24 S108 14 124 22 S151 30 188 7" /></svg></div>
-            <div className="benefits-stat benefits-stat--branches"><small>Faol filiallar</small><strong>12</strong><em>+2</em></div>
-            <div className="benefits-stat benefits-stat--products"><small>Mahsulotlar soni</small><strong>1 248</strong><div className="benefits-bars"><i/><i/><i/><i/><i/><i/></div></div>
-            <div className="benefits-stat benefits-stat--top"><small>Top mahsulotlar</small>{["Mineral suv", "Shakar", "Kofe", "Guruch"].map((x,i)=><p key={x}><PackageSearch size={13}/><span>{x}</span><b>{["12.4K","9.1K","7.8K","6.2K"][i]}</b></p>)}</div>
+          <div className="benefits-dashboard" aria-label={problem.dashboardLabel} data-reveal="scale">
+            <div className="benefits-stat benefits-stat--income"><small>{problem.stats.income}</small><strong>346.7 <i>{t.dashboard.currency}</i></strong><em>+16%</em><svg viewBox="0 0 190 45" aria-hidden="true"><path d="M2 37 C24 35 29 21 45 25 S67 35 84 24 S108 14 124 22 S151 30 188 7" /></svg></div>
+            <div className="benefits-stat benefits-stat--branches"><small>{problem.stats.activeBranches}</small><strong>12</strong><em>+2</em></div>
+            <div className="benefits-stat benefits-stat--products"><small>{problem.stats.productCount}</small><strong>1 248</strong><div className="benefits-bars" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div></div>
+            <div className="benefits-stat benefits-stat--top">
+              <small>{problem.stats.topProducts}</small>
+              {problem.stats.products.map((product, index) => (
+                <p key={`product-${index}`}><PackageSearch size={13}/><span>{product}</span><b>{compactNumber.format(productValues[index] ?? 0)}</b></p>
+              ))}
+            </div>
             <TrendingUp className="benefits-bg-icon" size={120} />
           </div>
         </div>

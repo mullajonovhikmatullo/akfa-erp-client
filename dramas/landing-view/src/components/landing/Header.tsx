@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { getAdminUrl } from "@store/landing-stub";
 import { site } from "../../config/site";
+import { useI18n } from "../../i18n/I18nProvider";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Logo } from "./Logo";
 
 const storeLoginUrl = getAdminUrl();
 
 export function Header() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -24,27 +27,28 @@ export function Header() {
           <Logo markSize={28} />
         </a>
 
-        <nav className="landing-nav" aria-label="Asosiy navigatsiya">
-          {site.nav.map((item) => (
+        <nav className="landing-nav" aria-label={t.navigation.label}>
+          {site.navigation.map((item) => (
             <a key={item.href} href={item.href}>
-              {item.label}
+              {t.navigation.items[item.key]}
             </a>
           ))}
         </nav>
 
         <div className="landing-header__actions">
+          <LanguageSwitcher />
           <a className="button button--ghost button--small" href={storeLoginUrl}>
-            {site.cta.login}
+            {t.cta.login}
           </a>
           <a className="button button--primary button--small" href="#tariflar">
-            {site.cta.primary}
+            {t.cta.primary}
           </a>
         </div>
 
         <button
           className="landing-header__menu"
           type="button"
-          aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
+          aria-label={open ? t.navigation.closeMenu : t.navigation.openMenu}
           aria-expanded={open}
           onClick={() => setOpen((current) => !current)}
         >
@@ -54,18 +58,19 @@ export function Header() {
 
       {open ? (
         <div className="landing-mobile-menu">
-          <nav className="container-page" aria-label="Mobil navigatsiya">
-            {site.nav.map((item) => (
+          <nav className="container-page" aria-label={t.navigation.mobileLabel}>
+            <LanguageSwitcher mobile />
+            {site.navigation.map((item) => (
               <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
-                {item.label}
+                {t.navigation.items[item.key]}
               </a>
             ))}
             <div className="landing-mobile-menu__actions">
               <a className="button button--ghost" href={storeLoginUrl} onClick={() => setOpen(false)}>
-                {site.cta.login}
+                {t.cta.login}
               </a>
               <a className="button button--primary" href="#tariflar" onClick={() => setOpen(false)}>
-                {site.cta.primary}
+                {t.cta.primary}
               </a>
             </div>
           </nav>

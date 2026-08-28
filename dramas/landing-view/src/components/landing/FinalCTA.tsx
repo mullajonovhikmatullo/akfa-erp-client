@@ -1,7 +1,8 @@
-import { site } from "../../config/site";
+import { useI18n } from "../../i18n/I18nProvider";
 
 export function FinalCTA() {
-  const cta = site.finalCta;
+  const { t } = useI18n();
+  const cta = t.finalCta;
 
   return (
     <section className="final-cta-section">

@@ -1,15 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ArrowRight, CheckCircle2, Eye, EyeOff, Loader2, Store, UserRound, X } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
+import { createAdminHandoffUrl, getAdminUrl, registerStore, type PublicPlanCode } from '@store/landing-stub';
+import { useI18n } from '../../i18n/I18nProvider';
+import { formatMessage } from '../../i18n/translations';
+import type { TranslationDictionary } from '../../i18n/types';
 import { UzbekPhoneInput } from '../ui/UzbekPhoneInput';
-import {
-  createAdminHandoffUrl,
-  getAdminUrl,
-  type PublicPlanCode,
-  registerStore,
-} from '@store/landing-stub';
 
 interface RegistrationModalProps {
   open: boolean;
@@ -28,85 +26,46 @@ type FormState = {
   confirmPassword: string;
 };
 
+const initialForm: FormState = {
+  storeName: '', ownerName: '', phone: '', email: '', username: '', password: '', confirmPassword: '',
+};
+
+const UZBEK_MOBILE_CODES = ['33', '50', '77', '88', '90', '91', '93', '94', '95', '97', '98', '99'];
+
+function createRegistrationSchema(validation: TranslationDictionary['registration']['validation']): yup.ObjectSchema<FormState> {
+  return yup.object({
+    storeName: yup.string().trim().required(validation.storeRequired).min(2, validation.storeMin).max(120, validation.storeMax),
+    ownerName: yup.string().trim().required(validation.ownerRequired).min(2, validation.ownerMin).max(100, validation.ownerMax),
+    phone: yup.string().trim().required(validation.phoneRequired)
+      .matches(/^\+998\d{9}$/, validation.phoneFormat)
+      .test('uzbek-mobile-code', validation.phoneCode, (value) => value ? UZBEK_MOBILE_CODES.includes(value.slice(4, 6)) : true),
+    email: yup.string().trim().max(120, validation.emailMax).email(validation.emailFormat).defined(),
+    username: yup.string().trim().required(validation.usernameRequired).min(3, validation.usernameMin)
+      .max(50, validation.usernameMax).matches(/^[a-zA-Z0-9_]+$/, validation.usernameFormat),
+    password: yup.string().required(validation.passwordRequired).min(6, validation.passwordMin).max(100, validation.passwordMax),
+    confirmPassword: yup.string().required(validation.confirmRequired).oneOf([yup.ref('password')], validation.confirmMismatch),
+  });
+}
+
 function FieldError({ message }: { message?: string }) {
   return (
-    <small
-      className="registration-form__field-error"
-      data-visible={Boolean(message)}
-      title={message}
-      aria-live="polite"
-    >
+    <small className="registration-form__field-error" data-visible={Boolean(message)} title={message} aria-live="polite">
       {message || '\u00a0'}
     </small>
   );
 }
 
-const initialForm: FormState = {
-  storeName: '',
-  ownerName: '',
-  phone: '',
-  email: '',
-  username: '',
-  password: '',
-  confirmPassword: '',
-};
-
-const UZBEK_MOBILE_CODES = ['33', '50', '77', '88', '90', '91', '93', '94', '95', '97', '98', '99'];
-
-const registrationSchema: yup.ObjectSchema<FormState> = yup.object({
-  storeName: yup
-    .string()
-    .trim()
-    .required('Do‘kon nomini kiriting')
-    .min(2, 'Do‘kon nomi kamida 2 ta belgidan iborat bo‘lsin')
-    .max(120, 'Do‘kon nomi 120 ta belgidan oshmasin'),
-  ownerName: yup
-    .string()
-    .trim()
-    .required('Do‘kon egasining ismini kiriting')
-    .min(2, 'Ism kamida 2 ta belgidan iborat bo‘lsin')
-    .max(100, 'Ism 100 ta belgidan oshmasin'),
-  phone: yup
-    .string()
-    .trim()
-    .required('Telefon raqamini kiriting')
-    .matches(/^\+998\d{9}$/, 'Telefon raqami 9 ta raqamdan iborat bo‘lsin')
-    .test('uzbek-mobile-code', 'Mobil operator kodi noto‘g‘ri', (value) =>
-      value ? UZBEK_MOBILE_CODES.includes(value.slice(4, 6)) : true,
-    ),
-  email: yup
-    .string()
-    .trim()
-    .max(120, 'Email 120 ta belgidan oshmasin')
-    .email('Email manzilini to‘g‘ri kiriting')
-    .defined(),
-  username: yup
-    .string()
-    .trim()
-    .required('Loginni kiriting')
-    .min(3, 'Login kamida 3 ta belgidan iborat bo‘lsin')
-    .max(50, 'Login 50 ta belgidan oshmasin')
-    .matches(/^[a-zA-Z0-9_]+$/, 'Faqat lotin harflari, raqam va pastki chiziq mumkin'),
-  password: yup
-    .string()
-    .required('Parolni kiriting')
-    .min(6, 'Parol kamida 6 ta belgidan iborat bo‘lsin')
-    .max(100, 'Parol 100 ta belgidan oshmasin'),
-  confirmPassword: yup
-    .string()
-    .required('Parolni qayta kiriting')
-    .oneOf([yup.ref('password')], 'Parollar mos kelmadi'),
-});
-
 export function RegistrationModal({ open, planCode, planName, onClose }: RegistrationModalProps) {
+  const { language, t } = useI18n();
+  const copy = t.registration;
+  const titleId = useId();
+  const introId = useId();
+  const schema = useMemo(() => createRegistrationSchema(copy.validation), [copy.validation]);
   const {
-    register,
-    handleSubmit,
-    reset,
-    control,
+    register, handleSubmit, reset, clearErrors, control,
     formState: { errors, isSubmitting },
   } = useForm<FormState>({
-    resolver: yupResolver(registrationSchema),
+    resolver: yupResolver(schema),
     defaultValues: initialForm,
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
@@ -117,27 +76,43 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Existing validation messages are cleared when the language changes so no
+  // stale message remains visible in the previous language.
+  useEffect(() => {
+    clearErrors();
+    setSubmitError(null);
+  }, [clearErrors, language]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isSubmitting) onClose();
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isSubmitting, onClose, open]);
+
   if (!open) return null;
 
   const submitRegistration = async (form: FormState) => {
     setSubmitError(null);
     try {
-      createAdminHandoffUrl('configuration-check');
       const result = await registerStore({
-        storeName: form.storeName.trim(),
-        ownerName: form.ownerName.trim(),
-        phone: form.phone.trim(),
-        email: form.email.trim() || undefined,
-        username: form.username.trim(),
-        password: form.password,
-        confirmPassword: form.confirmPassword,
-        planCode,
+        storeName: form.storeName.trim(), ownerName: form.ownerName.trim(), phone: form.phone.trim(),
+        email: form.email.trim() || undefined, username: form.username.trim(), password: form.password,
+        confirmPassword: form.confirmPassword, planCode,
       });
-
       setCreatedStoreName(result.store.name);
       setAdminUrl(createAdminHandoffUrl(result.handoffCode));
-    } catch (submitError) {
-      setSubmitError(submitError instanceof Error ? submitError.message : 'So‘rovni yuborib bo‘lmadi');
+    } catch {
+      // Backend messages can arrive in a different language; expose a localized,
+      // stable message to the landing user instead.
+      setSubmitError(copy.requestFailed);
     }
   };
 
@@ -152,15 +127,12 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   };
 
   return (
-    <div className="registration-modal" role="dialog" aria-modal="true">
-      <button className="registration-modal__backdrop" type="button" onClick={resetAndClose} aria-label="Yopish" />
+    <div className="registration-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={introId}>
+      <button className="registration-modal__backdrop" type="button" onClick={resetAndClose} aria-label={copy.close} />
       <div className="registration-modal__panel">
         <div className="registration-modal__header">
-          <div>
-            <span className="registration-modal__eyebrow">{planName}</span>
-            <h3>Bepul akkaunt yaratish</h3>
-          </div>
-          <button className="registration-modal__close" type="button" onClick={resetAndClose} aria-label="Yopish">
+          <div><span className="registration-modal__eyebrow">{planName}</span><h3 id={titleId}>{copy.title}</h3></div>
+          <button className="registration-modal__close" type="button" onClick={resetAndClose} aria-label={copy.close}>
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -168,60 +140,43 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
         {createdStoreName ? (
           <div className="registration-success">
             <CheckCircle2 className="h-10 w-10" />
-            <h4>{createdStoreName} akkaunti tayyor</h4>
-            <p>Sinov muddati boshlandi. Bir martalik xavfsiz kirish tayyor.</p>
-            <a className="btn-primary" href={adminUrl ?? getAdminUrl()}>
-              Adminga o‘tish
-              <ArrowRight className="h-4 w-4" />
-            </a>
+            <h4>{formatMessage(copy.successTitle, { storeName: createdStoreName })}</h4>
+            <p id={introId}>{copy.successText}</p>
+            <a className="btn-primary" href={adminUrl ?? getAdminUrl()}>{copy.openAdmin}<ArrowRight className="h-4 w-4" /></a>
           </div>
         ) : (
           <form className="registration-form" onSubmit={handleSubmit(submitRegistration)} noValidate>
-            <p className="registration-form__intro">
-              Ma’lumotlarni kiriting — do‘kon boshqaruv paneli bir necha soniyada tayyor bo‘ladi.
-            </p>
+            <p className="registration-form__intro" id={introId}>{copy.intro}</p>
 
             <section className="registration-form__section">
-              <div className="registration-form__section-title">
-                <Store className="h-4 w-4" />
-                <span>Do‘kon ma’lumotlari</span>
-              </div>
+              <div className="registration-form__section-title"><Store className="h-4 w-4" /><span>{copy.storeSection}</span></div>
               <div className="registration-form__fields">
                 <label className="registration-form__field--wide">
-                  <span>Do‘kon nomi</span>
-                  <input
-                    {...register('storeName')}
-                    placeholder="Masalan: Baraka Market"
-                    aria-invalid={Boolean(errors.storeName)}
-                    autoFocus
-                  />
+                  <span>{copy.fields.storeName}</span>
+                  <input {...register('storeName')} placeholder={copy.fields.storeNamePlaceholder} aria-invalid={Boolean(errors.storeName)} autoFocus />
                   <FieldError message={errors.storeName?.message} />
                 </label>
                 <label>
-                  <span>Do‘kon egasi</span>
-                  <input {...register('ownerName')} placeholder="Ism va familiya" aria-invalid={Boolean(errors.ownerName)} />
+                  <span>{copy.fields.ownerName}</span>
+                  <input {...register('ownerName')} placeholder={copy.fields.ownerNamePlaceholder} aria-invalid={Boolean(errors.ownerName)} />
                   <FieldError message={errors.ownerName?.message} />
                 </label>
                 <label>
-                  <span>Telefon raqami</span>
+                  <span>{copy.fields.phone}</span>
                   <Controller
                     name="phone"
                     control={control}
                     render={({ field }) => (
                       <UzbekPhoneInput
-                        name={field.name}
-                        ref={field.ref}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        error={Boolean(errors.phone)}
+                        name={field.name} ref={field.ref} value={field.value} onChange={field.onChange}
+                        onBlur={field.onBlur} error={Boolean(errors.phone)} ariaLabel={copy.fields.phone}
                       />
                     )}
                   />
                   <FieldError message={errors.phone?.message} />
                 </label>
                 <label className="registration-form__field--wide">
-                  <span>Email <em>ixtiyoriy</em></span>
+                  <span>{copy.fields.email} <em>{copy.fields.optional}</em></span>
                   <input {...register('email')} type="email" placeholder="name@example.com" aria-invalid={Boolean(errors.email)} />
                   <FieldError message={errors.email?.message} />
                 </label>
@@ -229,58 +184,28 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
             </section>
 
             <section className="registration-form__section">
-              <div className="registration-form__section-title">
-                <UserRound className="h-4 w-4" />
-                <span>Kirish ma’lumotlari</span>
-              </div>
+              <div className="registration-form__section-title"><UserRound className="h-4 w-4" /><span>{copy.accountSection}</span></div>
               <div className="registration-form__fields">
                 <label className="registration-form__field--wide">
-                  <span>Login</span>
-                  <input
-                    {...register('username')}
-                    autoComplete="off"
-                    placeholder="Login kiriting"
-                    aria-invalid={Boolean(errors.username)}
-                  />
+                  <span>{copy.fields.username}</span>
+                  <input {...register('username')} autoComplete="off" placeholder={copy.fields.usernamePlaceholder} aria-invalid={Boolean(errors.username)} />
                   <FieldError message={errors.username?.message} />
                 </label>
                 <label>
-                  <span>Parol</span>
+                  <span>{copy.fields.password}</span>
                   <div className="registration-form__password-control">
-                    <input
-                      {...register('password')}
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Kamida 6 ta belgi"
-                      aria-invalid={Boolean(errors.password)}
-                    />
-                    <button
-                      className="registration-form__password-toggle"
-                      type="button"
-                      onClick={() => setShowPassword((visible) => !visible)}
-                      aria-label={showPassword ? 'Parolni yashirish' : 'Parolni ko‘rsatish'}
-                      aria-pressed={showPassword}
-                    >
+                    <input {...register('password')} type={showPassword ? 'text' : 'password'} placeholder={copy.fields.passwordPlaceholder} aria-invalid={Boolean(errors.password)} />
+                    <button className="registration-form__password-toggle" type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? copy.hidePassword : copy.showPassword} aria-pressed={showPassword}>
                       {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                     </button>
                   </div>
                   <FieldError message={errors.password?.message} />
                 </label>
                 <label>
-                  <span>Parolni tasdiqlang</span>
+                  <span>{copy.fields.confirmPassword}</span>
                   <div className="registration-form__password-control">
-                    <input
-                      {...register('confirmPassword')}
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Parolni qayta kiriting"
-                      aria-invalid={Boolean(errors.confirmPassword)}
-                    />
-                    <button
-                      className="registration-form__password-toggle"
-                      type="button"
-                      onClick={() => setShowConfirmPassword((visible) => !visible)}
-                      aria-label={showConfirmPassword ? 'Tasdiqlash parolini yashirish' : 'Tasdiqlash parolini ko‘rsatish'}
-                      aria-pressed={showConfirmPassword}
-                    >
+                    <input {...register('confirmPassword')} type={showConfirmPassword ? 'text' : 'password'} placeholder={copy.fields.confirmPasswordPlaceholder} aria-invalid={Boolean(errors.confirmPassword)} />
+                    <button className="registration-form__password-toggle" type="button" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={showConfirmPassword ? copy.hideConfirmPassword : copy.showConfirmPassword} aria-pressed={showConfirmPassword}>
                       {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                     </button>
                   </div>
@@ -289,11 +214,10 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
               </div>
             </section>
 
-            {submitError && <div className="registration-form__error">{submitError}</div>}
-
-            <button className="btn-primary registration-form__submit" type="submit" disabled={isSubmitting}>
+            {submitError ? <div className="registration-form__error" role="alert">{submitError}</div> : null}
+            <button className="btn-primary registration-form__submit" type="submit" disabled={isSubmitting} aria-label={isSubmitting ? copy.submitting : copy.submit}>
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              Akkaunt yaratish
+              {isSubmitting ? copy.submitting : copy.submit}
             </button>
           </form>
         )}

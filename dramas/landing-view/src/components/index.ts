@@ -9,8 +9,5 @@ export * from './landing/HowItWorks';
 export * from './landing/Logo';
 export * from './landing/Pricing';
 export * from './landing/Problem';
-export * from './landing/ProductDetail';
-export * from './landing/SubscriptionFlow';
-export * from './landing/Testimonials';
 export * from './landing/Trust';
 export * from './ui/UzbekPhoneInput';

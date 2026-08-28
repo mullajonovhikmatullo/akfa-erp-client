@@ -7,6 +7,7 @@ type UzbekPhoneInputProps = {
   name?: string;
   error?: boolean;
   autoComplete?: string;
+  ariaLabel?: string;
 };
 
 function getNationalDigits(value: string) {
@@ -43,7 +44,7 @@ function UzbekistanFlagIcon() {
 }
 
 export const UzbekPhoneInput = forwardRef<HTMLInputElement, UzbekPhoneInputProps>(function UzbekPhoneInput(
-  { value, onChange, onBlur, name, error = false, autoComplete = 'tel' },
+  { value, onChange, onBlur, name, error = false, autoComplete = 'tel', ariaLabel },
   ref,
 ) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -101,6 +102,7 @@ export const UzbekPhoneInput = forwardRef<HTMLInputElement, UzbekPhoneInputProps
         placeholder="90 123 45 67"
         maxLength={17}
         aria-invalid={error}
+        aria-label={ariaLabel}
       />
     </div>
   );

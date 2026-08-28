@@ -1,9 +1,10 @@
 import { Check } from "lucide-react";
-import { site } from "../../config/site";
+import { useI18n } from "../../i18n/I18nProvider";
 import { DashboardMock } from "./DashboardMock";
 
 export function Hero() {
-  const hero = site.hero;
+  const { t } = useI18n();
+  const hero = t.hero;
 
   return (
     <section className="landing-hero">

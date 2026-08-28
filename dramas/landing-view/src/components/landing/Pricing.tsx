@@ -1,50 +1,49 @@
-import { useEffect, useMemo, useState } from "react";
-import { Check } from "lucide-react";
-import { LandingSeekApi } from "@store/landing-stub";
-import type { PublicPlan, PublicPlanCode } from "@store/landing-stub";
-import { site } from "../../config/site";
-import { RegistrationModal } from "./RegistrationModal";
+import { useEffect, useMemo, useState } from 'react';
+import { Check } from 'lucide-react';
+import { LandingSeekApi, type PublicPlan, type PublicPlanCode } from '@store/landing-stub';
+import { useI18n } from '../../i18n/I18nProvider';
+import { formatMessage } from '../../i18n/translations';
+import type { TranslationDictionary } from '../../i18n/types';
+import { RegistrationModal } from './RegistrationModal';
 
-type StaticPlan = (typeof site.pricing.plans)[number];
+type PlanTemplate = TranslationDictionary['pricing']['plans'][keyof TranslationDictionary['pricing']['plans']];
 
 type DisplayPlan = {
-  code: string;
+  code: PublicPlanCode;
   name: string;
   price: string;
   unit: string;
   highlight: boolean;
-  label: string;
+  badge: string;
   features: string[];
   cta: string;
-  contactOnly?: boolean;
 };
 
 const normalizePlanCode = (code: string) => code.trim().toUpperCase();
-const formatLimit = (value: number) => new Intl.NumberFormat("en-US").format(value);
 
-const formatPlanFeatures = (plan: PublicPlan, template?: StaticPlan) => {
-  const branchFeature =
-    plan.maxBranches === null
-      ? "Cheksiz filial"
-      : plan.maxBranches <= 1
-        ? "Faqat asosiy do‘kon"
-        : `Asosiy do‘kon + ${plan.maxBranches - 1} tagacha filial`;
-  const userFeature =
-    plan.maxUsers === null
-      ? "Cheksiz foydalanuvchi"
-      : `${formatLimit(plan.maxUsers)} tagacha foydalanuvchi`;
-  const productFeature =
-    plan.maxProducts === null
-      ? "Cheksiz mahsulot"
-      : `${formatLimit(plan.maxProducts)} tagacha mahsulot`;
-  const templateFeatures = (template?.features ?? []).filter(
-    (feature) => !/filial|do‘kon|user|foydalanuvchi|mahsulot|branch|product/i.test(feature),
-  );
+function formatPlanFeatures(
+  plan: PublicPlan,
+  template: PlanTemplate | undefined,
+  pricing: TranslationDictionary['pricing'],
+  locale: string,
+) {
+  const formatLimit = (value: number) => new Intl.NumberFormat(locale).format(value);
+  const branchFeature = plan.maxBranches === null
+    ? pricing.limits.unlimitedBranches
+    : plan.maxBranches <= 1
+      ? pricing.limits.mainStoreOnly
+      : formatMessage(pricing.limits.additionalBranches, { count: formatLimit(plan.maxBranches - 1) });
+  const userFeature = plan.maxUsers === null
+    ? pricing.limits.unlimitedUsers
+    : formatMessage(pricing.limits.users, { count: formatLimit(plan.maxUsers) });
+  const productFeature = plan.maxProducts === null
+    ? pricing.limits.unlimitedProducts
+    : formatMessage(pricing.limits.products, { count: formatLimit(plan.maxProducts) });
 
-  return [branchFeature, userFeature, productFeature, ...templateFeatures];
-};
+  return [branchFeature, userFeature, productFeature, ...(template?.features ?? [])];
+}
 
-const pricingSkeletonKeys = ["one", "two", "three"] as const;
+const pricingSkeletonKeys = ['one', 'two', 'three'] as const;
 
 function PricingSkeleton() {
   return (
@@ -68,100 +67,80 @@ function PricingSkeleton() {
 }
 
 export function Pricing() {
-  const pricing = site.pricing;
+  const { locale, t } = useI18n();
+  const { pricing } = t;
   const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
-  const [publicPlans, setPublicPlans] = useState<PublicPlan[] | null>(null);
+  const [publicPlans, setPublicPlans] = useState<PublicPlan[]>([]);
+  const [loadState, setLoadState] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
     let active = true;
+    setLoadState('loading');
+
     LandingSeekApi.listPublicPlans()
       .then((plans) => {
-        if (active) setPublicPlans(plans);
+        if (!active) return;
+        setPublicPlans(plans);
+        setLoadState('success');
       })
       .catch(() => {
-        if (active) setPublicPlans([]);
+        if (!active) return;
+        setPublicPlans([]);
+        setLoadState('error');
       });
-    return () => {
-      active = false;
-    };
+
+    return () => { active = false; };
   }, []);
 
-  const plans = useMemo<DisplayPlan[]>(
-    () => {
-      if (publicPlans === null) return [];
+  const plans = useMemo<DisplayPlan[]>(() => {
+    const templates = new Map<string, PlanTemplate>(Object.entries(pricing.plans));
 
-      const templates = new Map(
-        pricing.plans.map((plan) => [normalizePlanCode(plan.code), plan]),
-      );
-      const livePlans = publicPlans
-        .slice()
-        .sort((left, right) => left.monthlyPriceUzs - right.monthlyPriceUzs)
-        .map((livePlan): DisplayPlan => {
-          const template = templates.get(normalizePlanCode(livePlan.code));
-          return {
-            code: livePlan.code,
-            name: livePlan.name,
-            price: new Intl.NumberFormat("uz-UZ").format(livePlan.monthlyPriceUzs),
-            unit: "so‘m / oy",
-            highlight: template?.highlight ?? false,
-            label: template?.label ?? "",
-            features: formatPlanFeatures(livePlan, template),
-            cta: template?.cta ?? "Bepul sinovni boshlash",
-          };
-        });
-      return livePlans;
-    },
-    [pricing.plans, publicPlans],
-  );
+    return publicPlans
+      .slice()
+      .sort((left, right) => left.monthlyPriceUzs - right.monthlyPriceUzs)
+      .map((livePlan) => {
+        const template = templates.get(normalizePlanCode(livePlan.code));
+        return {
+          code: livePlan.code,
+          name: template?.name ?? livePlan.code,
+          price: new Intl.NumberFormat(locale).format(livePlan.monthlyPriceUzs),
+          unit: pricing.monthlyUnit,
+          highlight: template?.highlight ?? false,
+          badge: template?.badge ?? '',
+          features: formatPlanFeatures(livePlan, template, pricing, locale),
+          cta: template?.cta ?? pricing.defaultCta,
+        };
+      });
+  }, [locale, pricing, publicPlans]);
 
   return (
     <section className="pricing-section" id="tariflar">
       <div className="container-page">
         <div className="section-heading section-heading--center" data-reveal="up">
-          <div className="section-kicker">Oddiy va shaffof narxlar</div>
+          <div className="section-kicker">{pricing.kicker}</div>
           <h2>{pricing.heading}</h2>
           <p>{pricing.note}</p>
         </div>
 
-        <div
-          className="pricing-grid"
-          data-reveal-group
-          aria-busy={publicPlans === null}
-        >
-          {publicPlans === null ? <PricingSkeleton /> : plans.length === 0 ? (
-            <p className="pricing-empty-state">Tariflar hozircha mavjud emas.</p>
+        <div className="pricing-grid" data-reveal-group aria-busy={loadState === 'loading'}>
+          {loadState === 'loading' ? <PricingSkeleton /> : loadState === 'error' ? (
+            <p className="pricing-empty-state" role="alert">{pricing.loadError}</p>
+          ) : plans.length === 0 ? (
+            <p className="pricing-empty-state">{pricing.empty}</p>
           ) : plans.map((plan) => (
             <article
-              className={`pricing-card${plan.highlight ? " pricing-card--featured" : ""}${publicPlans !== null ? " is-revealed" : ""}`}
+              className={`pricing-card${plan.highlight ? ' pricing-card--featured' : ''} is-revealed`}
               key={plan.code}
               data-reveal="up"
             >
-              {plan.highlight ? <span className="pricing-card__badge">{plan.label}</span> : null}
+              {plan.badge ? <span className="pricing-card__badge">{plan.badge}</span> : null}
               <h3>{plan.name}</h3>
-              <span className="pricing-card__price-label">Sinovdan keyingi narx</span>
-              <div className={`pricing-card__price${plan.contactOnly ? " is-custom" : ""}`}>
-                <strong>{plan.price}</strong>
-                {plan.unit ? <span>{plan.unit}</span> : null}
-              </div>
+              <span className="pricing-card__price-label">{pricing.afterTrial}</span>
+              <div className="pricing-card__price"><strong>{plan.price}</strong><span>{plan.unit}</span></div>
               <ul>
-                {plan.features.map((feature) => (
-                  <li key={feature}>
-                    <Check size={14} strokeWidth={2.5} />
-                    {feature}
-                  </li>
-                ))}
+                {plan.features.map((feature, featureIndex) => <li key={`feature-${featureIndex}`}><Check size={14} strokeWidth={2.5} />{feature}</li>)}
               </ul>
-              <button
-                className={`button ${plan.highlight ? "button--primary" : "button--ghost"}`}
-                type="button"
-                onClick={() => {
-                  if (plan.contactOnly) {
-                    window.location.href = `mailto:${site.contact.email}?subject=${encodeURIComponent("Mavion Pro tarifi")}`;
-                    return;
-                  }
-                  setSelectedPlan(plan);
-                }}
-              >
+              <button className={`button ${plan.highlight ? 'button--primary' : 'button--ghost'}`} type="button" onClick={() => setSelectedPlan(plan)}>
                 {plan.cta}
               </button>
             </article>
@@ -172,7 +151,7 @@ export function Pricing() {
       {selectedPlan ? (
         <RegistrationModal
           open
-          planCode={selectedPlan.code as PublicPlanCode}
+          planCode={selectedPlan.code}
           planName={selectedPlan.name}
           onClose={() => setSelectedPlan(null)}
         />
