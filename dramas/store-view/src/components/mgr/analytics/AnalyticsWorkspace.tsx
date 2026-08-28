@@ -33,10 +33,10 @@ type AnalyticsFiltersForm = {
 
 export interface AnalyticsWorkspaceProps {
   t: TFunc;
-  lowStockThreshold: number;
+  branchId?: string;
 }
 
-export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceProps) {
+export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
   //
   const [tab, setTab] = useState<Tab>('dashboard');
   const [overduePage, setOverduePage] = useState(1);
@@ -55,11 +55,11 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
   const { period, dateRange } = watch();
 
   const query: AnalyticsQuery = {
+    branchId,
     from: dateRange[0]?.toISOString(),
     to: dateRange[1]?.toISOString(),
     period,
     limit: 10,
-    lowStockThreshold,
   };
 
   const dashboard = useDashboard(query);
@@ -68,6 +68,7 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
   const inventoryReport = useInventoryReport(query);
   const customerDebt = useCustomerDebt(query);
   const debtSales = useSales({
+    branchId: query.branchId,
     from: query.from,
     to: query.to,
     hasDebt: true,
@@ -79,7 +80,7 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
   useEffect(() => {
     //
     setOverduePage(1);
-  }, [query.from, query.to, debtScope, debtDeadlineFilter, debtCustomerId, debtSaleType, debtSort]);
+  }, [query.branchId, query.from, query.to, debtScope, debtDeadlineFilter, debtCustomerId, debtSaleType, debtSort]);
 
   const handleDebtScopeChange = (value: DebtScope) => {
     //
@@ -169,22 +170,15 @@ export function AnalyticsWorkspace({ t, lowStockThreshold }: AnalyticsWorkspaceP
       </div>
 
       {/* Tab bar */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--border)', paddingBottom: 0 }}>
+      <div className="analytics-tabs" role="tablist" aria-label={t('analytics.title')}>
         {TABS.map((tabItem) => (
           <button
             key={tabItem.key}
+            type="button"
+            role="tab"
+            aria-selected={tab === tabItem.key}
+            className={tab === tabItem.key ? 'is-active' : undefined}
             onClick={() => setTab(tabItem.key)}
-            style={{
-              padding: '8px 16px',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: tab === tabItem.key ? 700 : 400,
-              color: tab === tabItem.key ? 'var(--primary)' : 'var(--ink-3)',
-              borderBottom: tab === tabItem.key ? '2px solid var(--primary)' : '2px solid transparent',
-              marginBottom: -1,
-            }}
           >
             {tabItem.label}
           </button>
@@ -259,10 +253,47 @@ function DashboardTab({ data, loading, t }: { data?: ReturnType<typeof useDashbo
     { label: t('analytics.kpiLowStock'), value: data.inventory.lowStockCount, sub: t('analytics.subLowStock'), tone: data.inventory.lowStockCount > 0 ? 'warning' as const : 'success' as const },
     { label: t('analytics.kpiPendingTransfers'), value: data.transfers.pendingCount, sub: t('analytics.subNeedReview'), tone: data.transfers.pendingCount > 0 ? 'warning' as const : 'success' as const },
   ];
+  const revenueBase = Math.max(data.sales.totalRevenue, 1);
+  const financialRows = [
+    { label: t('analytics.kpiPaid'), value: data.sales.paidAmount, pct: (data.sales.paidAmount / revenueBase) * 100, tone: 'var(--success)' },
+    { label: t('analytics.kpiSaleDebt'), value: data.sales.outstandingDebt, pct: (data.sales.outstandingDebt / revenueBase) * 100, tone: 'var(--danger)' },
+    { label: t('analytics.kpiExpenses'), value: data.expenses.total, pct: (data.expenses.total / revenueBase) * 100, tone: 'var(--warning)' },
+    { label: t('analytics.kpiNetProfit'), value: data.profit.netProfit, pct: (Math.abs(data.profit.netProfit) / revenueBase) * 100, tone: data.profit.netProfit >= 0 ? 'var(--success)' : 'var(--danger)' },
+  ];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 12 }}>
-      {kpis.map((k) => <KpiCard key={k.label} {...k} />)}
+    <div className="analytics-overview">
+      <div className="analytics-overview-grid">
+        {kpis.map((k) => <KpiCard key={k.label} {...k} />)}
+      </div>
+      <div className="analytics-overview-details">
+        <section className="card analytics-overview-panel">
+          <SectionTitle>{t('analytics.financialSummary')}</SectionTitle>
+          <div className="analytics-overview-finance">
+            {financialRows.map((row) => (
+              <div className="analytics-overview-finance__row" key={row.label}>
+                <div className="analytics-overview-finance__head">
+                  <span>{row.label}</span>
+                  <strong><MoneyDisplay amount={row.value} currency="UZS" /></strong>
+                </div>
+                <div className="analytics-overview-finance__track">
+                  <span style={{ width: `${Math.min(row.pct, 100)}%`, background: row.tone }} />
+                </div>
+                <small>{Math.round(row.pct)}%</small>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="card analytics-overview-panel">
+          <SectionTitle>{t('analytics.operationalSummary')}</SectionTitle>
+          <div className="analytics-overview-status">
+            <div><span>{t('analytics.kpiStockValue')}</span><strong><MoneyDisplay amount={data.inventory.stockValueUzs} currency="UZS" /></strong></div>
+            <div><span>{t('analytics.kpiLowStock')}</span><strong className={data.inventory.lowStockCount > 0 ? 'is-warning' : 'is-success'}>{data.inventory.lowStockCount}</strong></div>
+            <div><span>{t('analytics.kpiPendingTransfers')}</span><strong className={data.transfers.pendingCount > 0 ? 'is-warning' : 'is-success'}>{data.transfers.pendingCount}</strong></div>
+            <div><span>{t('analytics.kpiCustomerDebt')}</span><strong className={data.customers.debtorCount > 0 ? 'is-danger' : 'is-success'}>{data.customers.debtorCount} {t('analytics.debtorSuffix')}</strong></div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -276,15 +307,15 @@ function SalesTab({ data, loading, t }: { data?: ReturnType<typeof useSalesRepor
   const grandTotal = data.summary.totalRevenue || 1;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {/* Summary row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+      <div className="analytics-sales-kpis">
         <KpiCard label={t('analytics.kpiRevenue')} value={<MoneyDisplay amount={data.summary.totalRevenue} currency="UZS" />} sub={`${data.summary.saleCount} ${t('analytics.saleSuffix')}`} tone="primary" />
         <KpiCard label={t('analytics.avgSale')} value={<MoneyDisplay amount={data.summary.avgOrderValue} currency="UZS" />} sub={t('analytics.subPerSale')} tone="muted" />
         <KpiCard label={t('analytics.kpiDebtShort')} value={<MoneyDisplay amount={data.summary.outstandingDebt} currency="UZS" />} sub={t('analytics.subUnpaid')} tone="danger" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {/* By type */}
         <div className="card">
           <SectionTitle>{t('analytics.byType')}</SectionTitle>
@@ -362,7 +393,7 @@ function ExpensesTab({ data, loading, t }: { data?: ReturnType<typeof useExpense
   const grandTotal = data.summary.total || 1;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'flex-start' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
       {/* Period chart (bar) */}
       <div className="card">
         <SectionTitle>{t('analytics.byPeriod')}</SectionTitle>
@@ -425,18 +456,18 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
   if (loading || !data) return <Skeleton active paragraph={{ rows: 8 }} />;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="analytics-inventory">
       {/* Stock by branch */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+      <div className="analytics-inventory-branches">
         {data.stockByBranch.map((b) => (
-          <div key={b.branchId} className="card" style={{ padding: '14px 16px' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+          <div key={b.branchId} className="card analytics-inventory-branch">
+            <div className="analytics-inventory-branch__name">
               {b.branchName}
             </div>
-            <div className="num" style={{ fontSize: 18, fontWeight: 700, marginBottom: 4 }}>
+            <div className="analytics-inventory-branch__value num">
               <MoneyDisplay amount={b.stockValueUzs} currency="UZS" />
             </div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>
+            <div className="analytics-inventory-branch__meta">
               {b.productCount} {t('analytics.skuSuffix')} · {b.totalQuantity.toLocaleString('ru-RU')} {t('analytics.pieceSuffix')}
             </div>
           </div>
@@ -446,7 +477,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="analytics-inventory-details">
         {/* Low stock */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -479,7 +510,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
         </div>
 
         {/* Movement summary */}
-        <div className="card">
+        <div className="card analytics-inventory-movements">
           <SectionTitle>{t('analytics.movementSummary')}</SectionTitle>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {data.movementSummary.map((m) => {
@@ -492,7 +523,7 @@ function InventoryTab({ data, loading, t }: { data?: ReturnType<typeof useInvent
                 TRANSFER_OUT: t('analytics.movTransferOut'),
               };
               return (
-                <div key={m.type} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
+                <div key={m.type} className="analytics-inventory-movement">
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{MOVEMENT_LABELS[m.type] ?? m.type}</span>
                   <div style={{ textAlign: 'right' }}>
                     <div className="num" style={{ fontWeight: 700 }}>{m.totalQuantity.toLocaleString('ru-RU')}</div>
@@ -582,11 +613,12 @@ function DebtTab({
   }));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="analytics-debt">
       {/* Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
-        <KpiCard label={t('analytics.totalDebt')} value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={`${data.summary.debtorCount} ${t('analytics.debtorSuffix')}`} tone="danger" />
+      <div className="analytics-debt-kpis">
+        <KpiCard label={t('analytics.totalDebt')} value={<MoneyDisplay amount={data.summary.totalDebt} currency="UZS" />} sub={t('analytics.subUnpaid')} tone="danger" />
         <KpiCard label={t('analytics.overdueDebt')} value={<MoneyDisplay amount={data.overdue.totalOverdueDebt} currency="UZS" />} sub={`${data.overdue.overdueCount} ${t('analytics.saleSuffix')}`} tone="danger" />
+        <KpiCard label={t('dashboard.debtorCount')} value={data.summary.debtorCount} sub={t('analytics.debtorsNeedAttention')} tone={data.summary.debtorCount > 0 ? 'warning' : 'success'} />
       </div>
 
       {data.overdue.overdueCount > 0 && (
@@ -608,11 +640,11 @@ function DebtTab({
             <strong>{debtTotal}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8, padding: '12px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="analytics-debt-filters">
           <Select<DebtScope>
             value={debtScope}
             onChange={onDebtScopeChange}
-            style={{ width: 170 }}
+            style={{ width: '100%' }}
             options={[
               { value: 'overdue', label: t('analytics.scopeOverdue') },
               { value: 'allDebt', label: t('analytics.scopeAllDebt') },
@@ -621,7 +653,7 @@ function DebtTab({
           <Select<DebtDeadlineFilter>
             value={debtDeadlineFilter}
             onChange={onDebtDeadlineChange}
-            style={{ width: 190 }}
+            style={{ width: '100%' }}
             options={[
               { value: 'all', label: t('analytics.deadlineAll') },
               { value: 'withDeadline', label: t('analytics.deadlineSet') },
@@ -635,7 +667,8 @@ function DebtTab({
             showSearch
             optionFilterProp="searchLabel"
             placeholder={t('analytics.filterTopDebtors')}
-            style={{ minWidth: 230, flex: '1 1 230px' }}
+            className="analytics-debt-filters__customer"
+            style={{ width: '100%' }}
             options={topDebtorOptions}
           />
           <Select<SaleType>
@@ -643,7 +676,7 @@ function DebtTab({
             onChange={onDebtSaleTypeChange}
             allowClear
             placeholder={t('sales.filterAllTypes')}
-            style={{ width: 160 }}
+            style={{ width: '100%' }}
             options={[
               { value: 'RETAIL', label: t('sales.typeRetail') },
               { value: 'WHOLESALE', label: t('sales.typeWholesale') },
@@ -652,7 +685,7 @@ function DebtTab({
           <Select<DebtSort>
             value={debtSort}
             onChange={onDebtSortChange}
-            style={{ width: 190 }}
+            style={{ width: '100%' }}
             options={[
               { value: 'dueDateAsc', label: t('analytics.sortDueDateAsc') },
               { value: 'debtDesc', label: t('analytics.sortDebtDesc') },
@@ -746,7 +779,7 @@ function KpiCard({ label, value, sub, tone = 'muted' }: { label: string; value: 
   return (
     <div className="card" style={{ padding: '14px 16px' }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{label}</div>
-      <div className="num" style={{ fontSize: 18, fontWeight: 700, color: TONE_COLORS[tone] }}>{value}</div>
+      <div className="num" style={{ fontSize: 16, fontWeight: 700, color: TONE_COLORS[tone] }}>{value}</div>
       <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>{sub}</div>
     </div>
   );

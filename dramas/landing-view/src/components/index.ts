@@ -13,3 +13,4 @@ export * from './landing/ProductDetail';
 export * from './landing/SubscriptionFlow';
 export * from './landing/Testimonials';
 export * from './landing/Trust';
+export * from './ui/UzbekPhoneInput';

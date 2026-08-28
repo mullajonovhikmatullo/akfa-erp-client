@@ -25,6 +25,7 @@ type ReceiptPreview = {
   url: string;
   fileName: string;
   mimeType: string;
+  note: string | null;
 };
 
 export const PaymentsPage = () => {
@@ -153,6 +154,7 @@ export const PaymentsPage = () => {
         url,
         fileName: payment.receiptMedia.fileName,
         mimeType: payment.receiptMedia.mimeType,
+        note: payment.note,
       });
     } catch (error) {
       message.error(error instanceof Error ? error.message : 'Chekni ochib bo‘lmadi');
@@ -356,6 +358,10 @@ export const PaymentsPage = () => {
         }
         onCancel={() => setReceiptPreview(null)}
       >
+        <div className="payment-receipt-note">
+          <span>Yuboruvchi izohi</span>
+          <p>{receiptPreview?.note?.trim() || '—'}</p>
+        </div>
         <div className="receipt-preview">
           {receiptPreview?.mimeType === 'application/pdf' ? (
             <iframe src={receiptPreview.url} title={receiptPreview.fileName} />
@@ -411,7 +417,12 @@ export const PaymentsPage = () => {
             <Input />
           </Form.Item>
           <Form.Item name="note" label="Izoh">
-            <Input.TextArea maxLength={500} rows={3} placeholder="Masalan: Click chek raqami yoki karta to‘lovi" />
+            <Input.TextArea
+              maxLength={500}
+              showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
+              rows={3}
+              placeholder="Masalan: Click chek raqami yoki karta to‘lovi"
+            />
           </Form.Item>
         </Form>
       </Modal>
@@ -439,6 +450,7 @@ export const PaymentsPage = () => {
             value={rejectNote}
             onChange={(event) => setRejectNote(event.target.value)}
             maxLength={500}
+            showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
             rows={3}
             placeholder="Rad etish sababi"
           />

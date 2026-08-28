@@ -50,6 +50,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     };
 
     const handleDisconnect = (reason: string) => {
+      //
       if (reason !== 'io server disconnect' || checkingSession) return;
       checkingSession = true;
 

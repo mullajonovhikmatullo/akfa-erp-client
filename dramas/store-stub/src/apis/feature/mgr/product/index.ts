@@ -22,6 +22,7 @@ const parseProduct = (raw: Raw): Product => ({
   costPriceUsd: raw.costPriceUsd != null ? Number(raw.costPriceUsd) : null,
   retailPriceUsd: raw.retailPriceUsd != null ? Number(raw.retailPriceUsd) : null,
   wholesalePriceUsd: raw.wholesalePriceUsd != null ? Number(raw.wholesalePriceUsd) : null,
+  lowStockThreshold: raw.lowStockThreshold != null ? Number(raw.lowStockThreshold) : null,
   categoryId: raw.category ? (raw.category as { id: string }).id : null,
   primaryImageUrl: (raw.primaryImageUrl as string | null | undefined) ?? null,
   primaryThumbnailUrl: (raw.primaryThumbnailUrl as string | null | undefined) ?? null,
@@ -157,8 +158,17 @@ const deleteProductImage = ({ productId, imageId }: { productId: string; imageId
 const normalizeProductImageUrl = (url: string) =>
   url.startsWith('/api/') ? url.replace(/^\/api/, '') : url
 
-const downloadProductImage = (url: string) =>
-  http.get<Blob>(normalizeProductImageUrl(url), { responseType: 'blob' }).then((response) => response.data)
+const downloadProductImage = async (url: string) => {
+  const normalizedUrl = normalizeProductImageUrl(url)
+
+  if (/^https?:\/\//i.test(normalizedUrl)) {
+    const response = await fetch(normalizedUrl)
+    if (!response.ok) throw new Error(`Product image request failed: ${response.status}`)
+    return response.blob()
+  }
+
+  return http.get<Blob>(normalizedUrl, { responseType: 'blob' }).then((response) => response.data)
+}
 
 const findProductInventory = (productId: string) =>
   http

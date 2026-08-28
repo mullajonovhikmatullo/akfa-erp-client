@@ -7,6 +7,7 @@ import type { Category } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { getField } from '@store/store-shared/lib/parse-excel'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -101,7 +102,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
             setModalOpen(false)
           },
           onError: (error: unknown) =>
-            toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.updateError')),
+            toast.error(getLocalizedApiErrorMessage(error, t, 'categories.updateError')),
         },
       )
     } else {
@@ -116,7 +117,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
           setModalOpen(false)
         },
         onError: (error: unknown) =>
-          toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.createError')),
+          toast.error(getLocalizedApiErrorMessage(error, t, 'categories.createError')),
       })
     }
   }
@@ -208,7 +209,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
               deleteMutation.mutate(category.id, {
                 onSuccess: () => toast.success(t('categories.deleteSuccess')),
                 onError: (error: unknown) =>
-                  toast.error((error as { response?: { data?: { message?: string } } }).response?.data?.message ?? t('categories.deleteError')),
+                  toast.error(getLocalizedApiErrorMessage(error, t, 'categories.deleteError')),
               })
             }}
             onPopupClick={(event) => event.stopPropagation()}
@@ -237,12 +238,9 @@ export function CategoriesList({ t }: CategoriesListProps) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button
-              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
-              onClick={handleRefresh}
-            />
-          </Tooltip>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
+            {t('categories.newCategory')}
+          </Button>
           <ExcelImportButton<CreateCategoryPayload>
             t={t}
             entityLabel={t('nav.categories')}
@@ -267,9 +265,12 @@ export function CategoriesList({ t }: CategoriesListProps) {
               refetchSummary()
             }}
           />
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
-            {t('categories.newCategory')}
-          </Button>
+          <Tooltip title={t('common.refresh')}>
+            <Button
+              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={handleRefresh}
+            />
+          </Tooltip>
         </div>
       </div>
 
@@ -278,19 +279,19 @@ export function CategoriesList({ t }: CategoriesListProps) {
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.total')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{totalCategories}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalCategories}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.active')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{active}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{active}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('common.inactive')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: inactive > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{inactive}</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: inactive > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{inactive}</div>
         </div>
       </div>
 
@@ -376,7 +377,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
                   placeholder={t('categories.descPlaceholder')}
                   rows={3}
                   maxLength={500}
-                  showCount
+                  showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
                 />
               )}
             />

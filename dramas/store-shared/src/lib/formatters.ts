@@ -49,13 +49,13 @@ export function toUSD(amount: number, currency: Currency, rate: number): number 
 export function formatDate(d: string | null | undefined): string {
   //
   if (!d) return '—'
-  return dayjs(d).format('DD MMM YYYY')
+  return dayjs(d).format('DD MMM YYYY').toLocaleLowerCase()
 }
 
 export function formatDateTime(d: string | null | undefined): string {
   //
   if (!d) return '—'
-  return dayjs(d).format('DD MMM, HH:mm')
+  return dayjs(d).format('DD MMM, HH:mm').toLocaleLowerCase()
 }
 
 export function formatRelative(d: string | null | undefined): string {

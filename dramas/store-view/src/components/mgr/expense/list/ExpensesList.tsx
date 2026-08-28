@@ -28,10 +28,11 @@ type ExpenseFiltersForm = {
 interface ExpensesListProps {
   t: (key: string) => string
   isStoreOwner: boolean
+  branchId?: string
   exchangeRate: number
 }
 
-export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProps) {
+export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: ExpensesListProps) {
   //
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<ExpenseFiltersForm>({
@@ -56,6 +57,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
     isFetching,
     refetch,
   } = useExpenses({
+    branchId,
     categoryId: filters.categoryId,
     ...dateFilters,
     limit: 200,
@@ -65,13 +67,14 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
     isFetching: isSummaryFetching,
     refetch: refetchCategorySummary,
   } = useExpenseCategorySummary({
+    branchId,
     categoryId: filters.categoryId,
     ...dateFilters,
     limit: KPI_CATEGORY_LIMIT,
   })
 
   const { data: categories = [] } = useExpenseCategories()
-  const deleteExpense = useDeleteExpense()
+  const deleteExpense = useDeleteExpense(t)
 
   const fallbackGrandTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0)
   const fallbackByCategory = categories
@@ -215,6 +218,14 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
+            {t('expenses.newExpense')}
+          </Button>
+          {isStoreOwner ? (
+            <Button icon={<TagIcon size={13} />} onClick={() => setManagingCategories(true)}>
+              {t('nav.categories')}
+            </Button>
+          ) : null}
           <Controller
             name="dateRange"
             control={control}
@@ -244,14 +255,6 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
               }}
             />
           </Tooltip>
-          {isStoreOwner ? (
-            <Button icon={<TagIcon size={18} />} onClick={() => setManagingCategories(true)}>
-              {t('nav.categories')}
-            </Button>
-          ) : null}
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
-            {t('expenses.newExpense')}
-          </Button>
         </div>
       </div>
 
@@ -293,7 +296,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
                 >
                   {category.name}
                 </div>
-                <div className="num" style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
+                <div className="num" style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
                   <MoneyDisplay amount={category.total} currency="UZS" />
                 </div>
                 <div style={{ height: 4, borderRadius: 2, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
@@ -308,7 +311,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
         </div>
       ) : null}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16, alignItems: 'flex-start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div
             style={{
@@ -391,7 +394,7 @@ export function ExpensesList({ t, isStoreOwner, exchangeRate }: ExpensesListProp
         </div>
       </div>
 
-      <ExpenseFormModal t={t} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
+      <ExpenseFormModal t={t} exchangeRate={exchangeRate} branchId={branchId} open={creating} onClose={() => setCreating(false)} />
       <CategoryManagerDrawer t={t} open={managingCategories} onClose={() => setManagingCategories(false)} />
     </>
   )

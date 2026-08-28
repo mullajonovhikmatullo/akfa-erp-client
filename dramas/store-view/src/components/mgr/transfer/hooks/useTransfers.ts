@@ -2,7 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { TransferFlowApi, TransferSeekApi } from '@store/store-stub'
 import type { CreateTransferPayload, TransferFilters } from '@store/store-stub'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 import { inventoryKeys } from '../../inventory/hooks/useInventory'
+
+type Translate = (key: string) => string
 
 export const transferKeys = {
   all: ['transfers'] as const,
@@ -21,7 +24,7 @@ export function useTransfers(filters?: TransferFilters, options?: { enabled?: bo
   })
 }
 
-export function useCreateTransfer() {
+export function useCreateTransfer(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -30,18 +33,18 @@ export function useCreateTransfer() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: transferKeys.all })
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      toast.success('Transfer yaratildi')
+      toast.success(t('transfers.createSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? 'Transferda xatolik')
+      toast.error(getLocalizedApiErrorMessage(error, t, 'transfers.createError'))
     },
   })
 }
 
-export function useCompleteTransfer() {
+export function useCompleteTransfer(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -52,17 +55,16 @@ export function useCompleteTransfer() {
       queryClient.invalidateQueries({ queryKey: transferKeys.all })
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      toast.success('Transfer yakunlandi, ombor yangilandi')
+      toast.success(t('transfers.completeSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? 'Yakunlashda xatolik')
+      toast.error(getLocalizedApiErrorMessage(error, t, 'transfers.completeError'))
     },
   })
 }
 
-export function useCancelTransfer() {
+export function useCancelTransfer(t: Translate) {
   //
   const queryClient = useQueryClient()
 
@@ -71,13 +73,13 @@ export function useCancelTransfer() {
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: transferKeys.all })
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      toast.success('Transfer bekor qilindi')
+      toast.success(t('transfers.cancelSuccess'))
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? 'Bekor qilishda xatolik')
+      toast.error(getLocalizedApiErrorMessage(error, t, 'transfers.cancelError'))
     },
   })
 }

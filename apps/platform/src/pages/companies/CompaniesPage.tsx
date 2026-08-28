@@ -7,6 +7,7 @@ import {
   Clock,
   Copy,
   LinkSimple,
+  PencilSimple,
   PauseCircle,
   WarningCircle,
 } from '@phosphor-icons/react';
@@ -65,6 +66,8 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
   const [statusNote, setStatusNote] = useState('');
   const [statusConfirmation, setStatusConfirmation] = useState('');
   const [statusPassword, setStatusPassword] = useState('');
+  const [pendingPlanChange, setPendingPlanChange] = useState<PlatformStore | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState('');
   const [setupTarget, setSetupTarget] = useState<PlatformStore | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
   const [setupResult, setSetupResult] = useState<{
@@ -87,6 +90,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
     queryKey: ['platform-dashboard', 'metrics'],
     queryFn: PlatformSeekApi.dashboard,
   });
+  const plansQuery = useQuery(PlatformSeekApi.fetch.listPlans());
 
   const statusMutation = useMutation({
     mutationFn: ({
@@ -137,6 +141,37 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       ]);
     },
   });
+  const planMutation = useMutation({
+    mutationFn: () => {
+      if (!pendingPlanChange || !selectedPlanId) {
+        throw new Error('Tarifni tanlang');
+      }
+
+      return PlatformFlowApi.updateStorePlan({
+        storeId: pendingPlanChange.id,
+        payload: {
+          planId: selectedPlanId,
+          expectedVersion: pendingPlanChange.billingVersion,
+        },
+      });
+    },
+    onSuccess: async () => {
+      message.success('Do‘kon tarifi yangilandi');
+      setPendingPlanChange(null);
+      setSelectedPlanId('');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-payments'] }),
+      ]);
+    },
+    onError: (error) => {
+      setPendingPlanChange(null);
+      setSelectedPlanId('');
+      message.error(error instanceof Error ? error.message : 'Do‘kon tarifini yangilab bo‘lmadi');
+      void queryClient.invalidateQueries({ queryKey: ['platform-stores'] });
+    },
+  });
   const setupMutation = useMutation({
     mutationFn: (store: PlatformStore) =>
       PlatformFlowApi.regenerateOwnerSetup(store.id, setupPassword),
@@ -176,6 +211,11 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       note: statusNote,
       confirmation: statusConfirmation,
     });
+  };
+
+  const openPlanChange = (store: PlatformStore) => {
+    setPendingPlanChange(store);
+    setSelectedPlanId(store.plan?.id ?? '');
   };
 
   const openSetupRegeneration = (store: PlatformStore) => {
@@ -299,6 +339,14 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
                 <div className="table-primary-cell">
                   <strong>{store.plan?.name ?? 'Tarif yo‘q'}</strong>
                   <span>{formatMoney(store.plan?.monthlyPriceUzs ?? 0)}</span>
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<PencilSimple size={15} />}
+                    onClick={() => openPlanChange(store)}
+                  >
+                    Tarifni almashtirish
+                  </Button>
                 </div>
               ),
             },
@@ -376,6 +424,44 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       </div>
 
       <Modal
+        title="Do‘kon tarifini o‘zgartirish"
+        open={Boolean(pendingPlanChange)}
+        okText="Tarifni saqlash"
+        cancelText="Bekor qilish"
+        confirmLoading={planMutation.isPending}
+        okButtonProps={{
+          disabled:
+            !pendingPlanChange ||
+            !selectedPlanId ||
+            selectedPlanId === pendingPlanChange.plan?.id ||
+            plansQuery.isLoading,
+        }}
+        onOk={() => planMutation.mutate()}
+        onCancel={() => {
+          setPendingPlanChange(null);
+          setSelectedPlanId('');
+        }}
+      >
+        <div className="status-change-modal">
+          <p>
+            <strong>{pendingPlanChange?.name}</strong> do‘koni uchun yangi tarifni tanlang.
+            Joriy tarif: <strong>{pendingPlanChange?.plan?.name ?? 'Tarif yo‘q'}</strong>.
+          </p>
+          <Select
+            value={selectedPlanId || undefined}
+            loading={plansQuery.isLoading}
+            placeholder="Yangi tarifni tanlang"
+            options={(plansQuery.data ?? []).map((plan) => ({
+              value: plan.id,
+              label: `${plan.name} — ${formatMoney(plan.monthlyPriceUzs)}`,
+            }))}
+            onChange={setSelectedPlanId}
+            style={{ width: '100%' }}
+          />
+        </div>
+      </Modal>
+
+      <Modal
         title="Do‘kon statusini o‘zgartirish"
         open={Boolean(pendingStatusChange)}
         okText="Tasdiqlash"
@@ -414,6 +500,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             value={statusNote}
             onChange={(event) => setStatusNote(event.target.value)}
             maxLength={500}
+            showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
             rows={3}
             placeholder={
               pendingStatusChange?.status === 'SUSPENDED' || pendingStatusChange?.status === 'CANCELLED'

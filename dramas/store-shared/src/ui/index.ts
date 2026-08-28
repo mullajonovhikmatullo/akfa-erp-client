@@ -8,3 +8,5 @@ export type { ExcelImportButtonProps, ParsedRow } from './ExcelImportButton/Exce
 export { MoneyDisplay } from './MoneyDisplay/MoneyDisplay'
 export { SelectLoadingContent } from './SelectLoadingContent/SelectLoadingContent'
 export { StatusBadge } from './StatusBadge/StatusBadge'
+export { UzbekPhoneInput } from './UzbekPhoneInput/UzbekPhoneInput'
+export type { UzbekPhoneInputProps } from './UzbekPhoneInput/UzbekPhoneInput'

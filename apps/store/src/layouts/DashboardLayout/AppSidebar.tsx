@@ -6,11 +6,12 @@ import {
   ArrowLineRightIcon,
   ArrowsLeftRightIcon,
   BoxArrowDownIcon,
+  CardholderIcon,
   CaretRightIcon,
   ChartBarIcon,
+  ClipboardTextIcon,
   GearIcon,
   PackageIcon,
-  ReceiptIcon,
   ShoppingCartIcon,
   SquaresFourIcon,
   StarIcon,
@@ -24,6 +25,7 @@ import {
 import type { Icon } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { useTransfers } from '@store/store-view/transfer';
+import { MavionBrand } from '@store/store-view/auth';
 import { useAuthStore } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useT } from '@/shared/lib/i18n';
@@ -48,9 +50,10 @@ const SIDEBAR_ICONS: Record<string, Icon> = {
   customers: UsersIcon,
   dashboard: SquaresFourIcon,
   expenses: WalletIcon,
-  billing: ReceiptIcon,
+  billing: CardholderIcon,
   products: PackageIcon,
   purchases: BoxArrowDownIcon,
+  inventory: ClipboardTextIcon,
   sales: ShoppingCartIcon,
   settings: GearIcon,
   transfers: ArrowsLeftRightIcon,
@@ -113,7 +116,7 @@ function NavItem({
       onClick={onClick}
     >
       <span className="sb-item__icon">
-        {Icon && <Icon size={20} weight={isActive ? 'fill' : 'regular'} />}
+        {Icon && <Icon size={18} weight={isActive ? 'fill' : 'regular'} />}
       </span>
       {collapsed && showBadge && (
         <Badge count={badgeCount} overflowCount={200} className="sb-item__badge sb-item__badge--collapsed" />
@@ -133,7 +136,7 @@ function NavItem({
                e.preventDefault(); e.stopPropagation(); onToggleFav(item.key); }}
             aria-label={isFav ? 'Sevimlilardan olib tashlash' : "Sevimlilarga qo'shish"}
           >
-            <StarIcon size={12} weight={isFav ? 'fill' : 'regular'} />
+            <StarIcon size={11} weight={isFav ? 'fill' : 'regular'} />
           </button>
         </>
       )}
@@ -199,7 +202,7 @@ function AccordionGroup({
     <div className={clsx('sb-group', isOpen && 'sb-group--open')}>
       <button className="sb-group__header" type="button" onClick={onToggle}>
         <span className="sb-group__label">{groupLabel}</span>
-        <CaretRightIcon size={10} className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
+        <CaretRightIcon size={9} className={clsx('sb-group__chevron', isOpen && 'sb-group__chevron--open')} />
       </button>
       <div className="sb-group__items" style={style}>
         <div ref={ref} className="sb-group__items-inner">
@@ -265,7 +268,7 @@ function FavoritesSection({
   return (
     <div className="sb-fav-section">
       <div className="sb-fav-section__header">
-        <PushPinIcon size={10} weight="fill" className="sb-fav-section__pin" />
+        <PushPinIcon size={9} weight="fill" className="sb-fav-section__pin" />
         <span>{t('header.quickAccess')}</span>
       </div>
       <div className="sb-group__items-inner">
@@ -335,21 +338,15 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
         mobileOpen && 'sidebar--mobile-open',
       )}
     >
-      {/* Brand */}
       <div className="sb-brand">
-        <span className="sb-logo" />
-        {!collapsed && (
-          <span className="sb-brand__name">
-            Store <span className="sb-brand__sub">Manager</span>
-          </span>
-        )}
+        <MavionBrand compact />
         <button
           className="sidebar-toggle sb-brand__toggle"
           onClick={toggleSidebar}
           type="button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <ArrowLineRightIcon size={18} /> : <ArrowLineLeftIcon size={18} />}
+          {collapsed ? <ArrowLineRightIcon size={16} /> : <ArrowLineLeftIcon size={16} />}
         </button>
       </div>
 
@@ -380,7 +377,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
       {/* Footer */}
       <div className="sb-footer">
         {!collapsed && (
-          <span className="sb-footer__version">v1.0 · Store Manager</span>
+          <span className="sb-footer__version">v1.0 · Mavion</span>
         )}
       </div>
     </aside>

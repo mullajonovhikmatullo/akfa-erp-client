@@ -13,6 +13,7 @@ import { useBranches } from '../../branch/hooks/useBranches'
 import { CustomerFormModal } from '../../customer/form/CustomerFormModal'
 import { useCustomers } from '../../customer/hooks/useCustomers'
 import { useStockBatches } from '../../inventory/hooks/useInventory'
+import { AuthenticatedProductImage } from '../../product/images/AuthenticatedProductImage'
 import { useProducts } from '../../product/hooks/useProducts'
 import { useCreateSale } from '../hooks/useSales'
 import { clearSaleDraft, readSaleDraft, writeSaleDraft } from './saleDraft'
@@ -50,7 +51,7 @@ type SaleFormValues = {
 }
 
 const MIN_QTY = 0.0001
-const CART_GRID_COLUMNS = 'minmax(170px, 1fr) minmax(188px, 220px) minmax(126px, 150px) minmax(150px, 178px) 28px'
+const CART_GRID_COLUMNS = 'minmax(170px, 1fr) minmax(188px, 220px) minmax(90px, 120px) minmax(126px, 150px) minmax(150px, 178px) 28px'
 
 function emptySaleFormValues(branchId?: string): SaleFormValues {
   //
@@ -99,7 +100,12 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
     isActive: true,
     ...(branchFilter ? { branchId: branchFilter } : {}),
   }
-  const { data: customers = [], isLoading: customersLoading, refetch: refetchCustomers } = useCustomers(customerFilters)
+  const {
+    data: customers = [],
+    isLoading: customersLoading,
+    isFetching: customersFetching,
+    refetch: refetchCustomers,
+  } = useCustomers(customerFilters)
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
   const productSelectLoading = Boolean(branchFilter) && (productsLoading || batchesLoading)
 
@@ -107,7 +113,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   const { control, handleSubmit, reset, setValue } = useForm<SaleFormValues>({
     defaultValues: persistedSaleFormValues(),
   })
-  const { append, update, remove } = useFieldArray({
+  const { append, update, remove, replace } = useFieldArray({
     control,
     name: 'cart',
     keyName: 'fieldId',
@@ -122,6 +128,20 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   const [paidAmountError, setPaidAmountError] = useState(false)
   const [productSelectKey, setProductSelectKey] = useState(0)
   const [creatingCustomer, setCreatingCustomer] = useState(false)
+  const [optimisticCustomer, setOptimisticCustomer] = useState<Customer | null>(null)
+
+  const customerOptions = useMemo(() => {
+    // Keep a just-created customer selectable while the invalidated list query refetches.
+    const visibleCustomers = optimisticCustomer && !customers.some((customer) => customer.id === optimisticCustomer.id)
+      ? [optimisticCustomer, ...customers]
+      : customers
+
+    return visibleCustomers.map((customer) => ({
+      value: customer.id,
+      label: customer.phone ? `${customer.fullName} · ${customer.phone}` : customer.fullName,
+    }))
+  }, [customers, optimisticCustomer])
+  const customerOptionIds = useMemo(() => new Set(customerOptions.map((option) => option.value)), [customerOptions])
 
   const stockByProductId = useMemo(() => {
     //
@@ -262,6 +282,30 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   }, [branchFilter, formBranchId, reset, setValue])
 
   useEffect(() => {
+    // Normalize a persisted or externally changed draft when the latest stock is available.
+    if (!branchFilter || batchesLoading || cartDraft.length === 0) return
+    const normalizedCart = cartDraft.map((item) => {
+      const stock = stockByProductId.get(item.productId) ?? 0
+      const quantity = Math.min(Math.max(item.quantity, 0), stock)
+      return quantity === item.quantity ? item : { ...item, quantity }
+    })
+    if (normalizedCart.some((item, index) => item !== cartDraft[index])) replace(normalizedCart)
+  }, [batchesLoading, branchFilter, cartDraft, replace, stockByProductId])
+
+  useEffect(() => {
+    setOptimisticCustomer(null)
+  }, [branchFilter])
+
+  useEffect(() => {
+    // Drafts may contain a deleted customer or one belonging to another branch.
+    // Never leave that orphaned id as the Select's visible label.
+    if (!customerId || customersLoading || customersFetching || optimisticCustomer) return
+    if (!customerOptionIds.has(customerId)) {
+      setValue('customerId', undefined, { shouldDirty: true })
+    }
+  }, [customerId, customerOptionIds, customersFetching, customersLoading, optimisticCustomer, setValue])
+
+  useEffect(() => {
     //
     writeSaleDraft({
       branchId: formBranchId,
@@ -310,13 +354,18 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
 
   const handleCustomerCreated = (customer: Customer) => {
     //
-    refetchCustomers()
+    setOptimisticCustomer(customer)
     setValue('customerId', customer.id, { shouldDirty: true })
+    void refetchCustomers().then((result) => {
+      if (result.data?.some((item) => item.id === customer.id)) {
+        setOptimisticCustomer((current) => current?.id === customer.id ? null : current)
+      }
+    })
   }
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'flex-start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 12, alignItems: 'flex-start' }}>
         <div className="card">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
             <div>
@@ -347,20 +396,20 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
                       showSearch
                       allowClear
                       optionFilterProp="label"
-                      value={field.value}
-                      onChange={field.onChange}
+                      value={field.value && customerOptionIds.has(field.value) ? field.value : undefined}
+                      onChange={(value) => {
+                        field.onChange(value)
+                        if (value !== optimisticCustomer?.id) setOptimisticCustomer(null)
+                      }}
                       placeholder={t('newSale.customerPlaceholder')}
                       style={{ width: '100%' }}
                       loading={customersLoading}
                       notFoundContent={customersLoading ? <SelectLoadingContent /> : undefined}
-                      options={customers.map((customer) => ({
-                        value: customer.id,
-                        label: customer.phone ? `${customer.fullName} · ${customer.phone}` : customer.fullName,
-                      }))}
+                      options={customerOptions}
                     />
                   )}
                 />
-                <Button icon={<PlusIcon size={18} />} onClick={() => setCreatingCustomer(true)}>
+                <Button icon={<PlusIcon size={13} />} onClick={() => setCreatingCustomer(true)}>
                   {t('customers.newCustomer')}
                 </Button>
               </div>
@@ -397,9 +446,17 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
                         searchText: [product.sku, product.name].filter(Boolean).join(' '),
                         label: (
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
-                              {product.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{product.sku}</div> : null}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                              <AuthenticatedProductImage
+                                url={product.primaryThumbnailUrl ?? product.primaryImageUrl}
+                                alt={product.name}
+                                width={34}
+                                height={34}
+                              />
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
+                                {product.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{product.sku}</div> : null}
+                              </div>
                             </div>
                             <span style={{ flexShrink: 0, fontSize: 12, color: 'var(--ink-3)' }}>
                               {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${product.unit}`)}
@@ -434,6 +491,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
               >
                 <div style={{ whiteSpace: 'nowrap' }}>{t('newSale.colProduct')}</div>
                 <div style={{ whiteSpace: 'nowrap' }}>{t('newSale.colQty')}</div>
+                <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colRemainingStock')}</div>
                 <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colUnitPrice')}</div>
                 <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colTotal')}</div>
                 <div />
@@ -443,6 +501,9 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
                 //
                 const originalPrice = getSaleProductPrice(item.product, saleType)
                 const unitPriceUzs = unitPrice(item.product)
+                const availableStock = stockByProductId.get(item.productId) ?? 0
+                const remainingStock = Number(Math.max(0, availableStock - item.quantity).toFixed(4))
+                const hasNoRemainingStock = remainingStock <= 0
                 return (
                   <div
                     key={item._key}
@@ -455,18 +516,38 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
                       borderBottom: '1px solid var(--border)',
                     }}
                   >
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.name}</div>
-                      {item.product.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</div> : null}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+                      <AuthenticatedProductImage
+                        url={item.product.primaryThumbnailUrl ?? item.product.primaryImageUrl}
+                        alt={item.product.name}
+                        width={40}
+                        height={40}
+                      />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.name}</div>
+                        {item.product.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</div> : null}
+                      </div>
                     </div>
                     <QuantityStepper
                       value={item.quantity}
-                      max={stockByProductId.get(item.productId) ?? 0}
+                      max={availableStock}
                       unitLabel={t(`units.${item.product.unit}`)}
                       onMinus={() => changeQty(item._key, -1)}
                       onPlus={() => changeQty(item._key, 1)}
                       onChange={(value) => updateQty(item._key, value)}
                     />
+                    <div
+                      className="num"
+                      style={{
+                        color: hasNoRemainingStock ? 'var(--danger)' : 'var(--ink-2)',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        textAlign: 'right',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
+                    </div>
                     <PriceCell original={originalPrice} uzs={unitPriceUzs} />
                     <PriceCell original={{ ...originalPrice, amount: originalPrice.amount * Math.max(item.quantity, 0) }} uzs={Math.max(item.quantity, 0) * unitPriceUzs} strong />
                     <Button size="small" type="text" danger icon={<TrashIcon size={18} />} onClick={() => removeItem(item._key)} />

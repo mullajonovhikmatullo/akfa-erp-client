@@ -10,8 +10,10 @@ export function DashboardPage() {
   const t = useT()
   const navigate = useNavigate()
   const { user, isStoreOwner, branchId } = useCurrentUser()
-  const lowStockThreshold = useUIStore((state) => state.lowStockThreshold)
-  const scopedBranchId = !isStoreOwner && branchId ? branchId : undefined
+  const activeBranchId = useUIStore((state) => state.activeBranchId)
+  const scopedBranchId = isStoreOwner
+    ? activeBranchId !== '__all__' ? activeBranchId : undefined
+    : branchId ?? undefined
   const firstName = user?.name?.split(' ')[0] ?? 'Admin'
 
   return (
@@ -19,7 +21,6 @@ export function DashboardPage() {
       t={t}
       firstName={firstName}
       branchId={scopedBranchId}
-      lowStockThreshold={lowStockThreshold}
       onNewSale={() => navigate(ROUTES.SALES)}
       onStockIn={() => navigate(ROUTES.PURCHASES)}
       onOpenAnalytics={() => navigate(ROUTES.ANALYTICS)}

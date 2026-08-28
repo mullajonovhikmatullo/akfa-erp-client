@@ -93,6 +93,7 @@ export interface CreateProductRequest {
   "unit": ProductUnit
   "categoryId"?: string
   "branchId"?: string
+  "lowStockThreshold"?: number | null
   "costPriceUzs": number
   "retailPriceUzs": number
   "wholesalePriceUzs": number
@@ -190,6 +191,8 @@ export interface LoginResponse {
   "rawRole": string
   "storeId": string | null
   "branchId": string | null
+  "base64Photo"?: string | null
+  "thumbnailPhoto"?: string | null
 }
 }
 
@@ -199,6 +202,7 @@ export interface ProductResponse {
   "description"?: string | null
   "sku"?: string | null
   "unit"?: ProductUnit
+  "lowStockThreshold"?: string | null
   "costPriceUzs"?: string
   "retailPriceUzs"?: string
   "wholesalePriceUzs"?: string
@@ -306,6 +310,7 @@ export interface UpdateProductRequest {
   "sku"?: string
   "unit"?: ProductUnit
   "categoryId"?: string
+  "lowStockThreshold"?: number | null
   "costPriceUzs"?: number
   "retailPriceUzs"?: number
   "wholesalePriceUzs"?: number
@@ -359,6 +364,9 @@ export interface TenantBillingSummary {
   "code"?: PlanCode
   "name"?: string
   "monthlyPriceUzs"?: number
+  "maxBranches"?: number | null
+  "maxUsers"?: number | null
+  "maxProducts"?: number | null
 } | null
   "subscription": {
   "status"?: string
@@ -373,7 +381,6 @@ export interface TenantBillingSummary {
 export type PlanCode = string
 
 export interface SubmitTenantPaymentPayload {
-  "branchId": string
   "paidAt"?: string
   "note"?: string
   "receipt": {

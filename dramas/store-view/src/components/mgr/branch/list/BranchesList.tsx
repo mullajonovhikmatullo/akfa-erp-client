@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, Form, Input, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd'
+import { Alert, Button, Form, Input, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd'
+import { useNavigate } from 'react-router-dom'
 import {
   ArrowClockwiseIcon,
+  ArrowUpRight,
   PencilSimpleIcon,
   PlusIcon,
   StorefrontIcon,
@@ -13,9 +15,11 @@ import { toast } from 'sonner'
 import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { formatDate } from '@store/store-shared/lib/formatters'
+import { isValidUzbekMobilePhone } from '@store/store-shared/lib/uzbek-phone'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
+import { UzbekPhoneInput } from '@store/store-shared/ui/uzbek-phone-input'
 import type { BranchPayload, User } from '@store/store-stub'
 import { useAssignBranch, useUsers } from '../../admins/hooks/useAdminUsers'
 import { usePagination } from '../../shared/hooks/usePagination'
@@ -35,10 +39,14 @@ export interface BranchesListProps {
 
 export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesListProps) {
   //
+  const navigate = useNavigate()
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { data: result, isLoading, isFetching, refetch } = useBranchesPage(page, pageSize)
   const branches = result?.items ?? []
   const total = result?.total ?? 0
+  const maxBranches = currentUser?.store?.plan?.maxBranches
+  const branchLimitReached = typeof maxBranches === 'number' && total >= maxBranches
+  const [branchLimitNoticeDismissed, setBranchLimitNoticeDismissed] = useState(false)
   const { data: users = [], isLoading: usersLoading } = useUsers()
 
   const createMutation = useCreateBranch()
@@ -72,6 +80,10 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
   const [branchModalOpen, setBranchModalOpen] = useState(false)
   const [assignTarget, setAssignTarget] = useState<Branch | null>(null)
 
+  useEffect(() => {
+    if (!branchLimitReached) setBranchLimitNoticeDismissed(false)
+  }, [branchLimitReached])
+
   const branchAdmins = users.filter((user) => user.role === 'branch_admin')
 
   function getAssignedUser(branchId: string) {
@@ -84,6 +96,7 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
 
   function openCreate() {
     //
+    if (branchLimitReached) return
     setEditTarget(null)
     resetBranchForm({ name: '', address: '', phone: '' })
     setBranchModalOpen(true)
@@ -266,7 +279,7 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
             <Button
               size="small"
               type="text"
-              icon={<UserPlusIcon size={18} />}
+              icon={<UserPlusIcon size={13} />}
               onClick={(event) => {
                 //
                 event.stopPropagation()
@@ -324,17 +337,44 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
           <div className="sub">
             {total} {t('branches.statSuffix')} · {branchAdmins.length} {t('admins.subtitleSuffix')}
           </div>
+          {branchLimitReached && !branchLimitNoticeDismissed && maxBranches !== undefined && maxBranches !== null && (
+            <Alert
+              className="branch-limit-alert"
+              type="warning"
+              showIcon
+              closable
+              onClose={() => setBranchLimitNoticeDismissed(true)}
+              message={t('branches.limitReached').replace('{limit}', String(maxBranches))}
+              action={
+                <Button
+                  className="branch-limit-upgrade-button"
+                  type="primary"
+                  size="small"
+                  icon={<ArrowUpRight size={15} weight="bold" />}
+                  onClick={() => navigate('/billing')}
+                >
+                  {t('branches.upgradePlan')}
+                </Button>
+              }
+              style={{ marginTop: 10 }}
+            />
+          )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <Button
+            type="primary"
+            icon={<PlusIcon size={13} weight="bold" />}
+            onClick={openCreate}
+            disabled={branchLimitReached}
+          >
+            {t('branches.newBranch')}
+          </Button>
           <Tooltip title={t('common.refresh')}>
             <Button
               icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
               onClick={() => refetch()}
             />
           </Tooltip>
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={openCreate}>
-            {t('branches.newBranch')}
-          </Button>
         </div>
       </div>
 
@@ -343,19 +383,19 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('branches.statTotal')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{total}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{total}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('branches.statWithAdmin')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((user) => !!user.branchId).length}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{branchAdmins.filter((user) => !!user.branchId).length}</div>
         </div>
         <div className="card" style={{ padding: '14px 16px' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
             {t('branches.statUnassigned')}
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>{branchAdmins.filter((user) => !user.branchId).length}</div>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{branchAdmins.filter((user) => !user.branchId).length}</div>
         </div>
       </div>
 
@@ -419,19 +459,24 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
               )}
             />
           </Form.Item>
-          <Form.Item label={t('common.phone')}>
+          <Form.Item
+            label={t('common.phone')}
+            validateStatus={branchErrors.phone ? 'error' : undefined}
+            help={branchErrors.phone?.message}
+          >
             <Controller
               name="phone"
               control={branchControl}
+              rules={{
+                validate: (value) => !value || isValidUzbekMobilePhone(value) || t('validation.phoneInvalid'),
+              }}
               render={({ field }) => (
-                <Input
+                <UzbekPhoneInput
                   ref={field.ref}
                   onBlur={field.onBlur}
                   value={field.value ?? ''}
                   onChange={field.onChange}
-                  {...blockAutofill('store-branch-phone')}
-                  inputMode="tel"
-                  placeholder={t('branches.phonePlaceholder')}
+                  status={branchErrors.phone ? 'error' : undefined}
                 />
               )}
             />

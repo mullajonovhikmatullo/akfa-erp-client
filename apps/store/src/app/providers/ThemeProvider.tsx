@@ -1,7 +1,12 @@
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import type { Locale } from 'antd/es/locale';
 import type { ReactNode } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import 'dayjs/locale/ru';
+import 'dayjs/locale/uz';
+import 'dayjs/locale/uz-latn';
 import { useUIStore } from '@/app/stores/ui.store';
 import { normalizeLang, type Lang } from '@/shared/lib/lang';
 
@@ -11,9 +16,18 @@ const BASE_TOKENS = {
   borderRadius: 8,
   borderRadiusLG: 12,
   fontFamily: "'Inter Tight', system-ui, sans-serif",
-  fontSize: 14,
-  lineHeight: 1.5,
-  controlHeight: 36,
+  fontSize: 13,
+  fontSizeSM: 11,
+  fontSizeLG: 14,
+  lineHeight: 1.45,
+  controlHeight: 34,
+  controlHeightSM: 26,
+  padding: 14,
+  paddingSM: 10,
+  paddingXS: 6,
+  margin: 14,
+  marginSM: 10,
+  marginXS: 6,
   colorSuccess: '#16a34a',
   colorWarning: '#d97706',
   colorError: '#dc2626',
@@ -21,8 +35,8 @@ const BASE_TOKENS = {
 
 const LIGHT_TOKENS = {
   ...BASE_TOKENS,
-  colorPrimary: '#1e4dd8',
-  colorInfo: '#1e4dd8',
+  colorPrimary: '#0476D0',
+  colorInfo: '#0476D0',
   colorBorder: '#e6e9ef',
   colorBorderSecondary: '#eef0f4',
   colorBgBase: '#f8fafc',
@@ -32,8 +46,8 @@ const LIGHT_TOKENS = {
 
 const DARK_TOKENS = {
   ...BASE_TOKENS,
-  colorPrimary: '#4f7cff',
-  colorInfo: '#4f7cff',
+  colorPrimary: '#28A9F4',
+  colorInfo: '#28A9F4',
   colorBorder: '#334155',
   colorBorderSecondary: '#243047',
   colorBgBase: '#0f172a',
@@ -42,11 +56,20 @@ const DARK_TOKENS = {
 };
 
 const SHARED_COMPONENTS = {
-  Button: { controlHeight: 36, fontWeight: 500, primaryShadow: 'none' },
-  Select: { controlHeight: 36 },
-  Input: { controlHeight: 36 },
-  Form: { itemMarginBottom: 16 },
-  Card: { paddingLG: 20 },
+  Button: { controlHeight: 34, fontWeight: 500, primaryShadow: 'none' },
+  Select: { controlHeight: 34 },
+  Input: { controlHeight: 34 },
+  InputNumber: { controlHeight: 34 },
+  Form: { itemMarginBottom: 12, labelFontSize: 12 },
+  Card: { paddingLG: 16, headerFontSize: 13, headerHeight: 44 },
+  Modal: {
+    titleFontSize: 16,
+    titleLineHeight: 1.35,
+    padding: 20,
+    paddingContentHorizontalLG: 20,
+    borderRadiusLG: 16,
+  },
+  Drawer: { footerPaddingBlock: 10, footerPaddingInline: 14 },
 };
 
 const COMMON_PICKER_FORMATS = {
@@ -377,37 +400,35 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   //
   const themeMode = useUIStore((s) => s.theme);
   const lang = useUIStore((s) => s.lang);
+  const normalizedLang = normalizeLang(lang);
+  const dayjsLocale = normalizedLang === 'uz-cy' ? 'uz' : normalizedLang === 'uz-la' ? 'uz-latn' : normalizedLang;
+  dayjs.locale(dayjsLocale);
 
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    //
-    if (themeMode === 'dark') return true;
-    if (themeMode === 'light') return false;
+  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
     return typeof window !== 'undefined'
       ? window.matchMedia('(prefers-color-scheme: dark)').matches
       : false;
   });
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && systemIsDark);
 
   useEffect(() => {
-    //
-    if (themeMode !== 'system') {
-      setIsDark(themeMode === 'dark');
-      return;
-    }
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    setIsDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    setSystemIsDark(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setSystemIsDark(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [themeMode]);
+  }, []);
 
-  useEffect(() => {
-    //
+  useLayoutEffect(() => {
     const html = document.documentElement;
-    if (isDark) html.classList.add('dark');
-    else html.classList.remove('dark');
+    html.classList.toggle('dark', isDark);
   }, [isDark]);
 
-  const locale = ANTD_LOCALES[normalizeLang(lang)];
+  useLayoutEffect(() => {
+    document.documentElement.lang = normalizedLang;
+  }, [normalizedLang]);
+
+  const locale = ANTD_LOCALES[normalizedLang];
 
   return (
     <ConfigProvider
@@ -420,19 +441,31 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           Table: {
             headerBg: isDark ? '#1a2236' : '#f3f5f9',
             headerColor: isDark ? '#94a3b8' : '#475569',
-            rowHoverBg: isDark ? 'rgba(79,124,255,.06)' : '#f8fafc',
+            rowHoverBg: isDark ? 'rgba(40,169,244,.07)' : 'rgba(4,118,208,.035)',
             borderColor: isDark ? '#334155' : '#e6e9ef',
+            cellFontSize: 12,
+            cellFontSizeMD: 12,
+            cellFontSizeSM: 12,
+            cellPaddingBlock: 5,
+            cellPaddingBlockMD: 5,
+            cellPaddingBlockSM: 4,
+            cellPaddingInline: 8,
+            cellPaddingInlineMD: 8,
+            cellPaddingInlineSM: 8,
+            headerBorderRadius: 6,
           },
           Menu: {
             itemBg: 'transparent',
-            itemSelectedBg: isDark ? 'rgba(79,124,255,.12)' : 'rgba(30,77,216,.08)',
-            itemSelectedColor: isDark ? '#4f7cff' : '#1e4dd8',
+            itemSelectedBg: isDark ? 'rgba(40,169,244,.13)' : 'rgba(4,118,208,.08)',
+            itemSelectedColor: isDark ? '#28A9F4' : '#0476D0',
             itemHoverBg: isDark ? 'rgba(255,255,255,.05)' : 'rgba(15,23,42,.04)',
           },
         },
       }}
     >
-      {children}
+      <AntdApp>
+        {children}
+      </AntdApp>
     </ConfigProvider>
   );
 }

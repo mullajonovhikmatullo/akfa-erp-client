@@ -23,6 +23,8 @@ export interface User {
   username: string
   role: UserRole
   branchId: string | null
+  base64Photo?: string | null
+  thumbnailPhoto?: string | null
   isActive?: boolean
   createdAt?: string
   store?: {
@@ -61,6 +63,7 @@ export type StockMovementType = 'STOCK_IN' | 'STOCK_OUT' | 'ADJUSTMENT' | 'TRANS
 
 export interface StockBatch {
   id: string
+  receiptId: string
   initialQty: number
   remainingQty: number
   costPriceUzs: number
@@ -69,7 +72,7 @@ export interface StockBatch {
   receivedAt: string
   createdAt: string
   branch: { id: string; name: string }
-  product: { id: string; name: string; sku: string | null; unit: ProductUnit }
+  product: { id: string; name: string; sku: string | null; unit: ProductUnit; lowStockThreshold?: number | null }
   createdBy: { id: string; fullName: string }
 }
 
@@ -102,6 +105,7 @@ export interface Product {
   description: string | null
   sku: string | null
   unit: ProductUnit
+  lowStockThreshold: number | null
   categoryId: string | null
   category: { id: string; name: string } | null
   costPriceUzs: number
@@ -124,7 +128,7 @@ export interface InventoryRecord {
   quantity: number
   updatedAt: string
   branch: { id: string; name: string }
-  product: { id: string; name: string; sku: string | null; unit: ProductUnit }
+  product: { id: string; name: string; sku: string | null; unit: ProductUnit; lowStockThreshold?: number | null }
 }
 
 export interface Customer {
@@ -136,6 +140,7 @@ export interface Customer {
   isActive: boolean
   branchId: string
   branch: { id: string; name: string }
+  branchLinks?: { branchId: string; branch: { id: string; name: string } }[]
   createdAt: string
   updatedAt: string
 }
@@ -164,7 +169,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   CARD: 'Karta',
   TRANSFER: "O'tkazma",
   MIXED: 'Aralash',
-  CREDIT: 'Nasiya',
+  CREDIT: 'Qarzga',
 }
 
 export interface SaleListItem {
@@ -199,6 +204,15 @@ export interface SalePayment {
   note: string | null
   createdAt: string
   receivedBy: { id: string; fullName: string }
+}
+
+export interface DebtPayment extends SalePayment {
+  sale: {
+    id: string
+    debtAmountUzs: number
+    branch: { id: string; name: string }
+    customer: { id: string; fullName: string; phone: string | null } | null
+  }
 }
 
 export interface SaleDetail extends SaleListItem {

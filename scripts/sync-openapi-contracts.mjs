@@ -37,6 +37,7 @@ const targets = [
       'RegenerateOwnerSetupPayload',
       'ListStoresParams',
       'UpdateStoreStatusPayload',
+      'UpdateStorePlanPayload',
       'PlatformPayment',
       'PaymentBranch',
       'PaymentReceiptMedia',

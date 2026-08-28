@@ -113,16 +113,21 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
   })
   const products = result?.items ?? []
   const total = result?.total ?? 0
-  const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } = useStockBatches()
+  const scopedBranchId = isStoreOwner
+    ? activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
+    : userBranchId ?? undefined
+  const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } = useStockBatches({
+    branchId: scopedBranchId,
+  })
   const { data: productSummary, refetch: refetchProductSummary } = useProductSummary()
   const activeProducts = productSummary?.totalActive ?? 0
   const inactiveProducts = productSummary?.totalInactive ?? 0
   const totalProducts = activeProducts + inactiveProducts
 
   const { data: categories = [] } = useCategories()
-  const deleteProduct = useDeleteProduct()
+  const deleteProduct = useDeleteProduct(t)
   const defaultProductCategoryName = categories[0]?.name ?? ''
-  const importBranchId = userBranchId ?? (isStoreOwner && activeBranchId !== '__all__' ? activeBranchId : undefined)
+  const importBranchId = scopedBranchId
   const unitHintText = PRODUCT_IMPORT_UNITS.map((unit) => `${unit} / ${t(`units.${unit}`)}`).join(', ')
   const productImportHints = [
     {
@@ -170,7 +175,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
       ),
     },
     {
-      title: 'SKU',
+      title: t('products.productCode'),
       dataIndex: 'sku',
       width: 140,
       responsiveHide: true,
@@ -215,6 +220,19 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
       width: 90,
       responsiveHide: true,
       render: (value: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[value]}</StatusBadge>,
+    },
+    {
+      title: t('products.colLowStock'),
+      key: 'lowStockThreshold',
+      width: 125,
+      responsiveHide: true,
+      render: (_: unknown, product: Product) => product.lowStockThreshold == null ? (
+        <span style={{ color: 'var(--ink-4)' }}>—</span>
+      ) : (
+        <span className="num" style={{ color: 'var(--warning)', fontWeight: 600 }}>
+          {product.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}
+        </span>
+      ),
     },
     {
       title: t('products.colCost'),
@@ -356,7 +374,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
         <div>
           <h1>{t('nav.products')}</h1>
           <div className="sub">
-            <strong>{totalProducts} SKU</strong> ·{' '}
+            <strong>{totalProducts} {t('analytics.skuSuffix')}</strong> ·{' '}
             <span style={{ color: 'var(--success)' }}>
               {activeProducts} {t('common.active')}
             </span>{' '}
@@ -367,11 +385,11 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={handleRefresh} />
-          </Tooltip>
           {canManage ? (
             <>
+              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditProduct(null)}>
+                {t('products.newProduct')}
+              </Button>
               <ExcelImportButton<CreateProductPayload>
                 t={t}
                 entityLabel={t('nav.products')}
@@ -380,6 +398,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   'description',
                   'sku',
                   'unit',
+                  'lowStockThreshold',
                   'categoryName',
                   'costPriceUzs',
                   'retailPriceUzs',
@@ -389,8 +408,8 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   'wholesalePriceUsd',
                 ]}
                 templateExamples={[
-                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', t('units.PIECE'), defaultProductCategoryName, '65000', '85000', '75000', '', '', ''],
-                  ['Mahsulot B', '', 'PRF-002', t('units.KG'), defaultProductCategoryName, '', '', '', '9.00', '12.50', '10.00'],
+                  ['Mahsulot A', 'Qisqacha tavsif', 'PRF-001', t('units.PIECE'), '50', defaultProductCategoryName, '65000', '85000', '75000', '', '', ''],
+                  ['Mahsulot B', '', 'PRF-002', t('units.KG'), '5', defaultProductCategoryName, '', '', '', '9.00', '12.50', '10.00'],
                 ]}
                 templateFileName="products_template.xlsx"
                 hints={productImportHints}
@@ -409,11 +428,11 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   }
 
                   const description = getField(raw, 'description') || undefined
-                  if (description && description.length > 1000) return { index, raw, error: 'description 1000 belgidan oshmasligi kerak' }
+                  if (description && description.length > 500) return { index, raw, error: 'description 500 belgidan oshmasligi kerak' }
 
                   const sku = getField(raw, 'sku') || undefined
                   if (sku && (sku.length > 100 || !/^[A-Za-z0-9_-]+$/.test(sku))) {
-                    return { index, raw, error: "sku faqat harf, raqam, tire va pastki chiziqdan iborat bo'lishi kerak" }
+                    return { index, raw, error: t('validation.skuPattern') }
                   }
 
                   const categoryName = getField(raw, 'categoryName') || getField(raw, 'category')
@@ -427,6 +446,15 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   const legacyCategoryId = getField(raw, 'categoryId') || undefined
                   if (legacyCategoryId && !isUuid(legacyCategoryId)) return { index, raw, error: "categoryId UUID formatida bo'lishi kerak" }
                   const categoryId = matchedCategory?.id ?? legacyCategoryId
+
+                  const thresholdRaw = getField(raw, 'lowStockThreshold')
+                  const lowStockThreshold = parseExcelNumber(thresholdRaw)
+                  if (thresholdRaw && (lowStockThreshold === undefined || !Number.isFinite(lowStockThreshold))) {
+                    return { index, raw, error: 'lowStockThreshold noto\'g\'ri kiritilgan' }
+                  }
+                  if (lowStockThreshold !== undefined && (lowStockThreshold < 0 || Math.abs(lowStockThreshold * 10000 - Math.round(lowStockThreshold * 10000)) >= 1e-9)) {
+                    return { index, raw, error: 'lowStockThreshold manfiy bo\'lmasligi va 4 xonagacha kasr bo\'lishi kerak' }
+                  }
 
                   const readPrice = (field: string) => {
                     //
@@ -503,6 +531,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                       categoryId,
                       branchId: importBranchId,
                       unit,
+                      lowStockThreshold,
                       costPriceUzs,
                       retailPriceUzs,
                       wholesalePriceUzs,
@@ -519,11 +548,11 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   refetchProductSummary()
                 }}
               />
-              <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setEditProduct(null)}>
-                {t('products.newProduct')}
-              </Button>
             </>
           ) : null}
+          <Tooltip title={t('common.refresh')}>
+            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={handleRefresh} />
+          </Tooltip>
         </div>
       </div>
 
@@ -658,7 +687,14 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
         />
       </div>
 
-      <ProductFormModal t={t} isStoreOwner={isStoreOwner} open={editProduct !== undefined} product={editProduct ?? null} onClose={() => setEditProduct(undefined)} />
+      <ProductFormModal
+        t={t}
+        isStoreOwner={isStoreOwner}
+        open={editProduct !== undefined}
+        product={editProduct ?? null}
+        onSaved={handleRefresh}
+        onClose={() => setEditProduct(undefined)}
+      />
       <ProductDetailDrawer t={t} product={drawerProduct} onClose={() => setDrawerProduct(null)} />
     </>
   )

@@ -95,7 +95,7 @@ export const NewCompanyPage = () => {
           className="operation-form tenant-provisioning__form"
           form={form}
           layout="vertical"
-          initialValues={{ trialDays: 1 }}
+          initialValues={{ trialDays: 14 }}
           onFinish={submitProvision}
         >
           <Form.Item

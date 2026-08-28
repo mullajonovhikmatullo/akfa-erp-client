@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { site } from "../../config/site";
 import { Logo } from "./Logo";
 
@@ -21,10 +21,13 @@ export function Footer() {
                 {column.links.map((link, linkIndex) => {
                   const Icon = columnIndex === 0 ? contactIcons[linkIndex] : null;
                   return (
-                    <li key={link}>
-                      <a href={columnIndex === 0 && linkIndex === 1 ? `mailto:${link}` : "#"}>
+                    <li key={link.label}>
+                      <a
+                        href={link.href}
+                        {...(link.href.startsWith("https://") ? { target: "_blank", rel: "noreferrer" } : {})}
+                      >
                         {Icon ? <Icon size={14} /> : null}
-                        {link}
+                        {link.label}
                       </a>
                     </li>
                   );
@@ -36,12 +39,6 @@ export function Footer() {
 
         <div className="landing-footer__bottom">
           <span>{site.footer.copyright}</span>
-          <div className="landing-footer__socials">
-            <a href="#" aria-label="Facebook"><Facebook size={15} /></a>
-            <a href="#" aria-label="Telegram"><Send size={15} /></a>
-            <a href="#" aria-label="Instagram"><Instagram size={15} /></a>
-            <a href="#" aria-label="LinkedIn"><Linkedin size={15} /></a>
-          </div>
         </div>
       </div>
     </footer>

@@ -931,6 +931,33 @@ input:focus-visible,
   background: var(--surface-elevated);
 }
 
+.payment-receipt-note {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--surface-elevated);
+}
+
+.payment-receipt-note span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.payment-receipt-note p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .receipt-preview img {
   display: block;
   width: auto;

@@ -53,6 +53,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
       { key: 'categories', path: ROUTES.CATEGORIES, label: 'Категориялар', icon: 'categories', permission: 'category:manage' },
       { key: 'products', path: ROUTES.PRODUCTS, label: 'Маҳсулотлар', icon: 'products', permission: 'products:create' },
       { key: 'purchases', path: ROUTES.PURCHASES, label: 'Кирим', icon: 'purchases', permission: 'purchases:view' },
+      { key: 'inventory', path: ROUTES.INVENTORY, label: 'Омбор қолдиғи', icon: 'inventory', permission: 'purchases:view' },
       { key: 'transfers', path: ROUTES.TRANSFERS, label: 'Трансферлар', icon: 'transfers', permission: 'transfers:view' },
     ],
   },
@@ -62,7 +63,7 @@ export const NAV_GROUPS_DEF: NavGroupDef[] = [
     groupLabelKey: 'nav.group.moliya',
     items: [
       { key: 'expenses', path: ROUTES.EXPENSES, label: 'Харажатлар', icon: 'expenses', permission: 'expenses:view' },
-      { key: 'billing', path: ROUTES.BILLING, label: 'Ижара тўлови', icon: 'billing', permission: 'billing:manage' },
+      { key: 'billing', path: ROUTES.BILLING, label: 'Обуна ва тўловлар', icon: 'billing', permission: 'billing:manage' },
     ],
   },
   {

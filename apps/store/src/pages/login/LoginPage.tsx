@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { LoginPanel } from '@store/store-view/auth'
 import { UserFlowApi, type LoginResponse } from '@store/store-stub'
 import { queryClient } from '@/app/providers'
+import { useUIStore } from '@/app/stores/ui.store'
 import { useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
 import { useT } from '@/shared/lib/i18n'
@@ -29,11 +30,6 @@ function readAndClearAuthFragment() {
   return { handoffCode, setupCode }
 }
 
-function getApiMessage(error: unknown): string | null {
-  const response = (error as { response?: { data?: { message?: unknown } } }).response
-  return typeof response?.data?.message === 'string' ? response.data.message : null
-}
-
 function isTransientAuthError(error: unknown): boolean {
   const status = (error as { response?: { status?: unknown } }).response?.status
   return typeof status !== 'number' || status === 429 || status >= 500
@@ -44,6 +40,8 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const login = useAuthStore((state) => state.login)
+  const language = useUIStore((state) => state.lang)
+  const setLanguage = useUIStore((state) => state.setLang)
   const redirectTo = safeRedirect(searchParams.get('from'))
   const sessionExpired = searchParams.get('reason') === 'expired'
   const fragmentHandled = useRef(false)
@@ -108,16 +106,13 @@ export function LoginPage() {
   const setupMutation = useMutation({
     mutationFn: UserFlowApi.completeAccountSetup,
     onSuccess: handleAuthenticated,
-    onError: (error) => {
-      const message = getApiMessage(error)
-      setAuthError(message?.toLowerCase().includes('password') ? message : t('login.setupInvalid'))
-    },
+    onError: () => setAuthError(t('login.setupInvalid')),
   })
 
   const submitSetup = () => {
     setAuthError(null)
-    if (newPassword.length < 10) {
-      setAuthError(t('login.passwordMin10'))
+    if (newPassword.length < 6) {
+      setAuthError(t('login.passwordMin6'))
       return
     }
     if (newPassword !== confirmPassword) {
@@ -163,19 +158,18 @@ export function LoginPage() {
       <div className="login-shell">
         <div className="login-art">
           <div className="stack">
-            <span className="brandmark" style={{ color: '#fff' }}>
-              <span className="logo" />
-              <span style={{ fontSize: 16 }}>
-                Store <span style={{ color: '#94a3b8', fontWeight: 500 }}>Manager</span>
-              </span>
-            </span>
+            <img
+              className="login-brand-logo"
+              src={`${import.meta.env.BASE_URL}mavion-logo.svg`}
+              alt="MAVION"
+            />
           </div>
           <div className="stack">
             <div className="login-art-kicker">{t('login.systemName')}</div>
             <h2>{t('login.setupArtTitle')}</h2>
             <p>{t('login.setupArtLead')}</p>
           </div>
-          <div className="login-art-footer">© Store Manager</div>
+          <div className="login-art-footer">© MAVION</div>
         </div>
 
         <div className="login-form">
@@ -234,8 +228,10 @@ export function LoginPage() {
   return (
     <LoginPanel
       t={t}
+      language={language}
       sessionExpired={sessionExpired}
       externalError={authError}
+      onLanguageChange={setLanguage}
       onAuthenticated={handleAuthenticated}
     />
   )

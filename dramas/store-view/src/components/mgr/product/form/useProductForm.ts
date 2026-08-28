@@ -15,6 +15,7 @@ import { createProductSchema, type ProductFormValues } from './productSchema'
 
 interface UseProductFormOptions {
   t: (key: string) => string
+  open: boolean
   product?: Product | null
   imageFiles: File[]
   onImageFilesChange: (files: File[]) => void
@@ -28,12 +29,13 @@ const emptyValues: ProductFormValues = {
   description: '',
   sku: '',
   unit: 'PIECE',
+  lowStockThreshold: undefined,
   categoryId: '',
   branchId: '',
   priceCurrency: 'UZS',
-  costPriceUzs: 0,
-  retailPriceUzs: 0,
-  wholesalePriceUzs: 0,
+  costPriceUzs: undefined,
+  retailPriceUzs: undefined,
+  wholesalePriceUzs: undefined,
   costPriceUsd: undefined,
   retailPriceUsd: undefined,
   wholesalePriceUsd: undefined,
@@ -42,6 +44,7 @@ const emptyValues: ProductFormValues = {
 
 export function useProductForm({
   t,
+  open,
   product,
   imageFiles,
   onImageFilesChange,
@@ -61,10 +64,13 @@ export function useProductForm({
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(schema),
     defaultValues: emptyValues,
+    mode: 'onSubmit',
+    reValidateMode: 'onBlur',
   })
 
   useEffect(() => {
-    //
+    if (!open) return
+
     if (product) {
       const hasUsdOnly = !product.retailPriceUzs && !!product.retailPriceUsd
       form.reset({
@@ -72,6 +78,7 @@ export function useProductForm({
         description: product.description ?? '',
         sku: product.sku ?? '',
         unit: product.unit,
+        lowStockThreshold: product.lowStockThreshold ?? undefined,
         categoryId: product.category?.id ?? '',
         branchId: '',
         priceCurrency: hasUsdOnly ? 'USD' : 'UZS',
@@ -87,10 +94,10 @@ export function useProductForm({
     }
 
     form.reset(emptyValues)
-  }, [form, product])
+  }, [form, open, product])
 
-  const createMutation = useCreateProduct()
-  const updateMutation = useUpdateProduct()
+  const createMutation = useCreateProduct(t)
+  const updateMutation = useUpdateProduct(t)
   const isPending = createMutation.isPending || updateMutation.isPending || isUploading
 
   const resetFlow = useCallback(() => {
@@ -259,7 +266,7 @@ export function useProductForm({
       onImageFilesChange(remainingFiles)
       onImageChangesChange(remainingChanges)
       await queryClient.invalidateQueries({ queryKey: ['products'] }).catch(() => undefined)
-      const message = getApiErrorMessage(error, t('productImages.actionError'))
+      const message = getApiErrorMessage(error, t, 'productImages.actionError')
       setImageUploadError(message)
       toast.error(message)
       return false
@@ -276,6 +283,7 @@ export function useProductForm({
       sku: values.sku || undefined,
       description: values.description || undefined,
       categoryId: values.categoryId || undefined,
+      lowStockThreshold: values.lowStockThreshold ?? null,
       costPriceUzs: priceCurrency === 'USD' ? 0 : values.costPriceUzs!,
       retailPriceUzs: priceCurrency === 'USD' ? 0 : values.retailPriceUzs!,
       wholesalePriceUzs: priceCurrency === 'USD' ? 0 : values.wholesalePriceUzs!,

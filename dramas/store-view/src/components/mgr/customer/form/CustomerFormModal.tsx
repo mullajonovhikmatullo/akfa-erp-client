@@ -1,11 +1,14 @@
-import { Controller } from 'react-hook-form'
-import { Button, Form, Input, InputNumber, Radio, Select, Switch } from 'antd'
+import { Controller, useWatch } from 'react-hook-form'
+import { Alert, Button, Form, Input, InputNumber, Radio, Select, Switch } from 'antd'
 import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
+import { UzbekPhoneInput } from '@store/store-shared/ui/uzbek-phone-input'
+import { isValidUzbekMobilePhone } from '@store/store-shared/lib/uzbek-phone'
 import type { Customer } from '@store/store-stub'
 import { useCustomerForm } from './useCustomerForm'
+import { useCustomerPhoneCheck, useLinkCustomerBranch } from '../hooks/useCustomers'
 
 interface CustomerFormModalProps {
   t: (key: string) => string
@@ -33,6 +36,7 @@ export function CustomerFormModal({
   //
   const { form, onSubmit, isPending, isEdit } = useCustomerForm({
     t,
+    open,
     customer,
     isStoreOwner,
     branchId,
@@ -48,6 +52,30 @@ export function CustomerFormModal({
     control,
     formState: { errors },
   } = form
+  const phone = useWatch({ control, name: 'phone' }) ?? ''
+  const formBranchId = useWatch({ control, name: 'branchId' })
+  const targetBranchId = isStoreOwner ? formBranchId : branchId ?? undefined
+  const phoneCheck = useCustomerPhoneCheck(phone, targetBranchId, !isEdit && open && isValidUzbekMobilePhone(phone))
+  const linkCustomer = useLinkCustomerBranch(t)
+  const existingCustomer = phoneCheck.data?.customer ?? null
+
+  const useExistingCustomer = () => {
+    if (!existingCustomer) return
+    if (phoneCheck.data?.linkedToBranch) {
+      onCreated?.(existingCustomer)
+      onClose()
+      return
+    }
+    linkCustomer.mutate(
+      { customerId: existingCustomer.id, branchId: targetBranchId },
+      {
+        onSuccess: (linkedCustomer) => {
+          onCreated?.(linkedCustomer)
+          onClose()
+        },
+      },
+    )
+  }
 
   return (
     <AppModal
@@ -59,7 +87,7 @@ export function CustomerFormModal({
         <Button key="cancel" onClick={onClose} disabled={isPending}>
           {t('common.cancel')}
         </Button>,
-        <Button key="submit" type="primary" loading={isPending} onClick={() => onSubmit()}>
+        <Button key="submit" type="primary" loading={isPending || phoneCheck.isFetching} disabled={!isEdit && Boolean(existingCustomer)} onClick={() => onSubmit()}>
           {isEdit ? t('common.save') : t('common.add')}
         </Button>,
       ]}
@@ -99,7 +127,7 @@ export function CustomerFormModal({
             control={control}
             render={({ field }) => (
               <Form.Item label={t('customerForm.labelPhone')} required validateStatus={errors.phone ? 'error' : undefined} help={errors.phone?.message}>
-                <Input {...field} {...blockAutofill('store-customer-phone')} inputMode="tel" placeholder="+998901234567" />
+                <UzbekPhoneInput {...field} status={errors.phone ? 'error' : undefined} />
               </Form.Item>
             )}
           />
@@ -113,6 +141,32 @@ export function CustomerFormModal({
             )}
           />
         </div>
+
+        {!isEdit && existingCustomer ? (
+          <Alert
+            type={phoneCheck.data?.linkedToBranch ? 'warning' : 'info'}
+            showIcon
+            style={{ marginBottom: 12 }}
+            message={t('customerForm.phoneExistsTitle')}
+            description={
+              <div style={{ display: 'grid', gap: 8 }}>
+                <span>
+                  <strong>{existingCustomer.fullName}</strong>
+                  {' · '}{existingCustomer.phone}
+                  {' · '}{existingCustomer.branch.name}
+                </span>
+                <span style={{ color: 'var(--ink-3)' }}>
+                  {phoneCheck.data?.linkedToBranch
+                    ? t('customerForm.phoneExistsCurrentBranch')
+                    : t('customerForm.phoneExistsOtherBranch')}
+                </span>
+                <Button type="primary" size="small" loading={linkCustomer.isPending} onClick={useExistingCustomer} style={{ width: 'fit-content' }}>
+                  {t('customerForm.useExisting')}
+                </Button>
+              </div>
+            }
+          />
+        ) : null}
 
         {!isEdit && (
           <Form.Item label={t('customerForm.labelBalance')} validateStatus={errors.balance ? 'error' : undefined} help={errors.balance?.message}>

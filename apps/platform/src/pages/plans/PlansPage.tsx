@@ -39,6 +39,7 @@ export const PlansPage = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ManagedPlan | null>(null);
   const [deletePassword, setDeletePassword] = useState('');
+  const isActiveValue = Form.useWatch('isActive', form);
 
   const plansQuery = useQuery(PlatformSeekApi.fetch.listManagedPlans());
 
@@ -120,7 +121,7 @@ export const PlansPage = () => {
       maxBranches: plan.maxBranches,
       maxUsers: plan.maxUsers,
       maxProducts: plan.maxProducts,
-      isPublic: plan.isPublic,
+      isPublic: plan.isActive && plan.isPublic,
       isActive: plan.isActive,
     });
     setFormOpen(true);
@@ -135,7 +136,7 @@ export const PlansPage = () => {
       maxBranches: values.maxBranches ?? null,
       maxUsers: values.maxUsers ?? null,
       maxProducts: values.maxProducts ?? null,
-      isPublic: Boolean(values.isPublic),
+      isPublic: Boolean(values.isActive) && Boolean(values.isPublic),
       isActive: Boolean(values.isActive),
     };
 
@@ -335,8 +336,13 @@ export const PlansPage = () => {
             <Form.Item name="isActive" label="Faol" valuePropName="checked">
               <Switch />
             </Form.Item>
-            <Form.Item name="isPublic" label="Landing page’da ko‘rinsin" valuePropName="checked">
-              <Switch />
+            <Form.Item
+              name="isPublic"
+              label="Landing page’da ko‘rinsin"
+              valuePropName="checked"
+              extra="Faqat faol tariflar landing va store’da ko‘rinadi"
+            >
+              <Switch disabled={isActiveValue === false} />
             </Form.Item>
           </div>
         </Form>

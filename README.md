@@ -10,7 +10,7 @@ This repository is organized as a pnpm/turbo monorepo.
 - `dramas/store-shared` - local shared API, auth token, response type, i18n, and permission helpers.
 - `dramas/store-stub` - buildable API/type package boundary for store-management domains.
 - `dramas/store-view` - buildable React view package boundary for future domain UI extraction.
-- `shared-public` - shared Vite public assets such as `favicon.svg` and `icons.svg`.
+- `shared-public` - shared Vite public assets such as the favicon, brand logo, and login illustration.
 
 ## Commands
 
@@ -30,5 +30,6 @@ pnpm --filter @store/platform build
 Copy the values from `.env.example` into the local environment configuration. The
 landing and platform apps pass only single-use codes to the store app through URL
 fragments; access tokens are never transferred between origins.
-`VITE_STORE_LOGIN_URL` must be the store app's absolute `/auth/login` URL in
-production. Provisioning and setup-link replacement fail closed when it is missing.
+`VITE_STORE_LOGIN_URL` points landing and platform flows to the store login page.
+Development uses `.env.development` (`http://127.0.0.1:5173/store/auth/login`);
+single-domain production uses `/store/auth/login`.

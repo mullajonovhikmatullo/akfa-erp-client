@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Divider, Drawer, Form, InputNumber, Select, Skeleton } from 'antd'
 import { PlusIcon } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
-import { PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS, SALE_TYPE_LABELS } from '@store/store-shared/core'
+import { PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -15,10 +15,6 @@ interface SaleDetailDrawerProps {
   sale: SaleListItem | null
   onClose: () => void
 }
-
-const PAYMENT_OPTIONS = (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[])
-  .filter((key) => key !== 'MIXED')
-  .map((key) => ({ value: key, label: PAYMENT_METHOD_LABELS[key] }))
 
 type PaymentFormValues = {
   amount: number
@@ -37,6 +33,13 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
     },
   })
   const payAmount = watch('amount') ?? 0
+  const paymentOptions = useMemo(
+    () =>
+      (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[])
+        .filter((key) => key !== 'MIXED')
+        .map((key) => ({ value: key, label: t(`payment.${key}`) || PAYMENT_METHOD_LABELS[key] })),
+    [t],
+  )
 
   const submitPayment = (values: PaymentFormValues) => {
     //
@@ -56,7 +59,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
   const hasDebt = Boolean(sale && sale.debtAmountUzs > 0)
 
   return (
-    <Drawer title={null} open={Boolean(sale)} onClose={onClose} width={520} styles={{ body: { padding: 0 } }} destroyOnHidden>
+    <Drawer rootClassName="ant-drawer-root" title={null} open={Boolean(sale)} onClose={onClose} width={520} closable={{ placement: 'end' }} styles={{ body: { padding: 0 } }} destroyOnHidden>
       {sale ? (
         <>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
@@ -64,8 +67,10 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
               #{(sale.id.split('-')[0] ?? '').toUpperCase()}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 8px' }}>
-              <h2 style={{ margin: 0, fontSize: 18 }}>{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
-              <StatusBadge tone={sale.saleType === 'RETAIL' ? 'muted' : 'info'}>{SALE_TYPE_LABELS[sale.saleType]}</StatusBadge>
+              <h2 style={{ margin: 0, fontSize: 16 }}>{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
+              <StatusBadge tone={sale.saleType === 'RETAIL' ? 'muted' : 'info'}>
+                {t(sale.saleType === 'RETAIL' ? 'sales.typeRetail' : 'sales.typeWholesale')}
+              </StatusBadge>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--ink-3)' }}>
               <span>{sale.branch.name}</span>
@@ -114,7 +119,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
                       <Controller
                         name="method"
                         control={control}
-                        render={({ field }) => <Select value={field.value} onChange={field.onChange} options={PAYMENT_OPTIONS} style={{ width: '100%' }} />}
+                        render={({ field }) => <Select value={field.value} onChange={field.onChange} options={paymentOptions} style={{ width: '100%' }} />}
                       />
                     </Form.Item>
                     <Button type="primary" loading={addPayment.isPending} disabled={payAmount <= 0} onClick={handleSubmit(submitPayment)}>
@@ -132,7 +137,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
                   </div>
                 ) : (
                   <Button
-                    icon={<PlusIcon size={18} />}
+                    icon={<PlusIcon size={13} />}
                     onClick={() => {
                       //
                       reset({ amount: 0, method: 'CASH_UZS' })
@@ -211,7 +216,9 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
                         }}
                       >
                         <div>
-                          <div style={{ fontWeight: 500 }}>{PAYMENT_METHOD_LABELS[payment.paymentMethod]}</div>
+                          <div style={{ fontWeight: 500 }}>
+                            {t(`payment.${payment.paymentMethod}`) || PAYMENT_METHOD_LABELS[payment.paymentMethod]}
+                          </div>
                           <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
                             {formatDate(payment.createdAt)} · {payment.receivedBy.fullName}
                           </div>

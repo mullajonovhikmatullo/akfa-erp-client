@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, InputNumber, Popconfirm, Radio } from 'antd'
-import { LightbulbIcon } from '@phosphor-icons/react'
+import { InputNumber, Radio } from 'antd'
+import { CheckIcon, MoonIcon, SunIcon } from '@phosphor-icons/react'
 import type { Currency } from '@store/store-shared/core'
 
 type TFunc = (key: string) => string
@@ -11,7 +11,6 @@ export type SettingsTheme = 'light' | 'dark' | 'system'
 interface SettingsFormValues {
   displayCurrency: Currency
   exchangeRate: number
-  lowStockThreshold: number
   lang: SettingsLang
   theme: SettingsTheme
 }
@@ -20,32 +19,26 @@ export interface SettingsPanelProps extends SettingsFormValues {
   t: TFunc
   onDisplayCurrencyChange: (currency: Currency) => void
   onExchangeRateChange: (rate: number) => void
-  onLowStockThresholdChange: (threshold: number) => void
   onLangChange: (lang: SettingsLang) => void
   onThemeChange: (theme: SettingsTheme) => void
-  onResetData: () => void
 }
 
 export function SettingsPanel({
   t,
   displayCurrency,
   exchangeRate,
-  lowStockThreshold,
   lang,
   theme,
   onDisplayCurrencyChange,
   onExchangeRateChange,
-  onLowStockThresholdChange,
   onLangChange,
   onThemeChange,
-  onResetData,
 }: SettingsPanelProps) {
   //
   const { control, reset } = useForm<SettingsFormValues>({
     defaultValues: {
       displayCurrency,
       exchangeRate,
-      lowStockThreshold,
       lang,
       theme,
     },
@@ -56,11 +49,10 @@ export function SettingsPanel({
     reset({
       displayCurrency,
       exchangeRate,
-      lowStockThreshold,
       lang,
       theme,
     })
-  }, [displayCurrency, exchangeRate, lang, lowStockThreshold, reset, theme])
+  }, [displayCurrency, exchangeRate, lang, reset, theme])
 
   return (
     <>
@@ -74,7 +66,7 @@ export function SettingsPanel({
       <div className="grid-2">
         <div className="card">
           <SectionTitle>{t('settings.currency')}</SectionTitle>
-          <div className="col" style={{ gap: 14 }}>
+          <div className="col" style={{ gap: 12 }}>
             <div>
               <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.displayCurrency')}</div>
               <Controller
@@ -125,32 +117,6 @@ export function SettingsPanel({
         </div>
 
         <div className="card">
-          <SectionTitle>{t('settings.threshold')}</SectionTitle>
-          <div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.lowStockThreshold')}</div>
-            <Controller
-              name="lowStockThreshold"
-              control={control}
-              render={({ field }) => (
-                <InputNumber
-                  value={field.value}
-                  min={1}
-                  onChange={(nextValue) => {
-                    //
-                    const value = Number(nextValue) || 0
-                    field.onChange(value)
-                    onLowStockThresholdChange(value)
-                  }}
-                  style={{ width: 180 }}
-                  addonAfter={t('settings.units')}
-                />
-              )}
-            />
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 6 }}>{t('settings.thresholdNote')}</div>
-          </div>
-        </div>
-
-        <div className="card">
           <SectionTitle>{t('settings.localization')}</SectionTitle>
           <div>
             <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.interfaceLang')}</div>
@@ -177,44 +143,86 @@ export function SettingsPanel({
           </div>
         </div>
 
-        <div className="card">
+        <div className="card settings-appearance-card">
           <SectionTitle>
-            <LightbulbIcon size={18} weight="duotone" style={{ marginRight: 6 }} />
             {t('settings.appearance')}
           </SectionTitle>
-          <div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.theme')}</div>
+          <div className="settings-theme-field">
+            <div className="settings-theme-field__label">{t('settings.theme')}</div>
             <Controller
               name="theme"
               control={control}
-              render={({ field }) => (
-                <Radio.Group
-                  value={field.value}
-                  onChange={(event) => {
-                    //
-                    const value = event.target.value as SettingsTheme
-                    field.onChange(value)
-                    onThemeChange(value)
-                  }}
-                >
-                  <Radio.Button value="light">{t('settings.themeLight')}</Radio.Button>
-                  <Radio.Button value="dark">{t('settings.themeDark')}</Radio.Button>
-                  <Radio.Button value="system">{t('settings.themeSystem')}</Radio.Button>
-                </Radio.Group>
-              )}
+              render={({ field }) => {
+                const selectedTheme = field.value === 'system' ? 'light' : field.value
+                const selectTheme = (value: Exclude<SettingsTheme, 'system'>) => {
+                  field.onChange(value)
+                  onThemeChange(value)
+                }
+
+                return (
+                  <div className="settings-theme-options" role="radiogroup" aria-label={t('settings.theme')}>
+                    <ThemeChoice
+                      value="light"
+                      selected={selectedTheme === 'light'}
+                      title={t('settings.themeLight')}
+                      description={t('settings.themeLightDescription')}
+                      icon={<SunIcon size={18} weight="duotone" />}
+                      onSelect={selectTheme}
+                    />
+                    <ThemeChoice
+                      value="dark"
+                      selected={selectedTheme === 'dark'}
+                      title={t('settings.themeDark')}
+                      description={t('settings.themeDarkDescription')}
+                      icon={<MoonIcon size={18} weight="duotone" />}
+                      onSelect={selectTheme}
+                    />
+                  </div>
+                )
+              }}
             />
           </div>
         </div>
-
-        <div className="card">
-          <SectionTitle>{t('settings.dangerZone')}</SectionTitle>
-          <Popconfirm title={t('settings.resetConfirm')} onConfirm={onResetData}>
-            <Button danger>{t('settings.resetData')}</Button>
-          </Popconfirm>
-          <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 8 }}>{t('settings.resetNote')}</div>
-        </div>
       </div>
     </>
+  )
+}
+
+function ThemeChoice({
+  value,
+  selected,
+  title,
+  description,
+  icon,
+  onSelect,
+}: {
+  value: 'light' | 'dark'
+  selected: boolean
+  title: string
+  description: string
+  icon: ReactNode
+  onSelect: (value: 'light' | 'dark') => void
+}) {
+  return (
+    <button
+      type="button"
+      className={`settings-theme-choice settings-theme-choice--${value}${selected ? ' is-selected' : ''}`}
+      role="radio"
+      aria-checked={selected}
+      onClick={() => onSelect(value)}
+    >
+      <span className="settings-theme-choice__preview" aria-hidden="true">
+        <i className="settings-theme-choice__sidebar" />
+        <i className="settings-theme-choice__header" />
+        <i className="settings-theme-choice__card settings-theme-choice__card--one" />
+        <i className="settings-theme-choice__card settings-theme-choice__card--two" />
+      </span>
+      <span className="settings-theme-choice__copy">
+        <span className="settings-theme-choice__icon">{icon}</span>
+        <span><strong>{title}</strong><small>{description}</small></span>
+      </span>
+      <span className="settings-theme-choice__check" aria-hidden="true"><CheckIcon size={12} weight="bold" /></span>
+    </button>
   )
 }
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button, DatePicker, Form, Input, InputNumber, Select } from 'antd'
+import { Button, DatePicker, Form, Input, InputNumber, Segmented, Select } from 'antd'
 import dayjs from 'dayjs'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
@@ -14,6 +14,7 @@ interface ExpenseFormModalProps {
   open: boolean
   onClose: () => void
   exchangeRate: number
+  branchId?: string
 }
 
 const getDefaultValues = (): ExpenseFormValues => ({
@@ -25,11 +26,11 @@ const getDefaultValues = (): ExpenseFormValues => ({
   expenseDate: dayjs().toISOString(),
 })
 
-export function ExpenseFormModal({ t, open, onClose, exchangeRate }: ExpenseFormModalProps) {
+export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: ExpenseFormModalProps) {
   //
   const schema = useMemo(() => createExpenseSchema(t), [t])
   const { data: categories = [], isLoading: categoriesLoading } = useExpenseCategories()
-  const createExpense = useCreateExpense()
+  const createExpense = useCreateExpense(t)
 
   const {
     control,
@@ -54,6 +55,7 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate }: ExpenseForm
     const amount = values.currency === 'USD' ? Number((values.amount * usdToUzsRate).toFixed(2)) : values.amount
     createExpense.mutate(
       {
+        branchId,
         categoryId: values.categoryId,
         amount,
         currency: values.currency,
@@ -109,12 +111,14 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate }: ExpenseForm
           control={control}
           render={({ field }) => (
             <Form.Item label={t('expenseForm.labelCurrency')} required>
-              <Select
-                {...field}
+              <Segmented
+                value={field.value}
+                onChange={(value) => field.onChange(value as ExpenseFormValues['currency'])}
                 options={[
                   { value: 'UZS', label: t('expenseForm.currencyUzs') },
                   { value: 'USD', label: t('expenseForm.currencyUsd') },
                 ]}
+                block
               />
             </Form.Item>
           )}
@@ -219,7 +223,14 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate }: ExpenseForm
           control={control}
           render={({ field }) => (
             <Form.Item label={t('expenseForm.labelNote')}>
-              <Input.TextArea {...field} {...blockAutofill('store-expense-description')} rows={2} placeholder={t('expenseForm.placeholderNote')} />
+              <Input.TextArea
+                {...field}
+                {...blockAutofill('store-expense-description')}
+                rows={2}
+                maxLength={500}
+                showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
+                placeholder={t('expenseForm.placeholderNote')}
+              />
             </Form.Item>
           )}
         />

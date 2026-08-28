@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserFlowApi, UserSeekApi } from '@store/store-stub'
-import type { ChangePasswordPayload, CreateAdminPayload, UpdateAdminPayload, UpdateProfilePayload, User } from '@store/store-stub'
+import type {
+  ChangePasswordPayload,
+  CreateAdminPayload,
+  UpdateAdminPayload,
+  UpdateProfilePayload,
+  UpdateProfilePhotoPayload,
+  User,
+} from '@store/store-stub'
 
 export const userKeys = {
   all: ['users'] as const,
@@ -78,6 +85,20 @@ export function useUpdateProfile(onUpdated?: (user: User) => void) {
       //
       if (updatedUser) onUpdated?.(updatedUser)
     },
+  })
+}
+
+export function useUpdateProfilePhoto(onUpdated?: (user: User) => void) {
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePhotoPayload) => UserFlowApi.updateProfilePhoto(payload),
+    onSuccess: (updatedUser) => onUpdated?.(updatedUser),
+  })
+}
+
+export function useDeleteProfilePhoto(onUpdated?: (user: User) => void) {
+  return useMutation({
+    mutationFn: () => UserFlowApi.deleteProfilePhoto(),
+    onSuccess: (updatedUser) => onUpdated?.(updatedUser),
   })
 }
 

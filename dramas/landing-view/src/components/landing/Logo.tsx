@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { site } from "../../config/site";
 
 type LogoProps = {
@@ -7,39 +8,44 @@ type LogoProps = {
 };
 
 export function Logo({ className = "", markSize = 28, showWordmark = true }: LogoProps) {
+  const wordmarkSize = Math.max(14, Math.round(markSize * 0.73));
+
   return (
-    <span className={`brand-logo ${className}`} aria-label={site.brand.name}>
+    <span
+      className={`brand-logo ${className}`}
+      aria-label={site.brand.name}
+      style={{ fontSize: `${wordmarkSize}px` }}
+    >
       <StoreManagerMark size={markSize} />
-      {showWordmark ? (
-        <span className="brand-logo__wordmark">
-          <strong>Store</strong>
-          <span>Manager</span>
-        </span>
-      ) : null}
+      {showWordmark ? <span className="brand-logo__wordmark">Mavion</span> : null}
     </span>
   );
 }
 
 export function StoreManagerMark({ size = 28 }: { size?: number }) {
+  const gradientId = `mavion-landing-mark-${useId().replaceAll(":", "")}`;
+
   return (
     <svg
-      width={size}
+      width={Math.round(size * 1.37)}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 52 38"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
       className="brand-logo__mark"
     >
       <defs>
-        <linearGradient id="store-manager-tile" x1="3" y1="2" x2="29" y2="31" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#4C78F2" />
-          <stop offset="1" stopColor="#2855D9" />
+        <linearGradient id={gradientId} x1="3" y1="4" x2="49" y2="34" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#28A9F4" />
+          <stop offset=".48" stopColor="#0476D0" />
+          <stop offset="1" stopColor="#03558F" />
         </linearGradient>
       </defs>
-      <rect x="1" y="1" width="30" height="30" rx="7" fill="url(#store-manager-tile)" />
-      <rect x="8" y="8" width="16" height="16" rx="3" stroke="white" strokeWidth="1.8" />
-      <path d="M13 9.5V22.5M19 9.5V22.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        fill={`url(#${gradientId})`}
+        d="M3.2 31.8 14.7 7.2A6.2 6.2 0 0 1 20.3 3.6h8.4l-8.2 17.6 7.9-13.8a7.4 7.4 0 0 1 6.4-3.8h13.9L36.3 31.8a4.5 4.5 0 0 1-4.1 2.7h-6.9a4.5 4.5 0 0 1-4.1-6.3l2-4.5-4.6 8.1a5.4 5.4 0 0 1-4.7 2.7H5.1a2.1 2.1 0 0 1-1.9-2.7Z"
+      />
     </svg>
   );
 }

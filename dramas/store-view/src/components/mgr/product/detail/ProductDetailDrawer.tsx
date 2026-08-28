@@ -20,7 +20,7 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
   const displayedProduct = productDetail ?? product
 
   return (
-    <Drawer title={null} open={Boolean(product)} onClose={onClose} width={540} styles={{ body: { padding: 0 } }} destroyOnHidden>
+    <Drawer rootClassName="ant-drawer-root" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} styles={{ body: { padding: 0 } }} destroyOnHidden>
       {displayedProduct ? (
         <>
           <ProductImageGallery
@@ -44,13 +44,18 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
                 {displayedProduct.sku}
               </div>
             ) : null}
-            <h2 style={{ margin: '6px 0 4px', fontSize: 20 }}>{displayedProduct.name}</h2>
+            <h2 style={{ margin: '6px 0 4px', fontSize: 18 }}>{displayedProduct.name}</h2>
             {displayedProduct.description ? (
               <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '4px 0 8px' }}>{displayedProduct.description}</p>
             ) : null}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
               {displayedProduct.category ? <StatusBadge tone="info">{displayedProduct.category.name}</StatusBadge> : null}
               <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[displayedProduct.unit]}</StatusBadge>
+              {displayedProduct.lowStockThreshold != null ? (
+                <StatusBadge tone="warning">
+                  {t('products.drawerLowStockThreshold')}: {displayedProduct.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[displayedProduct.unit]}
+                </StatusBadge>
+              ) : null}
               {displayedProduct.isActive ? (
                 <StatusBadge tone="success" dot>
                   {t('common.active')}

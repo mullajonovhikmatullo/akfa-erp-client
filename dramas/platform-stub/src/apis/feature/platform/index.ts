@@ -20,6 +20,7 @@ import type {
   PlatformStoresResponse,
   StoreStatus,
   UpdatePlanPayload,
+  UpdateStorePlanPayload,
 } from '../../../models/domain/platform'
 
 export const PLATFORM_TOKEN_KEY = 'global_admin_access_token'
@@ -100,6 +101,17 @@ const updateStoreStatus = ({
     })
     .then(unwrap)
 
+const updateStorePlan = ({
+  storeId,
+  payload,
+}: {
+  storeId: string
+  payload: UpdateStorePlanPayload
+}) =>
+  platformHttp
+    .patch<ApiResponse<PlatformStore>>(`/platform/stores/${storeId}/plan`, payload)
+    .then(unwrap)
+
 const regenerateOwnerSetup = (storeId: string, currentPassword: string) =>
   platformHttp
     .post<ApiResponse<OwnerSetupResult>>(
@@ -174,6 +186,7 @@ export const PlatformFlowApi = {
   updatePlan,
   deletePlan,
   updateStoreStatus,
+  updateStorePlan,
   regenerateOwnerSetup,
   createPayment,
   approvePayment,
@@ -206,6 +219,11 @@ export const platformApi = {
     confirmation,
     currentPassword,
   }),
+  updateStorePlan: (
+    storeId: string,
+    planId: string,
+    expectedVersion: number,
+  ) => updateStorePlan({ storeId, payload: { planId, expectedVersion } }),
   regenerateOwnerSetup,
   listPayments,
   downloadMedia,

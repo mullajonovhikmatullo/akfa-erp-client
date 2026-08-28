@@ -8,11 +8,11 @@ export function FAQ() {
   return (
     <section className="faq-section" id="savollar">
       <div className="container-page faq-section__inner">
-        <div className="section-heading section-heading--center">
+        <div className="section-heading section-heading--center" data-reveal="up">
           <h2>Ko‘p so‘raladigan savollar</h2>
         </div>
 
-        <div className="faq-list">
+        <div className="faq-list" data-reveal-group>
           {site.faq.map((item, index) => {
             const isOpen = open === index;
             return (
@@ -21,7 +21,7 @@ export function FAQ() {
                   <span>{item.q}</span>
                   <ChevronDown size={17} />
                 </button>
-                {isOpen ? <p>{item.a}</p> : null}
+                <p className={`faq-item__answer${isOpen ? " is-open" : ""}`}>{item.a}</p>
               </article>
             );
           })}

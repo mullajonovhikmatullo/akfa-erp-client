@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, DatePicker, Select, Tooltip } from 'antd'
+import { Button, DatePicker, Select, Tag, Tooltip } from 'antd'
 import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
 import dayjs, { type Dayjs } from 'dayjs'
 import type { ReactNode } from 'react'
@@ -10,14 +10,14 @@ import { BranchName } from '@store/store-shared/ui/branch-name'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import type { StockBatch } from '@store/store-stub'
+import type { StockBatch, StockReceipt } from '@store/store-stub'
 import { useBranches } from '../../branch/hooks/useBranches'
 import { StockInModal } from '../../inventory/stock-in/StockInModal'
-import { useStockBatchSummary, useStockBatchesPage } from '../../inventory/hooks/useInventory'
+import { useStockBatchSummary, useStockReceiptItems, useStockReceiptsPage } from '../../inventory/hooks/useInventory'
 import { usePagination } from '../../shared/hooks/usePagination'
 
 type PurchaseFiltersForm = {
-  depleted?: string
+  branchId?: string
   dateRange: [Dayjs | null, Dayjs | null]
 }
 
@@ -25,164 +25,103 @@ interface PurchasesListProps {
   t: (key: string) => string
   isStoreOwner: boolean
   userBranchId?: string | null
+  activeBranchId?: string
   exchangeRate: number
 }
 
-export function PurchasesList({ t, isStoreOwner, userBranchId, exchangeRate }: PurchasesListProps) {
-  //
+export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, exchangeRate }: PurchasesListProps) {
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
-  const { control, watch } = useForm<PurchaseFiltersForm>({
-    defaultValues: {
-      depleted: undefined,
-      dateRange: [null, null],
-    },
+  const { control, watch, setValue } = useForm<PurchaseFiltersForm>({
+    defaultValues: { branchId: undefined, dateRange: [null, null] },
   })
   const filters = watch()
   const [creating, setCreating] = useState(false)
-  const depletedFilter = filters.depleted === undefined ? undefined : filters.depleted === 'true'
   const dateRange = filters.dateRange
-  const dateFilters = {
+  const headerBranchId = isStoreOwner && activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
+  const scopedBranchId = isStoreOwner ? (headerBranchId ?? filters.branchId) : (userBranchId ?? undefined)
+
+  useEffect(() => {
+    setValue('branchId', undefined)
+    onPageChange(1, pageSize)
+  }, [activeBranchId])
+
+  const receiptsQuery = useStockReceiptsPage({
+    page,
+    pageSize,
+    branchId: scopedBranchId,
     from: dateRange[0]?.startOf('day').toISOString(),
     to: dateRange[1]?.endOf('day').toISOString(),
-  }
-
-  const { data: result, isLoading, isFetching, refetch } = useStockBatchesPage(page, pageSize, {
-    depleted: depletedFilter,
-    ...dateFilters,
   })
-  const { data: summary } = useStockBatchSummary()
+  const { data: summary } = useStockBatchSummary({ branchId: scopedBranchId })
   const { data: branches = [] } = useBranches()
-  const batches = result?.items ?? []
-  const total = result?.total ?? 0
-  const totalBatches = summary?.totalBatches ?? 0
-  const activeBatches = summary?.totalActive ?? 0
-  const totalCost = summary?.totalCostUzs ?? 0
-  const totalRemainingValue = summary?.totalRemainingValueUzs ?? 0
+  const receipts = receiptsQuery.data?.items ?? []
+  const total = receiptsQuery.data?.total ?? 0
   const branchNameById = useMemo(() => new Map(branches.map((branch) => [branch.id, branch.name])), [branches])
 
-  function getSupplierNote(note: string | null) {
-    //
-    if (!note) return null
-    return branchNameById.get(note) ?? note
+  function supplierNote(note: string | null) {
+    return note ? (branchNameById.get(note) ?? note) : null
   }
 
-  const columns: ColumnDef<StockBatch>[] = [
+  const receiptColumns: ColumnDef<StockReceipt>[] = [
     {
       title: '#',
       key: '_idx',
-      width: 40,
-      render: (_: unknown, __: StockBatch, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
+      width: 42,
+      render: (_value, _receipt, index) => <span className="purchase-row-index">{rowIndex(index)}</span>,
     },
     {
-      title: t('common.date'),
+      title: t('purchases.receivedAt'),
       dataIndex: 'receivedAt',
-      width: 120,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDateTime(value)}</span>,
-    },
-    {
-      title: t('nav.products'),
-      key: 'product',
-      render: (_: unknown, batch: StockBatch) => (
-        <div>
-          <div style={{ fontWeight: 600 }}>{batch.product.name}</div>
-          {batch.product.sku ? (
-            <div style={{ fontSize: 11.5, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{batch.product.sku}</div>
-          ) : null}
-        </div>
-      ),
+      width: 160,
+      render: (value: string) => <span className="purchase-date">{formatDateTime(value)}</span>,
     },
     {
       title: t('common.branch'),
       key: 'branch',
-      width: 150,
-      responsiveHide: true,
-      render: (_: unknown, batch: StockBatch) => <BranchName name={batch.branch.name} as="badge" tone="info" />,
+      width: 160,
+      render: (_value, receipt) => <BranchName name={receipt.branch.name} as="badge" tone="info" />,
     },
     {
-      title: t('purchases.colQty'),
-      key: 'qty',
-      width: 120,
-      align: 'right',
-      render: (_: unknown, batch: StockBatch) => {
-        //
-        const unit = PRODUCT_UNIT_LABELS[batch.product.unit]
-        return (
-          <span className="num" style={{ fontWeight: 600 }}>
-            {batch.initialQty.toLocaleString('ru-RU')} {unit}
-          </span>
-        )
-      },
-    },
-    {
-      title: t('purchases.colRemaining'),
-      key: 'remainingQty',
+      title: t('purchases.productTypes'),
+      dataIndex: 'productCount',
       width: 130,
       align: 'right',
-      render: (_: unknown, batch: StockBatch) => {
-        //
-        const unit = PRODUCT_UNIT_LABELS[batch.product.unit]
-        const depleted = batch.remainingQty === 0
-        return (
-          <span className="num" style={{ fontWeight: 700, color: depleted ? 'var(--ink-4)' : 'var(--success)' }}>
-            {batch.remainingQty.toLocaleString('ru-RU')} {unit}
-          </span>
-        )
-      },
+      render: (count: number) => <strong className="num">{count}</strong>,
     },
     {
-      title: t('purchases.colCost'),
-      key: 'cost',
-      width: 150,
-      align: 'right',
-      render: (_: unknown, batch: StockBatch) => (
-        <div style={{ textAlign: 'right' }}>
-          <div className="num" style={{ fontWeight: 700 }}>
-            <MoneyDisplay amount={batch.costPriceUzs} currency="UZS" />
-          </div>
-          {batch.costPriceUsd != null ? (
-            <div className="num" style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
-              <MoneyDisplay amount={batch.costPriceUsd} currency="USD" />
-            </div>
-          ) : null}
+      title: t('purchases.totalQuantity'),
+      key: 'quantity',
+      width: 190,
+      render: (_value, receipt) => (
+        <div className="purchase-quantity-tags">
+          {receipt.pieceQuantity > 0 ? <Tag color="blue">{receipt.pieceQuantity.toLocaleString('ru-RU')} {t('units.PIECE')}</Tag> : null}
+          {receipt.kgQuantity > 0 ? <Tag color="cyan">{receipt.kgQuantity.toLocaleString('ru-RU')} {t('units.KG')}</Tag> : null}
+          {receipt.pieceQuantity === 0 && receipt.kgQuantity === 0 ? '—' : null}
         </div>
       ),
     },
     {
       title: t('purchases.colTotalCost'),
-      key: 'totalCost',
-      width: 160,
-      responsiveHide: true,
+      dataIndex: 'totalCostUzs',
+      width: 170,
       align: 'right',
-      render: (_: unknown, batch: StockBatch) => (
-        <span className="num" style={{ fontWeight: 600 }}>
-          <MoneyDisplay amount={batch.initialQty * batch.costPriceUzs} currency="UZS" />
-        </span>
-      ),
+      render: (amount: number) => <strong className="num"><MoneyDisplay amount={amount} currency="UZS" /></strong>,
     },
     {
       title: t('purchases.colSupplierNote'),
       dataIndex: 'supplierNote',
       responsiveHide: true,
       render: (value: string | null) => {
-        //
-        const note = getSupplierNote(value)
-        return note ? (
-          <span style={{ fontSize: 12.5, color: 'var(--ink-2)' }}>
-            <EllipsisText maxWidth={180}>{note}</EllipsisText>
-          </span>
-        ) : (
-          <span style={{ color: 'var(--ink-4)' }}>-</span>
-        )
+        const note = supplierNote(value)
+        return note ? <EllipsisText maxWidth={190}>{note}</EllipsisText> : <span className="purchase-empty-value">—</span>
       },
     },
     {
       title: t('common.enteredBy'),
       key: 'createdBy',
-      width: 140,
+      width: 150,
       responsiveHide: true,
-      render: (_: unknown, batch: StockBatch) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{batch.createdBy.fullName}</span>,
+      render: (_value, receipt) => <span className="purchase-created-by">{receipt.createdBy.fullName}</span>,
     },
   ]
 
@@ -191,135 +130,173 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, exchangeRate }: P
       <div className="page-head">
         <div>
           <h1>{t('nav.purchases')}</h1>
-          <div className="sub">
-            {totalBatches} {t('purchases.subtitleBatches')} · {activeBatches} {t('purchases.subtitleActive')}
-          </div>
+          <div className="sub">{t('purchases.receiptsSubtitle')}</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
-          </Tooltip>
-          <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setCreating(true)}>
+        <div className="purchase-page-actions">
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
             {t('purchases.newPurchase')}
           </Button>
+          <Tooltip title={t('common.refresh')}>
+            <Button icon={<ArrowClockwiseIcon size={18} className={receiptsQuery.isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => void receiptsQuery.refetch()} />
+          </Tooltip>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <KpiBox label={t('purchases.kpiTotal')} value={totalBatches} hint={t('purchases.kpiTotalHint')} />
-        <KpiBox label={t('purchases.kpiActive')} value={activeBatches} hint={t('purchases.kpiActiveHint')} tone="success" />
-        <KpiBox label={t('purchases.kpiValue')} value={<MoneyDisplay amount={totalCost} currency="UZS" />} hint={t('purchases.kpiValueHint')} />
-        <KpiBox
-          label={t('purchases.kpiRemainingValue')}
-          value={<MoneyDisplay amount={totalRemainingValue} currency="UZS" />}
-          hint={t('purchases.kpiRemainingValueHint')}
-          tone="success"
-        />
+      <div className="purchase-kpi-grid">
+        <KpiBox label={t('purchases.kpiReceipts')} value={total} hint={t('purchases.kpiReceiptsHint')} />
+        <KpiBox label={t('purchases.kpiProductLines')} value={summary?.totalBatches ?? 0} hint={t('purchases.kpiProductLinesHint')} />
+        <KpiBox label={t('purchases.kpiValue')} value={<MoneyDisplay amount={summary?.totalCostUzs ?? 0} currency="UZS" />} hint={t('purchases.kpiValueHint')} />
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div
-          style={{
-            display: 'flex',
-            gap: 10,
-            padding: '14px 16px',
-            borderBottom: '1px solid var(--border)',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          <Controller
-            name="depleted"
-            control={control}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onChange={(value) => {
-                  //
-                  field.onChange(value)
-                  onPageChange(1, pageSize)
-                }}
-                allowClear
-                placeholder={t('purchases.filterAll')}
-                style={{ minWidth: 180 }}
-                options={[
-                  { value: 'false', label: t('purchases.filterActive') },
-                  { value: 'true', label: t('purchases.depleted') },
-                ]}
-              />
-            )}
-          />
+      <div className="card purchase-receipts-card">
+        <div className="purchase-filters">
+          {isStoreOwner && !headerBranchId ? (
+            <Controller
+              name="branchId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  allowClear
+                  placeholder={t('header.allBranches')}
+                  options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                  onChange={(value) => { field.onChange(value); onPageChange(1, pageSize) }}
+                />
+              )}
+            />
+          ) : null}
           <Controller
             name="dateRange"
             control={control}
             render={({ field }) => (
               <DatePicker.RangePicker
                 value={field.value}
-                onChange={(values) => {
-                  //
-                  field.onChange(values ?? [null, null])
-                  onPageChange(1, pageSize)
-                }}
+                onChange={(values) => { field.onChange(values ?? [null, null]); onPageChange(1, pageSize) }}
                 allowClear
-                format="YYYY-MM-DD"
+                format="DD.MM.YYYY"
                 placeholder={[t('common.startDate'), t('common.endDate')]}
                 presets={[
                   { label: t('common.today'), value: [dayjs(), dayjs()] },
                   { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
                 ]}
-                style={{ minWidth: 260 }}
               />
             )}
           />
-          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
-            <strong>{total}</strong> {t('common.resultsSuffix')}
-          </span>
+          <span className="purchase-results"><strong>{total}</strong> {t('purchases.receiptsCount')}</span>
         </div>
 
-        <DataTable<StockBatch>
+        <DataTable<StockReceipt>
           rowKey="id"
-          dataSource={batches}
-          columns={columns}
-          loading={isLoading}
+          dataSource={receipts}
+          columns={receiptColumns}
+          loading={receiptsQuery.isLoading}
+          expandable={{
+            expandRowByClick: true,
+            expandedRowRender: (receipt) => <ReceiptItemsFolder receipt={receipt} t={t} />,
+            rowExpandable: (receipt) => receipt.productCount > 0,
+          }}
           pagination={{
             current: page,
             pageSize,
             total,
             onChange: onPageChange,
             showSizeChanger: true,
-            showTotal: (count) => `${count} ${t('common.countSuffix')}`,
+            showTotal: (count) => `${count} ${t('purchases.receiptsCount')}`,
             pageSizeOptions: ['10', '25', '50'],
           }}
-          emptyText={t('purchases.empty')}
+          emptyText={t('purchases.emptyReceipts')}
         />
       </div>
 
-      <StockInModal t={t} isStoreOwner={isStoreOwner} userBranchId={userBranchId} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
+      <StockInModal t={t} isStoreOwner={isStoreOwner} userBranchId={scopedBranchId} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
     </>
   )
 }
 
-function KpiBox({
-  label,
-  value,
-  hint,
-  tone = 'muted',
-}: {
-  label: string
-  value: ReactNode
-  hint: string
-  tone?: 'success' | 'muted'
-}) {
-  //
+function ReceiptItemsFolder({ receipt, t }: { receipt: StockReceipt; t: (key: string) => string }) {
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(25)
+  const query = useStockReceiptItems(receipt.id, page, pageSize)
+  const columns: ColumnDef<StockBatch>[] = [
+    {
+      title: '#',
+      key: '_idx',
+      width: 44,
+      render: (_value, _batch, index) => <span className="purchase-row-index">{(page - 1) * pageSize + index + 1}</span>,
+    },
+    {
+      title: t('nav.products'),
+      key: 'product',
+      render: (_value, batch) => (
+        <div className="purchase-product-cell"><strong>{batch.product.name}</strong><small>{batch.product.sku || '—'}</small></div>
+      ),
+    },
+    {
+      title: t('purchases.colQty'),
+      dataIndex: 'initialQty',
+      width: 130,
+      align: 'right',
+      render: (quantity: number, batch) => <strong className="num">{quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[batch.product.unit]}</strong>,
+    },
+    {
+      title: t('purchases.colRemaining'),
+      dataIndex: 'remainingQty',
+      width: 140,
+      align: 'right',
+      render: (quantity: number, batch) => (
+        <strong className="num" style={{ color: quantity > 0 ? 'var(--success)' : 'var(--ink-4)' }}>
+          {quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[batch.product.unit]}
+        </strong>
+      ),
+    },
+    {
+      title: t('purchases.colCost'),
+      dataIndex: 'costPriceUzs',
+      width: 155,
+      align: 'right',
+      render: (amount: number) => <MoneyDisplay amount={amount} currency="UZS" />,
+    },
+    {
+      title: t('purchases.colTotalCost'),
+      key: 'total',
+      width: 170,
+      align: 'right',
+      render: (_value, batch) => <strong><MoneyDisplay amount={batch.initialQty * batch.costPriceUzs} currency="UZS" /></strong>,
+    },
+  ]
+
   return (
-    <div className="card" style={{ padding: '14px 16px' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
-        {label}
+    <div className="purchase-folder-content" onClick={(event) => event.stopPropagation()}>
+      <div className="purchase-folder-title">
+        <div><strong>{t('purchases.receiptDetails')}</strong><span>{receipt.productCount} {t('purchases.productTypes').toLocaleLowerCase()}</span></div>
+        <Tag color="blue">{formatDateTime(receipt.receivedAt)}</Tag>
       </div>
-      <div className="num" style={{ fontSize: 18, fontWeight: 700, color: tone === 'success' ? 'var(--success)' : 'var(--ink-1)' }}>
-        {value}
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>{hint}</div>
+      <DataTable<StockBatch>
+        rowKey="id"
+        dataSource={query.data?.items ?? []}
+        columns={columns}
+        loading={query.isLoading}
+        pagination={{
+          current: page,
+          pageSize,
+          total: query.data?.total ?? 0,
+          showSizeChanger: true,
+          hideOnSinglePage: (query.data?.total ?? 0) <= pageSize,
+          pageSizeOptions: ['25', '50', '100'],
+          onChange: (nextPage, nextSize) => { setPage(nextPage); setPageSize(nextSize) },
+        }}
+        emptyText={t('purchases.empty')}
+      />
+    </div>
+  )
+}
+
+function KpiBox({ label, value, hint, tone = 'muted' }: { label: string; value: ReactNode; hint: string; tone?: 'success' | 'muted' }) {
+  return (
+    <div className="card purchase-kpi">
+      <div className="purchase-kpi__label">{label}</div>
+      <div className="num purchase-kpi__value" style={{ color: tone === 'success' ? 'var(--success)' : 'var(--ink-1)' }}>{value}</div>
+      <div className="purchase-kpi__hint">{hint}</div>
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { SaleFlowApi, SaleSeekApi } from '@store/store-stub'
-import type { AddPaymentPayload, CreateSalePayload, SaleFilters } from '@store/store-stub'
+import type { AddPaymentPayload, CreateSalePayload, DebtPaymentFilters, SaleFilters } from '@store/store-stub'
+import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
 import { customerKeys } from '../../customer/hooks/useCustomers'
 
 export const saleKeys = {
@@ -29,7 +30,7 @@ export function useSalesPage(page: number, pageSize: number, filters?: SaleFilte
   return useQuery({
     queryKey,
     queryFn,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
   })
 }
 
@@ -42,6 +43,11 @@ export function useSaleDetail(id: string | null) {
     queryFn: query?.queryFn ?? (() => Promise.reject(new Error('Sale id is required'))),
     enabled: Boolean(id),
   })
+}
+
+export function useDebtPayments(filters: DebtPaymentFilters) {
+  const { queryKey, queryFn } = SaleSeekApi.fetch.findDebtPayments(filters)
+  return useQuery({ queryKey, queryFn, staleTime: 0 })
 }
 
 export function useCreateSale(t: (key: string) => string) {
@@ -60,8 +66,7 @@ export function useCreateSale(t: (key: string) => string) {
     },
     onError: (error: unknown) => {
       //
-      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
-      toast.error(message ?? t('sales.createError'))
+      toast.error(getLocalizedApiErrorMessage(error, t, 'sales.createError'))
     },
   })
 }

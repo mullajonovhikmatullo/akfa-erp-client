@@ -1,6 +1,6 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, Button, DatePicker, Empty, Skeleton } from 'antd';
+import { Alert, Button, DatePicker, Empty, Segmented, Skeleton } from 'antd';
 import {
   ArrowClockwiseIcon,
   ArrowsLeftRightIcon,
@@ -108,7 +108,6 @@ export interface DashboardPanelProps {
   t: TFunc;
   firstName: string;
   branchId?: string | null;
-  lowStockThreshold: number;
   onNewSale: () => void;
   onStockIn: () => void;
   onOpenAnalytics: () => void;
@@ -120,7 +119,6 @@ export function DashboardPanel({
   t,
   firstName,
   branchId,
-  lowStockThreshold,
   onNewSale,
   onStockIn,
   onOpenAnalytics,
@@ -144,16 +142,16 @@ export function DashboardPanel({
 
   const periodQuery: AnalyticsQuery = {
     ...branchParam,
-    lowStockThreshold,
     from: rangeStart.toISOString(),
     to: rangeEnd.toISOString(),
     period: chartPeriod,
     limit: TOP_PRODUCTS_LIMIT,
   };
-  const inventoryQuery: AnalyticsQuery = { ...branchParam, lowStockThreshold, limit: 5 };
+  const inventoryQuery: AnalyticsQuery = { ...branchParam, limit: 5 };
+  const salesQuery: AnalyticsQuery = { ...periodQuery, topProductsSort: 'revenue' };
 
   const periodDashboard = useDashboard(periodQuery);
-  const sales = useSalesReport(periodQuery);
+  const sales = useSalesReport(salesQuery);
   const expenses = useExpenseReport(periodQuery);
   const inventory = useInventoryReport(inventoryQuery);
   const debt = useCustomerDebt({ ...branchParam, limit: 5 });
@@ -246,15 +244,6 @@ export function DashboardPanel({
     }))
     .sort((a, b) => b.value - a.value || a.order - b.order);
 
-  const topProducts = (sales.data?.topProducts ?? []).slice(0, TOP_PRODUCTS_LIMIT);
-  const topProductsChartData: TopProductChartDatum[] = topProducts.map((product, index) => ({
-    name: product.name,
-    sku: product.sku,
-    unit: product.unit,
-    quantity: product.totalQuantity,
-    revenue: product.totalRevenue,
-    color: getChartColor(index),
-  }));
   const lowStock = (inventory.data?.lowStock ?? []).slice(0, 5);
   const topDebtors = debt.data?.topDebtors ?? [];
   const avgOrderValue = sales.data?.summary.avgOrderValue ?? 0;
@@ -279,17 +268,17 @@ export function DashboardPanel({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <Button icon={<PlusIcon size={18} />} onClick={onNewSale}>
+          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={onNewSale}>
             {t('dashboard.newSale')}
           </Button>
-          <Button icon={<BoxArrowDownIcon size={18} />} onClick={onStockIn}>
+          <Button icon={<BoxArrowDownIcon size={13} />} onClick={onStockIn}>
             {t('dashboard.stockIn')}
           </Button>
-          <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll}>
-            {t('common.refresh')}
-          </Button>
-          <Button type="primary" icon={<ChartLineUpIcon size={18} weight="bold" />} onClick={onOpenAnalytics}>
+          <Button icon={<ChartLineUpIcon size={13} />} onClick={onOpenAnalytics}>
             {t('dashboard.openAnalytics')}
+          </Button>
+          <Button icon={<ArrowClockwiseIcon size={13} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll}>
+            {t('common.refresh')}
           </Button>
         </div>
       </div>
@@ -352,46 +341,46 @@ export function DashboardPanel({
       {isLoading ? (
         <DashboardSkeleton />
       ) : isDashboardUnavailable ? (
-        <div className="card" style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+        <div className="card" style={{ padding: 18, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dashboard.loadErrorTitle')} />
           <Button type="primary" icon={<ArrowClockwiseIcon size={18} />} onClick={refetchAll}>
             {t('common.refresh')}
           </Button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
             <MetricCard
               icon={<ShoppingCartIcon size={28} weight="duotone" />}
               label={t('dashboard.periodSales')}
-              value={<MoneyDisplay amount={periodDashboard.data?.sales.totalRevenue ?? 0} currency="UZS" compact />}
+              value={<MoneyDisplay amount={periodDashboard.data?.sales.totalRevenue ?? 0} currency="UZS" />}
               sub={`${periodDashboard.data?.sales.saleCount ?? 0} ${t('dashboard.kpiTodaySalesSuffix')}`}
               tone="primary"
             />
             <MetricCard
               icon={<CreditCardIcon size={28} weight="duotone" />}
               label={t('dashboard.periodPaid')}
-              value={<MoneyDisplay amount={periodDashboard.data?.sales.paidAmount ?? 0} currency="UZS" compact />}
+              value={<MoneyDisplay amount={periodDashboard.data?.sales.paidAmount ?? 0} currency="UZS" />}
               sub={t('dashboard.paidCashflow')}
               tone="success"
             />
             <MetricCard
               icon={<ReceiptIcon size={28} weight="duotone" />}
               label={t('dashboard.periodDebt')}
-              value={<MoneyDisplay amount={periodDashboard.data?.sales.outstandingDebt ?? 0} currency="UZS" compact />}
+              value={<MoneyDisplay amount={periodDashboard.data?.sales.outstandingDebt ?? 0} currency="UZS" />}
               sub={t('dashboard.unpaidSales')}
               tone="danger"
             />
             <MetricCard
               icon={<WalletIcon size={28} weight="duotone" />}
               label={t('dashboard.periodExpenses')}
-              value={<MoneyDisplay amount={periodDashboard.data?.expenses.total ?? 0} currency="UZS" compact />}
+              value={<MoneyDisplay amount={periodDashboard.data?.expenses.total ?? 0} currency="UZS" />}
               sub={t('dashboard.cashOut')}
               tone="warning"
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             <div className="card">
               <div className="card-head">
                 <h3>{t('dashboard.salesTrendTitle')}</h3>
@@ -405,21 +394,21 @@ export function DashboardPanel({
               />
             </div>
 
-            <div className="card">
+            <div className="card dashboard-payment-card">
               <div className="card-head">
                 <h3>{t('dashboard.paymentMix')}</h3>
                 <span className="meta">{periodMeta}</span>
               </div>
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center', justifyContent: 'flex-start', flexWrap: 'wrap' }}>
+              <div className="dashboard-payment-card__content">
                 <PaymentDonutChart data={paymentChartData} total={paymentTotal} totalLabel={t('common.total')} />
-                <div style={{ flex: '1 1 0', minWidth: 180, display: 'flex', flexDirection: 'column', gap: 7 }}>
+                <div className="dashboard-payment-card__legend">
                   {paymentChartData.map((item) => (
                     <LegendRow
                       key={item.name}
                       color={item.color}
                       label={item.name}
                       percent={item.percent}
-                      value={<MoneyDisplay amount={item.value} currency="UZS" compact />}
+                      value={<MoneyDisplay amount={item.value} currency="UZS" />}
                     />
                   ))}
                 </div>
@@ -427,53 +416,14 @@ export function DashboardPanel({
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
             <SmallStat label={t('dashboard.avgOrderValue')} value={<MoneyDisplay amount={avgOrderValue} currency="UZS" compact />} tone="muted" />
             <SmallStat label={t('dashboard.periodNetProfit')} value={<MoneyDisplay amount={periodDashboard.data?.profit.netProfit ?? 0} currency="UZS" compact />} tone={(periodDashboard.data?.profit.netProfit ?? 0) >= 0 ? 'success' : 'danger'} />
             <SmallStat label={t('dashboard.expenseCount')} value={expenseCount.toLocaleString('ru-RU')} tone="warning" />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-            <div className="card">
-              <div className="card-head">
-                <h3>{t('dashboard.topProducts')}</h3>
-                <span className="meta">{periodMeta}</span>
-              </div>
-              {topProducts.length === 0 ? (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('common.noData')} />
-              ) : (
-                <ResponsiveContainer width="100%" height={360}>
-                  <BarChart
-                    data={topProductsChartData}
-                    layout="vertical"
-                    margin={{ left: 4, right: 14, top: 8, bottom: 0 }}
-                    barCategoryGap={8}
-                  >
-                    <CartesianGrid stroke={DASH_GRID} vertical={false} />
-                    <XAxis type="number" tickFormatter={(v) => formatCompactUZS(Number(v)).replace(" so'm", '')} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: DASH_TICK }} />
-                    <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: DASH_TICK }} width={120} interval={0} tickFormatter={(v) => String(v).length > 18 ? `${String(v).slice(0, 18)}...` : String(v)} />
-                    <Tooltip
-                      content={
-                        <TopProductsTooltip
-                          revenueLabel={t('common.revenue')}
-                          quantityLabel={t('dashboard.soldQuantity')}
-                          unitLabel={(unit) => t(`units.${unit}`)}
-                        />
-                      }
-                      cursor={{ fill: 'var(--primary-soft)', fillOpacity: 0.58, radius: 8 }}
-                      allowEscapeViewBox={{ x: true, y: true }}
-                      offset={12}
-                      isAnimationActive={false}
-                    />
-                    <Bar dataKey="revenue" name={t('common.revenue')} radius={[0, 6, 6, 0]} barSize={16}>
-                      {topProductsChartData.map((item) => (
-                        <Cell key={item.name} fill={item.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+            <TopProductsCard t={t} query={periodQuery} periodMeta={periodMeta} />
 
             <ListPanel
               title={t('dashboard.lowStockTitle')}
@@ -494,7 +444,7 @@ export function DashboardPanel({
             </ListPanel>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
             <ListPanel
               title={t('dashboard.topDebtors')}
               action={t('dashboard.allDebtors')}
@@ -532,17 +482,89 @@ export function DashboardPanel({
   );
 }
 
+function TopProductsCard({ t, query, periodMeta }: { t: TFunc; query: AnalyticsQuery; periodMeta: string }) {
+  const [sortBy, setSortBy] = useState<'revenue' | 'quantity'>('revenue');
+  const report = useSalesReport({ ...query, topProductsSort: sortBy });
+  const products = (report.data?.topProducts ?? []).slice(0, TOP_PRODUCTS_LIMIT);
+  const chartData: TopProductChartDatum[] = products.map((product, index) => ({
+    name: product.name,
+    sku: product.sku,
+    unit: product.unit,
+    quantity: product.totalQuantity,
+    revenue: product.totalRevenue,
+    color: getChartColor(index),
+  }));
+
+  return (
+    <div className="card">
+      <div className="card-head">
+        <h3>{t('dashboard.topProducts')}</h3>
+        <div className="dashboard-top-products__controls">
+          <Segmented
+            size="small"
+            value={sortBy}
+            onChange={(value) => setSortBy(value as 'revenue' | 'quantity')}
+            options={[
+              { value: 'quantity', label: t('dashboard.sortByQuantity') },
+              { value: 'revenue', label: t('dashboard.sortByRevenue') },
+            ]}
+          />
+          <span className="meta">{periodMeta}</span>
+        </div>
+      </div>
+
+      {report.isLoading ? (
+        <div style={{ height: 360, display: 'grid', alignContent: 'center', gap: 14, padding: '16px 20px' }}>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton.Input key={index} active size="small" style={{ width: `${92 - index * 9}%` }} />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('common.noData')} />
+      ) : (
+        <ResponsiveContainer width="100%" height={360}>
+          <BarChart data={chartData} layout="vertical" margin={{ left: 4, right: 14, top: 8, bottom: 0 }} barCategoryGap={8}>
+            <CartesianGrid stroke={DASH_GRID} vertical={false} />
+            <XAxis
+              type="number"
+              tickFormatter={(value) => sortBy === 'revenue'
+                ? formatCompactUZS(Number(value)).replace(" so'm", '')
+                : Number(value).toLocaleString('ru-RU')}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 11, fill: DASH_TICK }}
+            />
+            <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: DASH_TICK }} width={120} interval={0} tickFormatter={(value) => String(value).length > 18 ? `${String(value).slice(0, 18)}...` : String(value)} />
+            <Tooltip
+              content={<TopProductsTooltip revenueLabel={t('common.revenue')} quantityLabel={t('dashboard.soldQuantity')} skuLabel={t('products.productCode')} unitLabel={(unit) => t(`units.${unit}`)} />}
+              cursor={{ fill: 'var(--primary-soft)', fillOpacity: 0.58, radius: 8 }}
+              allowEscapeViewBox={{ x: false, y: false }}
+              offset={12}
+              isAnimationActive={false}
+            />
+            <Bar dataKey={sortBy} name={sortBy === 'revenue' ? t('common.revenue') : t('dashboard.soldQuantity')} radius={[0, 6, 6, 0]} barSize={16}>
+              {chartData.map((item) => <Cell key={item.name} fill={item.color} />)}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </div>
+  );
+}
+
 function TopProductsTooltip({
   active,
   payload,
   revenueLabel,
   quantityLabel,
+  skuLabel,
   unitLabel,
 }: {
   active?: boolean;
   payload?: ReadonlyArray<{ payload?: TopProductChartDatum }>;
   revenueLabel: string;
   quantityLabel: string;
+  skuLabel: string;
   unitLabel: (unit: string) => string;
 }) {
   //
@@ -555,7 +577,7 @@ function TopProductsTooltip({
         <span className="dashboard-chart-tooltip__marker" style={{ background: item.color, color: item.color }} />
         <div className="dashboard-chart-tooltip__title-wrap">
           <div className="dashboard-chart-tooltip__title">{item.name}</div>
-          {item.sku && <div className="dashboard-chart-tooltip__meta">SKU: {item.sku}</div>}
+          {item.sku && <div className="dashboard-chart-tooltip__meta">{skuLabel}: {item.sku}</div>}
         </div>
       </div>
       <div className="dashboard-chart-tooltip__rows">
@@ -577,8 +599,8 @@ function TopProductsTooltip({
 function DashboardSkeleton() {
   //
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="kpi" style={{ minHeight: 126 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
@@ -596,12 +618,12 @@ function DashboardSkeleton() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         <SkeletonPanel height={310} rows={3} />
         <SkeletonPanel height={220} rows={5} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="card" style={{ padding: '14px 16px' }}>
             <Skeleton.Input active size="small" style={{ width: 120 }} />
@@ -612,12 +634,12 @@ function DashboardSkeleton() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         <SkeletonPanel height={260} rows={2} />
         <SkeletonPanel height={260} rows={5} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
         <SkeletonPanel height={220} rows={4} />
         <SkeletonPanel height={220} rows={4} />
       </div>
@@ -650,10 +672,10 @@ function SkeletonPanel({ height, rows }: { height: number; rows: number }) {
 function MetricCard({ icon, label, value, sub, tone }: { icon: ReactNode; label: string; value: ReactNode; sub: string; tone: Tone }) {
   //
   return (
-    <div className="kpi" style={{ minHeight: 126 }}>
+    <div className="kpi dashboard-metric-kpi" style={{ minHeight: 126 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
         <div className="label">{label}</div>
-        <span style={{ color: COLORS[tone], fontSize: 20 }}>{icon}</span>
+        <span style={{ color: COLORS[tone], fontSize: 18 }}>{icon}</span>
       </div>
       <div className="value">{value}</div>
       <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{sub}</div>
@@ -667,7 +689,7 @@ function SmallStat({ label, value, tone }: { label: string; value: ReactNode; to
   return (
     <div className="card" style={{ padding: '14px 16px' }}>
       <div style={{ color: 'var(--ink-3)', fontSize: 12, marginBottom: 6 }}>{label}</div>
-      <div className="num" style={{ fontSize: 20, fontWeight: 800, color: COLORS[tone] }}>{value}</div>
+      <div className="num" style={{ fontSize: 18, fontWeight: 800, color: COLORS[tone] }}>{value}</div>
     </div>
   );
 }
@@ -858,6 +880,7 @@ function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentChartDatu
         )}
       </svg>
       <div
+        className="dashboard-payment-card__total"
         style={{
           position: 'absolute',
           inset: 62,
@@ -874,7 +897,7 @@ function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentChartDatu
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4 }}>{totalLabel}</div>
           <div className="num" style={{ fontSize: 17, fontWeight: 800 }}>
-            <MoneyDisplay amount={total} currency="UZS" compact />
+            <MoneyDisplay amount={total} currency="UZS" />
           </div>
         </div>
       </div>
@@ -997,7 +1020,7 @@ function SnapshotTile({ icon, label, value, tone }: { icon: ReactNode; label: st
       <div style={{ minWidth: 0, color: 'var(--ink-2)', fontSize: 13, fontWeight: 650, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {label}
       </div>
-      <div className="num" style={{ fontSize: 18, fontWeight: 800, color: COLORS[tone], textAlign: 'right' }}>{value}</div>
+      <div className="num" style={{ fontSize: 16, fontWeight: 800, color: COLORS[tone], textAlign: 'right' }}>{value}</div>
     </div>
   );
 }

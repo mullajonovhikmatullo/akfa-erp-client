@@ -23,6 +23,7 @@ import { usePagination } from '../../shared/hooks/usePagination'
 import { CustomerDetailDrawer } from '../detail/CustomerDetailDrawer'
 import { CustomerFormModal } from '../form/CustomerFormModal'
 import { useCustomers, useDeactivateCustomer } from '../hooks/useCustomers'
+import { DebtPaymentsList } from './DebtPaymentsList'
 
 type BalanceFilter = 'all' | 'debt' | 'credit' | 'zero'
 
@@ -41,6 +42,7 @@ interface CustomersListProps {
 export function CustomersList({ t, canManage, isStoreOwner, branchId }: CustomersListProps) {
   //
   const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = searchParams.get('tab') === 'payments' ? 'payments' : 'customers'
   const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<CustomerFiltersForm>({
     defaultValues: {
@@ -55,10 +57,11 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
 
   const { data: customers = [], isLoading, isFetching, refetch } = useCustomers({
     search: filters.search || undefined,
+    branchId: branchId ?? undefined,
   })
   const { data: branches = [], isLoading: branchesLoading } = useBranches()
-  const defaultCustomerBranchId = branches[0]?.id ?? ''
-  const deleteMutation = useDeactivateCustomer()
+  const defaultCustomerBranchId = branchId ?? branches[0]?.id ?? ''
+  const deleteMutation = useDeactivateCustomer(t)
 
   const totalDebt = customers.reduce((sum, customer) => sum + (customer.balance > 0 ? customer.balance : 0), 0)
   const totalCredit = customers.reduce((sum, customer) => sum + (customer.balance < 0 ? -customer.balance : 0), 0)
@@ -82,6 +85,13 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
     } else {
       next.set('balance', value)
     }
+    setSearchParams(next, { replace: true })
+  }
+
+  const setActiveTab = (tab: 'customers' | 'payments') => {
+    const next = new URLSearchParams(searchParams)
+    if (tab === 'payments') next.set('tab', 'payments')
+    else next.delete('tab')
     setSearchParams(next, { replace: true })
   }
 
@@ -248,15 +258,17 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
         <div>
           <h1>{t('nav.customers')}</h1>
           <div className="sub">
-            {filteredCustomers.length} {t('customers.subtitleSuffix')}
+            {activeTab === 'customers'
+              ? `${filteredCustomers.length} ${t('customers.subtitleSuffix')}`
+              : t('customers.paymentsSubtitle')}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
-          </Tooltip>
+        {activeTab === 'customers' && <div style={{ display: 'flex', gap: 8 }}>
           {canManage && (
             <>
+              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditCustomer(null)}>
+                {t('customers.newCustomer')}
+              </Button>
               <ExcelImportButton<CreateCustomerPayload>
                 t={t}
                 entityLabel={t('nav.customers')}
@@ -307,15 +319,20 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
                 createFn={(data) => customerApi.create(data)}
                 onComplete={() => refetch()}
               />
-              <Button type="primary" icon={<PlusIcon size={18} weight="bold" />} onClick={() => setEditCustomer(null)}>
-                {t('customers.newCustomer')}
-              </Button>
             </>
           )}
-        </div>
+          <Tooltip title={t('common.refresh')}>
+            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+          </Tooltip>
+        </div>}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+      <div className="customer-tabs" role="tablist" aria-label={t('nav.customers')}>
+        <button type="button" role="tab" aria-selected={activeTab === 'customers'} className={activeTab === 'customers' ? 'is-active' : ''} onClick={() => setActiveTab('customers')}>{t('customers.tabCustomers')}</button>
+        <button type="button" role="tab" aria-selected={activeTab === 'payments'} className={activeTab === 'payments' ? 'is-active' : ''} onClick={() => setActiveTab('payments')}>{t('customers.tabPayments')}</button>
+      </div>
+
+      {activeTab === 'customers' ? <><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
         <KpiBox
           label={t('customers.kpiTotalDebt')}
           value={<MoneyDisplay amount={totalDebt} currency="UZS" />}
@@ -411,6 +428,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
       />
 
       <CustomerDetailDrawer t={t} customer={drawerCustomer} onClose={() => setDrawerCustomer(null)} />
+      </> : <DebtPaymentsList t={t} branchId={branchId} />}
     </>
   )
 }
@@ -443,7 +461,7 @@ function KpiBox({
       <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
         {label}
       </div>
-      <div className="num" style={{ fontSize: 18, fontWeight: 700, color: colors[tone] }}>
+      <div className="num" style={{ fontSize: 16, fontWeight: 700, color: colors[tone] }}>
         {value}
       </div>
       <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>{hint}</div>

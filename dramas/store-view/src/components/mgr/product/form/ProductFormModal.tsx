@@ -18,6 +18,7 @@ interface ProductFormModalProps {
   open: boolean
   product?: Product | null
   onClose: () => void
+  onSaved?: () => void
   isStoreOwner: boolean
 }
 
@@ -33,7 +34,7 @@ function findDefaultBranch(branches: Branch[]) {
   return mainBranch?.id ?? firstBranch?.id
 }
 
-export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: ProductFormModalProps) {
+export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOwner }: ProductFormModalProps) {
   //
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imageChanges, setImageChanges] = useState(createEmptyProductImageChanges)
@@ -44,8 +45,9 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
   const handleSuccess = useCallback(() => {
     setImageFiles([])
     setImageChanges(createEmptyProductImageChanges())
+    onSaved?.()
     onClose()
-  }, [onClose])
+  }, [onClose, onSaved])
   const {
     form,
     onSubmit,
@@ -58,6 +60,7 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
     resetFlow,
   } = useProductForm({
     t,
+    open,
     product,
     imageFiles,
     onImageFilesChange: setImageFiles,
@@ -69,6 +72,7 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
     control,
     formState: { errors },
     watch,
+    clearErrors,
     setValue,
   } = form
 
@@ -80,6 +84,7 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
   const wholesaleUzs = watch('wholesalePriceUzs')
   const retailUsd = watch('retailPriceUsd')
   const wholesaleUsd = watch('wholesalePriceUsd')
+  const unit = watch('unit')
   const branchId = watch('branchId')
 
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
@@ -87,7 +92,7 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
   useEffect(() => {
     //
     if (open && !isEdit && isStoreOwner && defaultBranchId && !branchId) {
-      setValue('branchId', defaultBranchId, { shouldValidate: true })
+      setValue('branchId', defaultBranchId, { shouldValidate: false })
     }
   }, [open, isEdit, isStoreOwner, defaultBranchId, branchId, setValue])
 
@@ -108,6 +113,14 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
   const handleCurrencyChange = (value: string | number) => {
     //
     const currency = value as 'UZS' | 'USD'
+    clearErrors([
+      'costPriceUzs',
+      'retailPriceUzs',
+      'wholesalePriceUzs',
+      'costPriceUsd',
+      'retailPriceUsd',
+      'wholesalePriceUsd',
+    ])
     setValue('priceCurrency', currency, { shouldValidate: false })
     if (currency === 'UZS') {
       setValue('costPriceUsd', undefined)
@@ -158,7 +171,7 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
             control={control}
             render={({ field }) => (
               <Form.Item label={t('productForm.labelSku')} validateStatus={errors.sku ? 'error' : undefined} help={errors.sku?.message}>
-                <Input {...field} {...blockAutofill('store-product-sku')} placeholder="PRF-A60-WHT" style={{ fontFamily: 'monospace' }} />
+                <Input {...field} {...blockAutofill('store-product-sku')} placeholder={t('productForm.skuPlaceholder')} style={{ fontFamily: 'monospace' }} />
               </Form.Item>
             )}
           />
@@ -194,6 +207,28 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
             )}
           />
         </div>
+
+        <Controller
+          name="lowStockThreshold"
+          control={control}
+          render={({ field }) => (
+            <Form.Item
+              label={t('productForm.lowStockThreshold')}
+              extra={t('productForm.lowStockThresholdNote')}
+            >
+              <InputNumber
+                value={field.value ?? undefined}
+                min={0}
+                step={unit === 'KG' ? 0.1 : 1}
+                precision={unit === 'KG' ? 4 : 0}
+                onChange={(value) => field.onChange(value ?? undefined)}
+                style={{ width: 220 }}
+                addonAfter={t(`units.${unit}`)}
+                placeholder="—"
+              />
+            </Form.Item>
+          )}
+        />
 
         {!isEdit && isStoreOwner ? (
           <Controller
@@ -380,6 +415,8 @@ export function ProductFormModal({ t, open, product, onClose, isStoreOwner }: Pr
                 {...field}
                 {...blockAutofill('store-product-description')}
                 rows={2}
+                maxLength={500}
+                showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
                 placeholder={t('productForm.placeholderDescription')}
               />
             </Form.Item>

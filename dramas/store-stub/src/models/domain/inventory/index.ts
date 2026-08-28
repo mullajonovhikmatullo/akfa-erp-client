@@ -36,6 +36,34 @@ export interface BatchSummary {
   totalRemainingValueUzs: number
 }
 
+export interface StockReceipt {
+  id: string
+  receivedAt: string
+  productCount: number
+  pieceQuantity: number
+  kgQuantity: number
+  totalCostUzs: number
+  remainingValueUzs: number
+  supplierNote: string | null
+  branch: { id: string; name: string }
+  createdBy: { id: string; fullName: string }
+}
+
+export interface ReceiptPage {
+  items: StockReceipt[]
+  total: number
+}
+
+export interface ReceiptItemsPage {
+  items: StockBatch[]
+  total: number
+}
+
+export type ReceiptPageQuery = Pick<BatchFilters, 'branchId' | 'from' | 'to'> & {
+  page: number
+  pageSize: number
+}
+
 export type BatchPageQuery = BatchFilters & {
   page: number
   pageSize: number
