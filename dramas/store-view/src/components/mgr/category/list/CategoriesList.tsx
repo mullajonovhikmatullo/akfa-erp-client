@@ -1,28 +1,21 @@
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { Button, Form, Input, Modal, Popconfirm, Switch, Tag, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PlusIcon, TagIcon } from '@phosphor-icons/react'
+import { useForm } from 'react-hook-form'
+import { Button, Tooltip } from 'antd'
+import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { blockAutofill } from '@store/store-shared/lib/autofill'
-import { getField } from '@store/store-shared/lib/parse-excel'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
-import { categoryApi } from '@store/store-stub'
 import type { Category, CreateCategoryPayload, UpdateCategoryPayload } from '@store/store-stub'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { useCategoriesPage } from '../hooks/useCategoriesPage'
 import { useCategoryMutation } from '../hooks/useCategoryMutation'
 import { useCategorySummary } from '../hooks/useCategorySummary'
+import { createCategoryImportParser } from './categoryImport'
+import { CategoryFormModal, type CategoryFormValues } from './view/CategoryFormModal'
 import { createCategoryColumns } from './view/categoryColumns'
 
 type Translate = (key: string) => string
-
-type CategoryFormValues = {
-  name: string
-  description?: string
-  isActive?: boolean
-}
 
 type CategoryStatusFilter = 'all' | 'active' | 'inactive'
 
@@ -63,6 +56,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
   })
   const [editTarget, setEditTarget] = useState<Category | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const parseCategoryImportRow = createCategoryImportParser(t)
 
   function openCreate() {
     //
@@ -162,18 +156,8 @@ export function CategoriesList({ t }: CategoriesListProps) {
             templateHeaders={['name', 'description']}
             templateExamples={[['Glass Panels', 'All types of flat glass products']]}
             templateFileName="categories_template.xlsx"
-            parseRow={(raw, index) => {
-              //
-              const name = getField(raw, 'name')
-              if (!name) return { index, raw, error: t('categories.parseErrorName') }
-              if (name.length > 100) return { index, raw, error: 'name 100 belgidan oshmasligi kerak' }
-              const description = getField(raw, 'description') || undefined
-              if (description && description.length > 500) {
-                return { index, raw, error: 'description 500 belgidan oshmasligi kerak' }
-              }
-              return { index, raw, data: { name, description } }
-            }}
-            createFn={(data) => categoryApi.create(data)}
+            parseRow={parseCategoryImportRow}
+            createFn={createMutation.mutateAsync}
             onComplete={() => {
               //
               refetch()
@@ -241,81 +225,16 @@ export function CategoriesList({ t }: CategoriesListProps) {
         />
       </div>
 
-      <Modal
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <TagIcon size={18} weight="duotone" />
-            {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('categories.modalCreate')}
-          </div>
-        }
+      <CategoryFormModal
+        t={t}
         open={modalOpen}
+        editTarget={editTarget}
+        control={categoryControl}
+        errors={categoryErrors}
+        pending={createMutation.isPending || updateMutation.isPending}
         onCancel={() => setModalOpen(false)}
-        onOk={handleCategorySubmit(submitCategoryForm)}
-        okText={editTarget ? t('common.save') : t('common.create')}
-        confirmLoading={createMutation.isPending || updateMutation.isPending}
-        destroyOnClose
-        width={440}
-      >
-        <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
-          <Form.Item
-            label={t('common.name')}
-            required
-            validateStatus={categoryErrors.name ? 'error' : undefined}
-            help={categoryErrors.name?.message}
-          >
-            <Controller
-              name="name"
-              control={categoryControl}
-              rules={{
-                required: t('categories.nameRequired'),
-                maxLength: { value: 100, message: 'name 100 belgidan oshmasligi kerak' },
-              }}
-              render={({ field }) => <Input {...field} {...blockAutofill('store-category-name')} placeholder={t('categories.namePlaceholder')} />}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={t('common.description')}
-            validateStatus={categoryErrors.description ? 'error' : undefined}
-            help={categoryErrors.description?.message}
-          >
-            <Controller
-              name="description"
-              control={categoryControl}
-              rules={{
-                maxLength: { value: 500, message: 'description 500 belgidan oshmasligi kerak' },
-              }}
-              render={({ field }) => (
-                <Input.TextArea
-                  {...field}
-                  {...blockAutofill('store-category-description')}
-                  placeholder={t('categories.descPlaceholder')}
-                  rows={3}
-                  maxLength={500}
-                  showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
-                />
-              )}
-            />
-          </Form.Item>
-
-          {editTarget && (
-            <Form.Item label={t('common.status')}>
-              <Controller
-                name="isActive"
-                control={categoryControl}
-                render={({ field }) => (
-                  <Switch
-                    checked={field.value ?? true}
-                    onChange={field.onChange}
-                    checkedChildren={t('common.active')}
-                    unCheckedChildren={t('common.inactive')}
-                  />
-                )}
-              />
-            </Form.Item>
-          )}
-        </Form>
-      </Modal>
+        onSubmit={handleCategorySubmit(submitCategoryForm)}
+      />
     </>
   )
 }

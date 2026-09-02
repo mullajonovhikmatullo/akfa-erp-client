@@ -98,6 +98,7 @@ export function ProductImageGallery({
         }}
       >
         {Array.from({ length: MAX_PRODUCT_IMAGES }, (_, index) => {
+          //
           if (loading) {
             return (
               <div key={`loading-${index}`} style={{ aspectRatio: '1', minWidth: 0 }}>

@@ -52,14 +52,14 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
       key: 'cost',
       width: 170,
       render: (_: unknown, item: StockInCartItem) => (
-        <InputNumber
+        <InputNumber<number>
           value={item.costPriceUzs}
           onChange={(value) => onUpdateItem(item._key, { costPriceUzs: value ?? 0, costPriceUsd: undefined })}
           min={0}
           step={1000}
           style={{ width: '100%' }}
           formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-          parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
+          parser={(value) => Number(value?.replace(/\s/g, ''))}
         />
       ),
     },

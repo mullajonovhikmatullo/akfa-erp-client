@@ -4,7 +4,8 @@ import dayjs, { type Dayjs } from 'dayjs'
 import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { DebtPayment, PaymentMethod } from '@store/store-stub'
-import { useDebtPaymentsList } from '../../sale/hooks/useDebtPaymentsList'
+import { useDebtPaymentsPage } from '../../sale/hooks/useDebtPaymentsPage'
+import { usePagination } from '../../shared/hooks/usePagination'
 import { useCustomersList } from '../hooks/useCustomersList'
 import { createDebtPaymentColumns } from './view/debtPaymentColumns'
 
@@ -17,12 +18,11 @@ const PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CASH_USD', 'CARD', 'TRANS
 
 export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
   //
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const { page, pageSize, onChange: onPageChange } = usePagination()
   const [range, setRange] = useState<[Dayjs, Dayjs]>([dayjs().startOf('day'), dayjs().endOf('day')])
   const [customerId, setCustomerId] = useState<string>()
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>()
-  const payments = useDebtPaymentsList({
+  const payments = useDebtPaymentsPage({
     branchId: branchId ?? undefined,
     customerId,
     paymentMethod,
@@ -37,7 +37,7 @@ export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
     label: customer.fullName,
   })), [customers])
 
-  const resetPage = () => setPage(1)
+  const resetPage = () => onPageChange(1, pageSize)
 
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -90,7 +90,7 @@ export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
           showSizeChanger: true,
           pageSizeOptions: ['10', '25', '50'],
           showTotal: (total) => `${total} ${t('common.countSuffix')}`,
-          onChange: (nextPage, nextPageSize) => { setPage(nextPage); setPageSize(nextPageSize) },
+          onChange: onPageChange,
         }}
         columns={createDebtPaymentColumns(t)}
       />

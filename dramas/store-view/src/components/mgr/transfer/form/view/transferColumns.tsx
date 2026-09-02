@@ -78,14 +78,14 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
       key: 'cost',
       width: 170,
       render: (_: unknown, item: TransferCartItem) => (
-        <InputNumber
+        <InputNumber<number>
           value={item.unitCostUzs}
           onChange={(value) => onUpdateItem(item._key, { unitCostUzs: value ?? 0 })}
           min={0}
           step={1000}
           style={{ width: '100%' }}
           formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-          parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
+          parser={(value) => Number(value?.replace(/\s/g, ''))}
         />
       ),
     },

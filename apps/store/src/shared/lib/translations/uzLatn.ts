@@ -376,6 +376,8 @@ export const uzLatnTranslations: TranslationDictionary = {
   'categories.empty': 'Hali kategoriyalar yoq',
   'categories.modalCreate': 'Yangi kategoriya',
   'categories.nameRequired': 'Nomni kiriting',
+  'categories.nameMaxLength': 'Nom 100 ta belgidan oshmasligi kerak',
+  'categories.descriptionMaxLength': 'Tavsif 500 ta belgidan oshmasligi kerak',
   'categories.namePlaceholder': 'Masalan: Shisha panellar',
   'categories.descPlaceholder': 'Qisqacha tasnif',
   'categories.parseErrorName': 'Nomi kiritilmagan',

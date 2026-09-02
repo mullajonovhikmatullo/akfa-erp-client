@@ -1,6 +1,5 @@
 import { Divider, Drawer, Skeleton } from 'antd'
 import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
-import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Product } from '@store/store-stub'
 import { ProductImageGallery } from '../images/ProductImageGallery'
@@ -15,13 +14,11 @@ interface ProductDetailDrawerProps {
   onClose: () => void
 }
 
-type ProductWithThreshold = Product & { lowStockThreshold?: number | null }
-
 export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawerProps) {
   //
   const { data: inventory = [], isLoading: stockLoading } = useProductInventory(product?.id ?? null)
   const { data: productDetail, isLoading: detailLoading } = useProductDetail(product?.id ?? null)
-  const displayedProduct = (productDetail ?? product) as ProductWithThreshold | null
+  const displayedProduct = productDetail ?? product
 
   return (
     <Drawer rootClassName="ant-drawer-root" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} styles={{ body: { padding: 0 } }} destroyOnHidden>

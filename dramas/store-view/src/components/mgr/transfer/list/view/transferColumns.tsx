@@ -1,4 +1,4 @@
-import { Button, Popconfirm, Table } from 'antd'
+import { Button, Popconfirm } from 'antd'
 import { ArrowRightIcon, CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
 import { formatDateTime } from '@store/store-shared/lib/formatters'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'

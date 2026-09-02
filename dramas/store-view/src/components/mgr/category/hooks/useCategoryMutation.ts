@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CategoryFlowApi } from '@store/store-stub'
-import type { CreateCategoryPayload, UpdateCategoryPayload } from '@store/store-stub'
 import { categoryKeys } from './categoryKeys'
 
 export function useCategoryMutation() {
@@ -9,13 +8,12 @@ export function useCategoryMutation() {
   const invalidateCategories = () => queryClient.invalidateQueries({ queryKey: categoryKeys.all })
 
   const createCategory = useMutation({
-    mutationFn: (payload: CreateCategoryPayload) => CategoryFlowApi.createCategory(payload),
+    mutationFn: CategoryFlowApi.createCategory,
     onSuccess: invalidateCategories,
   })
 
   const updateCategory = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateCategoryPayload }) =>
-      CategoryFlowApi.updateCategory({ id, payload }),
+    mutationFn: CategoryFlowApi.updateCategory,
     onSuccess: invalidateCategories,
   })
 

@@ -21,13 +21,11 @@ import { formatDate } from '@store/store-shared/lib/formatters';
 import { MoneyDisplay } from '@store/store-shared/ui/money-display';
 import { StatusBadge } from '@store/store-shared/ui/status-badge';
 import type { AnalyticsQuery } from '@store/store-stub';
-import {
-  useCustomerDebt,
-  useDashboardReport,
-  useExpenseReport,
-  useInventoryReport,
-  useSalesReport,
-} from '../analytics';
+import { useCustomerDebtReport } from '../analytics/hooks/useCustomerDebtReport';
+import { useDashboardReport } from '../analytics/hooks/useDashboardReport';
+import { useExpenseReport } from '../analytics/hooks/useExpenseReport';
+import { useInventoryReport } from '../analytics/hooks/useInventoryReport';
+import { useSalesReport } from '../analytics/hooks/useSalesReport';
 import {
   COLORS,
   DashboardSkeleton,
@@ -35,17 +33,17 @@ import {
   ListPanel,
   ListRow,
   MetricCard,
-  PAYMENT_METHODS,
   PaymentDonutChart,
   SalesTrendChart,
   SmallStat,
   SnapshotTile,
   TOP_PRODUCTS_LIMIT,
   TopProductsCard,
-  getChartColor,
+  createPaymentChartData,
+  createTrendData,
   getTodayRange,
 } from './view';
-import type { DashboardFiltersForm, TFunc, TrendDatum } from './view';
+import type { DashboardFiltersForm, TFunc } from './view';
 
 export interface DashboardPanelProps {
   t: TFunc;
@@ -97,89 +95,21 @@ export function DashboardPanel({
   const sales = useSalesReport(salesQuery);
   const expenses = useExpenseReport(periodQuery);
   const inventory = useInventoryReport(inventoryQuery);
-  const debt = useCustomerDebt({ ...branchParam, limit: 5 });
+  const debt = useCustomerDebtReport({ ...branchParam, limit: 5 });
 
   const isLoading = periodDashboard.isLoading || sales.isLoading || expenses.isLoading || inventory.isLoading || debt.isLoading;
   const isFetching = periodDashboard.isFetching || sales.isFetching || expenses.isFetching || inventory.isFetching || debt.isFetching;
   const hasAnalyticsError = periodDashboard.isError || sales.isError || expenses.isError || inventory.isError || debt.isError;
   const isDashboardUnavailable = periodDashboard.isError && !periodDashboard.data;
 
-  const trendData = useMemo(() => {
-    const formatKey = (date: dayjs.Dayjs) => {
-      if (chartPeriod === 'month') return date.format('YYYY-MM');
-      if (chartPeriod === 'week') return date.startOf('week').format('YYYY-MM-DD');
-      return date.format('YYYY-MM-DD');
-    };
-    const formatLabel = (date: dayjs.Dayjs) => {
-      if (chartPeriod === 'month') return date.format('MMM YYYY');
-      if (chartPeriod === 'week') return date.format('DD MMM');
-      return date.format('DD MMM');
-    };
-    const buckets: TrendDatum[] = [];
-    let cursor =
-      chartPeriod === 'month'
-        ? rangeStart.startOf('month')
-        : chartPeriod === 'week'
-          ? rangeStart.startOf('week')
-          : rangeStart.startOf('day');
-    const endCursor =
-      chartPeriod === 'month'
-        ? rangeEnd.startOf('month')
-        : chartPeriod === 'week'
-          ? rangeEnd.startOf('week')
-          : rangeEnd.startOf('day');
-
-    while (cursor.isBefore(endCursor) || cursor.isSame(endCursor)) {
-      const date = cursor;
-      buckets.push({
-        iso: formatKey(date),
-        label: formatLabel(date),
-        revenue: 0,
-        paid: 0,
-        debt: 0,
-        expenses: 0,
-      });
-      cursor = cursor.add(1, chartPeriod);
-    }
-
-    const byIso = new Map(buckets.map((day) => [day.iso, day]));
-
-    sales.data?.byPeriod.forEach((row) => {
-      const key = formatKey(dayjs(row.period));
-      const target = byIso.get(key);
-      if (!target) return;
-      target.revenue = row.totalRevenue;
-      target.paid = row.paidAmount;
-      target.debt = Math.max(0, row.totalRevenue - row.paidAmount);
-    });
-
-    expenses.data?.byPeriod.forEach((row) => {
-      const key = formatKey(dayjs(row.period));
-      const target = byIso.get(key);
-      if (target) target.expenses = row.amount;
-    });
-
-    return buckets;
-  }, [chartPeriod, expenses.data, rangeEnd, rangeStart, sales.data]);
-
-  const paymentRowsByMethod = new Map((sales.data?.byPaymentMethod ?? []).map((row) => [row.paymentMethod, row]));
-  const paymentData = PAYMENT_METHODS.map((method) => {
-    const row = paymentRowsByMethod.get(method);
-    return {
-      name: t(`payment.${method}`),
-      value: row?.amount ?? 0,
-      count: row?.count ?? 0,
-    };
-  });
-  const paymentTotal = paymentData.reduce((sum, item) => sum + item.value, 0);
-  const paymentChartData = paymentData
-    .map((item, index) => ({
-      ...item,
-      order: index,
-      color: getChartColor(index),
-      percent: paymentTotal > 0 ? Math.round((item.value / paymentTotal) * 100) : 0,
-    }))
-    .sort((a, b) => b.value - a.value || a.order - b.order);
+  const trendData = useMemo(
+    () => createTrendData({ chartPeriod, rangeStart, rangeEnd, sales: sales.data, expenses: expenses.data }),
+    [chartPeriod, expenses.data, rangeEnd, rangeStart, sales.data],
+  );
+  const { data: paymentChartData, total: paymentTotal } = useMemo(
+    () => createPaymentChartData(sales.data?.byPaymentMethod ?? [], t),
+    [sales.data?.byPaymentMethod, t],
+  );
 
   const lowStock = (inventory.data?.lowStock ?? []).slice(0, 5);
   const topDebtors = debt.data?.topDebtors ?? [];
@@ -187,6 +117,7 @@ export function DashboardPanel({
   const expenseCount = expenses.data?.summary.count ?? 0;
 
   const refetchAll = () => {
+    //
     periodDashboard.refetch();
     sales.refetch();
     expenses.refetch();

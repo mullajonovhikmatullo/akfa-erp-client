@@ -1,5 +1,11 @@
 import dayjs from 'dayjs';
-import type { PaymentMethod } from '@store/store-stub';
+import type {
+  AnalyticsQuery,
+  ExpenseReportData,
+  PaymentMethod,
+  SalesReportData,
+} from '@store/store-stub';
+import type { PaymentChartDatum, TrendDatum } from './types';
 
 export const COLORS = {
   primary: 'var(--primary)',
@@ -36,6 +42,102 @@ export const getColorHalo = (color: string) =>
     : `${color}22`;
 
 export const getTodayRange = (): [dayjs.Dayjs, dayjs.Dayjs] => [dayjs().startOf('day'), dayjs().endOf('day')];
+
+interface TrendDataOptions {
+  chartPeriod: NonNullable<AnalyticsQuery['period']>;
+  rangeStart: dayjs.Dayjs;
+  rangeEnd: dayjs.Dayjs;
+  sales?: SalesReportData;
+  expenses?: ExpenseReportData;
+}
+
+function getTrendKey(date: dayjs.Dayjs, chartPeriod: NonNullable<AnalyticsQuery['period']>) {
+  //
+  if (chartPeriod === 'month') return date.format('YYYY-MM');
+  if (chartPeriod === 'week') return date.startOf('week').format('YYYY-MM-DD');
+  return date.format('YYYY-MM-DD');
+}
+
+function getTrendLabel(date: dayjs.Dayjs, chartPeriod: NonNullable<AnalyticsQuery['period']>) {
+  //
+  if (chartPeriod === 'month') return date.format('MMM YYYY');
+  return date.format('DD MMM');
+}
+
+export function createTrendData({
+  chartPeriod,
+  rangeStart,
+  rangeEnd,
+  sales,
+  expenses,
+}: TrendDataOptions): TrendDatum[] {
+  //
+  const buckets: TrendDatum[] = [];
+  let cursor =
+    chartPeriod === 'month'
+      ? rangeStart.startOf('month')
+      : chartPeriod === 'week'
+        ? rangeStart.startOf('week')
+        : rangeStart.startOf('day');
+  const endCursor =
+    chartPeriod === 'month'
+      ? rangeEnd.startOf('month')
+      : chartPeriod === 'week'
+        ? rangeEnd.startOf('week')
+        : rangeEnd.startOf('day');
+
+  while (cursor.isBefore(endCursor) || cursor.isSame(endCursor)) {
+    buckets.push({
+      iso: getTrendKey(cursor, chartPeriod),
+      label: getTrendLabel(cursor, chartPeriod),
+      revenue: 0,
+      paid: 0,
+      debt: 0,
+      expenses: 0,
+    });
+    cursor = cursor.add(1, chartPeriod);
+  }
+
+  const byIso = new Map(buckets.map((bucket) => [bucket.iso, bucket]));
+  sales?.byPeriod.forEach((row) => {
+    //
+    const target = byIso.get(getTrendKey(dayjs(row.period), chartPeriod));
+    if (!target) return;
+    target.revenue = row.totalRevenue;
+    target.paid = row.paidAmount;
+    target.debt = Math.max(0, row.totalRevenue - row.paidAmount);
+  });
+  expenses?.byPeriod.forEach((row) => {
+    //
+    const target = byIso.get(getTrendKey(dayjs(row.period), chartPeriod));
+    if (target) target.expenses = row.amount;
+  });
+  return buckets;
+}
+
+export function createPaymentChartData(
+  rows: SalesReportData['byPaymentMethod'],
+  t: (key: string) => string,
+) {
+  //
+  const rowsByMethod = new Map(rows.map((row) => [row.paymentMethod, row]));
+  const paymentData = PAYMENT_METHODS.map((method) => ({
+    name: t(`payment.${method}`),
+    value: rowsByMethod.get(method)?.amount ?? 0,
+    count: rowsByMethod.get(method)?.count ?? 0,
+  }));
+  const total = paymentData.reduce((sum, item) => sum + item.value, 0);
+  const data: PaymentChartDatum[] = paymentData
+    .map((item, index) => ({
+      ...item,
+      order: index,
+      color: getChartColor(index),
+      percent: total > 0 ? Math.round((item.value / total) * 100) : 0,
+    }))
+    .sort((left, right) => right.value - left.value || left.order - right.order);
+
+  return { data, total };
+}
 
 export function describeArc(cx: number, cy: number, radius: number, startAngle: number, endAngle: number) {
   //

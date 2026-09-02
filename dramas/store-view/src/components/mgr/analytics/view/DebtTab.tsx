@@ -13,8 +13,6 @@ interface DebtTabProps {
   debtSales?: SaleListItem[]
   debtLoading: boolean
   debtFetching: boolean
-  overduePage: number
-  overduePageSize: number
   debtScope: DebtScope
   debtDeadlineFilter: DebtDeadlineFilter
   debtSort: DebtSort
@@ -25,7 +23,6 @@ interface DebtTabProps {
   onDebtSortChange: (value: DebtSort) => void
   onDebtCustomerChange: (value?: string) => void
   onDebtSaleTypeChange: (value?: SaleType) => void
-  onOverduePageChange: (page: number, pageSize: number) => void
 }
 
 export function DebtTab({
@@ -35,8 +32,6 @@ export function DebtTab({
   debtSales,
   debtLoading,
   debtFetching,
-  overduePage,
-  overduePageSize,
   debtScope,
   debtDeadlineFilter,
   debtSort,
@@ -47,7 +42,6 @@ export function DebtTab({
   onDebtSortChange,
   onDebtCustomerChange,
   onDebtSaleTypeChange,
-  onOverduePageChange,
 }: DebtTabProps) {
   //
   if (loading || !data) return <Skeleton active paragraph={{ rows: 6 }} />
@@ -88,8 +82,8 @@ export function DebtTab({
           dataSource={debtRows}
           scroll={{ x: 980 }}
           locale={{ emptyText }}
-          pagination={{ current: overduePage, pageSize: overduePageSize, total: debtTotal, onChange: onOverduePageChange, showSizeChanger: true, showTotal: (total) => `${total} ${t('common.countSuffix')}`, pageSizeOptions: ['10', '25', '50'] }}
-          columns={createDebtColumns(t, overduePage, overduePageSize)}
+          pagination={false}
+          columns={createDebtColumns(t, 1, debtRows.length)}
         />
       </div>
     </div>

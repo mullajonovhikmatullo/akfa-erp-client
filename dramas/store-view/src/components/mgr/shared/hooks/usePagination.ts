@@ -1,12 +1,20 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-export function usePagination(defaultPageSize = 10) {
+function readPositiveInteger(value: string | null, fallback: number) {
+  //
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed >= 1 ? Math.floor(parsed) : fallback
+}
+
+export function usePagination(defaultPageSize = 10, paramPrefix = '') {
   //
   const [searchParams, setSearchParams] = useSearchParams()
+  const pageParam = `${paramPrefix}page`
+  const pageSizeParam = `${paramPrefix}pageSize`
 
-  const page = Math.max(1, Number(searchParams.get('page') || 1))
-  const pageSize = Math.max(1, Number(searchParams.get('pageSize') || defaultPageSize))
+  const page = readPositiveInteger(searchParams.get(pageParam), 1)
+  const pageSize = readPositiveInteger(searchParams.get(pageSizeParam), defaultPageSize)
 
   const onChange = useCallback(
     (newPage: number, newPageSize: number) => {
@@ -15,14 +23,14 @@ export function usePagination(defaultPageSize = 10) {
         (prev) => {
           //
           const next = new URLSearchParams(prev)
-          next.set('page', String(newPage))
-          next.set('pageSize', String(newPageSize))
+          next.set(pageParam, String(newPage))
+          next.set(pageSizeParam, String(newPageSize))
           return next
         },
         { replace: true },
       )
     },
-    [setSearchParams],
+    [pageParam, pageSizeParam, setSearchParams],
   )
 
   const rowIndex = useCallback((index: number) => (page - 1) * pageSize + index + 1, [page, pageSize])

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { InputNumber, Radio } from 'antd'
 import { MoonIcon, SunIcon } from '@phosphor-icons/react'
-import type { Currency } from '@store/store-shared/core'
+import type { Currency } from '@store/store-stub'
 import { SectionTitle } from './view/SectionTitle'
 import { ThemeChoice } from './view/ThemeChoice'
 
@@ -155,6 +155,7 @@ export function SettingsPanel({
               name="theme"
               control={control}
               render={({ field }) => {
+                //
                 const selectedTheme = field.value === 'system' ? 'light' : field.value
                 const selectTheme = (value: Exclude<SettingsTheme, 'system'>) => {
                   field.onChange(value)

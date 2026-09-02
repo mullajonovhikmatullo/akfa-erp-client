@@ -375,6 +375,8 @@ export const enTranslations: TranslationDictionary = {
   'categories.empty': 'No categories yet',
   'categories.modalCreate': 'New Category',
   'categories.nameRequired': 'Enter name',
+  'categories.nameMaxLength': 'Name cannot exceed 100 characters',
+  'categories.descriptionMaxLength': 'Description cannot exceed 500 characters',
   'categories.namePlaceholder': 'e.g. Glass Panels',
   'categories.descPlaceholder': 'Brief description',
   'categories.parseErrorName': 'Name is required',

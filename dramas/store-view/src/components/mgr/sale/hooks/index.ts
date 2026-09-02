@@ -1,5 +1,5 @@
 export * from './saleKeys'
-export * from './useDebtPaymentsList'
+export * from './useDebtPaymentsPage'
 export * from './useSaleDetail'
 export * from './useSaleMutation'
 export * from './useSalesList'

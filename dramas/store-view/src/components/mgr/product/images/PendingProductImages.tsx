@@ -43,6 +43,7 @@ export function PendingProductImages({
 }: PendingProductImagesProps) {
   //
   const addFiles = (incoming: File[]) => {
+    //
     const known = new Set(files.map(productImageFileKey))
     const valid: File[] = []
 
@@ -65,6 +66,7 @@ export function PendingProductImages({
   }
 
   const move = (index: number, direction: -1 | 1) => {
+    //
     const nextIndex = index + direction
     if (nextIndex < 0 || nextIndex >= files.length) return
     const next = [...files]
@@ -121,7 +123,8 @@ export function PendingProductImages({
           disabled={!canAddFiles}
           showUploadList={false}
           beforeUpload={(file, fileList) => {
-            if (file.uid === fileList[0]?.uid) addFiles(fileList as unknown as File[])
+            //
+            if (file.uid === fileList[0]?.uid) addFiles([...fileList])
             return Upload.LIST_IGNORE
           }}
           style={{ marginTop: 10, padding: '4px 8px', background: 'var(--surface-2)' }}
@@ -218,6 +221,7 @@ function PendingImageTile({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    //
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
     return () => URL.revokeObjectURL(url)

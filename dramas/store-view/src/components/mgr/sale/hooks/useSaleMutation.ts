@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { SaleFlowApi } from '@store/store-stub'
-import type { AddPaymentPayload, CreateSalePayload } from '@store/store-stub'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
-import { customerKeys } from '../../customer'
+import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
+import { customerKeys } from '../../customer/hooks/customerKeys'
+import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
 import { saleKeys } from './saleKeys'
 
 export function useSaleMutation(t: (key: string) => string) {
@@ -11,13 +12,13 @@ export function useSaleMutation(t: (key: string) => string) {
   const queryClient = useQueryClient()
 
   const createSale = useMutation({
-    mutationFn: (payload: CreateSalePayload) => SaleFlowApi.createSale(payload),
+    mutationFn: SaleFlowApi.createSale,
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: saleKeys.all })
       queryClient.invalidateQueries({ queryKey: customerKeys.all })
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
+      queryClient.invalidateQueries({ queryKey: analyticsKeys.all })
       toast.success(t('sales.createSuccess'))
     },
     onError: (error: unknown) => {
@@ -27,24 +28,23 @@ export function useSaleMutation(t: (key: string) => string) {
   })
 
   const addPayment = useMutation({
-    mutationFn: ({ saleId, payload }: { saleId: string; payload: AddPaymentPayload }) => SaleFlowApi.addPayment({ saleId, payload }),
+    mutationFn: SaleFlowApi.addPayment,
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: saleKeys.all })
       queryClient.invalidateQueries({ queryKey: customerKeys.all })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: analyticsKeys.all })
       toast.success(t('sales.paymentSuccess'))
     },
     onError: () => toast.error(t('sales.paymentError')),
   })
 
   const setDebtDeadline = useMutation({
-    mutationFn: ({ saleId, debtDueDate }: { saleId: string; debtDueDate: string | null }) =>
-      SaleFlowApi.setDebtDeadline({ saleId, debtDueDate }),
+    mutationFn: SaleFlowApi.setDebtDeadline,
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: saleKeys.all })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: analyticsKeys.all })
       toast.success(t('sales.debtDeadlineSuccess'))
     },
   })

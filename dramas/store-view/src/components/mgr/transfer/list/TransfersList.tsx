@@ -8,7 +8,6 @@ import {
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { Transfer, TransferStatus } from '@store/store-stub'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { NewTransferModal } from '../form/NewTransferModal'
 import { useTransferMutation } from '../hooks/useTransferMutation'
 import { useTransfersList } from '../hooks/useTransfersList'
@@ -30,7 +29,7 @@ interface TransfersListProps {
 
 export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId, exchangeRate }: TransfersListProps) {
   //
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
+  const rowIndex = (index: number) => index + 1
   const { control, watch } = useForm<TransferFiltersForm>({
     defaultValues: { status: undefined },
   })
@@ -100,7 +99,9 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
             render={({ field }) => (
               <Select
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(value) => {
+                  field.onChange(value)
+                }}
                 allowClear
                 placeholder={t('transfers.filterAll')}
                 style={{ minWidth: 180 }}
@@ -118,14 +119,7 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
           dataSource={transfers}
           columns={columns}
           loading={isLoading}
-          pagination={{
-            current: page,
-            pageSize,
-            onChange: onPageChange,
-            showSizeChanger: true,
-            showTotal: (total) => `${total} ${t('common.countSuffix')}`,
-            pageSizeOptions: ['10', '25', '50'],
-          }}
+          pagination={false}
           expandable={{
             expandedRowRender: (transfer) => <ExpandedTransferRow transfer={transfer} t={t} />,
             rowExpandable: () => true,

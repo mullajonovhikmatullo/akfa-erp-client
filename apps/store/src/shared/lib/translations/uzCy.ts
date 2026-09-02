@@ -376,6 +376,8 @@ export const uzCyTranslations: TranslationDictionary = {
   'categories.empty': 'Ҳали категориялар йўқ',
   'categories.modalCreate': 'Янги категория',
   'categories.nameRequired': 'Номни киритинг',
+  'categories.nameMaxLength': 'Ном 100 та белгидан ошмаслиги керак',
+  'categories.descriptionMaxLength': 'Тавсиф 500 та белгидан ошмаслиги керак',
   'categories.namePlaceholder': 'Масалан: Шиша панеллар',
   'categories.descPlaceholder': 'Қисқача тасниф',
   'categories.parseErrorName': 'Номи киритилмаган',

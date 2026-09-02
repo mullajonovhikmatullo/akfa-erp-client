@@ -1,33 +1,18 @@
 import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { Button, Form, Input, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd'
-import {
-  ArrowClockwiseIcon,
-  LockIcon,
-  PencilSimpleIcon,
-  PlusIcon,
-  TrashIcon,
-  UserSwitchIcon,
-} from '@phosphor-icons/react'
+import { useForm } from 'react-hook-form'
+import { Button, Tooltip } from 'antd'
+import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { DataTable } from '@store/store-shared/ui/data-table'
-import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import type { Branch, CreateAdminPayload, UpdateAdminPayload, User } from '@store/store-stub'
-import { useBranchesList } from '../../branch/hooks/useBranchesList'
+import type { CreateAdminPayload, UpdateAdminPayload, User } from '@store/store-stub'
+import { useBranchesList } from '../../branch'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { useAdminsPage } from '../hooks/useAdminsPage'
 import { useUserMutation } from '../hooks/useUserMutation'
+import { AdminFormModal, type AdminFormValues } from './view/AdminFormModal'
 import { createAdminColumns } from './view/adminColumns'
 
 type Translate = (key: string) => string
-
-type AdminFormValues = {
-  name: string
-  username?: string
-  password?: string
-  branchId?: string | null
-}
 
 export interface AdminsListProps {
   t: Translate
@@ -201,105 +186,18 @@ export function AdminsList({ t }: AdminsListProps) {
         />
       </div>
 
-      <Modal
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <UserSwitchIcon size={18} weight="duotone" />
-            {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('admins.modalCreate')}
-          </div>
-        }
+      <AdminFormModal
+        t={t}
         open={modalOpen}
+        editTarget={editTarget}
+        control={control}
+        errors={errors}
+        branches={branches}
+        branchesLoading={branchesLoading}
+        pending={createMutation.isPending || updateMutation.isPending}
         onCancel={() => setModalOpen(false)}
-        onOk={handleSubmit(submitAdminForm)}
-        okText={editTarget ? t('common.save') : t('common.create')}
-        confirmLoading={createMutation.isPending || updateMutation.isPending}
-        destroyOnClose
-        width={480}
-      >
-        <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
-          <Form.Item label={t('profile.fullName')} required validateStatus={errors.name ? 'error' : undefined} help={errors.name?.message}>
-            <Controller
-              name="name"
-              control={control}
-              rules={{ required: t('admins.nameRequired') }}
-              render={({ field }) => (
-                <Input {...field} {...blockAutofill('store-admin-full-name')} placeholder={t('profile.fullNamePlaceholder')} />
-              )}
-            />
-          </Form.Item>
-
-          {!editTarget && (
-            <Form.Item
-              label={t('profile.username')}
-              required
-              validateStatus={errors.username ? 'error' : undefined}
-              help={errors.username?.message}
-            >
-              <Controller
-                name="username"
-                control={control}
-                rules={{
-                  required: t('admins.usernameRequired'),
-                  pattern: { value: /^[a-zA-Z0-9_]+$/, message: t('admins.usernamePattern') },
-                }}
-                render={({ field }) => (
-                  <Input {...field} {...blockAutofill('store-admin-username')} placeholder={t('profile.usernamePlaceholder')} prefix="@" />
-                )}
-              />
-            </Form.Item>
-          )}
-
-          {!editTarget && (
-            <Form.Item
-              label={t('admins.labelPassword')}
-              required
-              validateStatus={errors.password ? 'error' : undefined}
-              help={errors.password?.message}
-            >
-              <Controller
-                name="password"
-                control={control}
-                rules={{
-                  required: t('admins.passwordRequired'),
-                  minLength: { value: 6, message: t('pwd.minLen') },
-                }}
-                render={({ field }) => (
-                  <Input.Password
-                    {...field}
-                    {...blockAutofill('store-admin-new-password')}
-                    placeholder={t('pwd.minLen')}
-                    prefix={<LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-3)' }} />}
-                  />
-                )}
-              />
-            </Form.Item>
-          )}
-
-          <Form.Item
-            label={t('admins.labelBranch')}
-            required={!editTarget}
-            validateStatus={errors.branchId ? 'error' : undefined}
-            help={errors.branchId?.message}
-          >
-            <Controller
-              name="branchId"
-              control={control}
-              rules={editTarget ? undefined : { required: t('admins.branchRequired') }}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onChange={field.onChange}
-                  allowClear={!!editTarget}
-                  placeholder={t('admins.branchPlaceholder')}
-                  loading={branchesLoading}
-                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-                  options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                />
-              )}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onSubmit={handleSubmit(submitAdminForm)}
+      />
     </>
   )
 }

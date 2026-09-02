@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Branch } from '@store/store-shared/core'
 import type { Customer } from '@store/store-stub'
 import { useCustomerMutation } from '../hooks/useCustomerMutation'
 import { createCustomerSchema, type CustomerFormValues } from './customerSchema'
@@ -13,8 +12,6 @@ interface UseCustomerFormOptions {
   onSuccess?: (customer: Customer) => void
   isStoreOwner: boolean
   branchId?: string | null
-  branches: Branch[]
-  branchesLoading?: boolean
 }
 
 export function useCustomerForm({
@@ -24,8 +21,6 @@ export function useCustomerForm({
   onSuccess,
   isStoreOwner,
   branchId,
-  branches,
-  branchesLoading = false,
 }: UseCustomerFormOptions) {
   //
   const isEdit = Boolean(customer?.id)
@@ -90,5 +85,5 @@ export function useCustomerForm({
     }
   })
 
-  return { form, onSubmit, isPending, isEdit, isStoreOwner, branches, branchesLoading }
+  return { form, onSubmit, isPending, isEdit }
 }

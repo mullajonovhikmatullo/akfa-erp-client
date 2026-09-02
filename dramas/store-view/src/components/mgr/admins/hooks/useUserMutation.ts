@@ -1,13 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { UserFlowApi } from '@store/store-stub'
-import type {
-  ChangePasswordPayload,
-  CreateAdminPayload,
-  UpdateAdminPayload,
-  UpdateProfilePayload,
-  UpdateProfilePhotoPayload,
-  User,
-} from '@store/store-stub'
+import type { User } from '@store/store-stub'
 import { userKeys } from './userKeys'
 
 interface UserMutationOptions {
@@ -18,14 +11,19 @@ export function useUserMutation({ onUpdated }: UserMutationOptions = {}) {
   //
   const queryClient = useQueryClient()
   const invalidateUsers = () => queryClient.invalidateQueries({ queryKey: userKeys.all })
+  const handleUserUpdated = (updatedUser: User) => {
+    //
+    void invalidateUsers()
+    onUpdated?.(updatedUser)
+  }
 
   const createAdmin = useMutation({
-    mutationFn: (payload: CreateAdminPayload) => UserFlowApi.createAdmin(payload),
+    mutationFn: UserFlowApi.createAdmin,
     onSuccess: invalidateUsers,
   })
 
   const updateAdmin = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateAdminPayload }) => UserFlowApi.updateAdmin({ id, data }),
+    mutationFn: UserFlowApi.updateAdmin,
     onSuccess: invalidateUsers,
   })
 
@@ -35,31 +33,27 @@ export function useUserMutation({ onUpdated }: UserMutationOptions = {}) {
   })
 
   const assignBranch = useMutation({
-    mutationFn: ({ userId, branchId }: { userId: string; branchId: string | null }) =>
-      UserFlowApi.assignBranch({ userId, branchId }),
+    mutationFn: UserFlowApi.assignBranch,
     onSuccess: invalidateUsers,
   })
 
   const updateProfile = useMutation({
-    mutationFn: (payload: UpdateProfilePayload) => UserFlowApi.updateProfile(payload),
-    onSuccess: (updatedUser) => {
-      //
-      if (updatedUser) onUpdated?.(updatedUser)
-    },
+    mutationFn: UserFlowApi.updateProfile,
+    onSuccess: handleUserUpdated,
   })
 
   const updateProfilePhoto = useMutation({
-    mutationFn: (payload: UpdateProfilePhotoPayload) => UserFlowApi.updateProfilePhoto(payload),
-    onSuccess: (updatedUser) => onUpdated?.(updatedUser),
+    mutationFn: UserFlowApi.updateProfilePhoto,
+    onSuccess: handleUserUpdated,
   })
 
   const deleteProfilePhoto = useMutation({
-    mutationFn: () => UserFlowApi.deleteProfilePhoto(),
-    onSuccess: (updatedUser) => onUpdated?.(updatedUser),
+    mutationFn: UserFlowApi.deleteProfilePhoto,
+    onSuccess: handleUserUpdated,
   })
 
   const changePassword = useMutation({
-    mutationFn: (payload: ChangePasswordPayload) => UserFlowApi.changePassword(payload),
+    mutationFn: UserFlowApi.changePassword,
   })
 
   return {

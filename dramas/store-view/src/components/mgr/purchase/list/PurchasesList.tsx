@@ -41,9 +41,10 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
   const scopedBranchId = isStoreOwner ? (headerBranchId ?? filters.branchId) : (userBranchId ?? undefined)
 
   useEffect(() => {
+    //
     setValue('branchId', undefined)
     onPageChange(1, pageSize)
-  }, [activeBranchId])
+  }, [activeBranchId, onPageChange, pageSize, setValue])
 
   const receiptsQuery = useStockReceiptsPage({
     page,

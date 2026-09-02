@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Select, Tooltip } from 'antd'
@@ -7,11 +7,9 @@ import {
   MagnifyingGlassIcon,
   PlusIcon,
 } from '@phosphor-icons/react'
-import { getField, isUuid, parseExcelNumber } from '@store/store-shared/lib/parse-excel'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import { customerApi } from '@store/store-stub'
 import type { CreateCustomerPayload, Customer } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { usePagination } from '../../shared/hooks/usePagination'
@@ -20,6 +18,7 @@ import { CustomerFormModal } from '../form/CustomerFormModal'
 import { useCustomerMutation } from '../hooks/useCustomerMutation'
 import { useCustomersList } from '../hooks/useCustomersList'
 import { DebtPaymentsList } from './DebtPaymentsList'
+import { createCustomerImportParser } from './customerImport'
 import { CustomerKpiBox } from './view/CustomerKpiBox'
 import { createCustomerColumns } from './view/customerColumns'
 
@@ -59,7 +58,10 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
   })
   const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
   const defaultCustomerBranchId = branchId ?? branches[0]?.id ?? ''
-  const { deactivateCustomer: deleteMutation } = useCustomerMutation(t)
+  const parseCustomerImportRow = useMemo(() => createCustomerImportParser(isStoreOwner), [isStoreOwner])
+  const { createCustomer: createMutation, deactivateCustomer: deleteMutation } = useCustomerMutation(t, {
+    showCreateSuccess: false,
+  })
 
   const totalDebt = customers.reduce((sum, customer) => sum + (customer.balance > 0 ? customer.balance : 0), 0)
   const totalCredit = customers.reduce((sum, customer) => sum + (customer.balance < 0 ? -customer.balance : 0), 0)
@@ -87,11 +89,17 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
   }
 
   const setActiveTab = (tab: 'customers' | 'payments') => {
+    //
     const next = new URLSearchParams(searchParams)
     if (tab === 'payments') next.set('tab', 'payments')
     else next.delete('tab')
     setSearchParams(next, { replace: true })
+    onPageChange(1, pageSize)
   }
+
+  useEffect(() => {
+    onPageChange(1, pageSize)
+  }, [branchId, onPageChange, pageSize])
 
   const columns = createCustomerColumns({
     t,
@@ -140,35 +148,8 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
                       ]
                     : undefined
                 }
-                parseRow={(raw, index) => {
-                  //
-                  const fullName = getField(raw, 'fullName')
-                  if (!fullName || fullName.length < 2) return { index, raw, error: "fullName kamida 2 belgi bo'lishi kerak" }
-                  if (fullName.length > 150) return { index, raw, error: 'fullName 150 belgidan oshmasligi kerak' }
-
-                  const phone = getField(raw, 'phone') || undefined
-                  if (phone && !/^\+?[0-9\s\-()]{7,20}$/.test(phone)) return { index, raw, error: "phone formati noto'g'ri" }
-
-                  const address = getField(raw, 'address') || undefined
-                  if (address && address.length > 300) return { index, raw, error: 'address 300 belgidan oshmasligi kerak' }
-
-                  const balanceRaw = getField(raw, 'balance')
-                  const balance = parseExcelNumber(balanceRaw)
-                  if (balanceRaw && (balance === undefined || !Number.isFinite(balance))) {
-                    return { index, raw, error: "balance noto'g'ri kiritilgan (son bo'lishi kerak)" }
-                  }
-
-                  const branchFromRow = getField(raw, 'branchId')
-                  if (branchFromRow && !isUuid(branchFromRow)) return { index, raw, error: "branchId UUID formatida bo'lishi kerak" }
-                  if (isStoreOwner && !branchFromRow) return { index, raw, error: 'branchId kiritilishi shart' }
-
-                  return {
-                    index,
-                    raw,
-                    data: { fullName, phone, address, branchId: branchFromRow || undefined, balance },
-                  }
-                }}
-                createFn={(data) => customerApi.create(data)}
+                parseRow={parseCustomerImportRow}
+                createFn={createMutation.mutateAsync}
                 onComplete={() => refetch()}
               />
             </>
@@ -215,7 +196,11 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
                 prefix={<MagnifyingGlassIcon size={18} />}
                 placeholder={t('customers.searchPlaceholder')}
                 value={field.value}
-                onChange={(event) => field.onChange(event.target.value)}
+                onChange={(event) => {
+                  //
+                  field.onChange(event.target.value)
+                  onPageChange(1, pageSize)
+                }}
                 allowClear
                 style={{ maxWidth: 320 }}
               />
@@ -231,6 +216,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
                   //
                   field.onChange(value)
                   syncBalanceFilterParam(value)
+                  onPageChange(1, pageSize)
                 }}
                 style={{ width: 190 }}
                 options={[

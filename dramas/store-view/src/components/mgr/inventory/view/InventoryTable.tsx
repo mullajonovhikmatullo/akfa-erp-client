@@ -26,10 +26,9 @@ export function InventoryTable({
       loading={loading}
       dataSource={rows}
       scroll={{ x: 760 }}
-      pagination={{ pageSize: 15, showSizeChanger: false, hideOnSinglePage: true }}
+      pagination={false}
       locale={{ emptyText: t('inventory.empty') }}
       columns={columns}
     />
   )
 }
-

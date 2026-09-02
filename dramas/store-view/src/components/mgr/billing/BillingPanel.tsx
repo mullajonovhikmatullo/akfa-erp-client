@@ -8,8 +8,8 @@ import { billingKeys } from './hooks/billingKeys'
 import { useBillingMutation } from './hooks/useBillingMutation'
 import { useBillingPaymentsList } from './hooks/useBillingPaymentsList'
 import { useBillingPlansList } from './hooks/useBillingPlansList'
-import { useBillingReceiptDetail } from './hooks/useBillingReceiptDetail'
-import { useBillingSummaryDetail } from './hooks/useBillingSummaryDetail'
+import { useBillingReceiptPreview } from './hooks/useBillingReceiptPreview'
+import { useBillingSummary } from './hooks/useBillingSummary'
 import { useReceiptSelection } from './hooks/useReceiptSelection'
 import {
   BillingHistory,
@@ -34,7 +34,7 @@ export function BillingPanel({ t }: BillingPanelProps) {
   const [form] = Form.useForm<PaymentFormValues>()
   const [paymentModalOpen, setPaymentModalOpen] = useState(false)
 
-  const summaryQuery = useBillingSummaryDetail()
+  const summaryQuery = useBillingSummary()
   const plansQuery = useBillingPlansList()
   const paymentsQuery = useBillingPaymentsList()
   const { submitPayment } = useBillingMutation()
@@ -43,7 +43,7 @@ export function BillingPanel({ t }: BillingPanelProps) {
     (error: unknown) => messageApi.error(getLocalizedApiErrorMessage(error, t, 'billing.receiptOpenError')),
     [messageApi, t],
   )
-  const receiptDetail = useBillingReceiptDetail(handleReceiptError)
+  const receiptDetail = useBillingReceiptPreview(handleReceiptError)
 
   const summary = summaryQuery.data
   const payments = paymentsQuery.data ?? []
@@ -140,4 +140,3 @@ export function BillingPanel({ t }: BillingPanelProps) {
     </section>
   )
 }
-

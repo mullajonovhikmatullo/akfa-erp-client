@@ -37,10 +37,9 @@ export function BillingHistory({
         dataSource={payments}
         locale={{ emptyText: t('common.noData') }}
         scroll={{ x: 1020 }}
-        pagination={{ pageSize: 10, hideOnSinglePage: true }}
+        pagination={false}
         columns={columns}
       />
     </div>
   )
 }
-

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { Button, Popconfirm, Progress, Tooltip, Upload } from 'antd'
 import {
   ArrowClockwiseIcon,
@@ -9,7 +8,7 @@ import {
   TrashIcon,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { ProductSeekApi } from '@store/store-stub'
+import { useProductImagesList } from '../hooks/useProductImagesList'
 import { AuthenticatedProductImage } from './AuthenticatedProductImage'
 import {
   PRODUCT_IMAGE_ACCEPT,
@@ -45,8 +44,7 @@ export function ProductImageManager({
   uploadProgress,
 }: ProductImageManagerProps) {
   //
-  const queryOptions = ProductSeekApi.fetch.findProductImages(productId)
-  const { data: images = [], isLoading } = useQuery(queryOptions)
+  const { data: images = [], isLoading } = useProductImagesList(productId)
 
   const baseImages = useMemo(
     () => [...images].sort((left, right) => left.sortOrder - right.sortOrder),
@@ -58,6 +56,7 @@ export function ProductImageManager({
     [changes.replacements],
   )
   const visibleImages = useMemo(() => {
+    //
     const active = baseImages.filter((image) => !deletedIds.has(image.id))
     if (!changes.orderedImageIds) return active
 
@@ -76,10 +75,12 @@ export function ProductImageManager({
     null
 
   const handlePrimary = (imageId: string) => {
+    //
     onChangesChange({ ...changes, primaryImageId: imageId })
   }
 
   const handleDelete = (imageId: string) => {
+    //
     const nextImages = visibleImages.filter((image) => image.id !== imageId)
     const deletingPrimary = effectivePrimaryId === imageId
     onChangesChange({
@@ -94,6 +95,7 @@ export function ProductImageManager({
   }
 
   const handleMove = (index: number, direction: -1 | 1) => {
+    //
     const targetIndex = index + direction
     if (targetIndex < 0 || targetIndex >= visibleImages.length) return
     const orderedIds = visibleImages.map((image) => image.id)
@@ -102,6 +104,7 @@ export function ProductImageManager({
   }
 
   const handleReplace = (imageId: string, file: File) => {
+    //
     const validationError = validateProductImageFile(file, t)
     if (validationError) {
       toast.error(validationError)
@@ -119,6 +122,7 @@ export function ProductImageManager({
 
   const remaining = Math.max(0, PRODUCT_IMAGE_MAX_COUNT - visibleImages.length)
   const existingSlots = visibleImages.map((image, index) => {
+    //
     const replacement = replacements.get(image.id)
     const isPrimary = effectivePrimaryId === image.id
 
@@ -210,6 +214,7 @@ export function ProductImageManager({
               showUploadList={false}
               disabled={uploading}
               beforeUpload={(file) => {
+                //
                 handleReplace(image.id, file)
                 return Upload.LIST_IGNORE
               }}
@@ -278,6 +283,7 @@ function LocalFilePreview({ file, alt }: { file: File; alt: string }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {
+    //
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
     return () => URL.revokeObjectURL(url)

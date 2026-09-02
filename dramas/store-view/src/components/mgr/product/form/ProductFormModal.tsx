@@ -1,18 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Controller } from 'react-hook-form'
-import { Alert, Button, Form, Input, InputNumber, Progress, Segmented, Select, Switch } from 'antd'
-import { blockAutofill } from '@store/store-shared/lib/autofill'
+import { Button, Form } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
-import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import type { Branch, Product, ProductUnit } from '@store/store-stub'
+import type { Branch, Product } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { useCategoriesList } from '../../category/hooks/useCategoriesList'
-import { PendingProductImages } from '../images/PendingProductImages'
-import { ProductImageManager } from '../images/ProductImageManager'
-import { PRODUCT_IMAGE_MAX_COUNT } from '../images/image-utils'
 import { createEmptyProductImageChanges } from '../images/product-image-changes'
 import { useProductForm } from './useProductForm'
 import { FormSection } from './view/FormSection'
+import { ProductBasicFields } from './view/ProductBasicFields'
+import { ProductImagesSection } from './view/ProductImagesSection'
+import { ProductPricingFields } from './view/ProductPricingFields'
 
 interface ProductFormModalProps {
   t: (key: string) => string
@@ -32,6 +29,7 @@ function findDefaultBranch(branches: Branch[]) {
     const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0
     return aTime - bTime
   })[0]
+
   return mainBranch?.id ?? firstBranch?.id
 }
 
@@ -39,11 +37,8 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   //
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [imageChanges, setImageChanges] = useState(createEmptyProductImageChanges)
-  const unitOptions: { value: ProductUnit; label: string }[] = [
-    { value: 'KG', label: t('units.KG') },
-    { value: 'PIECE', label: t('units.PIECE') },
-  ]
   const handleSuccess = useCallback(() => {
+    //
     setImageFiles([])
     setImageChanges(createEmptyProductImageChanges())
     onSaved?.()
@@ -76,10 +71,8 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
     clearErrors,
     setValue,
   } = form
-
   const { data: categories = [], isLoading: categoriesLoading } = useCategoriesList(true)
   const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
-
   const priceCurrency = watch('priceCurrency')
   const retailUzs = watch('retailPriceUzs')
   const wholesaleUzs = watch('wholesalePriceUzs')
@@ -87,7 +80,6 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   const wholesaleUsd = watch('wholesalePriceUsd')
   const unit = watch('unit')
   const branchId = watch('branchId')
-
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
 
   useEffect(() => {
@@ -98,12 +90,14 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   }, [open, isEdit, isStoreOwner, defaultBranchId, branchId, setValue])
 
   useEffect(() => {
+    //
     setImageFiles([])
     setImageChanges(createEmptyProductImageChanges())
     if (!open) resetFlow()
   }, [open, product?.id, resetFlow])
 
-  const handleClose = () => {
+  function handleClose() {
+    //
     if (isPending) return
     setImageFiles([])
     setImageChanges(createEmptyProductImageChanges())
@@ -111,7 +105,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
     onClose()
   }
 
-  const handleCurrencyChange = (value: string | number) => {
+  function handleCurrencyChange(value: string | number) {
     //
     const currency = value as 'UZS' | 'USD'
     clearErrors([
@@ -123,6 +117,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
       'wholesalePriceUsd',
     ])
     setValue('priceCurrency', currency, { shouldValidate: false })
+
     if (currency === 'UZS') {
       setValue('costPriceUsd', undefined)
       setValue('retailPriceUsd', undefined)
@@ -158,334 +153,42 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
         <FormSection>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Controller
-            name="name"
+          <ProductBasicFields
+            t={t}
             control={control}
-            render={({ field }) => (
-              <Form.Item label={t('common.name')} required validateStatus={errors.name ? 'error' : undefined} help={errors.name?.message}>
-                <Input {...field} {...blockAutofill('store-product-name')} placeholder={t('productForm.namePlaceholder')} />
-              </Form.Item>
-            )}
+            errors={errors}
+            categories={categories}
+            categoriesLoading={categoriesLoading}
+            branches={branches}
+            branchesLoading={branchesLoading}
+            unit={unit}
+            isEdit={isEdit}
+            isStoreOwner={isStoreOwner}
           />
-          <Controller
-            name="sku"
+          <ProductPricingFields
+            t={t}
             control={control}
-            render={({ field }) => (
-              <Form.Item label={t('productForm.labelSku')} validateStatus={errors.sku ? 'error' : undefined} help={errors.sku?.message}>
-                <Input {...field} {...blockAutofill('store-product-sku')} placeholder={t('productForm.skuPlaceholder')} style={{ fontFamily: 'monospace' }} />
-              </Form.Item>
-            )}
+            errors={errors}
+            currency={priceCurrency}
+            retailUzs={retailUzs}
+            wholesaleUzs={wholesaleUzs}
+            retailUsd={retailUsd}
+            wholesaleUsd={wholesaleUsd}
+            onCurrencyChange={handleCurrencyChange}
           />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Controller
-            name="categoryId"
-            control={control}
-            render={({ field }) => (
-              <Form.Item
-                label={t('productForm.labelCategory')}
-                validateStatus={errors.categoryId ? 'error' : undefined}
-                help={errors.categoryId?.message}
-              >
-                <Select
-                  {...field}
-                  loading={categoriesLoading}
-                  notFoundContent={categoriesLoading ? <SelectLoadingContent /> : undefined}
-                  options={categories.map((category) => ({ value: category.id, label: category.name }))}
-                  placeholder={t('productForm.placeholderCategory')}
-                />
-              </Form.Item>
-            )}
+          <ProductImagesSection
+            t={t}
+            product={product}
+            files={imageFiles}
+            changes={imageChanges}
+            isEdit={isEdit}
+            isPending={isPending}
+            isUploading={isUploading}
+            uploadProgress={uploadProgress}
+            uploadError={imageUploadError}
+            onFilesChange={setImageFiles}
+            onChangesChange={setImageChanges}
           />
-          <Controller
-            name="unit"
-            control={control}
-            render={({ field }) => (
-              <Form.Item label={t('productForm.labelUnit')} required validateStatus={errors.unit ? 'error' : undefined} help={errors.unit?.message}>
-                <Select {...field} options={unitOptions} />
-              </Form.Item>
-            )}
-          />
-        </div>
-
-        <Controller
-          name="lowStockThreshold"
-          control={control}
-          render={({ field }) => (
-            <Form.Item
-              label={t('productForm.lowStockThreshold')}
-              extra={t('productForm.lowStockThresholdNote')}
-            >
-              <InputNumber
-                value={field.value ?? undefined}
-                min={0}
-                step={unit === 'KG' ? 0.1 : 1}
-                precision={unit === 'KG' ? 4 : 0}
-                onChange={(value) => field.onChange(value ?? undefined)}
-                style={{ width: 220 }}
-                addonAfter={t(`units.${unit}`)}
-                placeholder="—"
-              />
-            </Form.Item>
-          )}
-        />
-
-        {!isEdit && isStoreOwner ? (
-          <Controller
-            name="branchId"
-            control={control}
-            render={({ field }) => (
-              <Form.Item
-                label={t('productForm.labelBranch')}
-                required
-                validateStatus={errors.branchId ? 'error' : undefined}
-                help={errors.branchId?.message}
-              >
-                <Select
-                  {...field}
-                  loading={branchesLoading}
-                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-                  options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                  placeholder={t('productForm.placeholderBranch')}
-                />
-              </Form.Item>
-            )}
-          />
-        ) : null}
-
-        <Form.Item style={{ marginBottom: 8 }}>
-          <Controller
-            name="priceCurrency"
-            control={control}
-            render={({ field }) => (
-              <Segmented
-                value={field.value}
-                onChange={handleCurrencyChange}
-                options={[
-                  { label: t('productForm.tabSom'), value: 'UZS' },
-                  { label: t('productForm.tabDollar'), value: 'USD' },
-                ]}
-                block
-              />
-            )}
-          />
-        </Form.Item>
-
-        {priceCurrency === 'UZS' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-            <Controller
-              name="costPriceUzs"
-              control={control}
-              render={({ field }) => (
-                <Form.Item
-                  label={t('productForm.labelCostUzs')}
-                  required
-                  validateStatus={errors.costPriceUzs ? 'error' : undefined}
-                  help={errors.costPriceUzs?.message}
-                >
-                  <InputNumber
-                    {...field}
-                    style={{ width: '100%' }}
-                    min={0}
-                    max={wholesaleUzs || undefined}
-                    step={1000}
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                    parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Controller
-              name="wholesalePriceUzs"
-              control={control}
-              render={({ field }) => (
-                <Form.Item
-                  label={t('productForm.labelWholesaleUzs')}
-                  required
-                  validateStatus={errors.wholesalePriceUzs ? 'error' : undefined}
-                  help={errors.wholesalePriceUzs?.message}
-                >
-                  <InputNumber
-                    {...field}
-                    style={{ width: '100%' }}
-                    min={0}
-                    max={retailUzs || undefined}
-                    step={1000}
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                    parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-                  />
-                </Form.Item>
-              )}
-            />
-            <Controller
-              name="retailPriceUzs"
-              control={control}
-              render={({ field }) => (
-                <Form.Item
-                  label={t('productForm.labelRetailUzs')}
-                  required
-                  validateStatus={errors.retailPriceUzs ? 'error' : undefined}
-                  help={errors.retailPriceUzs?.message}
-                >
-                  <InputNumber
-                    {...field}
-                    style={{ width: '100%' }}
-                    min={0}
-                    step={1000}
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                    parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-                  />
-                </Form.Item>
-              )}
-            />
-          </div>
-        ) : null}
-
-        {priceCurrency === 'USD' ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-            <Controller
-              name="costPriceUsd"
-              control={control}
-              render={({ field }) => (
-                <Form.Item
-                  label={t('productForm.labelCostUsd')}
-                  required
-                  validateStatus={errors.costPriceUsd ? 'error' : undefined}
-                  help={errors.costPriceUsd?.message}
-                >
-                  <InputNumber
-                    {...field}
-                    value={field.value ?? undefined}
-                    style={{ width: '100%' }}
-                    min={0}
-                    max={wholesaleUsd || undefined}
-                    step={0.5}
-                    precision={2}
-                    prefix="$"
-                  />
-                </Form.Item>
-              )}
-            />
-            <Controller
-              name="wholesalePriceUsd"
-              control={control}
-              render={({ field }) => (
-                <Form.Item
-                  label={t('productForm.labelWholesaleUsd')}
-                  required
-                  validateStatus={errors.wholesalePriceUsd ? 'error' : undefined}
-                  help={errors.wholesalePriceUsd?.message}
-                >
-                  <InputNumber
-                    {...field}
-                    value={field.value ?? undefined}
-                    style={{ width: '100%' }}
-                    min={0}
-                    max={retailUsd || undefined}
-                    step={0.5}
-                    precision={2}
-                    prefix="$"
-                  />
-                </Form.Item>
-              )}
-            />
-            <Controller
-              name="retailPriceUsd"
-              control={control}
-              render={({ field }) => (
-                <Form.Item
-                  label={t('productForm.labelRetailUsd')}
-                  required
-                  validateStatus={errors.retailPriceUsd ? 'error' : undefined}
-                  help={errors.retailPriceUsd?.message}
-                >
-                  <InputNumber {...field} value={field.value ?? undefined} style={{ width: '100%' }} min={0} step={0.5} precision={2} prefix="$" />
-                </Form.Item>
-              )}
-            />
-          </div>
-        ) : null}
-
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => (
-            <Form.Item label={t('productForm.labelDescription')}>
-              <Input.TextArea
-                {...field}
-                {...blockAutofill('store-product-description')}
-                rows={2}
-                maxLength={500}
-                showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
-                placeholder={t('productForm.placeholderDescription')}
-              />
-            </Form.Item>
-          )}
-        />
-
-        {isEdit ? (
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Form.Item label={t('common.status')}>
-                <Switch checked={field.value} onChange={field.onChange} checkedChildren={t('common.active')} unCheckedChildren={t('common.inactive')} />
-              </Form.Item>
-            )}
-          />
-        ) : null}
-
-        {isEdit && product ? (
-          <>
-            {imageUploadError ? (
-              <Alert
-                type="error"
-                showIcon
-                title={t('productImages.uploadError')}
-                description={imageUploadError}
-                style={{ marginBottom: 10 }}
-              />
-            ) : null}
-            <ProductImageManager
-              productId={product.id}
-              productName={product.name}
-              t={t}
-              pendingFiles={imageFiles}
-              onPendingFilesChange={setImageFiles}
-              changes={imageChanges}
-              onChangesChange={setImageChanges}
-              uploading={isUploading}
-              uploadProgress={uploadProgress}
-            />
-          </>
-        ) : (
-          <section style={{ borderTop: '1px solid var(--border)', paddingTop: 16, marginTop: 6 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{t('productImages.title')}</div>
-              <span style={{ fontSize: 11.5, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>
-                {imageFiles.length}/{PRODUCT_IMAGE_MAX_COUNT}
-              </span>
-            </div>
-            {imageUploadError ? (
-              <Alert
-                type="error"
-                showIcon
-                title={t('productImages.createdUploadRetry')}
-                description={imageUploadError}
-                style={{ marginBottom: 10 }}
-              />
-            ) : null}
-            <PendingProductImages
-              t={t}
-              files={imageFiles}
-              onChange={setImageFiles}
-              disabled={isPending}
-            />
-            {isUploading ? <Progress percent={uploadProgress} size="small" style={{ marginTop: 10 }} /> : null}
-          </section>
-        )}
         </FormSection>
       </Form>
     </AppModal>

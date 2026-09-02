@@ -77,7 +77,7 @@ export function createProductColumns({
       responsiveHide: true,
       render: (_: unknown, product: Product) => {
         //
-        const threshold = (product as Product & { lowStockThreshold?: number | null }).lowStockThreshold
+        const threshold = product.lowStockThreshold
         return threshold == null ? <span style={{ color: 'var(--ink-4)' }}>—</span> : <span className="num" style={{ color: 'var(--warning)', fontWeight: 600 }}>{threshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}</span>
       },
     },

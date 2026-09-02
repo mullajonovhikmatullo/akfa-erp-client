@@ -8,3 +8,8 @@ export interface StockInCartItem {
   costPriceUzs: number
   costPriceUsd?: number
 }
+
+export interface StockInFormValues {
+  branchId?: string
+  cart: StockInCartItem[]
+}

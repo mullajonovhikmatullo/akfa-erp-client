@@ -16,7 +16,7 @@ export function QuantityStepper({ value, unitLabel, onMinus, onPlus, onChange }:
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(86px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
       <Button icon={<MinusIcon size={16} />} onClick={onMinus} disabled={value <= MIN_QTY} style={{ width: 30, height: 30, padding: 0 }} />
-      <InputNumber
+      <InputNumber<number>
         value={value > 0 ? value : null}
         onChange={(nextValue) => onChange(nextValue == null ? null : Number(nextValue))}
         min={0}
@@ -25,7 +25,7 @@ export function QuantityStepper({ value, unitLabel, onMinus, onPlus, onChange }:
         placeholder="0"
         style={{ width: '100%' }}
         formatter={(nextValue) => `${nextValue ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-        parser={(nextValue) => Number(nextValue?.replace(/\s/g, '')) as unknown as 0}
+        parser={(nextValue) => Number(nextValue?.replace(/\s/g, ''))}
       />
       <Button icon={<PlusIcon size={16} />} onClick={onPlus} style={{ width: 30, height: 30, padding: 0 }} />
       <span

@@ -1,15 +1,13 @@
-import { Controller, useWatch } from 'react-hook-form'
-import { Alert, Button, Form, Input, InputNumber, Radio, Select, Switch } from 'antd'
-import { blockAutofill } from '@store/store-shared/lib/autofill'
-import { AppModal } from '@store/store-shared/ui/app-modal'
-import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
+import { useWatch } from 'react-hook-form'
+import { Button, Form } from 'antd'
 import { isValidUzbekMobilePhone } from '@store/store-shared'
-import { UzbekPhoneInput } from '@store/store-shared'
+import { AppModal } from '@store/store-shared/ui/app-modal'
 import type { Branch, Customer } from '@store/store-stub'
-import { useCustomerForm } from './useCustomerForm'
-import { FormSection } from './view/FormSection'
 import { useCustomerMutation } from '../hooks/useCustomerMutation'
 import { useCustomerPhoneCheck } from '../hooks/useCustomerPhoneCheck'
+import { useCustomerForm } from './useCustomerForm'
+import { CustomerFormFields } from './view/CustomerFormFields'
+import { FormSection } from './view/FormSection'
 
 interface CustomerFormModalProps {
   t: (key: string) => string
@@ -41,8 +39,6 @@ export function CustomerFormModal({
     customer,
     isStoreOwner,
     branchId,
-    branches,
-    branchesLoading,
     onSuccess: (savedCustomer) => {
       //
       onCreated?.(savedCustomer)
@@ -57,20 +53,22 @@ export function CustomerFormModal({
   const formBranchId = useWatch({ control, name: 'branchId' })
   const targetBranchId = isStoreOwner ? formBranchId : branchId ?? undefined
   const phoneCheck = useCustomerPhoneCheck(phone, targetBranchId, !isEdit && open && isValidUzbekMobilePhone(phone))
-  const { linkCustomerBranch: linkCustomer } = useCustomerMutation(t)
+  const { linkCustomerBranch } = useCustomerMutation(t)
   const existingCustomer = phoneCheck.data?.customer ?? null
 
-  const useExistingCustomer = () => {
+  function useExistingCustomer() {
+    //
     if (!existingCustomer) return
     if (phoneCheck.data?.linkedToBranch) {
       onCreated?.(existingCustomer)
       onClose()
       return
     }
-    linkCustomer.mutate(
+    linkCustomerBranch.mutate(
       { customerId: existingCustomer.id, branchId: targetBranchId },
       {
         onSuccess: (linkedCustomer) => {
+          //
           onCreated?.(linkedCustomer)
           onClose()
         },
@@ -88,137 +86,32 @@ export function CustomerFormModal({
         <Button key="cancel" onClick={onClose} disabled={isPending}>
           {t('common.cancel')}
         </Button>,
-        <Button key="submit" type="primary" loading={isPending || phoneCheck.isFetching} disabled={!isEdit && Boolean(existingCustomer)} onClick={() => onSubmit()}>
+        <Button
+          key="submit"
+          type="primary"
+          loading={isPending || phoneCheck.isFetching}
+          disabled={!isEdit && Boolean(existingCustomer)}
+          onClick={() => onSubmit()}
+        >
           {isEdit ? t('common.save') : t('common.add')}
         </Button>,
       ]}
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
         <FormSection>
-        {isStoreOwner && !isEdit && (
-          <Controller
-            name="branchId"
+          <CustomerFormFields
+            t={t}
             control={control}
-            render={({ field }) => (
-              <Form.Item label={t('customerForm.labelBranch')} required validateStatus={errors.branchId ? 'error' : undefined} help={errors.branchId?.message}>
-                <Select
-                  {...field}
-                  loading={branchesLoading}
-                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-                  placeholder={t('customerForm.placeholderBranch')}
-                  options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                />
-              </Form.Item>
-            )}
+            errors={errors}
+            isEdit={isEdit}
+            isStoreOwner={isStoreOwner}
+            branches={branches}
+            branchesLoading={branchesLoading}
+            existingCustomer={existingCustomer}
+            linkedToBranch={Boolean(phoneCheck.data?.linkedToBranch)}
+            linkingCustomer={linkCustomerBranch.isPending}
+            onUseExistingCustomer={useExistingCustomer}
           />
-        )}
-
-        <Controller
-          name="fullName"
-          control={control}
-          render={({ field }) => (
-            <Form.Item label={t('customerForm.labelFullName')} required validateStatus={errors.fullName ? 'error' : undefined} help={errors.fullName?.message}>
-              <Input {...field} {...blockAutofill('store-customer-full-name')} placeholder={t('customerForm.placeholderFullName')} />
-            </Form.Item>
-          )}
-        />
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Controller
-            name="phone"
-            control={control}
-            render={({ field }) => (
-              <Form.Item label={t('customerForm.labelPhone')} required validateStatus={errors.phone ? 'error' : undefined} help={errors.phone?.message}>
-                <UzbekPhoneInput {...field} status={errors.phone ? 'error' : undefined} />
-              </Form.Item>
-            )}
-          />
-          <Controller
-            name="address"
-            control={control}
-            render={({ field }) => (
-              <Form.Item label={t('customerForm.labelAddress')} validateStatus={errors.address ? 'error' : undefined} help={errors.address?.message}>
-                <Input {...field} {...blockAutofill('store-customer-address')} placeholder={t('customerForm.placeholderAddress')} />
-              </Form.Item>
-            )}
-          />
-        </div>
-
-        {!isEdit && existingCustomer ? (
-          <Alert
-            type={phoneCheck.data?.linkedToBranch ? 'warning' : 'info'}
-            showIcon
-            style={{ marginBottom: 12 }}
-            message={t('customerForm.phoneExistsTitle')}
-            description={
-              <div style={{ display: 'grid', gap: 8 }}>
-                <span>
-                  <strong>{existingCustomer.fullName}</strong>
-                  {' · '}{existingCustomer.phone}
-                  {' · '}{existingCustomer.branch.name}
-                </span>
-                <span style={{ color: 'var(--ink-3)' }}>
-                  {phoneCheck.data?.linkedToBranch
-                    ? t('customerForm.phoneExistsCurrentBranch')
-                    : t('customerForm.phoneExistsOtherBranch')}
-                </span>
-                <Button type="primary" size="small" loading={linkCustomer.isPending} onClick={useExistingCustomer} style={{ width: 'fit-content' }}>
-                  {t('customerForm.useExisting')}
-                </Button>
-              </div>
-            }
-          />
-        ) : null}
-
-        {!isEdit && (
-          <Form.Item label={t('customerForm.labelBalance')} validateStatus={errors.balance ? 'error' : undefined} help={errors.balance?.message}>
-            <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8 }}>
-              <Controller
-                name="balanceType"
-                control={control}
-                render={({ field }) => (
-                  <Radio.Group
-                    {...field}
-                    optionType="button"
-                    buttonStyle="solid"
-                    style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}
-                    options={[
-                      { value: 'credit', label: t('customers.balanceCredit') },
-                      { value: 'debt', label: t('customers.balanceDebt') },
-                    ]}
-                  />
-                )}
-              />
-              <Controller
-                name="balance"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber
-                    {...field}
-                    min={0}
-                    step={1000}
-                    style={{ width: '100%' }}
-                    formatter={(value) => (value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '')}
-                    parser={(value) => Number(value?.replace(/\s/g, '') ?? 0)}
-                    addonAfter="so'm"
-                  />
-                )}
-              />
-            </div>
-          </Form.Item>
-        )}
-
-        {isEdit && (
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Form.Item label={t('common.status')}>
-                <Switch checked={field.value} onChange={field.onChange} checkedChildren={t('common.active')} unCheckedChildren={t('common.inactive')} />
-              </Form.Item>
-            )}
-          />
-        )}
         </FormSection>
       </Form>
     </AppModal>

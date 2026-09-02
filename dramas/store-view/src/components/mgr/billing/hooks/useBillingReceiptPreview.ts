@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { BillingSeekApi, type TenantPayment } from '@store/store-stub'
 import type { ReceiptPreview } from '../view/types'
 
-export function useBillingReceiptDetail(onError: (error: unknown) => void) {
+export function useBillingReceiptPreview(onError: (error: unknown) => void) {
   //
   const [openingReceiptId, setOpeningReceiptId] = useState<string | null>(null)
   const [preview, setPreview] = useState<ReceiptPreview | null>(null)
@@ -41,4 +41,3 @@ export function useBillingReceiptDetail(onError: (error: unknown) => void) {
     closePreview: () => setPreview(null),
   }
 }
-

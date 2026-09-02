@@ -1,33 +1,25 @@
-import { useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { Alert, Button, Form, Input, Modal, Select, Tooltip } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Alert, Button, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import {
-  ArrowClockwiseIcon,
-  ArrowUpRight,
-  PlusIcon,
-  UserPlusIcon,
-} from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, ArrowUpRight, PlusIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { blockAutofill } from '@store/store-shared/lib/autofill'
-import { formatDate } from '@store/store-shared/lib/formatters'
-import { isValidUzbekMobilePhone } from '@store/store-shared'
 import { DataTable } from '@store/store-shared/ui/data-table'
-import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import { UzbekPhoneInput } from '@store/store-shared'
 import type { Branch, BranchPayload, User } from '@store/store-stub'
 import { useUserMutation } from '../../admins/hooks/useUserMutation'
 import { useUsersList } from '../../admins/hooks/useUsersList'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { useBranchMutation } from '../hooks/useBranchMutation'
 import { useBranchesPage } from '../hooks/useBranchesPage'
+import {
+  BranchAssignmentModal,
+  type AssignBranchFormValues,
+  type BranchAssignmentOption,
+} from './view/BranchAssignmentModal'
+import { BranchFormModal } from './view/BranchFormModal'
 import { createBranchColumns } from './view/branchColumns'
 
 type Translate = (key: string) => string
-
-type AssignBranchFormValues = {
-  userId?: string | null
-}
 
 export interface BranchesListProps {
   t: Translate
@@ -81,14 +73,6 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
   }, [branchLimitReached])
 
   const branchAdmins = users.filter((user) => user.role === 'branch_admin')
-
-  function getAssignedUser(branchId: string) {
-    //
-    const admin = branchAdmins.find((user) => user.branchId === branchId)
-    if (admin) return admin
-    if (isStoreOwner && currentUser?.branchId === branchId) return currentUser
-    return null
-  }
 
   function openCreate() {
     //
@@ -183,7 +167,25 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
     }),
   })
 
-  const unassignedAdmins = branchAdmins.filter((user) => !user.branchId || user.branchId === assignTarget?.id)
+  const assignmentOptions = useMemo<BranchAssignmentOption[]>(() => {
+    //
+    const availableOptions = branchAdmins
+      .filter((user) => !user.branchId || user.branchId === assignTarget?.id)
+      .map((user) => ({ value: user.id, label: `${user.name} (@${user.username})` }))
+    const unavailableOptions = branchAdmins
+      .filter((user) => user.branchId && user.branchId !== assignTarget?.id)
+      .map((user) => {
+        //
+        const assignedTo = branches.find((branch) => branch.id === user.branchId)
+        return {
+          value: user.id,
+          label: `${user.name} (@${user.username}) · ${assignedTo?.name ?? t('common.otherBranch')}`,
+          disabled: true,
+        }
+      })
+
+    return [...availableOptions, ...unavailableOptions]
+  }, [assignTarget?.id, branchAdmins, branches, t])
 
   return (
     <>
@@ -274,115 +276,27 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
         />
       </div>
 
-      <Modal
-        title={editTarget ? t('branches.modalEdit') : t('branches.modalCreate')}
+      <BranchFormModal
+        t={t}
         open={branchModalOpen}
+        editTarget={editTarget}
+        control={branchControl}
+        errors={branchErrors}
+        pending={createMutation.isPending || updateMutation.isPending}
         onCancel={() => setBranchModalOpen(false)}
-        onOk={handleBranchFormSubmit(submitBranchForm)}
-        okText={editTarget ? t('common.save') : t('common.create')}
-        confirmLoading={createMutation.isPending || updateMutation.isPending}
-        destroyOnClose
-      >
-        <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
-          <Form.Item
-            label={t('branches.labelName')}
-            required
-            validateStatus={branchErrors.name ? 'error' : undefined}
-            help={branchErrors.name?.message}
-          >
-            <Controller
-              name="name"
-              control={branchControl}
-              rules={{ required: t('branches.nameRequired') }}
-              render={({ field }) => (
-                <Input {...field} {...blockAutofill('store-branch-name')} placeholder={t('branches.namePlaceholder')} />
-              )}
-            />
-          </Form.Item>
-          <Form.Item label={t('branches.labelAddress')}>
-            <Controller
-              name="address"
-              control={branchControl}
-              render={({ field }) => (
-                <Input
-                  ref={field.ref}
-                  onBlur={field.onBlur}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  {...blockAutofill('store-branch-address')}
-                  placeholder={t('branches.addressPlaceholder')}
-                />
-              )}
-            />
-          </Form.Item>
-          <Form.Item
-            label={t('common.phone')}
-            validateStatus={branchErrors.phone ? 'error' : undefined}
-            help={branchErrors.phone?.message}
-          >
-            <Controller
-              name="phone"
-              control={branchControl}
-              rules={{
-                validate: (value) => !value || isValidUzbekMobilePhone(value) || t('validation.phoneInvalid'),
-              }}
-              render={({ field }) => (
-                <UzbekPhoneInput
-                  ref={field.ref}
-                  onBlur={field.onBlur}
-                  value={field.value ?? ''}
-                  onChange={field.onChange}
-                  status={branchErrors.phone ? 'error' : undefined}
-                />
-              )}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onSubmit={handleBranchFormSubmit(submitBranchForm)}
+      />
 
-      <Modal
-        title={`${t('branches.assignTitle')} — ${assignTarget?.name ?? ''}`}
-        open={!!assignTarget}
+      <BranchAssignmentModal
+        t={t}
+        target={assignTarget}
+        control={assignControl}
+        options={assignmentOptions}
+        loading={usersLoading}
+        pending={assignMutation.isPending}
         onCancel={() => setAssignTarget(null)}
-        onOk={handleAssignFormSubmit(submitAssignForm)}
-        okText={t('branches.assignBtn')}
-        confirmLoading={assignMutation.isPending}
-        destroyOnClose
-      >
-        <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-3)' }}>{t('branches.assignHint')}</div>
-        <Form layout="vertical">
-          <Form.Item label={t('branches.assignLabel')}>
-            <Controller
-              name="userId"
-              control={assignControl}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onChange={field.onChange}
-                  allowClear
-                  placeholder={t('branches.assignPlaceholder')}
-                  loading={usersLoading}
-                  notFoundContent={usersLoading ? <SelectLoadingContent /> : undefined}
-                  options={[
-                    ...unassignedAdmins.map((user) => ({ value: user.id, label: `${user.name} (@${user.username})` })),
-                    ...branchAdmins
-                      .filter((user) => user.branchId && user.branchId !== assignTarget?.id)
-                      .map((user) => {
-                        //
-                        const assignedTo = branches.find((branch) => branch.id === user.branchId)
-                        return {
-                          value: user.id,
-                          label: `${user.name} (@${user.username}) · ${assignedTo?.name ?? t('common.otherBranch')}`,
-                          disabled: true,
-                        }
-                      }),
-                  ]}
-                />
-              )}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+        onSubmit={handleAssignFormSubmit(submitAssignForm)}
+      />
     </>
   )
 }

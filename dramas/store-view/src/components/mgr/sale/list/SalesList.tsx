@@ -7,7 +7,7 @@ import type { SaleListItem, SaleType } from '@store/store-stub'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
 import { NewSaleForm } from '../form/NewSaleForm'
-import { useSalesPage } from '../hooks'
+import { useSalesPage } from '../hooks/useSalesPage'
 import { createSalesColumns } from './view/salesColumns'
 
 type SalesFiltersForm = {
@@ -39,7 +39,7 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
 
   useEffect(() => {
     onPageChange(1, pageSize)
-  }, [branchId])
+  }, [branchId, onPageChange, pageSize])
 
   const { data: result, isLoading, isFetching, refetch } = useSalesPage(page, pageSize, {
     branchId,

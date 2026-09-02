@@ -10,6 +10,7 @@ export function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentCh
   const hasSingleSegment = data.length === 1;
   let cursor = 0;
   const segments = data.map((item) => {
+    //
     const angle = total > 0 ? (item.value / total) * 360 : 0;
     const gap = hasSingleSegment ? 0 : Math.min(4, angle * 0.28);
     const startAngle = cursor + gap / 2;
@@ -35,6 +36,7 @@ export function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentCh
           />
         ) : (
           segments.map((segment) => {
+            //
             if (segment.endAngle - segment.startAngle <= 0.5) return null;
             return (
               <path

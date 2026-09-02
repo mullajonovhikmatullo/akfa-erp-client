@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { BranchFlowApi } from '@store/store-stub'
-import type { BranchPayload } from '@store/store-stub'
 import { branchKeys } from './branchKeys'
 
 export function useBranchMutation() {
@@ -14,7 +13,7 @@ export function useBranchMutation() {
   })
 
   const updateBranch = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<BranchPayload> }) => BranchFlowApi.updateBranch({ id, data }),
+    mutationFn: BranchFlowApi.updateBranch,
     onSuccess: invalidateBranches,
   })
 

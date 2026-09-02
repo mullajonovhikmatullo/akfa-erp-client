@@ -7,3 +7,10 @@ export interface TransferCartItem {
   quantity: number
   unitCostUzs: number
 }
+
+export interface TransferFormValues {
+  fromBranchId?: string
+  toBranchId?: string
+  note: string
+  cart: TransferCartItem[]
+}

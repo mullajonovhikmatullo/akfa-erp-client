@@ -374,6 +374,8 @@ export const ruTranslations: TranslationDictionary = {
   'categories.empty': 'Категорий пока нет',
   'categories.modalCreate': 'Новая категория',
   'categories.nameRequired': 'Введите название',
+  'categories.nameMaxLength': 'Название не должно превышать 100 символов',
+  'categories.descriptionMaxLength': 'Описание не должно превышать 500 символов',
   'categories.namePlaceholder': 'Напр.: Стеклопанели',
   'categories.descPlaceholder': 'Краткое описание',
   'categories.parseErrorName': 'Название не указано',

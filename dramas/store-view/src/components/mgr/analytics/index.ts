@@ -1,6 +1,6 @@
 export * from './AnalyticsWorkspace'
 export * from './hooks/analyticsKeys'
-export * from './hooks/useCustomerDebt'
+export * from './hooks/useCustomerDebtReport'
 export * from './hooks/useDashboardReport'
 export * from './hooks/useExpenseReport'
 export * from './hooks/useInventoryReport'

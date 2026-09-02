@@ -79,7 +79,7 @@ export function SaleSummaryView({
                   step={isUsdPayment ? 1 : 10000}
                   precision={isUsdPayment ? 2 : 0}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
+                  parser={(value) => Number(value?.replace(/\s/g, ''))}
                 />
               )}
             />

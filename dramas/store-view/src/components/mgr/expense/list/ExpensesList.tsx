@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
 import { ArrowClockwiseIcon, PlusIcon, TagIcon } from '@phosphor-icons/react'
@@ -10,7 +10,7 @@ import { useExpenseCategoriesList } from '../hooks/useExpenseCategoriesList'
 import { useExpenseCategorySummary } from '../hooks/useExpenseCategorySummary'
 import { useExpenseMutation } from '../hooks/useExpenseMutation'
 import { useExpensesList } from '../hooks/useExpensesList'
-import { usePagination } from '../../shared/hooks/usePagination'
+import { getExpenseMetrics } from '../lib/expenseMetrics'
 import { ExpenseBreakdown } from './view/ExpenseBreakdown'
 import { ExpenseKpiCards } from './view/ExpenseKpiCards'
 import { createExpenseColumns } from './view/expenseColumns'
@@ -32,7 +32,7 @@ interface ExpensesListProps {
 
 export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: ExpensesListProps) {
   //
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
+  const rowIndex = (index: number) => index + 1
   const { control, watch } = useForm<ExpenseFiltersForm>({
     defaultValues: {
       categoryId: undefined,
@@ -74,37 +74,17 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
   const { data: categories = [] } = useExpenseCategoriesList()
   const { deleteExpense } = useExpenseMutation(t)
 
-  const fallbackGrandTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0)
-  const fallbackByCategory = categories
-    .map((category) => ({
-      ...category,
-      total: expenses.filter((expense) => expense.category.id === category.id).reduce((sum, expense) => sum + expense.amount, 0),
-    }))
-    .filter((category) => category.total > 0)
-    .sort((a, b) => b.total - a.total)
-  const grandTotal = categorySummary?.total ?? fallbackGrandTotal
-  const byCategory =
-    categorySummary?.categories.map((category) => ({
-      id: category.categoryId,
-      name: category.categoryName,
-      total: category.amount,
-    })) ?? fallbackByCategory
-  const kpiCategories =
-    categorySummary?.kpiCategories.map((category) => ({
-      id: category.isOther ? 'other-expense-categories' : category.categoryId,
-      name: category.isOther ? t('common.other') : category.categoryName,
-      total: category.amount,
-    })) ??
-    (byCategory.length > KPI_CATEGORY_LIMIT
-      ? [
-          ...byCategory.slice(0, KPI_CATEGORY_LIMIT - 1),
-          {
-            id: 'other-expense-categories',
-            name: t('common.other'),
-            total: byCategory.slice(KPI_CATEGORY_LIMIT - 1).reduce((sum, category) => sum + category.total, 0),
-          },
-        ]
-      : byCategory)
+  const { grandTotal, byCategory, kpiCategories } = useMemo(
+    () =>
+      getExpenseMetrics({
+        expenses,
+        categories,
+        summary: categorySummary,
+        kpiCategoryLimit: KPI_CATEGORY_LIMIT,
+        otherLabel: t('common.other'),
+      }),
+    [categories, categorySummary, expenses, t],
+  )
 
   const columns = createExpenseColumns({
     t,
@@ -138,7 +118,9 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
             render={({ field }) => (
               <DatePicker.RangePicker
                 value={field.value}
-                onChange={(value) => field.onChange(value ? [value[0], value[1]] : [null, null])}
+                onChange={(value) => {
+                  field.onChange(value ? [value[0], value[1]] : [null, null])
+                }}
                 format="DD.MM.YYYY"
                 placeholder={[t('common.startDate'), t('common.endDate')]}
                 presets={[
@@ -183,7 +165,9 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
               render={({ field }) => (
                 <Select
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(value) => {
+                    field.onChange(value)
+                  }}
                   allowClear
                   placeholder={t('expenses.filterAll')}
                   style={{ minWidth: 220 }}
@@ -201,14 +185,7 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
             dataSource={expenses}
             columns={columns}
             loading={isLoading}
-            pagination={{
-              current: page,
-              pageSize,
-              onChange: onPageChange,
-              showSizeChanger: true,
-              showTotal: (total) => `${total} ${t('common.countSuffix')}`,
-              pageSizeOptions: ['10', '25', '50'],
-            }}
+            pagination={false}
             emptyText={t('expenses.empty')}
           />
         </div>

@@ -1,12 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ExpenseFlowApi } from '@store/store-stub'
-import type {
-  CreateExpenseCategoryPayload,
-  CreateExpensePayload,
-  UpdateExpenseCategoryPayload,
-} from '@store/store-stub'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
+import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { expenseKeys } from './expenseKeys'
 
 type Translate = (key: string) => string
@@ -16,23 +12,23 @@ export function useExpenseMutation(t: Translate) {
   const queryClient = useQueryClient()
 
   const createExpense = useMutation({
-    mutationFn: (payload: CreateExpensePayload) => ExpenseFlowApi.createExpense(payload),
+    mutationFn: ExpenseFlowApi.createExpense,
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: expenseKeys.all })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: analyticsKeys.all })
       toast.success(t('expenses.createSuccess'))
     },
     onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'expenses.createError')),
   })
 
   const deleteExpense = useMutation({
-    mutationFn: (id: string) => ExpenseFlowApi.deleteExpense(id),
+    mutationFn: ExpenseFlowApi.deleteExpense,
     onSuccess: async () => {
       //
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: expenseKeys.all }),
-        queryClient.invalidateQueries({ queryKey: ['analytics'] }),
+        queryClient.invalidateQueries({ queryKey: analyticsKeys.all }),
       ])
       toast.success(t('expenses.deleteSuccess'))
     },
@@ -43,7 +39,7 @@ export function useExpenseMutation(t: Translate) {
   })
 
   const createExpenseCategory = useMutation({
-    mutationFn: (payload: CreateExpenseCategoryPayload) => ExpenseFlowApi.createExpenseCategory(payload),
+    mutationFn: ExpenseFlowApi.createExpenseCategory,
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() })
@@ -53,8 +49,7 @@ export function useExpenseMutation(t: Translate) {
   })
 
   const updateExpenseCategory = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: UpdateExpenseCategoryPayload }) =>
-      ExpenseFlowApi.updateExpenseCategory({ id, payload }),
+    mutationFn: ExpenseFlowApi.updateExpenseCategory,
     onSuccess: () => {
       //
       queryClient.invalidateQueries({ queryKey: expenseKeys.categoriesRoot() })
@@ -65,7 +60,7 @@ export function useExpenseMutation(t: Translate) {
   })
 
   const deleteExpenseCategory = useMutation({
-    mutationFn: (id: string) => ExpenseFlowApi.deleteExpenseCategory(id),
+    mutationFn: ExpenseFlowApi.deleteExpenseCategory,
     onSuccess: async () => {
       //
       await Promise.all([

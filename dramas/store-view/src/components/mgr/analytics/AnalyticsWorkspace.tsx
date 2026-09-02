@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select } from 'antd'
 import { ArrowClockwiseIcon } from '@phosphor-icons/react'
 import dayjs, { type Dayjs } from 'dayjs'
 import type { AnalyticsPeriod, AnalyticsQuery, SaleType } from '@store/store-stub'
 import { useSalesList } from '../sale/hooks/useSalesList'
-import { useCustomerDebt } from './hooks/useCustomerDebt'
+import { useCustomerDebtReport } from './hooks/useCustomerDebtReport'
 import { useDashboardReport } from './hooks/useDashboardReport'
 import { useExpenseReport } from './hooks/useExpenseReport'
 import { useInventoryReport } from './hooks/useInventoryReport'
@@ -30,8 +30,6 @@ export interface AnalyticsWorkspaceProps {
 export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
   //
   const [tab, setTab] = useState<Tab>('dashboard')
-  const [overduePage, setOverduePage] = useState(1)
-  const [overduePageSize, setOverduePageSize] = useState(10)
   const [debtScope, setDebtScope] = useState<DebtScope>('overdue')
   const [debtDeadlineFilter, setDebtDeadlineFilter] = useState<DebtDeadlineFilter>('all')
   const [debtSort, setDebtSort] = useState<DebtSort>('dueDateAsc')
@@ -46,13 +44,8 @@ export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
   const salesReport = useSalesReport(query)
   const expenseReport = useExpenseReport(query)
   const inventoryReport = useInventoryReport(query)
-  const customerDebt = useCustomerDebt(query)
+  const customerDebt = useCustomerDebtReport(query)
   const debtSales = useSalesList({ branchId: query.branchId, from: query.from, to: query.to, hasDebt: true, overdue: debtScope === 'overdue' ? true : undefined, customerId: debtCustomerId, saleType: debtSaleType })
-
-  useEffect(() => {
-    //
-    setOverduePage(1)
-  }, [query.branchId, query.from, query.to, debtScope, debtDeadlineFilter, debtCustomerId, debtSaleType, debtSort])
 
   const handleDebtScopeChange = (value: DebtScope) => {
     //
@@ -111,7 +104,7 @@ export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
       {tab === 'sales' ? <SalesTab data={salesReport.data} loading={salesReport.isLoading} t={t} /> : null}
       {tab === 'expenses' ? <ExpensesTab data={expenseReport.data} loading={expenseReport.isLoading} t={t} /> : null}
       {tab === 'inventory' ? <InventoryTab data={inventoryReport.data} loading={inventoryReport.isLoading} t={t} /> : null}
-      {tab === 'debt' ? <DebtTab data={customerDebt.data} loading={customerDebt.isLoading} t={t} debtSales={debtSales.data} debtLoading={debtSales.isLoading} debtFetching={debtSales.isFetching} overduePage={overduePage} overduePageSize={overduePageSize} debtScope={debtScope} debtDeadlineFilter={debtDeadlineFilter} debtSort={debtSort} debtCustomerId={debtCustomerId} debtSaleType={debtSaleType} onDebtScopeChange={handleDebtScopeChange} onDebtDeadlineChange={handleDebtDeadlineChange} onDebtSortChange={setDebtSort} onDebtCustomerChange={setDebtCustomerId} onDebtSaleTypeChange={setDebtSaleType} onOverduePageChange={(page, pageSize) => { setOverduePage(page); setOverduePageSize(pageSize) }} /> : null}
+      {tab === 'debt' ? <DebtTab data={customerDebt.data} loading={customerDebt.isLoading} t={t} debtSales={debtSales.data} debtLoading={debtSales.isLoading} debtFetching={debtSales.isFetching} debtScope={debtScope} debtDeadlineFilter={debtDeadlineFilter} debtSort={debtSort} debtCustomerId={debtCustomerId} debtSaleType={debtSaleType} onDebtScopeChange={handleDebtScopeChange} onDebtDeadlineChange={handleDebtDeadlineChange} onDebtSortChange={setDebtSort} onDebtCustomerChange={setDebtCustomerId} onDebtSaleTypeChange={setDebtSaleType} /> : null}
     </>
   )
 }
