@@ -1,0 +1,448 @@
+@use './mixins' as *;
+
+@include utility-classes('align-content', (
+  'content-center': 'center',
+));
+
+@include utility-classes('align-items', (
+  'items-baseline': 'baseline',
+  'items-center': 'center',
+  'items-end': 'flex-end',
+  'items-start': 'flex-start',
+));
+
+@include utility-classes('aspect-ratio', (
+  'aspect-4-3': '4 / 3',
+  'aspect-square': '1 / 1',
+));
+
+@include utility-classes('background', (
+  'bg-border': 'var(--border)',
+  'bg-current': 'currentColor',
+  'bg-gradient-purple': 'linear-gradient(135deg, #7c3aed, #7c3aedcc)',
+  'bg-gradient-teal': 'linear-gradient(135deg, #0e7490, #0e7490cc)',
+  'bg-none': 'none',
+  'bg-overlay': 'rgba(0, 0, 0, 0.68)',
+  'bg-primary': 'var(--primary)',
+  'bg-surface': 'var(--surface)',
+  'bg-surface-1': 'var(--surface-1)',
+  'bg-surface-2': 'var(--surface-2)',
+  'bg-surface-subtle': 'var(--surface-2, #f9fafb)',
+  'bg-transparent': 'transparent',
+  'bg-warning-soft': '#fef3c7',
+));
+
+@include utility-classes('border', (
+  'border-0': '0',
+  'border-dashed': '1px dashed var(--border)',
+  'border-default': '1px solid var(--border)',
+  'border-none': 'none',
+));
+
+@include utility-classes('border-bottom', (
+  'border-b-default': '1px solid var(--border)',
+));
+
+@include utility-classes('border-radius', (
+  'rounded-2': '2px',
+  'rounded-3': '3px',
+  'rounded-4': '4px',
+  'rounded-5': '5px',
+  'rounded-6': '6px',
+  'rounded-8': '8px',
+  'rounded-full': '50%',
+  'rounded-inherit': 'inherit',
+  'rounded-pill': '999px',
+));
+
+@include utility-classes('border-top', (
+  'border-t-default': '1px solid var(--border)',
+));
+
+@include utility-classes('box-shadow', (
+  'shadow-card-inset': 'inset 0 0 0 1px var(--border), 0 10px 24px rgba(2,6,23,.10)',
+));
+
+@include utility-classes('box-sizing', (
+  'box-border': 'border-box',
+));
+
+@include utility-classes('color', (
+  'text-danger': 'var(--danger)',
+  'text-danger-bright': '#ef4444',
+  'text-muted': 'var(--ink-3)',
+  'text-primary': 'var(--primary)',
+  'text-quiet': 'var(--ink-4)',
+  'text-secondary': 'var(--ink-2)',
+  'text-success': 'var(--success)',
+  'text-success-fallback': 'var(--success, #16a34a)',
+  'text-warning': 'var(--warning)',
+  'text-warning-dark': '#92400e',
+  'text-white': '#fff',
+));
+
+@include utility-classes('cursor', (
+  'cursor-pointer': 'pointer',
+));
+
+@include utility-classes('display', (
+  'block': 'block',
+  'flex': 'flex',
+  'grid': 'grid',
+  'inline-block': 'inline-block',
+  'inline-flex': 'inline-flex',
+));
+
+@include utility-classes('filter', (
+  'drop-shadow-soft': 'drop-shadow(0 8px 14px rgba(15, 23, 42, .10))',
+));
+
+@include utility-classes('flex', (
+  'flex-1': '1',
+  'flex-auto': '1 1 auto',
+  'flex-basis-200': '1 1 200px',
+  'flex-grow-basis-190': '1 0 190px',
+  'flex-none': '0 0 auto',
+  'flex-sidebar': '0 0 clamp(250px, 52%, 278px)',
+));
+
+@include utility-classes('flex-direction', (
+  'flex-col': 'column',
+));
+
+@include utility-classes('flex-shrink', (
+  'shrink-0': '0',
+));
+
+@include utility-classes('flex-wrap', (
+  'flex-wrap': 'wrap',
+));
+
+@include utility-classes('font-family', (
+  'font-mono': 'monospace',
+));
+
+@include utility-classes('font-size', (
+  'fs-10': '10px',
+  'fs-10-5': '10.5px',
+  'fs-11': '11px',
+  'fs-11-5': '11.5px',
+  'fs-12': '12px',
+  'fs-12-5': '12.5px',
+  'fs-13': '13px',
+  'fs-14': '14px',
+  'fs-15': '15px',
+  'fs-16': '16px',
+  'fs-17': '17px',
+  'fs-18': '18px',
+  'fs-24': '24px',
+));
+
+@include utility-classes('font-style', (
+  'font-italic': 'italic',
+));
+
+@include utility-classes('font-variant-numeric', (
+  'numeric-tabular': 'tabular-nums',
+));
+
+@include utility-classes('font-weight', (
+  'fw-400': '400',
+  'fw-500': '500',
+  'fw-600': '600',
+  'fw-650': '650',
+  'fw-700': '700',
+  'fw-800': '800',
+));
+
+@include utility-classes('gap', (
+  'gap-1': '1px',
+  'gap-10': '10px',
+  'gap-12': '12px',
+  'gap-14': '14px',
+  'gap-16': '16px',
+  'gap-2': '2px',
+  'gap-3': '3px',
+  'gap-4': '4px',
+  'gap-6': '6px',
+  'gap-7': '7px',
+  'gap-8': '8px',
+  'gap-9': '9px',
+));
+
+@include utility-classes('grid-column', (
+  'grid-col-2': '2',
+  'grid-col-full': '1 / -1',
+));
+
+@include utility-classes('grid-template-columns', (
+  'grid-cols-110-content-140': '110px 1fr 140px',
+  'grid-cols-160-content': '160px 1fr',
+  'grid-cols-2': '1fr 1fr',
+  'grid-cols-3': 'repeat(3, 1fr)',
+  'grid-cols-3-equal': '1fr 1fr 1fr',
+  'grid-cols-4': 'repeat(4, 1fr)',
+  'grid-cols-avatar-content-actions': '28px 1fr auto',
+  'grid-cols-content-280': '1fr 280px',
+  'grid-cols-content-340': '1fr 340px',
+  'grid-cols-content-auto': '1fr auto',
+  'grid-cols-fill-180': 'repeat(auto-fill, minmax(180px, 1fr))',
+  'grid-cols-fit-135': 'repeat(auto-fit, minmax(135px, 1fr))',
+  'grid-cols-fit-138': 'repeat(auto-fit, minmax(138px, 1fr))',
+  'grid-cols-fit-150': 'repeat(auto-fit, minmax(150px, 1fr))',
+  'grid-cols-fit-180': 'repeat(auto-fit, minmax(180px, 1fr))',
+  'grid-cols-fit-220': 'repeat(auto-fit, minmax(220px, 1fr))',
+  'grid-cols-fit-260': 'repeat(auto-fit, minmax(260px, 1fr))',
+  'grid-cols-fit-280': 'repeat(auto-fit, minmax(280px, 1fr))',
+  'grid-cols-quantity-actions': '30px minmax(86px, 1fr) 30px 38px',
+  'grid-cols-quantity-actions-wide': '30px minmax(96px, 1fr) 30px 38px',
+  'grid-cols-quantity-wide': '30px minmax(86px, 1fr) 30px minmax(38px, auto)',
+));
+
+@include utility-classes('height', (
+  'h-11': '11px',
+  'h-12': '12px',
+  'h-24': '24px',
+  'h-26': '26px',
+  'h-28': '28px',
+  'h-30': '30px',
+  'h-360': '360px',
+  'h-4': '4px',
+  'h-44': '44px',
+  'h-48': '48px',
+  'h-5': '5px',
+  'h-6': '6px',
+  'h-72': '72px',
+  'h-8': '8px',
+  'h-full': '100%',
+  'h-screen-60': '60vh',
+));
+
+@include utility-classes('inset', (
+  'inset-62': '62px',
+));
+
+@include utility-classes('justify-content', (
+  'justify-between': 'space-between',
+  'justify-center': 'center',
+  'justify-end': 'flex-end',
+));
+
+@include utility-classes('left', (
+  'left-8': '8px',
+));
+
+@include utility-classes('letter-spacing', (
+  'tracking-medium': '0.05em',
+  'tracking-normal': '.04em',
+  'tracking-wide': '.06em',
+));
+
+@include utility-classes('line-height', (
+  'lh-none': '1',
+  'lh-tight': '1.3',
+));
+
+@include utility-classes('margin', (
+  'm-0': '0',
+  'm-0-0-16': '0 0 16px',
+  'm-0-0-4': '0 0 4px',
+  'm-14-0': '14px 0',
+  'm-16-0': '16px 0',
+  'm-4-0-8': '4px 0 8px',
+  'm-6-0-4': '6px 0 4px',
+  'm-6-0-8': '6px 0 8px',
+  'm-8-0-12': '8px 0 12px',
+));
+
+@include utility-classes('margin-bottom', (
+  'mb-10': '10px',
+  'mb-12': '12px',
+  'mb-14': '14px',
+  'mb-16': '16px',
+  'mb-20': '20px',
+  'mb-4': '4px',
+  'mb-6': '6px',
+  'mb-8': '8px',
+));
+
+@include utility-classes('margin-left', (
+  'ml-2': '2px',
+  'ml-4': '4px',
+  'ml-8': '8px',
+  'ml-auto': 'auto',
+));
+
+@include utility-classes('margin-right', (
+  'mr-8': '8px',
+));
+
+@include utility-classes('margin-top', (
+  'mt-10': '10px',
+  'mt-12': '12px',
+  'mt-14': '14px',
+  'mt-16': '16px',
+  'mt-18': '18px',
+  'mt-2': '2px',
+  'mt-3': '3px',
+  'mt-4': '4px',
+  'mt-5': '5px',
+  'mt-6': '6px',
+  'mt-8': '8px',
+));
+
+@include utility-classes('max-width', (
+  'max-w-140': '140px',
+  'max-w-180': '180px',
+  'max-w-240': '240px',
+  'max-w-270': '270px',
+  'max-w-300': '300px',
+  'max-w-320': '320px',
+  'max-w-88': '88px',
+  'max-w-full': '100%',
+));
+
+@include utility-classes('min-height', (
+  'min-h-126': '126px',
+  'min-h-16': '16px',
+));
+
+@include utility-classes('min-width', (
+  'min-w-0': '0',
+  'min-w-140': '140px',
+  'min-w-150': '150px',
+  'min-w-160': '160px',
+  'min-w-180': '180px',
+  'min-w-190': '190px',
+  'min-w-220': '220px',
+  'min-w-240': '240px',
+  'min-w-260': '260px',
+));
+
+@include utility-classes('object-fit', (
+  'object-contain': 'contain',
+  'object-cover': 'cover',
+));
+
+@include utility-classes('overflow', (
+  'overflow-hidden': 'hidden',
+));
+
+@include utility-classes('overflow-x', (
+  'overflow-x-auto': 'auto',
+));
+
+@include utility-classes('padding', (
+  'p-0': '0',
+  'p-0-6': '0 6px',
+  'p-10-12': '10px 12px',
+  'p-10-14': '10px 14px',
+  'p-12': '12px',
+  'p-12-0': '12px 0',
+  'p-12-0-16': '12px 0 16px',
+  'p-12-14': '12px 14px',
+  'p-12-16': '12px 16px',
+  'p-14-16': '14px 16px',
+  'p-16': '16px',
+  'p-16-0': '16px 0',
+  'p-16-20': '16px 20px',
+  'p-16-24-14': '16px 24px 14px',
+  'p-18': '18px',
+  'p-2-5': '2px 5px',
+  'p-20-24': '20px 24px',
+  'p-24-0': '24px 0',
+  'p-28-12': '28px 12px',
+  'p-4-7': '4px 7px',
+  'p-4-8': '4px 8px',
+  'p-5-11': '5px 11px',
+  'p-6': '6px',
+  'p-8-0': '8px 0',
+  'p-8-0-8-48': '8px 0 8px 48px',
+  'p-9-10': '9px 10px',
+));
+
+@include utility-classes('padding-bottom', (
+  'pb-4': '4px',
+));
+
+@include utility-classes('padding-left', (
+  'pl-16': '16px',
+));
+
+@include utility-classes('padding-right', (
+  'pr-32': '32px',
+));
+
+@include utility-classes('padding-top', (
+  'pt-12': '12px',
+  'pt-16': '16px',
+));
+
+@include utility-classes('place-items', (
+  'place-center': 'center',
+));
+
+@include utility-classes('pointer-events', (
+  'pointer-none': 'none',
+));
+
+@include utility-classes('position', (
+  'absolute': 'absolute',
+  'relative': 'relative',
+  'sticky': 'sticky',
+));
+
+@include utility-classes('scroll-snap-align', (
+  'snap-align-start': 'start',
+));
+
+@include utility-classes('scroll-snap-type', (
+  'snap-x-proximity': 'x proximity',
+));
+
+@include utility-classes('text-align', (
+  'text-center': 'center',
+  'text-right': 'right',
+));
+
+@include utility-classes('text-overflow', (
+  'text-ellipsis': 'ellipsis',
+));
+
+@include utility-classes('text-transform', (
+  'text-uppercase': 'uppercase',
+));
+
+@include utility-classes('top', (
+  'top-76': '76px',
+  'top-8': '8px',
+));
+
+@include utility-classes('white-space', (
+  'whitespace-nowrap': 'nowrap',
+));
+
+@include utility-classes('width', (
+  'w-110': '110px',
+  'w-120': '120px',
+  'w-140': '140px',
+  'w-145': '145px',
+  'w-150': '150px',
+  'w-190': '190px',
+  'w-220': '220px',
+  'w-26': '26px',
+  'w-278': '278px',
+  'w-28': '28px',
+  'w-280': '280px',
+  'w-30': '30px',
+  'w-48': '48px',
+  'w-6': '6px',
+  'w-62pct': '62%',
+  'w-90': '90px',
+  'w-fit': 'fit-content',
+  'w-full': '100%',
+));
+
+@include percentage-widths;
+@include scale-y-steps;
+@include profile-photo-transforms((0, 90, 180, 270));

@@ -1,9 +1,9 @@
-import { ArrowRight, Building2, ChartNoAxesCombined, UserRound } from "lucide-react";
 import { useI18n } from "../../i18n/I18nProvider";
 
-const stepIcons = [UserRound, Building2, ChartNoAxesCombined] as const;
+const stepIcons = ['user-circle', 'building-02', 'chart_line'] as const;
 
 export function HowItWorks() {
+  //
   const { t } = useI18n();
   const section = t.howItWorks;
 
@@ -16,19 +16,20 @@ export function HowItWorks() {
 
         <ol className="steps-grid" data-reveal-group>
           {section.steps.map((step, index) => {
-            const Icon = stepIcons[index];
-            if (!Icon) return null;
+            //
+            const icon = stepIcons[index];
+            if (!icon) return null;
             return (
               <li className="step-card" key={`step-${index}`} data-reveal="up">
                 <span className="step-card__number">{index + 1}</span>
-                <Icon className="step-card__icon" size={33} strokeWidth={1.7} />
+                <i className={`icons-${icon} icon-size-33 step-card__icon`} />
                 <div>
                   <h3>{step.title}</h3>
                   <p>{step.text}</p>
                 </div>
                 {index < section.steps.length - 1 ? (
                   <span className="step-card__arrow" aria-hidden="true">
-                    <ArrowRight size={27} />
+                    <i className="icons-arrow-right icon-size-27" />
                   </span>
                 ) : null}
               </li>

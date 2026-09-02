@@ -1,14 +1,14 @@
-import { Mail, MapPin, Phone } from "lucide-react";
 import { site } from "../../config/site";
 import { useI18n } from "../../i18n/I18nProvider";
 import { Logo } from "./Logo";
 
 export function Footer() {
+  //
   const { t } = useI18n();
   const contactLinks = [
-    { label: site.contact.phone, href: site.contact.phoneHref, Icon: Phone },
-    { label: site.contact.email, href: site.contact.emailHref, Icon: Mail },
-    { label: t.footer.address, href: site.contact.mapHref, Icon: MapPin },
+    { label: site.contact.phone, href: site.contact.phoneHref, icon: 'phone' },
+    { label: site.contact.email, href: site.contact.emailHref, icon: 'mail' },
+    { label: t.footer.address, href: site.contact.mapHref, icon: 'location-pin' },
   ];
   const productLinks = [
     { label: t.navigation.items.features, href: '#imkoniyatlar' },
@@ -29,10 +29,10 @@ export function Footer() {
           <div className="landing-footer__column">
             <h3>{t.footer.contact}</h3>
             <ul>
-              {contactLinks.map(({ label, href, Icon }) => (
+              {contactLinks.map(({ label, href, icon }) => (
                 <li key={href}>
                   <a href={href} {...(href.startsWith('https://') ? { target: '_blank', rel: 'noreferrer' } : {})}>
-                    <Icon size={14} />
+                    <i className={`icons-${icon} icon-size-14`} />
                     {label}
                   </a>
                 </li>

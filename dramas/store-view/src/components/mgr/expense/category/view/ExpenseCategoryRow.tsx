@@ -1,6 +1,6 @@
 import { Controller } from 'react-hook-form'
 import { Button, Input, Popconfirm, Switch } from 'antd'
-import { CheckIcon, PencilSimpleIcon, TrashIcon, XIcon } from '@phosphor-icons/react'
+
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { ExpenseCategory } from '@store/store-stub'
@@ -39,18 +39,7 @@ export function ExpenseCategoryRow({
 }: ExpenseCategoryRowProps) {
   //
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '10px 14px',
-        border: '1px solid var(--border)',
-        borderRadius: 8,
-        background: 'var(--surface-2)',
-        opacity: category.isActive ? 1 : 0.6,
-      }}
-    >
+    <div className={`expense-category-row${category.isActive ? '' : ' expense-category-row--inactive'}`}>
       {editing ? (
         <>
           <Controller
@@ -61,7 +50,7 @@ export function ExpenseCategoryRow({
               maxLength: { value: 100, message: t('categoryDrawer.nameMax') },
             }}
             render={({ field }) => (
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="u-flex-1 u-min-w-0">
                 <Input
                   {...field}
                   {...blockAutofill(`store-expense-category-edit-${category.id}`)}
@@ -69,25 +58,25 @@ export function ExpenseCategoryRow({
                   status={errors.editName ? 'error' : undefined}
                   autoFocus
                 />
-                {errors.editName?.message ? <div style={{ marginTop: 4, color: 'var(--danger)', fontSize: 11 }}>{errors.editName.message}</div> : null}
+                {errors.editName?.message ? <div className="u-text-danger u-fs-11 u-mt-4">{errors.editName.message}</div> : null}
               </div>
             )}
           />
           <Button
             size="small"
             type="primary"
-            icon={<CheckIcon size={16} weight="bold" />}
+            icon={<i className="icons-check icon-size-16" />}
             onClick={() => onSubmitEdit(category.id)}
             loading={updatePending}
             disabled={!editName.trim()}
           />
-          <Button size="small" icon={<XIcon size={16} />} onClick={onCancelEdit} />
+          <Button size="small" icon={<i className="icons-close icon-size-16" />} onClick={onCancelEdit} />
         </>
       ) : (
         <>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 500 }}>{category.name}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
+          <div className="u-flex-1">
+            <div className="u-fw-500">{category.name}</div>
+            <div className="u-text-muted u-fs-11-5">
               {category._count.expenses} {t('categoryDrawer.expenseCountSuffix')}
             </div>
           </div>
@@ -100,7 +89,7 @@ export function ExpenseCategoryRow({
             loading={updatePending}
             onChange={(checked) => onToggleActive(category.id, checked)}
           />
-          <Button size="small" type="text" icon={<PencilSimpleIcon size={16} />} onClick={() => onStartEdit(category)} />
+          <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-16" />} onClick={() => onStartEdit(category)} />
           <Popconfirm
             title={t('categoryDrawer.popconfirmTitle')}
             description={
@@ -113,7 +102,7 @@ export function ExpenseCategoryRow({
             okButtonProps={{ danger: true, disabled: category._count.expenses > 0, loading: deletePending }}
             onConfirm={() => onDelete(category.id)}
           >
-            <Button size="small" type="text" danger icon={<TrashIcon size={16} />} loading={deletePending} />
+            <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-16" />} loading={deletePending} />
           </Popconfirm>
         </>
       )}

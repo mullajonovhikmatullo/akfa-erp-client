@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
+
 import { toast } from 'sonner'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { CreateAdminPayload, UpdateAdminPayload, User } from '@store/store-stub'
 import { useBranchesList } from '../../branch'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { useAdminsPage } from '../hooks/useAdminsPage'
 import { useUserMutation } from '../hooks/useUserMutation'
 import { AdminFormModal, type AdminFormValues } from './view/AdminFormModal'
@@ -20,8 +19,7 @@ export interface AdminsListProps {
 
 export function AdminsList({ t }: AdminsListProps) {
   //
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
-  const { data: result, isLoading, isFetching, refetch } = useAdminsPage(page, pageSize)
+  const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, rowIndex } = useAdminsPage()
   const admins = result?.items ?? []
   const total = result?.total ?? 0
   const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
@@ -125,49 +123,49 @@ export function AdminsList({ t }: AdminsListProps) {
             {total} {t('admins.subtitleSuffix')}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={openCreate}>
+        <div className="u-flex u-gap-8">
+          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={openCreate}>
             {t('admins.newAdmin')}
           </Button>
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
               onClick={() => refetch()}
             />
           </Tooltip>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+      <div className="u-grid u-gap-12 u-grid-cols-fill-180 u-mb-16">
+        <div className="card u-p-14-16" >
+          <div className="u-text-muted u-fs-11 u-fw-700 u-tracking-wide u-mb-6 u-text-uppercase">
             {t('common.total')}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>{total}</div>
+          <div className="u-fs-24 u-fw-700">{total}</div>
         </div>
-        <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+        <div className="card u-p-14-16" >
+          <div className="u-text-muted u-fs-11 u-fw-700 u-tracking-wide u-mb-6 u-text-uppercase">
             {t('admins.statAssigned')}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--success, #16a34a)' }}>{assigned}</div>
+          <div className="u-text-success-fallback u-fs-24 u-fw-700">{assigned}</div>
         </div>
-        <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+        <div className="card u-p-14-16" >
+          <div className="u-text-muted u-fs-11 u-fw-700 u-tracking-wide u-mb-6 u-text-uppercase">
             {t('admins.statUnassigned')}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: unassigned > 0 ? 'var(--warning, #d97706)' : 'inherit' }}>{unassigned}</div>
+          <div className={`summary-value${unassigned > 0 ? ' tone-warning' : ''}`}>{unassigned}</div>
         </div>
-        <div className="card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+        <div className="card u-p-14-16" >
+          <div className="u-text-muted u-fs-11 u-fw-700 u-tracking-wide u-mb-6 u-text-uppercase">
             {t('admins.statBranches')}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>
-            {assigned} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--ink-3)' }}>/ {branches.length}</span>
+          <div className="u-fs-24 u-fw-700">
+            {assigned} <span className="u-text-muted u-fs-14 u-fw-400">/ {branches.length}</span>
           </div>
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card u-overflow-hidden u-p-0" >
         <DataTable<User>
           rowKey="id"
           dataSource={admins}

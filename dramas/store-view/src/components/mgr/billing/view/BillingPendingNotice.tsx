@@ -1,11 +1,11 @@
-import { WarningCircle } from '@phosphor-icons/react'
+
 import type { BillingTranslate } from './types'
 
 export function BillingPendingNotice({ t }: { t: BillingTranslate }) {
   //
   return (
     <div className="billing-notice" role="status">
-      <WarningCircle size={20} weight="duotone" />
+      <i className="icons-warning icon-size-20" />
       <div>
         <strong>{t('billing.pendingTitle')}</strong>
         <span>{t('billing.pendingDescription')}</span>

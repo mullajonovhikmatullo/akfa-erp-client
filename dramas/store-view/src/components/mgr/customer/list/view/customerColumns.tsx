@@ -1,5 +1,5 @@
 import { Button, Popconfirm, Tooltip } from 'antd'
-import { EyeIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
+
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -34,34 +34,22 @@ export function createCustomerColumns({
       key: '_idx',
       width: 40,
       render: (_: unknown, __: Customer, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+        <span className="u-text-quiet u-fs-11 u-numeric-tabular">{rowIndex(index)}</span>
       ),
     },
     {
       title: t('nav.customers'),
       key: 'fullName',
       render: (_: unknown, customer: Customer) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="u-items-center u-flex u-gap-8">
           <div
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: '50%',
-              background: 'var(--primary)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 11,
-              fontWeight: 700,
-              flexShrink: 0,
-            }}
+            className="u-items-center u-bg-primary u-rounded-full u-text-white u-flex u-shrink-0 u-fs-11 u-fw-700 u-h-26 u-justify-center u-w-26"
           >
             {customer.fullName.charAt(0).toUpperCase()}
           </div>
           <div>
-            <div style={{ fontWeight: 600 }}>{customer.fullName}</div>
-            {customer.address && <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{customer.address}</div>}
+            <div className="u-fw-600">{customer.fullName}</div>
+            {customer.address && <div className="u-text-muted u-fs-11-5">{customer.address}</div>}
           </div>
         </div>
       ),
@@ -72,7 +60,7 @@ export function createCustomerColumns({
       width: 170,
       responsiveHide: true,
       render: (value: string | null) =>
-        value ? <span className="num" style={{ fontSize: 13 }}>{value}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span>,
+        value ? <span className="num u-fs-13" >{value}</span> : <span className="u-text-quiet">—</span>,
     },
     {
       title: t('common.branch'),
@@ -91,8 +79,8 @@ export function createCustomerColumns({
         const tone = customer.balance > 0 ? 'danger' : customer.balance < 0 ? 'success' : 'muted'
         const label = customer.balance > 0 ? t('customers.balanceDebt') : customer.balance < 0 ? t('customers.balanceCredit') : t('customers.balanceZero')
         return (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
-            <span className="num" style={{ fontWeight: 700 }}>
+          <div className="u-items-end u-flex u-flex-col u-gap-3">
+            <span className="num u-fw-700" >
               <MoneyDisplay amount={Math.abs(customer.balance)} currency="UZS" />
             </span>
             <StatusBadge tone={tone}>{label}</StatusBadge>
@@ -113,7 +101,7 @@ export function createCustomerColumns({
       dataIndex: 'createdAt',
       width: 110,
       responsiveHide: true,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>,
+      render: (value: string) => <span className="u-text-muted u-fs-12">{formatDate(value)}</span>,
     },
     {
       title: '',
@@ -121,13 +109,13 @@ export function createCustomerColumns({
       width: 90,
       fixed: 'right',
       render: (_: unknown, customer: Customer) => (
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div className="u-flex u-gap-4">
           <Tooltip title={t('common.view')}>
-            <Button size="small" type="text" icon={<EyeIcon size={18} />} onClick={(event) => { event.stopPropagation(); onView(customer) }} />
+            <Button size="small" type="text" icon={<i className="icons-eye icon-size-18" />} onClick={(event) => { event.stopPropagation(); onView(customer) }} />
           </Tooltip>
           {canManage ? (
             <>
-              <Button size="small" type="text" icon={<PencilSimpleIcon size={18} />} onClick={(event) => { event.stopPropagation(); onEdit(customer) }} />
+              <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-18" />} onClick={(event) => { event.stopPropagation(); onEdit(customer) }} />
               <Popconfirm
                 title={t('common.deleteTitle')}
                 description={`"${customer.fullName}" ${t('customers.deactivateDesc')}`}
@@ -137,7 +125,7 @@ export function createCustomerColumns({
                 onConfirm={(event) => { event?.stopPropagation(); onDelete(customer.id) }}
                 onPopupClick={(event) => event.stopPropagation()}
               >
-                <Button size="small" type="text" danger icon={<TrashIcon size={18} />} loading={deleting && deletingId === customer.id} onClick={(event) => event.stopPropagation()} />
+                <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} loading={deleting && deletingId === customer.id} onClick={(event) => event.stopPropagation()} />
               </Popconfirm>
             </>
           ) : null}

@@ -4,23 +4,13 @@ import type { ReactNode } from 'react'
 interface EllipsisTextProps {
   children: ReactNode
   title?: ReactNode
-  maxWidth?: number | string
+  maxWidth?: 132 | 180 | 190 | '100%'
 }
 
 export function EllipsisText({ children, title, maxWidth = 180 }: EllipsisTextProps) {
   //
   const content = (
-    <span
-      style={{
-        display: 'inline-block',
-        maxWidth,
-        minWidth: 0,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        verticalAlign: 'bottom',
-      }}
-    >
+    <span className={`ellipsis-text ellipsis-text--${maxWidth === '100%' ? 'full' : maxWidth}`}>
       {children}
     </span>
   )

@@ -1,5 +1,5 @@
 import { Button } from 'antd'
-import { ArrowClockwiseIcon } from '@phosphor-icons/react'
+
 import type { InventoryTranslate } from './types'
 
 export function InventoryPageHeader({
@@ -18,7 +18,7 @@ export function InventoryPageHeader({
         <h1>{t('inventory.title')}</h1>
         <div className="sub">{t('inventory.subtitle')}</div>
       </div>
-      <Button icon={<ArrowClockwiseIcon size={13} />} loading={refreshing} onClick={onRefresh}>
+      <Button icon={<i className="icons-reload icon-size-13" />} loading={refreshing} onClick={onRefresh}>
         {t('common.refresh')}
       </Button>
     </div>

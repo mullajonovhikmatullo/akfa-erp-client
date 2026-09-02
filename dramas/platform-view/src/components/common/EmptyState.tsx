@@ -1,15 +1,15 @@
-import type { AppIconComponent } from '../../types/dashboard';
+import type { AppIconName } from '../../types/dashboard';
 
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon: AppIconComponent;
+  icon: AppIconName;
 }
 
-export const EmptyState = ({ title, description, icon: Icon }: EmptyStateProps) => (
+export const EmptyState = ({ title, description, icon }: EmptyStateProps) => (
   <div className="empty-state">
     <div className="empty-state__icon" aria-hidden="true">
-      <Icon size={24} weight="duotone" />
+      <i className={`icons-${icon} icon-size-24`} />
     </div>
     <div>
       <h3>{title}</h3>

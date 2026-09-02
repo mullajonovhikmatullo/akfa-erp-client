@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+
 import { useI18n } from "../../i18n/I18nProvider";
 
 export function FAQ() {
+  //
   const { t } = useI18n();
   const [open, setOpen] = useState<number | null>(null);
 
@@ -15,12 +16,13 @@ export function FAQ() {
 
         <div className="faq-list" data-reveal-group>
           {t.faq.items.map((item, index) => {
+            //
             const isOpen = open === index;
             return (
               <article className={`faq-item${isOpen ? " is-open" : ""}`} key={`faq-${index}`}>
                 <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : index)}>
                   <span>{item.question}</span>
-                  <ChevronDown size={17} />
+                  <i className="icons-arrow-down icon-size-17" />
                 </button>
                 <p className={`faq-item__answer${isOpen ? " is-open" : ""}`}>{item.answer}</p>
               </article>

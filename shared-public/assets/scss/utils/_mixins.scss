@@ -1,0 +1,59 @@
+@use 'sass:math';
+
+@mixin size($width, $height: $width) {
+  width: $width;
+  height: $height;
+}
+
+@mixin utility-classes($property, $values) {
+  @each $name, $value in $values {
+    .u-#{$name} {
+      #{$property}: #{$value} !important;
+    }
+  }
+}
+
+@mixin percentage-widths($from: 0, $through: 100) {
+  @for $value from $from through $through {
+    .u-w-pct-#{$value} {
+      width: $value * 1% !important;
+    }
+  }
+}
+
+@mixin scale-y-steps($from: 0, $through: 100) {
+  @for $value from $from through $through {
+    .u-scale-y-#{$value} {
+      transform: scaleY(math.div($value, 100)) !important;
+    }
+  }
+}
+
+@mixin profile-photo-transforms($rotations, $zoom-from: 100, $zoom-through: 250, $zoom-step: 5) {
+  @each $rotation in $rotations {
+    @for $zoom-index from math.div($zoom-from, $zoom-step) through math.div($zoom-through, $zoom-step) {
+      $zoom: $zoom-index * $zoom-step;
+
+      .profile-photo-transform-r#{$rotation}-z#{$zoom} {
+        transform: rotate($rotation * 1deg) scale(math.div($zoom, 100)) !important;
+      }
+    }
+  }
+}
+
+@mixin icon-classes($icons) {
+  @each $icon in $icons {
+    .icons-#{$icon} {
+      -webkit-mask-image: url('/assets/images/icons/#{$icon}.svg');
+      mask-image: url('/assets/images/icons/#{$icon}.svg');
+    }
+  }
+}
+
+@mixin icon-sizes($from: 8, $through: 128) {
+  @for $size from $from through $through {
+    .icon-size-#{$size} {
+      @include size($size * 1px);
+    }
+  }
+}

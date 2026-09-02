@@ -12,7 +12,7 @@ import {
   Tag,
   Tooltip,
 } from 'antd';
-import { PencilSimple, PlusCircle, Trash } from '@phosphor-icons/react';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlatformFlowApi, PlatformSeekApi } from '@store/platform-stub';
 import type { ManagedPlan, PlanMutationPayload, UpdatePlanPayload } from '@store/platform-stub';
@@ -32,6 +32,7 @@ const initialPlan: PlanMutationPayload = {
 const limitLabel = (value: number | null) => value ?? 'Cheksiz';
 
 export const PlansPage = () => {
+  //
   const { message } = AntdApp.useApp();
   const queryClient = useQueryClient();
   const [form] = Form.useForm<PlanMutationPayload>();
@@ -44,6 +45,7 @@ export const PlansPage = () => {
   const plansQuery = useQuery(PlatformSeekApi.fetch.listManagedPlans());
 
   const refreshPlans = async () => {
+    //
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['platform-plans'] }),
       queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
@@ -52,6 +54,7 @@ export const PlansPage = () => {
   };
 
   const closeForm = () => {
+    //
     setFormOpen(false);
     setEditingPlan(null);
     form.resetFields();
@@ -60,11 +63,13 @@ export const PlansPage = () => {
   const createMutation = useMutation({
     mutationFn: PlatformFlowApi.createPlan,
     onSuccess: async () => {
+      //
       message.success('Tarif yaratildi');
       closeForm();
       await refreshPlans();
     },
     onError: (error) => {
+      //
       message.error(error instanceof Error ? error.message : 'Tarifni yaratib bo‘lmadi');
       void refreshPlans();
     },
@@ -74,11 +79,13 @@ export const PlansPage = () => {
     mutationFn: ({ planId, payload }: { planId: string; payload: UpdatePlanPayload }) =>
       PlatformFlowApi.updatePlan({ planId, payload }),
     onSuccess: async () => {
+      //
       message.success('Tarif yangilandi');
       closeForm();
       await refreshPlans();
     },
     onError: (error) => {
+      //
       message.error(error instanceof Error ? error.message : 'Tarifni yangilab bo‘lmadi');
       void refreshPlans();
     },
@@ -94,12 +101,14 @@ export const PlansPage = () => {
         },
       }),
     onSuccess: async (result) => {
+      //
       message.success(result.archived ? 'Foydalanilayotgan tarif arxivlandi' : 'Tarif o‘chirildi');
       setDeleteTarget(null);
       setDeletePassword('');
       await refreshPlans();
     },
     onError: (error) => {
+      //
       setDeletePassword('');
       message.error(error instanceof Error ? error.message : 'Tarifni olib tashlab bo‘lmadi');
       void refreshPlans();
@@ -107,12 +116,14 @@ export const PlansPage = () => {
   });
 
   const openCreate = () => {
+    //
     setEditingPlan(null);
     form.setFieldsValue(initialPlan);
     setFormOpen(true);
   };
 
   const openEdit = (plan: ManagedPlan) => {
+    //
     setEditingPlan(plan);
     form.setFieldsValue({
       code: plan.code,
@@ -128,6 +139,7 @@ export const PlansPage = () => {
   };
 
   const submitPlan = async () => {
+    //
     const values = await form.validateFields();
     const payload: PlanMutationPayload = {
       code: values.code.trim().toUpperCase(),
@@ -160,7 +172,7 @@ export const PlansPage = () => {
           <span className="operation-page__eyebrow">Subscription catalog</span>
           <h1>Tariflar</h1>
         </div>
-        <Button type="primary" icon={<PlusCircle size={18} />} onClick={openCreate}>
+        <Button type="primary" icon={<i className="icons-add-plus-circle icon-size-18" />} onClick={openCreate}>
           Yangi tarif
         </Button>
       </div>
@@ -254,7 +266,7 @@ export const PlansPage = () => {
                   <Tooltip title="Tahrirlash">
                     <Button
                       aria-label="Tarifni tahrirlash"
-                      icon={<PencilSimple size={17} />}
+                      icon={<i className="icons-pen-line icon-size-17" />}
                       onClick={() => openEdit(plan)}
                     />
                   </Tooltip>
@@ -262,7 +274,7 @@ export const PlansPage = () => {
                     <Button
                       danger
                       aria-label="Tarifni olib tashlash"
-                      icon={<Trash size={17} />}
+                      icon={<i className="icons-trash icon-size-17" />}
                       onClick={() => setDeleteTarget(plan)}
                     />
                   </Tooltip>
@@ -318,18 +330,18 @@ export const PlansPage = () => {
               max={1_000_000_000}
               precision={0}
               addonAfter="UZS"
-              style={{ width: '100%' }}
+              className="u-w-full"
             />
           </Form.Item>
           <div className="plan-form-grid plan-form-grid--limits">
             <Form.Item name="maxBranches" label="Filial limiti" extra="Bo‘sh qolsa cheksiz">
-              <InputNumber min={1} max={1_000_000} precision={0} style={{ width: '100%' }} />
+              <InputNumber min={1} max={1_000_000} precision={0} className="u-w-full" />
             </Form.Item>
             <Form.Item name="maxUsers" label="User limiti" extra="Bo‘sh qolsa cheksiz">
-              <InputNumber min={1} max={1_000_000} precision={0} style={{ width: '100%' }} />
+              <InputNumber min={1} max={1_000_000} precision={0} className="u-w-full" />
             </Form.Item>
             <Form.Item name="maxProducts" label="Mahsulot limiti" extra="Bo‘sh qolsa cheksiz">
-              <InputNumber min={1} max={1_000_000} precision={0} style={{ width: '100%' }} />
+              <InputNumber min={1} max={1_000_000} precision={0} className="u-w-full" />
             </Form.Item>
           </div>
           <div className="plan-switches">
@@ -359,6 +371,7 @@ export const PlansPage = () => {
           if (deleteTarget && deletePassword) deleteMutation.mutate(deleteTarget);
         }}
         onCancel={() => {
+          //
           setDeleteTarget(null);
           setDeletePassword('');
         }}

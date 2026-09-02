@@ -1,7 +1,7 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { formatCompactUZS } from '@store/store-shared/lib/formatters';
-import { DASH_DOT_FILL, DASH_GRID, DASH_PANEL_BG, DASH_TICK, DASH_TOOLTIP_STYLE, COLORS } from './dashboard-utils';
-import type { TrendDatum } from './types';
+import { DASH_DOT_FILL, DASH_GRID, DASH_TICK, COLORS } from './dashboard-utils';
+import type { Tone, TrendDatum } from './types';
 import { TrendValueTile } from './TrendValueTile';
 
 export function SalesTrendChart({
@@ -16,10 +16,10 @@ export function SalesTrendChart({
   expensesLabel: string;
 }) {
   //
-  const series: { key: 'revenue' | 'debt' | 'expenses'; label: string; color: string; gradientId: string }[] = [
-    { key: 'revenue', label: revenueLabel, color: COLORS.primary, gradientId: 'dashRevenue' },
-    { key: 'debt', label: debtLabel, color: COLORS.danger, gradientId: 'dashDebt' },
-    { key: 'expenses', label: expensesLabel, color: COLORS.warning, gradientId: 'dashExpenses' },
+  const series: { key: 'revenue' | 'debt' | 'expenses'; label: string; color: string; tone: Tone; gradientId: string }[] = [
+    { key: 'revenue', label: revenueLabel, color: COLORS.primary, tone: 'primary', gradientId: 'dashRevenue' },
+    { key: 'debt', label: debtLabel, color: COLORS.danger, tone: 'danger', gradientId: 'dashDebt' },
+    { key: 'expenses', label: expensesLabel, color: COLORS.warning, tone: 'warning', gradientId: 'dashExpenses' },
   ];
   const values = data.flatMap((item) => series.map((itemSeries) => item[itemSeries.key]));
   const maxValue = Math.max(0, ...values);
@@ -33,16 +33,8 @@ export function SalesTrendChart({
       : false;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div
-        style={{
-          minHeight: 254,
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          background: DASH_PANEL_BG,
-          padding: '8px 8px 2px',
-        }}
-      >
+    <div className="u-flex u-flex-col u-gap-10">
+      <div className="dashboard-sales-trend-chart">
         <ResponsiveContainer width="100%" height={244}>
           <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
             <defs>
@@ -77,9 +69,7 @@ export function SalesTrendChart({
               width={52}
             />
             <Tooltip
-              contentStyle={DASH_TOOLTIP_STYLE}
-              labelStyle={{ color: 'var(--ink-2)' }}
-              itemStyle={{ color: 'var(--ink-2)' }}
+              wrapperClassName="dashboard-recharts-tooltip"
               formatter={(v) => formatCompactUZS(Number(v))}
             />
             {series.map((item) => (
@@ -100,11 +90,11 @@ export function SalesTrendChart({
         </ResponsiveContainer>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(138px, 1fr))', gap: 7 }}>
+      <div className="u-grid u-gap-7 u-grid-cols-fit-138">
         {series.map((item) => (
           <TrendValueTile
             key={item.key}
-            color={item.color}
+            tone={item.tone}
             label={item.label}
             value={data.reduce((sum, row) => sum + row[item.key], 0)}
           />

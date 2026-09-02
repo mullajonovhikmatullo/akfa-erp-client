@@ -1,6 +1,6 @@
 import { Button, Form, Input, Modal, Space, Upload } from 'antd'
 import type { FormInstance, UploadFile } from 'antd'
-import { CheckCircle, FileArrowUp, X } from '@phosphor-icons/react'
+
 import { RECEIPT_ACCEPT, isValidReceipt } from '../lib/billing-receipt'
 import { formatBillingMoney } from '../lib/billing-formatters'
 import type { BillingTranslate, PaymentFormValues, ReceiptPreview } from './types'
@@ -62,7 +62,7 @@ export function PaymentSubmissionModal({
             <div className="billing-receipt-preview">
               <div className="billing-receipt-preview__header">
                 <span title={preview.fileName}>{preview.fileName}</span>
-                <Button type="text" danger htmlType="button" icon={<X size={16} />} onClick={onClearReceipt}>
+                <Button type="text" danger htmlType="button" icon={<i className="icons-close icon-size-16" />} onClick={onClearReceipt}>
                   {t('common.cancel')}
                 </Button>
               </div>
@@ -90,7 +90,7 @@ export function PaymentSubmissionModal({
               }}
               onChange={({ fileList }) => onFilesChange(fileList)}
             >
-              <FileArrowUp size={30} weight="duotone" />
+              <i className="icons-file-upload icon-size-30" />
               <p>{t('billing.receiptDrop')}</p>
               <span>{t('billing.receiptHint')}</span>
             </Upload.Dragger>
@@ -105,7 +105,7 @@ export function PaymentSubmissionModal({
           />
         </Form.Item>
         <Space className="billing-security-note" size={8}>
-          <CheckCircle size={18} weight="duotone" />
+          <i className="icons-circle-check icon-size-18" />
           <span>{t('billing.securityNote')}</span>
         </Space>
       </Form>

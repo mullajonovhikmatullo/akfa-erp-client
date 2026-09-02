@@ -1,5 +1,4 @@
 import { Button } from 'antd';
-import { GearSix, Headset } from '@phosphor-icons/react';
 import { EmptyState } from '../common/EmptyState';
 import { GlassCard } from '../common/GlassCard';
 
@@ -14,7 +13,7 @@ export const ComingSoonView = ({ isSupportRequests = false, onBack }: ComingSoon
     return (
       <GlassCard className="coming-soon">
         <EmptyState
-          icon={Headset}
+          icon="header-support"
           title="Yangi murojaat yo‘q"
           description="Qo‘llab-quvvatlash so‘rovlari kelganda shu yerda ko‘rinadi."
         />
@@ -28,7 +27,7 @@ export const ComingSoonView = ({ isSupportRequests = false, onBack }: ComingSoon
   return (
     <GlassCard className="coming-soon">
       <div className="empty-state__icon" aria-hidden="true">
-        <GearSix size={28} weight="duotone" />
+        <i className="icons-settings icon-size-28" />
       </div>
       <div>
         <h1>Bu bo‘lim tayyorlanmoqda</h1>

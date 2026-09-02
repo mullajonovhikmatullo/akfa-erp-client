@@ -1,4 +1,3 @@
-import { CalendarBlank, Clock } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { EmptyState } from '../common/EmptyState';
 import { GlassCard } from '../common/GlassCard';
@@ -27,7 +26,7 @@ export const TodayEventsCard = ({ events }: TodayEventsCardProps) => (
             onClick={() => toast.info('Bu bo‘lim keyingi bosqichda qo‘shiladi')}
           >
             <span className="today-event__icon" aria-hidden="true">
-              <CalendarBlank size={20} weight="duotone" />
+              <i className="icons-calendar-empty icon-size-20" />
             </span>
             <span className="today-event__content">
               <span className="today-event__title">{event.title}</span>
@@ -35,7 +34,7 @@ export const TodayEventsCard = ({ events }: TodayEventsCardProps) => (
             </span>
             <StatusBadge label={event.type} />
             <span className="today-event__time">
-              <Clock size={15} weight="duotone" aria-hidden="true" />
+              <i className="icons-clock icon-size-15" aria-hidden="true" />
               {event.time}
             </span>
           </button>
@@ -43,7 +42,7 @@ export const TodayEventsCard = ({ events }: TodayEventsCardProps) => (
       </div>
     ) : (
       <EmptyState
-        icon={CalendarBlank}
+        icon="calendar-empty"
         title="Bugun tadbir yo‘q"
         description="Kalendar voqealari qo‘shilganda shu yerda chiqadi."
       />

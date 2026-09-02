@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Alert, Button, Modal, Select, Table, Tooltip } from 'antd'
-import {
-  ArrowClockwiseIcon,
-  ArrowsLeftRightIcon,
-} from '@phosphor-icons/react'
+
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { Transfer, TransferStatus } from '@store/store-stub'
@@ -81,18 +78,18 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
             {transfers.length} {t('transfers.subtitleSuffix')} · {pendingCount} {t('transfers.statusPending')}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Button type="primary" icon={<ArrowsLeftRightIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
+        <div className="u-flex u-gap-8">
+          <Button type="primary" icon={<i className="icons-transfer icon-size-13" />} onClick={() => setCreating(true)}>
             {t('transfers.newTransfer')}
           </Button>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+            <Button icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => refetch()} />
           </Tooltip>
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
+      <div className="card u-overflow-hidden u-p-0" >
+        <div className="u-items-center u-border-b-default u-flex u-gap-10 u-p-14-16">
           <Controller
             name="status"
             control={control}
@@ -104,12 +101,12 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
                 }}
                 allowClear
                 placeholder={t('transfers.filterAll')}
-                style={{ minWidth: 180 }}
+                className="u-min-w-180"
                 options={statusOptions}
               />
             )}
           />
-          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
+          <span className="u-text-muted u-fs-12-5 u-ml-auto">
             <strong>{transfers.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
@@ -153,9 +150,9 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
         }}
       >
         {confirmingTransfer ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="u-flex u-flex-col u-gap-12">
             <Alert type="warning" showIcon message={t('transfers.confirmReceiptWarning')} description={t('transfers.confirmReceiptDesc')} />
-            <div style={{ display: 'grid', gap: 8, fontSize: 13 }}>
+            <div className="u-grid u-fs-13 u-gap-8">
               <InfoRow label={t('transfers.confirmReceiptRoute')} value={`${confirmingTransfer.fromBranch.name} → ${confirmingTransfer.toBranch.name}`} />
               <InfoRow label={t('transfers.confirmReceiptItems')} value={`${confirmingTransfer.items.length} ${t('transfers.itemTypeSuffix')}`} />
               <InfoRow label={t('transfers.colTotal')} value={<MoneyDisplay amount={confirmingTotal} currency="UZS" />} />

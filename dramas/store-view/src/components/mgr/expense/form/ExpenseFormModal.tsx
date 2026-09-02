@@ -35,7 +35,7 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: E
         </Button>,
       ]}
     >
-      <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
+      <Form layout="vertical" component="div" className="u-mt-4">
         <FormSection>
           <ExpenseFormFields
             t={t}

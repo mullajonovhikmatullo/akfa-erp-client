@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Badge, Button, Select, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
+
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { SaleListItem, SaleType } from '@store/store-stub'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
 import { NewSaleForm } from '../form/NewSaleForm'
 import { useSalesPage } from '../hooks/useSalesPage'
@@ -25,7 +24,6 @@ interface SalesListProps {
 
 export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRate }: SalesListProps) {
   //
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<SalesFiltersForm>({
     defaultValues: {
       saleType: undefined,
@@ -37,15 +35,17 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
   const [drawerSale, setDrawerSale] = useState<SaleListItem | null>(null)
   const hasDebtFilter = filters.hasDebt === undefined ? undefined : filters.hasDebt === 'true'
 
-  useEffect(() => {
-    onPageChange(1, pageSize)
-  }, [branchId, onPageChange, pageSize])
-
-  const { data: result, isLoading, isFetching, refetch } = useSalesPage(page, pageSize, {
+  const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, resetPage, rowIndex } = useSalesPage({
     branchId,
     saleType: filters.saleType,
     hasDebt: hasDebtFilter,
   })
+
+  useEffect(() => {
+    //
+    resetPage()
+  }, [branchId, resetPage])
+
   const sales = result?.items ?? []
   const total = result?.total ?? 0
   const totalWithDebt = result?.totalWithDebt ?? 0
@@ -78,7 +78,7 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
           className={tab === 'new' ? 'is-active' : undefined}
           onClick={() => setTab('new')}
         >
-          <PlusIcon size={14} weight="bold" />
+          <i className="icons-plus icon-size-14" />
           {t('dashboard.newSale')}
         </button>
         <button
@@ -97,16 +97,9 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
       {tab === 'new' ? (
         <NewSaleForm t={t} isStoreOwner={isStoreOwner} userBranchId={userBranchId} exchangeRate={exchangeRate} />
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="card u-overflow-hidden u-p-0" >
           <div
-            style={{
-              display: 'flex',
-              gap: 10,
-              padding: '14px 16px',
-              borderBottom: '1px solid var(--border)',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-            }}
+            className="u-items-center u-border-b-default u-flex u-flex-wrap u-gap-10 u-p-14-16"
           >
             <Controller
               name="saleType"
@@ -117,11 +110,11 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
                   onChange={(value) => {
                     //
                     field.onChange(value)
-                    onPageChange(1, pageSize)
+                    resetPage()
                   }}
                   allowClear
                   placeholder={t('sales.filterAllTypes')}
-                  style={{ minWidth: 160 }}
+                  className="u-min-w-160"
                   options={saleTypeOptions}
                 />
               )}
@@ -135,11 +128,11 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
                   onChange={(value) => {
                     //
                     field.onChange(value)
-                    onPageChange(1, pageSize)
+                    resetPage()
                   }}
                   allowClear
                   placeholder={t('sales.filterPayment')}
-                  style={{ minWidth: 160 }}
+                  className="u-min-w-160"
                   options={[
                     { value: 'true', label: t('sales.hasDebt') },
                     { value: 'false', label: t('sales.filterPaid') },
@@ -148,9 +141,9 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
               )}
             />
             <Tooltip title={t('common.refresh')}>
-              <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+              <Button icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => refetch()} />
             </Tooltip>
-            <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
+            <span className="u-text-muted u-fs-12-5 u-ml-auto">
               <strong>{total}</strong> {t('common.resultsSuffix')}
             </span>
           </div>
@@ -171,7 +164,7 @@ export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRat
             }}
             onRow={(sale) => ({
               onClick: () => setDrawerSale(sale),
-              style: { cursor: 'pointer' },
+              className: 'clickable-row',
             })}
             emptyText={t('sales.empty')}
           />

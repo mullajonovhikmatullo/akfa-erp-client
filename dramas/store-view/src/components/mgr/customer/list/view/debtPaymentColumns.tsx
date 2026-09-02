@@ -12,7 +12,7 @@ export function createDebtPaymentColumns(t: (key: string) => string): ColumnDef<
     {
       title: t('nav.customers'),
       key: 'customer',
-      render: (_, payment) => <div><strong>{payment.sale.customer?.fullName ?? '—'}</strong><div style={{ color: 'var(--ink-3)', fontSize: 12 }}>{payment.sale.customer?.phone ?? '—'}</div></div>,
+      render: (_, payment) => <div><strong>{payment.sale.customer?.fullName ?? '—'}</strong><div className="u-text-muted u-fs-12">{payment.sale.customer?.phone ?? '—'}</div></div>,
     },
     { title: t('common.branch'), key: 'branch', width: 150, render: (_, payment) => <StatusBadge tone="muted">{payment.sale.branch.name}</StatusBadge> },
     { title: t('customers.paymentsAmount'), key: 'amount', width: 170, align: 'right', render: (_, payment) => <strong className="num"><MoneyDisplay amount={payment.amountUzs + payment.amountUsd * (payment.usdToUzsRate ?? 0)} currency="UZS" /></strong> },

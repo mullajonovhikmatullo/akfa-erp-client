@@ -45,7 +45,7 @@ export function BranchAssignmentModal({
       confirmLoading={pending}
       destroyOnHidden
     >
-      <div style={{ marginBottom: 12, fontSize: 13, color: 'var(--ink-3)' }}>{t('branches.assignHint')}</div>
+      <div className="u-text-muted u-fs-13 u-mb-12">{t('branches.assignHint')}</div>
       <Form layout="vertical">
         <Form.Item label={t('branches.assignLabel')}>
           <Controller

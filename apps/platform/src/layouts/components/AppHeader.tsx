@@ -1,5 +1,5 @@
 import { Badge, Input, Popover, Tooltip } from 'antd';
-import { Bell, MagnifyingGlass, ShieldCheck, Storefront } from '@phosphor-icons/react';
+
 import { toast } from 'sonner';
 import { dashboardMock } from '@store/platform-view/mocks';
 import { readPlatformUser } from '../../shared/auth/session';
@@ -22,6 +22,7 @@ const notificationItems = [
 ];
 
 export const AppHeader = () => {
+  //
   const platformUser = readPlatformUser();
   const admin = platformUser
     ? {
@@ -57,13 +58,13 @@ export const AppHeader = () => {
     <header className="app-header">
       <div className="app-header__left">
         <div className="brand-mark" aria-hidden="true">
-          <Storefront size={22} weight="duotone" />
+          <i className="icons-building icon-size-22" />
         </div>
         <div className="brand-copy">
           <span>Store Management</span>
         </div>
         <span className="role-chip">
-          <ShieldCheck size={15} weight="fill" aria-hidden="true" />
+          <i className="icons-user_check icon-size-15" aria-hidden="true" />
           Platform admin
         </span>
       </div>
@@ -71,7 +72,7 @@ export const AppHeader = () => {
       <div className="app-header__search">
         <Input
           aria-label="Global qidiruv"
-          prefix={<MagnifyingGlass size={18} weight="duotone" aria-hidden="true" />}
+          prefix={<i className="icons-search icon-size-18" aria-hidden="true" />}
           placeholder="Mijoz, do‘kon yoki to‘lov qidirish"
           allowClear
           onPressEnter={(event) => {
@@ -91,14 +92,14 @@ export const AppHeader = () => {
             aria-label="Qidiruvni ochish"
             onClick={() => toast.info('Qidiruv keyingi bosqichda qo‘shiladi')}
           >
-            <MagnifyingGlass size={20} weight="duotone" />
+            <i className="icons-search icon-size-20" />
           </button>
         </Tooltip>
         <ThemeToggle />
         <Popover content={notificationContent} trigger="click" placement="bottomRight">
           <button className="icon-button" type="button" aria-label="Bildirishnomalarni ko‘rish">
             <Badge count={5} size="small" offset={[2, -1]}>
-              <Bell size={20} weight="duotone" />
+              <i className="icons-bell-ring icon-size-20" />
             </Badge>
           </button>
         </Popover>

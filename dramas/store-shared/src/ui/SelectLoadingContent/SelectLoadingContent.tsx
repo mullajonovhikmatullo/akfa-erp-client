@@ -3,7 +3,7 @@ import { Spin } from 'antd'
 export function SelectLoadingContent() {
   //
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: 12 }}>
+    <div className="u-flex u-justify-center u-p-12">
       <Spin size="small" />
     </div>
   )

@@ -11,3 +11,4 @@
 @import './styles/glass-theme.css';
 @import './styles/overlays.css';
 @import './styles/notifications.css';
+@import '../../../../shared-public/assets/scss/style.scss';

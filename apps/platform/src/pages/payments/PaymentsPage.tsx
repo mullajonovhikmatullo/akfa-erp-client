@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { App as AntdApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
-import { CheckCircle, Eye, PlusCircle, Receipt, XCircle } from '@phosphor-icons/react';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   PlatformFlowApi,
@@ -29,6 +29,7 @@ type ReceiptPreview = {
 };
 
 export const PaymentsPage = () => {
+  //
   const { message } = AntdApp.useApp();
   const queryClient = useQueryClient();
   const [form] = Form.useForm<CreatePaymentPayload>();
@@ -57,6 +58,7 @@ export const PaymentsPage = () => {
   });
 
   const refreshPlatformData = async () => {
+    //
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['platform-payments'] }),
       queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
@@ -67,12 +69,14 @@ export const PaymentsPage = () => {
   const createMutation = useMutation({
     mutationFn: PlatformFlowApi.createPayment,
     onSuccess: async () => {
+      //
       message.success('Manual to‘lov yaratildi');
       setCreateModalOpen(false);
       form.resetFields();
       await refreshPlatformData();
     },
     onError: (error) => {
+      //
       message.error(error instanceof Error ? error.message : 'To‘lov yaratilmadi');
       void refreshPlatformData();
     },
@@ -81,10 +85,12 @@ export const PaymentsPage = () => {
   const approveMutation = useMutation({
     mutationFn: PlatformFlowApi.approvePayment,
     onSuccess: async () => {
+      //
       message.success('To‘lov tasdiqlandi');
       await refreshPlatformData();
     },
     onError: (error) => {
+      //
       message.error(error instanceof Error ? error.message : 'To‘lovni tasdiqlab bo‘lmadi');
       void refreshPlatformData();
     },
@@ -94,12 +100,14 @@ export const PaymentsPage = () => {
     mutationFn: ({ id, note }: { id: string; note: string }) =>
       PlatformFlowApi.rejectPayment({ paymentId: id, note }),
     onSuccess: async () => {
+      //
       message.success('To‘lov rad etildi');
       setRejectTarget(null);
       setRejectNote('');
       await refreshPlatformData();
     },
     onError: (error) => {
+      //
       message.error(error instanceof Error ? error.message : 'To‘lovni rad etib bo‘lmadi');
       void refreshPlatformData();
     },
@@ -131,11 +139,13 @@ export const PaymentsPage = () => {
   );
 
   const submitCreatePayment = async () => {
+    //
     const values = await form.validateFields();
     createMutation.mutate({ ...values, currency: 'UZS' });
   };
 
   const selectStore = (storeId: string) => {
+    //
     const store = storesQuery.data?.items.find((item) => item.id === storeId);
     form.setFieldsValue({
       storeId,
@@ -145,6 +155,7 @@ export const PaymentsPage = () => {
   };
 
   const openReceipt = async (payment: PlatformPayment) => {
+    //
     if (!payment.receiptMedia) return;
     setOpeningReceiptId(payment.receiptMedia.id);
     try {
@@ -172,7 +183,7 @@ export const PaymentsPage = () => {
         </div>
         <Button
           type="primary"
-          icon={<PlusCircle size={18} weight="duotone" />}
+          icon={<i className="icons-add-plus-circle icon-size-18" />}
           onClick={() => setCreateModalOpen(true)}
         >
           To‘lov qo‘shish
@@ -204,7 +215,7 @@ export const PaymentsPage = () => {
             options={paymentStatusOptions}
             onChange={setStatus}
           />
-          <Button icon={<Receipt size={18} weight="duotone" />} onClick={() => void paymentsQuery.refetch()}>
+          <Button icon={<i className="icons-file icon-size-18" />} onClick={() => void paymentsQuery.refetch()}>
             Yangilash
           </Button>
         </div>
@@ -290,7 +301,7 @@ export const PaymentsPage = () => {
                 payment.receiptMedia ? (
                   <Button
                     size="small"
-                    icon={<Eye size={16} />}
+                    icon={<i className="icons-eye icon-size-16" />}
                     loading={openingReceiptId === payment.receiptMedia.id}
                     onClick={() => void openReceipt(payment)}
                   >
@@ -324,7 +335,7 @@ export const PaymentsPage = () => {
                       <Button
                         size="small"
                         type="primary"
-                        icon={<CheckCircle size={16} weight="duotone" />}
+                        icon={<i className="icons-circle-check icon-size-16" />}
                         loading={approveMutation.isPending}
                       >
                         Tasdiqlash
@@ -333,7 +344,7 @@ export const PaymentsPage = () => {
                     <Button
                       size="small"
                       danger
-                      icon={<XCircle size={16} weight="duotone" />}
+                      icon={<i className="icons-close-circle icon-size-16" />}
                       onClick={() => setRejectTarget(payment)}
                     >
                       Rad etish
@@ -379,6 +390,7 @@ export const PaymentsPage = () => {
         confirmLoading={createMutation.isPending}
         onOk={submitCreatePayment}
         onCancel={() => {
+          //
           setCreateModalOpen(false);
           form.resetFields();
         }}
@@ -409,7 +421,7 @@ export const PaymentsPage = () => {
               controls={false}
               precision={0}
               addonAfter="UZS"
-              style={{ width: '100%' }}
+              className="u-w-full"
               placeholder="Do‘kon tanlanganda avtomatik belgilanadi"
             />
           </Form.Item>
@@ -438,6 +450,7 @@ export const PaymentsPage = () => {
           if (rejectTarget) rejectMutation.mutate({ id: rejectTarget.id, note: rejectNote });
         }}
         onCancel={() => {
+          //
           setRejectTarget(null);
           setRejectNote('');
         }}

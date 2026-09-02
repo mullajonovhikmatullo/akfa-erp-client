@@ -12,21 +12,21 @@ export function ExpensesTab({ data, loading, t }: { data?: ExpenseReportData; lo
   const maxPeriodAmount = Math.max(...data.byPeriod.map((row) => row.amount), 1)
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
+    <div className="u-items-start u-grid u-gap-12 u-grid-cols-content-280">
       <div className="card">
         <SectionTitle>{t('analytics.byPeriod')}</SectionTitle>
-        {data.byPeriod.length === 0 ? <Empty t={t} /> : <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>{data.byPeriod.map((row, index) => <div key={index} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 140px', gap: 8, alignItems: 'center', fontSize: 12.5 }}><span style={{ color: 'var(--ink-3)' }}>{formatDate(String(row.period))}</span><div style={{ height: 8, borderRadius: 4, background: 'var(--border)', overflow: 'hidden' }}><div style={{ width: `${(row.amount / maxPeriodAmount) * 100}%`, height: '100%', background: 'var(--primary)', borderRadius: 4 }} /></div><span className="num" style={{ textAlign: 'right' }}><MoneyDisplay amount={row.amount} currency="UZS" /></span></div>)}</div>}
+        {data.byPeriod.length === 0 ? <Empty t={t} /> : <div className="u-flex u-flex-col u-gap-6">{data.byPeriod.map((row, index) => <div key={index} className="u-items-center u-grid u-fs-12-5 u-gap-8 u-grid-cols-110-content-140"><span className="u-text-muted">{formatDate(String(row.period))}</span><div className="u-bg-border u-rounded-4 u-h-8 u-overflow-hidden"><div className={`progress-fill progress-fill--rounded-4 u-w-pct-${Math.round((row.amount / maxPeriodAmount) * 100)}`} /></div><span className="num u-text-right" ><MoneyDisplay amount={row.amount} currency="UZS" /></span></div>)}</div>}
       </div>
       <div className="card">
         <SectionTitle>{t('nav.categories')}</SectionTitle>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="u-flex u-flex-col u-gap-10">
           {data.byCategory.map((category) => { //
             const pct = (category.amount / grandTotal) * 100
-            return <div key={category.categoryId}><div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}><span style={{ fontWeight: 500 }}>{category.categoryName}</span><span className="num" style={{ color: 'var(--ink-3)' }}>{pct.toFixed(0)}%</span></div><ProgressBar pct={pct} /><div className="num" style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}><MoneyDisplay amount={category.amount} currency="UZS" /></div></div>
+            return <div key={category.categoryId}><div className="u-flex u-fs-12-5 u-justify-between u-mb-4"><span className="u-fw-500">{category.categoryName}</span><span className="num u-text-muted" >{pct.toFixed(0)}%</span></div><ProgressBar pct={pct} /><div className="num u-text-muted u-fs-11-5 u-mt-2" ><MoneyDisplay amount={category.amount} currency="UZS" /></div></div>
           })}
           {data.byCategory.length === 0 ? <Empty t={t} /> : null}
         </div>
-        <div style={{ borderTop: '1px solid var(--border)', marginTop: 14, paddingTop: 12, display: 'flex', justifyContent: 'space-between', fontSize: 13 }}><span style={{ color: 'var(--ink-3)' }}>{t('common.total')}</span><span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={data.summary.total} currency="UZS" /></span></div>
+        <div className="u-border-t-default u-flex u-fs-13 u-justify-between u-mt-14 u-pt-12"><span className="u-text-muted">{t('common.total')}</span><span className="num u-fw-700" ><MoneyDisplay amount={data.summary.total} currency="UZS" /></span></div>
       </div>
     </div>
   )

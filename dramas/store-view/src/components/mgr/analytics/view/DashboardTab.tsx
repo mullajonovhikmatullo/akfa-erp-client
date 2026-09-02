@@ -20,10 +20,10 @@ export function DashboardTab({ data, loading, t }: { data?: DashboardData; loadi
   ]
   const revenueBase = Math.max(data.sales.totalRevenue, 1)
   const financialRows = [
-    { label: t('analytics.kpiPaid'), value: data.sales.paidAmount, pct: (data.sales.paidAmount / revenueBase) * 100, tone: 'var(--success)' },
-    { label: t('analytics.kpiSaleDebt'), value: data.sales.outstandingDebt, pct: (data.sales.outstandingDebt / revenueBase) * 100, tone: 'var(--danger)' },
-    { label: t('analytics.kpiExpenses'), value: data.expenses.total, pct: (data.expenses.total / revenueBase) * 100, tone: 'var(--warning)' },
-    { label: t('analytics.kpiNetProfit'), value: data.profit.netProfit, pct: (Math.abs(data.profit.netProfit) / revenueBase) * 100, tone: data.profit.netProfit >= 0 ? 'var(--success)' : 'var(--danger)' },
+    { label: t('analytics.kpiPaid'), value: data.sales.paidAmount, pct: (data.sales.paidAmount / revenueBase) * 100, tone: 'success' },
+    { label: t('analytics.kpiSaleDebt'), value: data.sales.outstandingDebt, pct: (data.sales.outstandingDebt / revenueBase) * 100, tone: 'danger' },
+    { label: t('analytics.kpiExpenses'), value: data.expenses.total, pct: (data.expenses.total / revenueBase) * 100, tone: 'warning' },
+    { label: t('analytics.kpiNetProfit'), value: data.profit.netProfit, pct: (Math.abs(data.profit.netProfit) / revenueBase) * 100, tone: data.profit.netProfit >= 0 ? 'success' : 'danger' },
   ]
 
   return (
@@ -36,7 +36,7 @@ export function DashboardTab({ data, loading, t }: { data?: DashboardData; loadi
             {financialRows.map((row) => (
               <div className="analytics-overview-finance__row" key={row.label}>
                 <div className="analytics-overview-finance__head"><span>{row.label}</span><strong><MoneyDisplay amount={row.value} currency="UZS" /></strong></div>
-                <div className="analytics-overview-finance__track"><span style={{ width: `${Math.min(row.pct, 100)}%`, background: row.tone }} /></div>
+                <div className="analytics-overview-finance__track"><span className={`tone-bg-${row.tone} u-w-pct-${Math.round(Math.min(row.pct, 100))}`} /></div>
                 <small>{Math.round(row.pct)}%</small>
               </div>
             ))}

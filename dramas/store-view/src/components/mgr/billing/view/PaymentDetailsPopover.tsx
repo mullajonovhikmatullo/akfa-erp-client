@@ -1,5 +1,5 @@
 import { Button, Popover } from 'antd'
-import { InfoIcon } from '@phosphor-icons/react'
+
 import type { TenantPayment } from '@store/store-stub'
 import type { BillingTranslate } from './types'
 
@@ -38,7 +38,7 @@ export function PaymentDetailsPopover({ payment, t }: { payment: TenantPayment; 
         shape="circle"
         className="billing-payment-details-button"
         aria-label={payment.status === 'REJECTED' ? t('billing.rejectionReason') : t('billing.paymentDetails')}
-        icon={<InfoIcon size={18} weight="duotone" />}
+        icon={<i className="icons-info icon-size-18" />}
       />
     </Popover>
   )

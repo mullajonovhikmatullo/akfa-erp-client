@@ -1,5 +1,5 @@
 import { Dropdown } from 'antd';
-import { CaretDownIcon, CheckIcon, GlobeIcon } from '@phosphor-icons/react';
+
 import { LoginForm, LoginShowcase, MavionBrand, languageOptions } from './view';
 import type { LoginLanguage, LoginPanelProps } from './view';
 
@@ -13,7 +13,7 @@ export function LoginPanel(props: LoginPanelProps) {
     label: (
       <span className="mavion-login__language-option">
         {option.label}
-        {option.value === props.language && <CheckIcon size={14} weight="bold" aria-hidden="true" />}
+        {option.value === props.language && <i className="icons-check icon-size-14" aria-hidden="true" />}
       </span>
     ),
   }));
@@ -41,9 +41,9 @@ export function LoginPanel(props: LoginPanelProps) {
                 type="button"
                 aria-label={`${props.t('login.languageLabel')}: ${currentLanguage.label}`}
               >
-                <GlobeIcon size={17} weight="duotone" aria-hidden="true" />
+                <i className="icons-globe icon-size-17" aria-hidden="true" />
                 <span>{currentLanguage.label}</span>
-                <CaretDownIcon className="mavion-login__language-caret" size={13} aria-hidden="true" />
+                <i className="icons-arrow-down icon-size-13 mavion-login__language-caret" aria-hidden="true" />
               </button>
             </Dropdown>
           </div>

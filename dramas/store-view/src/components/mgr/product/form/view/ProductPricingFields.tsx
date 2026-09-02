@@ -31,7 +31,7 @@ export function ProductPricingFields({
   //
   return (
     <>
-      <Form.Item style={{ marginBottom: 8 }}>
+      <Form.Item className="u-mb-8">
         <Controller
           name="priceCurrency"
           control={control}
@@ -50,7 +50,7 @@ export function ProductPricingFields({
       </Form.Item>
 
       {currency === 'UZS' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+        <div className="u-grid u-gap-12 u-grid-cols-fit-150">
           <Controller
             name="costPriceUzs"
             control={control}
@@ -61,7 +61,7 @@ export function ProductPricingFields({
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  style={{ width: '100%' }}
+                  className="u-w-full"
                   min={0}
                   max={wholesaleUzs || undefined}
                   step={1000}
@@ -81,7 +81,7 @@ export function ProductPricingFields({
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  style={{ width: '100%' }}
+                  className="u-w-full"
                   min={0}
                   max={retailUzs || undefined}
                   step={1000}
@@ -101,7 +101,7 @@ export function ProductPricingFields({
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   ref={field.ref}
-                  style={{ width: '100%' }}
+                  className="u-w-full"
                   min={0}
                   step={1000}
                   formatter={formatUzsPrice}
@@ -112,13 +112,13 @@ export function ProductPricingFields({
           />
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+        <div className="u-grid u-gap-12 u-grid-cols-fit-150">
           <Controller
             name="costPriceUsd"
             control={control}
             render={({ field }) => (
               <Form.Item label={t('productForm.labelCostUsd')} required validateStatus={errors.costPriceUsd ? 'error' : undefined} help={errors.costPriceUsd?.message}>
-                <InputNumber {...field} value={field.value ?? undefined} style={{ width: '100%' }} min={0} max={wholesaleUsd || undefined} step={0.5} precision={2} prefix="$" />
+                <InputNumber {...field} value={field.value ?? undefined} className="u-w-full" min={0} max={wholesaleUsd || undefined} step={0.5} precision={2} prefix="$" />
               </Form.Item>
             )}
           />
@@ -127,7 +127,7 @@ export function ProductPricingFields({
             control={control}
             render={({ field }) => (
               <Form.Item label={t('productForm.labelWholesaleUsd')} required validateStatus={errors.wholesalePriceUsd ? 'error' : undefined} help={errors.wholesalePriceUsd?.message}>
-                <InputNumber {...field} value={field.value ?? undefined} style={{ width: '100%' }} min={0} max={retailUsd || undefined} step={0.5} precision={2} prefix="$" />
+                <InputNumber {...field} value={field.value ?? undefined} className="u-w-full" min={0} max={retailUsd || undefined} step={0.5} precision={2} prefix="$" />
               </Form.Item>
             )}
           />
@@ -136,7 +136,7 @@ export function ProductPricingFields({
             control={control}
             render={({ field }) => (
               <Form.Item label={t('productForm.labelRetailUsd')} required validateStatus={errors.retailPriceUsd ? 'error' : undefined} help={errors.retailPriceUsd?.message}>
-                <InputNumber {...field} value={field.value ?? undefined} style={{ width: '100%' }} min={0} step={0.5} precision={2} prefix="$" />
+                <InputNumber {...field} value={field.value ?? undefined} className="u-w-full" min={0} step={0.5} precision={2} prefix="$" />
               </Form.Item>
             )}
           />

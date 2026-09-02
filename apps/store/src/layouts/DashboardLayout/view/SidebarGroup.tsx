@@ -1,7 +1,6 @@
-import { CaretRightIcon } from '@phosphor-icons/react'
+
 import clsx from 'clsx'
 import { useT } from '@/shared/lib/i18n'
-import { useAccordionHeight } from '../hooks/useAccordionHeight'
 import type { NavGroupDef } from '../navConfig'
 import { SidebarNavItem } from './SidebarNavItem'
 
@@ -27,7 +26,6 @@ export function SidebarGroup({
   onItemClick,
 }: SidebarGroupProps) {
   //
-  const { ref, style } = useAccordionHeight(open)
   const t = useT()
 
   if (collapsed) {
@@ -53,10 +51,10 @@ export function SidebarGroup({
     <div className={clsx('sb-group', open && 'sb-group--open')}>
       <button className="sb-group__header" type="button" onClick={onToggle}>
         <span className="sb-group__label">{t(group.groupLabelKey)}</span>
-        <CaretRightIcon size={9} className={clsx('sb-group__chevron', open && 'sb-group__chevron--open')} />
+        <i className={['icons-chevron-right icon-size-9', clsx('sb-group__chevron', open && 'sb-group__chevron--open')].filter(Boolean).join(' ')} />
       </button>
-      <div className="sb-group__items" style={style}>
-        <div ref={ref} className="sb-group__items-inner">
+      <div className="sb-group__items">
+        <div className="sb-group__items-inner">
           {group.items.map((item) => (
             <SidebarNavItem
               key={item.key}

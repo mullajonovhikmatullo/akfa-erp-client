@@ -1,4 +1,5 @@
 import { formatCompactUZS } from '@store/store-shared/lib/formatters';
+import { getDashboardColorClass } from './dashboard-utils';
 import type { TopProductChartDatum } from './types';
 
 export function TopProductsTooltip({
@@ -23,7 +24,7 @@ export function TopProductsTooltip({
   return (
     <div className="dashboard-chart-tooltip">
       <div className="dashboard-chart-tooltip__head">
-        <span className="dashboard-chart-tooltip__marker" style={{ background: item.color, color: item.color }} />
+        <span className={`dashboard-chart-tooltip__marker ${getDashboardColorClass(item.color)}`} />
         <div className="dashboard-chart-tooltip__title-wrap">
           <div className="dashboard-chart-tooltip__title">{item.name}</div>
           {item.sku && <div className="dashboard-chart-tooltip__meta">{skuLabel}: {item.sku}</div>}

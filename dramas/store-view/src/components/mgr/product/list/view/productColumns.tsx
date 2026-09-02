@@ -1,5 +1,5 @@
 import { Button, Popconfirm, Tooltip } from 'antd'
-import { BoxArrowDownIcon, EyeIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
+
 import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { getProductPrice } from '@store/store-shared/lib/product-pricing'
@@ -38,27 +38,27 @@ export function createProductColumns({
       title: '#',
       key: '_idx',
       width: 40,
-      render: (_: unknown, __: Product, index: number) => <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>,
+      render: (_: unknown, __: Product, index: number) => <span className="u-text-quiet u-fs-11 u-numeric-tabular">{rowIndex(index)}</span>,
     },
     {
       title: t('products.productCode'),
       dataIndex: 'sku',
       width: 140,
       responsiveHide: true,
-      render: (value: string | null) => value ? <span className="num" style={{ color: 'var(--ink-2)', fontSize: 12 }}>{value}</span> : <span style={{ color: 'var(--ink-4)' }}>-</span>,
+      render: (value: string | null) => value ? <span className="num u-text-secondary u-fs-12" >{value}</span> : <span className="u-text-quiet">-</span>,
     },
     {
       title: t('nav.products'),
       key: 'name',
       render: (_: unknown, product: Product) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+        <div className="u-items-center u-flex u-gap-9 u-min-w-0">
           <AuthenticatedProductImage url={product.primaryThumbnailUrl} alt={product.name} width={42} height={42} />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-              <span style={{ fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
-              {isNewProduct(product) ? <StatusBadge tone="warning"><BoxArrowDownIcon size={12} weight="duotone" />{t('products.newBadge')}</StatusBadge> : null}
+          <div className="u-min-w-0">
+            <div className="u-items-center u-flex u-gap-8 u-min-w-0">
+              <span className="u-fw-600 u-min-w-0 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap">{product.name}</span>
+              {isNewProduct(product) ? <StatusBadge tone="warning"><i className="icons-import-export icon-size-12" />{t('products.newBadge')}</StatusBadge> : null}
             </div>
-            {product.category ? <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{product.category.name}</div> : null}
+            {product.category ? <div className="u-text-muted u-fs-11-5">{product.category.name}</div> : null}
           </div>
         </div>
       ),
@@ -78,7 +78,7 @@ export function createProductColumns({
       render: (_: unknown, product: Product) => {
         //
         const threshold = product.lowStockThreshold
-        return threshold == null ? <span style={{ color: 'var(--ink-4)' }}>—</span> : <span className="num" style={{ color: 'var(--warning)', fontWeight: 600 }}>{threshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}</span>
+        return threshold == null ? <span className="u-text-quiet">—</span> : <span className="num u-text-warning u-fw-600" >{threshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}</span>
       },
     },
     ...(['cost', 'wholesale', 'retail'] as const).map((priceType) => ({
@@ -90,7 +90,7 @@ export function createProductColumns({
       render: (_: unknown, product: Product) => {
         //
         const price = getProductPrice(product, priceType)
-        return <span className="num" style={{ fontWeight: priceType === 'cost' ? undefined : 600 }}><MoneyDisplay amount={price.amount} currency={price.currency} noConvert={price.currency === 'USD'} /></span>
+        return <span className={`num${priceType === 'cost' ? '' : ' product-price--emphasis'}`}><MoneyDisplay amount={price.amount} currency={price.currency} noConvert={price.currency === 'USD'} /></span>
       },
     })),
     {
@@ -106,7 +106,7 @@ export function createProductColumns({
       dataIndex: 'createdAt',
       width: 120,
       responsiveHide: true,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>,
+      render: (value: string) => <span className="u-text-muted u-fs-12">{formatDate(value)}</span>,
     },
     {
       title: '',
@@ -114,13 +114,13 @@ export function createProductColumns({
       width: 100,
       fixed: 'right',
       render: (_: unknown, product: Product) => (
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div className="u-flex u-gap-4">
           <Tooltip title={t('common.view')}>
-            <Button size="small" type="text" icon={<EyeIcon size={18} />} onClick={(event) => { event.stopPropagation(); onView(product) }} />
+            <Button size="small" type="text" icon={<i className="icons-eye icon-size-18" />} onClick={(event) => { event.stopPropagation(); onView(product) }} />
           </Tooltip>
           {canManage ? (
             <>
-              <Button size="small" type="text" icon={<PencilSimpleIcon size={18} />} onClick={(event) => { event.stopPropagation(); onEdit(product) }} />
+              <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-18" />} onClick={(event) => { event.stopPropagation(); onEdit(product) }} />
               <Popconfirm
                 title={t('common.deleteTitle')}
                 description={`"${product.name}" ${t('products.deleteDesc')}`}
@@ -130,7 +130,7 @@ export function createProductColumns({
                 onConfirm={(event) => { event?.stopPropagation(); onDelete(product.id) }}
                 onPopupClick={(event) => event.stopPropagation()}
               >
-                <Button size="small" type="text" danger icon={<TrashIcon size={18} />} loading={deleting && deletingId === product.id} onClick={(event) => event.stopPropagation()} />
+                <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} loading={deleting && deletingId === product.id} onClick={(event) => event.stopPropagation()} />
               </Popconfirm>
             </>
           ) : null}

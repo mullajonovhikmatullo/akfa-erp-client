@@ -1,5 +1,5 @@
 import { Button, InputNumber } from 'antd'
-import { MinusIcon, PlusIcon } from '@phosphor-icons/react'
+
 
 const MIN_QTY = 1
 
@@ -14,8 +14,8 @@ interface QuantityStepperProps {
 export function QuantityStepper({ value, unitLabel, onMinus, onPlus, onChange }: QuantityStepperProps) {
   //
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(86px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
-      <Button icon={<MinusIcon size={16} />} onClick={onMinus} disabled={value <= MIN_QTY} style={{ width: 30, height: 30, padding: 0 }} />
+    <div className="u-items-center u-grid u-gap-4 u-grid-cols-quantity-actions">
+      <Button icon={<i className="icons-minus icon-size-16" />} onClick={onMinus} disabled={value <= MIN_QTY} className="u-h-30 u-p-0 u-w-30" />
       <InputNumber<number>
         value={value > 0 ? value : null}
         onChange={(nextValue) => onChange(nextValue == null ? null : Number(nextValue))}
@@ -23,27 +23,13 @@ export function QuantityStepper({ value, unitLabel, onMinus, onPlus, onChange }:
         step={1}
         controls={false}
         placeholder="0"
-        style={{ width: '100%' }}
+        className="u-w-full"
         formatter={(nextValue) => `${nextValue ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
         parser={(nextValue) => Number(nextValue?.replace(/\s/g, ''))}
       />
-      <Button icon={<PlusIcon size={16} />} onClick={onPlus} style={{ width: 30, height: 30, padding: 0 }} />
+      <Button icon={<i className="icons-plus icon-size-16" />} onClick={onPlus} className="u-h-30 u-p-0 u-w-30" />
       <span
-        style={{
-          height: 30,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          background: 'var(--surface-2)',
-          color: 'var(--ink-3)',
-          fontSize: 11,
-          fontWeight: 700,
-          lineHeight: 1,
-          padding: '0 6px',
-          whiteSpace: 'nowrap',
-        }}
+        className="u-items-center u-bg-surface-2 u-rounded-6 u-border-default u-text-muted u-inline-flex u-fs-11 u-fw-700 u-h-30 u-justify-center u-lh-none u-p-0-6 u-whitespace-nowrap"
       >
         {unitLabel}
       </span>

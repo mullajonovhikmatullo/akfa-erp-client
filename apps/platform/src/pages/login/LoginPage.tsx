@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Alert, Button, Input } from 'antd';
-import { Lock, ShieldCheck, Storefront, UserCircle } from '@phosphor-icons/react';
+
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { routes } from '../../config/routes';
 import {
@@ -21,6 +21,7 @@ const initialForm: LoginFormState = {
 };
 
 const normalizeRedirect = (value: string | null) => {
+  //
   if (!value || !value.startsWith('/') || value.startsWith('//') || value === routes.login) {
     return routes.dashboard;
   }
@@ -29,6 +30,7 @@ const normalizeRedirect = (value: string | null) => {
 };
 
 export const LoginPage = () => {
+  //
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [form, setForm] = useState<LoginFormState>(initialForm);
@@ -38,11 +40,13 @@ export const LoginPage = () => {
   const redirectTo = useMemo(() => normalizeRedirect(searchParams.get('from')), [searchParams]);
 
   const updateField = (key: keyof LoginFormState, value: string) => {
+    //
     setForm((current) => ({ ...current, [key]: value }));
     setError(null);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    //
     event.preventDefault();
     setIsSubmitting(true);
     setError(null);
@@ -65,7 +69,7 @@ export const LoginPage = () => {
       <section className="platform-login__panel" aria-labelledby="platform-login-title">
         <div className="platform-login__brand">
           <span className="platform-login__mark" aria-hidden="true">
-            <Storefront size={24} weight="duotone" />
+            <i className="icons-building icon-size-24" />
           </span>
           <div>
             <span>Store Management</span>
@@ -75,7 +79,7 @@ export const LoginPage = () => {
 
         <div className="platform-login__heading">
           <span>
-            <ShieldCheck size={16} weight="fill" aria-hidden="true" />
+            <i className="icons-user_check icon-size-16" aria-hidden="true" />
             Platform owner
           </span>
           <h1 id="platform-login-title">Platform admin paneliga kirish</h1>
@@ -88,7 +92,7 @@ export const LoginPage = () => {
             <span>Login</span>
             <Input
               size="large"
-              prefix={<UserCircle size={18} weight="duotone" />}
+              prefix={<i className="icons-user-circle icon-size-18" />}
               value={form.username}
               onChange={(event) => updateField('username', event.target.value)}
               autoComplete="username"
@@ -102,7 +106,7 @@ export const LoginPage = () => {
             <span>Parol</span>
             <Input.Password
               size="large"
-              prefix={<Lock size={18} weight="duotone" />}
+              prefix={<i className="icons-lock icon-size-18" />}
               value={form.password}
               onChange={(event) => updateField('password', event.target.value)}
               autoComplete="current-password"

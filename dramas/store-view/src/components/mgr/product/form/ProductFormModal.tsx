@@ -151,7 +151,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
         </Button>,
       ]}
     >
-      <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
+      <Form layout="vertical" component="div" className="u-mt-4">
         <FormSection>
           <ProductBasicFields
             t={t}

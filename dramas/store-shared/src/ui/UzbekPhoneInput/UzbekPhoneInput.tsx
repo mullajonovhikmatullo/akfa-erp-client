@@ -4,8 +4,9 @@ import type { InputRef } from 'antd'
 import { formatUzbekPhone, normalizeUzbekPhone } from '../../lib/uzbekPhone'
 
 function UzbekistanFlagIcon() {
+  //
   return (
-    <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true" style={{ display: 'block', borderRadius: 2 }}>
+    <svg width="20" height="14" viewBox="0 0 20 14" aria-hidden="true" className="u-rounded-2 u-block">
       <rect width="20" height="14" fill="#fff" />
       <rect width="20" height="4.4" fill="#1eb5e9" />
       <rect y="4.4" width="20" height="0.55" fill="#ce1126" />
@@ -42,11 +43,13 @@ export const UzbekPhoneInput = forwardRef<InputRef, UzbekPhoneInputProps>(functi
   { value = '', onChange, onBlur, disabled, status, id, name },
   ref,
 ) {
+  //
   const inputRef = useRef<InputRef>(null)
   const caretDigitIndex = useRef<number | null>(null)
   useImperativeHandle(ref, () => inputRef.current as InputRef)
 
   useLayoutEffect(() => {
+    //
     const digitIndex = caretDigitIndex.current
     const input = inputRef.current?.input
     if (digitIndex === null || !input) return
@@ -76,6 +79,7 @@ export const UzbekPhoneInput = forwardRef<InputRef, UzbekPhoneInputProps>(functi
       name={name}
       value={formatUzbekPhone(value)}
       onChange={(event) => {
+        //
         const caretPosition = event.target.selectionStart ?? event.target.value.length
         caretDigitIndex.current = event.target.value.slice(0, caretPosition).replace(/\D/g, '').length
         onChange?.(normalizeUzbekPhone(event.target.value))
@@ -89,7 +93,7 @@ export const UzbekPhoneInput = forwardRef<InputRef, UzbekPhoneInputProps>(functi
       placeholder="90 123 45 67"
       maxLength={17}
       addonBefore={
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+        <span className="u-items-center u-inline-flex u-fw-600 u-gap-6">
           <UzbekistanFlagIcon />
           +998
         </span>

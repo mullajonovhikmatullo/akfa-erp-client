@@ -1,5 +1,5 @@
 import { Input, Select } from 'antd'
-import { MagnifyingGlassIcon } from '@phosphor-icons/react'
+
 import type { InventoryTranslate, QuantityFilter } from './types'
 
 interface InventoryFiltersProps {
@@ -38,7 +38,7 @@ export function InventoryFilters({
         <Input
           allowClear
           value={search}
-          prefix={<MagnifyingGlassIcon size={15} />}
+          prefix={<i className="icons-search icon-size-15" />}
           placeholder={t('inventory.searchPlaceholder')}
           onChange={(event) => onSearchChange(event.target.value)}
         />

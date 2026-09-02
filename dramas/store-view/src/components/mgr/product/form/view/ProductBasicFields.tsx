@@ -38,7 +38,7 @@ export function ProductBasicFields({
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="u-grid u-gap-12 u-grid-cols-2">
         <Controller
           name="name"
           control={control}
@@ -57,14 +57,14 @@ export function ProductBasicFields({
                 {...field}
                 {...blockAutofill('store-product-sku')}
                 placeholder={t('productForm.skuPlaceholder')}
-                style={{ fontFamily: 'monospace' }}
+                className="u-font-mono"
               />
             </Form.Item>
           )}
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="u-grid u-gap-12 u-grid-cols-2">
         <Controller
           name="categoryId"
           control={control}
@@ -106,7 +106,7 @@ export function ProductBasicFields({
               step={unit === 'KG' ? 0.1 : 1}
               precision={unit === 'KG' ? 4 : 0}
               onChange={(value) => field.onChange(value ?? undefined)}
-              style={{ width: 220 }}
+              className="u-w-220"
               addonAfter={t(`units.${unit}`)}
               placeholder="—"
             />

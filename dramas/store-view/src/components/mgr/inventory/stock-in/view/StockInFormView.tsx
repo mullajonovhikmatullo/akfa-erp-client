@@ -1,6 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Empty, Select, Table } from 'antd'
-import { PlusIcon } from '@phosphor-icons/react'
+
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
@@ -46,7 +46,7 @@ export function StockInFormView({
 }: StockInFormViewProps) {
   //
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="u-flex u-flex-col u-gap-12">
       {isStoreOwner ? (
         <div>
           <Label>{t('stockIn.labelBranch')}</Label>
@@ -58,7 +58,7 @@ export function StockInFormView({
                 value={field.value}
                 onChange={field.onChange}
                 placeholder={t('stockIn.placeholderBranch')}
-                style={{ width: 280 }}
+                className="u-w-280"
                 loading={branchesLoading}
                 notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
                 options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
@@ -76,9 +76,9 @@ export function StockInFormView({
           onChange={onAddProduct}
           value={null}
           placeholder={t('stockIn.placeholderSearch')}
-          style={{ width: '100%' }}
+          className="u-w-full"
           loading={productsLoading}
-          suffixIcon={productsLoading ? undefined : <PlusIcon size={16} />}
+          suffixIcon={productsLoading ? undefined : <i className="icons-plus icon-size-16" />}
           notFoundContent={productsLoading ? <SelectLoadingContent /> : undefined}
           options={products
             .filter((product) => product.isActive && !selectedProductIds.has(product.id))
@@ -86,13 +86,13 @@ export function StockInFormView({
               value: product.id,
               searchText: [product.sku, product.name].filter(Boolean).join(' '),
               label: (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                <div className="u-items-center u-flex u-gap-8 u-min-w-0">
                   {product.sku ? (
-                    <span className="num" style={{ display: 'inline-block', flexShrink: 0, maxWidth: 88, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 11, color: 'var(--ink-3)' }}>
+                    <span className="num u-text-muted u-inline-block u-shrink-0 u-fs-11 u-max-w-88 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
                       {product.sku}
                     </span>
                   ) : null}
-                  <span style={{ flex: '1 1 auto', minWidth: 0, fontWeight: 600 }}>
+                  <span className="u-flex-auto u-fw-600 u-min-w-0">
                     <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
                   </span>
                 </div>
@@ -102,7 +102,7 @@ export function StockInFormView({
       </div>
 
       {cart.length === 0 ? (
-        <Empty description={t('stockIn.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: '16px 0' }} />
+        <Empty description={t('stockIn.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} className="u-p-16-0" />
       ) : (
         <>
           <Table<StockInCartItem>
@@ -113,9 +113,9 @@ export function StockInFormView({
             scroll={{ x: 860 }}
             columns={createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem, onRemoveItem })}
           />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, fontSize: 13, paddingRight: 32 }}>
-            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('stockIn.totalCostLabel')}</span>
-            <span className="num" style={{ display: 'inline-block', maxWidth: 180, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div className="u-items-center u-flex u-fs-13 u-gap-8 u-justify-end u-pr-32">
+            <span className="u-text-muted u-mr-8">{t('stockIn.totalCostLabel')}</span>
+            <span className="num u-inline-block u-fw-700 u-max-w-180 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
               <MoneyDisplay amount={totalCost} currency="UZS" compact />
             </span>
           </div>

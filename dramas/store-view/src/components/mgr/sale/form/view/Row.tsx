@@ -3,8 +3,8 @@ import type { ReactNode } from 'react';
 export function Row({ label, value }: { label: string; value: ReactNode }) {
   //
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-      <span style={{ color: 'var(--ink-3)' }}>{label}</span>
+    <div className="u-flex u-fs-13 u-justify-between">
+      <span className="u-text-muted">{label}</span>
       <span>{value}</span>
     </div>
   );

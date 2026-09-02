@@ -1,9 +1,4 @@
 import type { ReactNode } from 'react';
-import {
-  BarChart3, Bell, Boxes, Building2, CalendarDays, ChevronDown, CircleUserRound,
-  ClipboardList, CreditCard, FileBarChart, LayoutDashboard, Package, Plus, Printer,
-  RefreshCw, Settings, ShoppingCart, Store, Truck, Users,
-} from 'lucide-react';
 import { useI18n } from '../../i18n/I18nProvider';
 import type { TranslationDictionary } from '../../i18n/types';
 import { Logo } from './Logo';
@@ -14,14 +9,14 @@ type MenuKey = keyof DashboardCopy['menu'];
 
 const sidebarGroups: ReadonlyArray<{
   title: GroupKey;
-  items: ReadonlyArray<{ label: MenuKey; icon: typeof LayoutDashboard; active?: boolean }>;
+  items: ReadonlyArray<{ label: MenuKey; icon: string; active?: boolean }>;
 }> = [
-  { title: 'main', items: [{ label: 'dashboard', icon: LayoutDashboard, active: true }] },
-  { title: 'sales', items: [{ label: 'sales', icon: ShoppingCart }, { label: 'customers', icon: Users }] },
-  { title: 'warehouse', items: [{ label: 'categories', icon: Boxes }, { label: 'products', icon: Package }, { label: 'transfers', icon: Truck }] },
-  { title: 'finance', items: [{ label: 'expenses', icon: CreditCard }, { label: 'reports', icon: FileBarChart }] },
-  { title: 'analysis', items: [{ label: 'analytics', icon: BarChart3 }] },
-  { title: 'management', items: [{ label: 'branches', icon: Building2 }, { label: 'administrators', icon: Users }] },
+  { title: 'main', items: [{ label: 'dashboard', icon: 'dashboard2', active: true }] },
+  { title: 'sales', items: [{ label: 'sales', icon: 'payments' }, { label: 'customers', icon: 'users' }] },
+  { title: 'warehouse', items: [{ label: 'categories', icon: 'category' }, { label: 'products', icon: 'unit' }, { label: 'transfers', icon: 'transfer' }] },
+  { title: 'finance', items: [{ label: 'expenses', icon: 'payments' }, { label: 'reports', icon: 'file' }] },
+  { title: 'analysis', items: [{ label: 'analytics', icon: 'chart-bar' }] },
+  { title: 'management', items: [{ label: 'branches', icon: 'building-02' }, { label: 'administrators', icon: 'users' }] },
 ];
 
 const metricData = [
@@ -41,6 +36,7 @@ const branchData = [
 const chartDays = ['14', '16', '18', '20', '22', '24', '26'] as const;
 
 export function DashboardMock() {
+  //
   const { t } = useI18n();
   const dashboard = t.dashboard;
 
@@ -51,9 +47,9 @@ export function DashboardMock() {
         <Logo markSize={18} />
         <div className="dashboard-window__chrome-meta">
           <span className="dashboard-window__period">{dashboard.period}</span>
-          <Bell size={13} aria-hidden="true" />
+          <i className="icons-bell-ring icon-size-13" aria-hidden="true" />
           <span>{dashboard.language}</span>
-          <ChevronDown size={11} aria-hidden="true" />
+          <i className="icons-arrow-down icon-size-11" aria-hidden="true" />
         </div>
       </div>
 
@@ -62,10 +58,10 @@ export function DashboardMock() {
           {sidebarGroups.map((group) => (
             <DashboardNavGroup title={dashboard.groups[group.title]} key={group.title}>
               {group.items.map((item) => {
-                const Icon = item.icon;
+                //
                 return (
                   <DashboardNavItem
-                    icon={<Icon />}
+                    icon={<i className={`icons-${item.icon}`} />}
                     label={dashboard.menu[item.label]}
                     active={item.active}
                     key={item.label}
@@ -75,7 +71,7 @@ export function DashboardMock() {
             </DashboardNavGroup>
           ))}
           <div className="dashboard-sidebar__settings">
-            <DashboardNavItem icon={<Settings />} label={dashboard.menu.settings} />
+            <DashboardNavItem icon={<i className="icons-settings" />} label={dashboard.menu.settings} />
           </div>
         </aside>
 
@@ -83,10 +79,10 @@ export function DashboardMock() {
           <div className="dashboard-main__topbar">
             <div><span>Mavion</span><strong>{dashboard.breadcrumb}</strong></div>
             <div className="dashboard-main__branch">
-              <Store size={13} aria-hidden="true" />
+              <i className="icons-building icon-size-13" aria-hidden="true" />
               {dashboard.branch}
-              <ChevronDown size={11} aria-hidden="true" />
-              <CircleUserRound size={18} aria-hidden="true" />
+              <i className="icons-arrow-down icon-size-11" aria-hidden="true" />
+              <i className="icons-user-circle icon-size-18" aria-hidden="true" />
               <strong>{dashboard.admin}</strong>
             </div>
           </div>
@@ -95,16 +91,16 @@ export function DashboardMock() {
             <div className="dashboard-heading">
               <div><h3>{dashboard.heading}</h3><p>{dashboard.welcome}</p></div>
               <div className="dashboard-heading__actions">
-                <button type="button"><Plus size={11} />{dashboard.actions.newSale}</button>
-                <button type="button"><Printer size={11} />{dashboard.actions.export}</button>
-                <button type="button"><RefreshCw size={11} />{dashboard.actions.refresh}</button>
-                <button className="is-primary" type="button"><BarChart3 size={11} />{dashboard.actions.analysis}</button>
+                <button type="button"><i className="icons-plus icon-size-11" />{dashboard.actions.newSale}</button>
+                <button type="button"><i className="icons-print icon-size-11" />{dashboard.actions.export}</button>
+                <button type="button"><i className="icons-reload icon-size-11" />{dashboard.actions.refresh}</button>
+                <button className="is-primary" type="button"><i className="icons-chart-bar icon-size-11" />{dashboard.actions.analysis}</button>
               </div>
             </div>
 
             <div className="dashboard-trial">
               <div><strong>{dashboard.reviewPeriod}</strong><span>14.07.2026 – 26.07.2026</span></div>
-              <div><CalendarDays size={12} /><span>14.07.2026</span><i /><span>26.07.2026</span></div>
+              <div><i className="icons-calendar-days icon-size-12" /><span>14.07.2026</span><i /><span>26.07.2026</span></div>
             </div>
 
             <div className="dashboard-metrics">
@@ -142,7 +138,7 @@ export function DashboardMock() {
                   <ul>
                     {branchData.map((branch, index) => (
                       <li key={branch.color}>
-                        <span style={{ backgroundColor: branch.color }} />
+                        <span className={`dashboard-branch-color dashboard-branch-color--${index}`} />
                         <div><strong>{dashboard.branches[index]}</strong><small>{branch.value} {dashboard.currency}</small></div>
                         <b>{branch.percentage}%</b>
                       </li>
@@ -165,16 +161,19 @@ export function DashboardMock() {
 }
 
 function DashboardNavGroup({ title, children }: { title: string; children: ReactNode }) {
+  //
   return <div className="dashboard-nav-group"><span>{title}</span>{children}</div>;
 }
 
 function DashboardNavItem({ icon, label, active = false }: { icon: ReactNode; label: string; active?: boolean }) {
+  //
   return <div className={`dashboard-nav-item${active ? ' is-active' : ''}`}>{icon}<strong>{label}</strong></div>;
 }
 
 function MetricIcon({ tone }: { tone: string }) {
-  if (tone === 'blue') return <ShoppingCart size={13} />;
-  if (tone === 'green') return <CreditCard size={13} />;
-  if (tone === 'red') return <Package size={13} />;
-  return <ClipboardList size={13} />;
+  //
+  if (tone === 'blue') return <i className="icons-payments icon-size-13" />;
+  if (tone === 'green') return <i className="icons-payments icon-size-13" />;
+  if (tone === 'red') return <i className="icons-unit icon-size-13" />;
+  return <i className="icons-assignment icon-size-13" />;
 }

@@ -1,4 +1,4 @@
-import { ShieldCheck, Storefront } from '@phosphor-icons/react';
+
 import { GlassCard } from '../common/GlassCard';
 import { formatTime } from '../../lib/formatters';
 import type { PlatformProfile } from '../../types/dashboard';
@@ -19,11 +19,11 @@ export const PlatformProfileCard = ({ admin }: PlatformProfileCardProps) => (
     </div>
     <div className="profile-card__meta">
       <div>
-        <ShieldCheck size={18} weight="duotone" aria-hidden="true" />
+        <i className="icons-user_check icon-size-18" aria-hidden="true" />
         <span>{admin.role}</span>
       </div>
       <div>
-        <Storefront size={18} weight="duotone" aria-hidden="true" />
+        <i className="icons-building icon-size-18" aria-hidden="true" />
         <span>{admin.accessLevel}</span>
       </div>
     </div>

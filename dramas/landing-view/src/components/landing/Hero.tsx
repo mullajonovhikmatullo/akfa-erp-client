@@ -1,8 +1,9 @@
-import { Check } from "lucide-react";
+
 import { useI18n } from "../../i18n/I18nProvider";
 import { DashboardMock } from "./DashboardMock";
 
 export function Hero() {
+  //
   const { t } = useI18n();
   const hero = t.hero;
 
@@ -24,7 +25,7 @@ export function Hero() {
           </div>
           <div className="landing-hero__note">
             <span>
-              <Check size={13} strokeWidth={2.5} />
+              <i className="icons-check icon-size-13" />
               {hero.trial}
             </span>
             <i aria-hidden="true" />

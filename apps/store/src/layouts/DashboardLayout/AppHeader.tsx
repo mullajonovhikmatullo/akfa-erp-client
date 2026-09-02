@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowLineLeftIcon, ArrowLineRightIcon } from '@phosphor-icons/react'
+
 import type { Branch } from '@store/store-stub'
 import { queryClient } from '@/app/providers/query/queryClient'
 import { useUIStore } from '@/app/stores/ui.store'
@@ -70,7 +70,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
     <header className="topbar">
       <div className="topbar__inner">
         <button className="sidebar-toggle topbar-sidebar-toggle" onClick={toggleNavigation} type="button">
-          {sidebarCollapsed ? <ArrowLineRightIcon size={20} /> : <ArrowLineLeftIcon size={20} />}
+          {sidebarCollapsed ? <i className="icons-chevron-right icon-size-20" /> : <i className="icons-chevron-left icon-size-20" />}
         </button>
 
         <div className="topbar__page-context">

@@ -5,7 +5,7 @@ export function PurchaseKpiBox({ label, value, hint, tone = 'muted' }: { label: 
   return (
     <div className="card purchase-kpi">
       <div className="purchase-kpi__label">{label}</div>
-      <div className="num purchase-kpi__value" style={{ color: tone === 'success' ? 'var(--success)' : 'var(--ink-1)' }}>{value}</div>
+      <div className={`num purchase-kpi__value tone-${tone}`}>{value}</div>
       <div className="purchase-kpi__hint">{hint}</div>
     </div>
   )

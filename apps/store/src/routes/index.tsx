@@ -28,7 +28,7 @@ import {
 function PageLoader() {
   //
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+    <div className="u-items-center u-flex u-h-screen-60 u-justify-center">
       <Spin size="large" />
     </div>
   );

@@ -37,7 +37,7 @@ export function ProductImagesSection({
     return (
       <>
         {uploadError ? (
-          <Alert type="error" showIcon title={t('productImages.uploadError')} description={uploadError} style={{ marginBottom: 10 }} />
+          <Alert type="error" showIcon title={t('productImages.uploadError')} description={uploadError} className="u-mb-10" />
         ) : null}
         <ProductImageManager
           productId={product.id}
@@ -55,18 +55,18 @@ export function ProductImagesSection({
   }
 
   return (
-    <section style={{ borderTop: '1px solid var(--border)', paddingTop: 16, marginTop: 6 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
-        <div style={{ fontSize: 13, fontWeight: 700 }}>{t('productImages.title')}</div>
-        <span style={{ fontSize: 11.5, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>
+    <section className="u-border-t-default u-mt-6 u-pt-16">
+      <div className="u-items-baseline u-flex u-gap-12 u-justify-between u-mb-10">
+        <div className="u-fs-13 u-fw-700">{t('productImages.title')}</div>
+        <span className="u-text-muted u-fs-11-5 u-numeric-tabular">
           {files.length}/{PRODUCT_IMAGE_MAX_COUNT}
         </span>
       </div>
       {uploadError ? (
-        <Alert type="error" showIcon title={t('productImages.createdUploadRetry')} description={uploadError} style={{ marginBottom: 10 }} />
+        <Alert type="error" showIcon title={t('productImages.createdUploadRetry')} description={uploadError} className="u-mb-10" />
       ) : null}
       <PendingProductImages t={t} files={files} onChange={onFilesChange} disabled={isPending} />
-      {isUploading ? <Progress percent={uploadProgress} size="small" style={{ marginTop: 10 }} /> : null}
+      {isUploading ? <Progress percent={uploadProgress} size="small" className="u-mt-10" /> : null}
     </section>
   )
 }

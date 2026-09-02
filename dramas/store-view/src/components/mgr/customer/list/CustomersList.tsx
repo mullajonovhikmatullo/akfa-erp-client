@@ -2,17 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Select, Tooltip } from 'antd'
-import {
-  ArrowClockwiseIcon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-} from '@phosphor-icons/react'
+
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { CreateCustomerPayload, Customer } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { CustomerDetailDrawer } from '../detail/CustomerDetailDrawer'
 import { CustomerFormModal } from '../form/CustomerFormModal'
 import { useCustomerMutation } from '../hooks/useCustomerMutation'
@@ -40,7 +35,6 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
   //
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get('tab') === 'payments' ? 'payments' : 'customers'
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<CustomerFiltersForm>({
     defaultValues: {
       search: '',
@@ -52,7 +46,17 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
   const [drawerCustomer, setDrawerCustomer] = useState<Customer | null>(null)
   const [editCustomer, setEditCustomer] = useState<Customer | null | undefined>(undefined)
 
-  const { data: customers = [], isLoading, isFetching, refetch } = useCustomersList({
+  const {
+    data: customers = [],
+    isLoading,
+    isFetching,
+    refetch,
+    page,
+    pageSize,
+    onPageChange,
+    resetPage,
+    rowIndex,
+  } = useCustomersList({
     search: filters.search || undefined,
     branchId: branchId ?? undefined,
   })
@@ -94,12 +98,12 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
     if (tab === 'payments') next.set('tab', 'payments')
     else next.delete('tab')
     setSearchParams(next, { replace: true })
-    onPageChange(1, pageSize)
+    resetPage()
   }
 
   useEffect(() => {
-    onPageChange(1, pageSize)
-  }, [branchId, onPageChange, pageSize])
+    resetPage()
+  }, [branchId, resetPage])
 
   const columns = createCustomerColumns({
     t,
@@ -123,10 +127,10 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
               : t('customers.paymentsSubtitle')}
           </div>
         </div>
-        {activeTab === 'customers' && <div style={{ display: 'flex', gap: 8 }}>
+        {activeTab === 'customers' && <div className="u-flex u-gap-8">
           {canManage && (
             <>
-              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditCustomer(null)}>
+              <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setEditCustomer(null)}>
                 {t('customers.newCustomer')}
               </Button>
               <ExcelImportButton<CreateCustomerPayload>
@@ -155,7 +159,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
             </>
           )}
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+            <Button icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => refetch()} />
           </Tooltip>
         </div>}
       </div>
@@ -165,7 +169,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
         <button type="button" role="tab" aria-selected={activeTab === 'payments'} className={activeTab === 'payments' ? 'is-active' : ''} onClick={() => setActiveTab('payments')}>{t('customers.tabPayments')}</button>
       </div>
 
-      {activeTab === 'customers' ? <><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+      {activeTab === 'customers' ? <><div className="u-grid u-gap-12 u-grid-cols-3 u-mb-16">
         <CustomerKpiBox
           label={t('customers.kpiTotalDebt')}
           value={<MoneyDisplay amount={totalDebt} currency="UZS" />}
@@ -186,23 +190,23 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
         />
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ display: 'flex', gap: 10, padding: '14px 16px', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
+      <div className="card u-overflow-hidden u-p-0" >
+        <div className="u-items-center u-border-b-default u-flex u-gap-10 u-p-14-16">
           <Controller
             name="search"
             control={control}
             render={({ field }) => (
               <Input
-                prefix={<MagnifyingGlassIcon size={18} />}
+                prefix={<i className="icons-search icon-size-18" />}
                 placeholder={t('customers.searchPlaceholder')}
                 value={field.value}
                 onChange={(event) => {
                   //
                   field.onChange(event.target.value)
-                  onPageChange(1, pageSize)
+                  resetPage()
                 }}
                 allowClear
-                style={{ maxWidth: 320 }}
+                className="u-max-w-320"
               />
             )}
           />
@@ -216,9 +220,9 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
                   //
                   field.onChange(value)
                   syncBalanceFilterParam(value)
-                  onPageChange(1, pageSize)
+                  resetPage()
                 }}
-                style={{ width: 190 }}
+                className="u-w-190"
                 options={[
                   { value: 'all', label: t('customers.filterAllBalances') },
                   { value: 'debt', label: t('customers.filterDebt') },
@@ -228,7 +232,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
               />
             )}
           />
-          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
+          <span className="u-text-muted u-fs-12-5 u-ml-auto">
             <strong>{filteredCustomers.length}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
@@ -248,7 +252,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
           }}
           onRow={(customer) => ({
             onClick: () => setDrawerCustomer(customer),
-            style: { cursor: 'pointer' },
+            className: 'clickable-row',
           })}
           emptyText={t('customers.empty')}
         />

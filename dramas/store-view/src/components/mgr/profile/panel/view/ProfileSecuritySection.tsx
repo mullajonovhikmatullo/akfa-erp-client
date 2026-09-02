@@ -1,6 +1,6 @@
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Alert, Button } from 'antd'
-import { LockIcon, ShieldCheckIcon } from '@phosphor-icons/react'
+
 import type { PasswordFormValues } from '../profileSchemas'
 import { MaskedInput } from './MaskedInput'
 import { PasswordStrength } from './PasswordStrength'
@@ -24,7 +24,7 @@ export function ProfileSecuritySection({
     <section className="profile-section" aria-labelledby="profile-security-title">
       <div className="profile-section__head">
         <div className="profile-section__icon profile-section__icon--security">
-          <LockIcon size={19} weight="duotone" />
+          <i className="icons-lock icon-size-19" />
         </div>
         <div className="profile-section__heading">
           <h2 id="profile-security-title">{t('profile.changePassword')}</h2>
@@ -34,7 +34,7 @@ export function ProfileSecuritySection({
 
       <Alert
         type="info"
-        icon={<ShieldCheckIcon size={18} weight="duotone" />}
+        icon={<i className="icons-user_check icon-size-18" />}
         showIcon
         message={t('profile.passwordHint')}
         className="profile-security-alert"
@@ -106,7 +106,7 @@ export function ProfileSecuritySection({
             <Button
               type="primary"
               htmlType="submit"
-              icon={<LockIcon size={18} weight="bold" />}
+              icon={<i className="icons-lock icon-size-18" />}
               loading={pending}
             >
               {t('profile.changePasswordBtn')}

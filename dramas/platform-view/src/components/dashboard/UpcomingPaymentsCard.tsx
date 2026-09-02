@@ -1,4 +1,3 @@
-import { CalendarBlank, Receipt } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { EmptyState } from '../common/EmptyState';
 import { GlassCard } from '../common/GlassCard';
@@ -28,12 +27,12 @@ export const UpcomingPaymentsCard = ({ payments }: UpcomingPaymentsCardProps) =>
             onClick={() => toast.info('Bu bo‘lim keyingi bosqichda qo‘shiladi')}
           >
             <span className="payment-item__icon" aria-hidden="true">
-              <Receipt size={20} weight="duotone" />
+              <i className="icons-file icon-size-20" />
             </span>
             <span className="payment-item__content">
               <strong>{payment.company}</strong>
               <small>
-                <CalendarBlank size={14} weight="duotone" aria-hidden="true" />
+                <i className="icons-calendar-empty icon-size-14" aria-hidden="true" />
                 {formatUzbekShortDateTime(payment.date)}
               </small>
             </span>
@@ -46,7 +45,7 @@ export const UpcomingPaymentsCard = ({ payments }: UpcomingPaymentsCardProps) =>
       </div>
     ) : (
       <EmptyState
-        icon={Receipt}
+        icon="file"
         title="Yaqin to‘lov yo‘q"
         description="To‘lov muddati yaqinlashgan mijozlar shu yerda ko‘rinadi."
       />

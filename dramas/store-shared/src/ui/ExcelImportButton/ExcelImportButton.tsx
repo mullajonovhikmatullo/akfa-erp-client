@@ -1,12 +1,6 @@
 import { useState } from 'react'
 import { Alert, Button, Modal, Progress, Table, Tag, Tooltip, Upload } from 'antd'
-import {
-  CheckCircleIcon,
-  DownloadSimpleIcon,
-  FileXlsIcon,
-  UploadSimpleIcon,
-  XCircleIcon,
-} from '@phosphor-icons/react'
+
 import type { AxiosError } from 'axios'
 import { toast } from 'sonner'
 import { downloadTemplate, getField, parseExcelFile } from '../../lib/parseExcel'
@@ -131,13 +125,13 @@ export function ExcelImportButton<T>({
       title: '#',
       key: 'index',
       width: 48,
-      render: (_: unknown, row: ParsedRow<T>) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{row.index + 1}</span>,
+      render: (_: unknown, row: ParsedRow<T>) => <span className="u-text-muted u-fs-12">{row.index + 1}</span>,
     },
     ...templateHeaders.map((header) => ({
       title: header,
       key: header,
       ellipsis: true,
-      render: (_: unknown, row: ParsedRow<T>) => <span style={{ fontSize: 12 }}>{getField(row.raw, header)}</span>,
+      render: (_: unknown, row: ParsedRow<T>) => <span className="u-fs-12">{getField(row.raw, header)}</span>,
     })),
     {
       title: '',
@@ -146,10 +140,10 @@ export function ExcelImportButton<T>({
       render: (_: unknown, row: ParsedRow<T>) =>
         row.error ? (
           <Tooltip title={row.error}>
-            <XCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--danger)' }} />
+            <i className="icons-close-circle icon-size-18 u-text-danger" />
           </Tooltip>
         ) : (
-          <CheckCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--success)' }} />
+          <i className="icons-circle-check icon-size-18 u-text-success" />
         ),
     },
   ]
@@ -159,23 +153,23 @@ export function ExcelImportButton<T>({
       title: '#',
       dataIndex: 'rowNum',
       width: 48,
-      render: (value: number) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{value}</span>,
+      render: (value: number) => <span className="u-text-muted u-fs-12">{value}</span>,
     },
     {
       title: entityLabel,
       dataIndex: 'label',
       ellipsis: true,
-      render: (value: string) => <span style={{ fontSize: 12, fontWeight: 500 }}>{value}</span>,
+      render: (value: string) => <span className="u-fs-12 u-fw-500">{value}</span>,
     },
     {
       title: 'Xato sababi',
       dataIndex: 'message',
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--danger)' }}>{value}</span>,
+      render: (value: string) => <span className="u-text-danger u-fs-12">{value}</span>,
     },
   ]
 
   const importTrigger = (
-    <Button icon={<UploadSimpleIcon size={18} />} disabled={disabled} onClick={() => setPhase('setup')}>
+    <Button icon={<i className="icons-upload icon-size-18" />} disabled={disabled} onClick={() => setPhase('setup')}>
       {t('excel.importButton')}
     </Button>
   )
@@ -202,7 +196,7 @@ export function ExcelImportButton<T>({
             ? [<Button key="cancel" onClick={handleClose}>{t('common.cancel')}</Button>]
             : phase === 'preview'
               ? [
-                  <Button key="tpl" icon={<DownloadSimpleIcon size={18} />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
+                  <Button key="tpl" icon={<i className="icons-download icon-size-18" />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
                     {t('excel.downloadTemplate')}
                   </Button>,
                   <Button key="back" onClick={() => setPhase('setup')}>{t('common.back')}</Button>,
@@ -216,23 +210,15 @@ export function ExcelImportButton<T>({
         }
       >
         {phase === 'setup' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="u-flex u-flex-col u-gap-16">
             <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px 16px',
-                borderRadius: 8,
-                background: 'var(--surface-2, #f9fafb)',
-                border: '1px solid var(--border)',
-              }}
+              className="u-items-center u-bg-surface-subtle u-rounded-8 u-border-default u-flex u-justify-between u-p-12-16"
             >
               <div>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>{t('excel.templateTitle')}</div>
-                <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{t('excel.templateDesc')}</div>
+                <div className="u-fs-13 u-fw-600">{t('excel.templateTitle')}</div>
+                <div className="u-text-muted u-fs-12 u-mt-2">{t('excel.templateDesc')}</div>
               </div>
-              <Button icon={<DownloadSimpleIcon size={18} />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
+              <Button icon={<i className="icons-download icon-size-18" />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
                 {t('excel.downloadTemplate')}
               </Button>
             </div>
@@ -248,20 +234,20 @@ export function ExcelImportButton<T>({
               }}
             >
               <p className="ant-upload-drag-icon">
-                <FileXlsIcon size={48} weight="duotone" color="currentColor" />
+                <i className="icons-file-excel icon-size-48" />
               </p>
               <p className="ant-upload-text">{t('excel.dropzoneTitle')}</p>
               <p className="ant-upload-hint">{t('excel.dropzoneHint')}</p>
             </Upload.Dragger>
 
             {hints && hints.length > 0 && (
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <div className="u-flex u-flex-wrap u-gap-16">
                 {hints.map((hint) => (
-                  <div key={hint.label} style={{ flex: '1 1 200px' }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>{hint.label}</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  <div key={hint.label} className="u-flex-basis-200">
+                    <div className="u-text-secondary u-fs-12 u-fw-600 u-mb-6">{hint.label}</div>
+                    <div className="u-flex u-flex-wrap u-gap-4">
                       {hint.items.map((item) => (
-                        <Tag key={item} style={{ fontSize: 11, margin: 0 }}>{item}</Tag>
+                        <Tag key={item} className="u-fs-11 u-m-0">{item}</Tag>
                       ))}
                     </div>
                   </div>
@@ -273,7 +259,7 @@ export function ExcelImportButton<T>({
 
         {phase === 'preview' && (
           <>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <div className="u-flex u-gap-8 u-mb-12">
               <Tag color="success">
                 {validRows.length} {t('excel.validSuffix')}
               </Tag>
@@ -291,22 +277,22 @@ export function ExcelImportButton<T>({
               pagination={{ pageSize: 10, size: 'small' }}
               rowClassName={(row) => (row.error ? 'import-row-error' : '')}
               scroll={{ x: true }}
-              style={{ fontSize: 12 }}
+              className="u-fs-12"
             />
           </>
         )}
 
         {phase === 'importing' && (
-          <div style={{ padding: '24px 0', textAlign: 'center' }}>
+          <div className="u-p-24-0 u-text-center">
             <Progress percent={progress} status="active" />
-            <div style={{ marginTop: 12, color: 'var(--ink-3)', fontSize: 13 }}>
+            <div className="u-text-muted u-fs-13 u-mt-12">
               {t('excel.importing')} {Math.round((progress * validRows.length) / 100)} / {validRows.length}
             </div>
           </div>
         )}
 
         {phase === 'done' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="u-flex u-flex-col u-gap-12">
             <Alert
               type={results.failedRows.length === 0 ? 'success' : results.added === 0 ? 'error' : 'warning'}
               message={

@@ -20,8 +20,8 @@ export function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentCh
   });
 
   return (
-    <div style={{ position: 'relative', flex: '0 0 clamp(250px, 52%, 278px)', width: 278, maxWidth: '100%', aspectRatio: '1 / 1' }}>
-      <svg viewBox="0 0 240 240" aria-hidden="true" style={{ width: '100%', height: '100%', display: 'block' }}>
+    <div className="u-aspect-square u-flex-sidebar u-max-w-full u-relative u-w-278">
+      <svg viewBox="0 0 240 240" aria-hidden="true" className="u-block u-h-full u-w-full">
         <circle cx={center} cy={center} r={radius} fill="none" stroke="var(--border)" strokeWidth={strokeWidth} />
         {hasSingleSegment ? (
           <circle
@@ -32,7 +32,7 @@ export function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentCh
             stroke={data[0]?.color}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
-            style={{ filter: 'drop-shadow(0 8px 14px rgba(15, 23, 42, .10))' }}
+            className="u-drop-shadow-soft"
           />
         ) : (
           segments.map((segment) => {
@@ -46,30 +46,19 @@ export function PaymentDonutChart({ data, total, totalLabel }: { data: PaymentCh
                 stroke={segment.color}
                 strokeWidth={strokeWidth}
                 strokeLinecap="round"
-                style={{ filter: 'drop-shadow(0 8px 14px rgba(15, 23, 42, .10))' }}
+                className="u-drop-shadow-soft"
               />
             );
           })
         )}
       </svg>
       <div
-        className="dashboard-payment-card__total"
-        style={{
-          position: 'absolute',
-          inset: 62,
-          borderRadius: 999,
-          background: 'var(--surface)',
-          boxShadow: 'inset 0 0 0 1px var(--border), 0 10px 24px rgba(2,6,23,.10)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          textAlign: 'center',
-        }}
+        className="dashboard-payment-card__total u-items-center u-bg-surface u-rounded-pill u-shadow-card-inset u-flex u-inset-62 u-justify-center u-pointer-none u-absolute u-text-center"
+
       >
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4 }}>{totalLabel}</div>
-          <div className="num" style={{ fontSize: 17, fontWeight: 800 }}>
+        <div className="u-min-w-0">
+          <div className="u-text-muted u-fs-11 u-mb-4">{totalLabel}</div>
+          <div className="num u-fs-17 u-fw-800" >
             <MoneyDisplay amount={total} currency="UZS" />
           </div>
         </div>

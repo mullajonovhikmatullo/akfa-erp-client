@@ -8,13 +8,11 @@ type LogoProps = {
 };
 
 export function Logo({ className = "", markSize = 28, showWordmark = true }: LogoProps) {
-  const wordmarkSize = Math.max(14, Math.round(markSize * 0.73));
-
+  //
   return (
     <span
-      className={`brand-logo ${className}`}
+      className={`brand-logo brand-logo--${markSize} ${className}`}
       aria-label={site.brand.name}
-      style={{ fontSize: `${wordmarkSize}px` }}
     >
       <StoreManagerMark size={markSize} />
       {showWordmark ? <span className="brand-logo__wordmark">Mavion</span> : null}
@@ -23,6 +21,7 @@ export function Logo({ className = "", markSize = 28, showWordmark = true }: Log
 }
 
 export function StoreManagerMark({ size = 28 }: { size?: number }) {
+  //
   const gradientId = `mavion-landing-mark-${useId().replaceAll(":", "")}`;
 
   return (

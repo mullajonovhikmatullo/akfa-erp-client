@@ -1,5 +1,5 @@
 import type { MenuProps } from 'antd'
-import { GearIcon, SignOutIcon, UserCircleIcon } from '@phosphor-icons/react'
+
 import type { Branch, User } from '@store/store-stub'
 import type { Lang } from '@/shared/lib/lang'
 import { LANGUAGE_OPTIONS } from '../headerConfig'
@@ -55,20 +55,20 @@ export function createHeaderMenuItems({
     { type: 'divider' },
     {
       key: 'profile',
-      icon: <UserCircleIcon size={18} />,
+      icon: <i className="icons-user-circle icon-size-18" />,
       label: t('header.profile'),
       onClick: onOpenProfile,
     },
     {
       key: 'settings',
-      icon: <GearIcon size={18} />,
+      icon: <i className="icons-settings icon-size-18" />,
       label: t('header.settings'),
       onClick: onOpenSettings,
     },
     {
       key: 'logout',
-      icon: <SignOutIcon size={18} />,
-      label: <span style={{ color: 'var(--danger)' }}>{t('header.logout')}</span>,
+      icon: <i className="icons-logout icon-size-18" />,
+      label: <span className="u-text-danger">{t('header.logout')}</span>,
       onClick: onLogout,
     },
   ]

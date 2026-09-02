@@ -1,5 +1,5 @@
 import { Avatar, Dropdown } from 'antd';
-import { CaretDown, GearSix, Headset, SignOut, UserCircle } from '@phosphor-icons/react';
+
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import type { MenuProps } from 'antd';
@@ -16,17 +16,17 @@ const profileMenuItems: MenuProps['items'] = [
   {
     key: 'profile',
     label: 'Profil',
-    icon: <UserCircle size={17} weight="duotone" />,
+    icon: <i className="icons-user-circle icon-size-17" />,
   },
   {
     key: 'settings',
     label: 'Sozlamalar',
-    icon: <GearSix size={17} weight="duotone" />,
+    icon: <i className="icons-settings icon-size-17" />,
   },
   {
     key: 'help',
     label: 'Yordam',
-    icon: <Headset size={17} weight="duotone" />,
+    icon: <i className="icons-header-support icon-size-17" />,
   },
   {
     type: 'divider',
@@ -34,15 +34,17 @@ const profileMenuItems: MenuProps['items'] = [
   {
     key: 'logout',
     label: 'Tizimdan chiqish',
-    icon: <SignOut size={17} weight="duotone" />,
+    icon: <i className="icons-logout icon-size-17" />,
     danger: true,
   },
 ];
 
 export const UserProfileMenu = ({ admin }: UserProfileMenuProps) => {
+  //
   const navigate = useNavigate();
 
   const handleMenuClick: MenuProps['onClick'] = async ({ key }) => {
+    //
     if (key === 'logout') {
       await platformQueryClient.cancelQueries();
       platformQueryClient.clear();
@@ -64,7 +66,7 @@ export const UserProfileMenu = ({ admin }: UserProfileMenuProps) => {
       <button className="user-menu" type="button" aria-label="Profil menyusini ochish">
         <Avatar src={admin.avatarUrl} size={36} alt={admin.name} />
         <span className="user-menu__name">{admin.name}</span>
-        <CaretDown size={15} weight="bold" aria-hidden="true" />
+        <i className="icons-arrow-down icon-size-15" aria-hidden="true" />
       </button>
     </Dropdown>
   );

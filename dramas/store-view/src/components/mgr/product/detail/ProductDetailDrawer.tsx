@@ -21,7 +21,7 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
   const displayedProduct = productDetail ?? product
 
   return (
-    <Drawer rootClassName="ant-drawer-root" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} styles={{ body: { padding: 0 } }} destroyOnHidden>
+    <Drawer rootClassName="ant-drawer-root detail-drawer--flush" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} destroyOnHidden>
       {displayedProduct ? (
         <>
           <ProductImageGallery
@@ -31,25 +31,19 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
             loading={detailLoading}
           />
 
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+          <div className="u-border-b-default u-p-20-24">
             {displayedProduct.sku ? (
               <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--ink-3)',
-                  letterSpacing: '.06em',
-                  textTransform: 'uppercase',
-                  fontFamily: 'monospace',
-                }}
+                className="u-text-muted u-font-mono u-fs-11 u-tracking-wide u-text-uppercase"
               >
                 {displayedProduct.sku}
               </div>
             ) : null}
-            <h2 style={{ margin: '6px 0 4px', fontSize: 18 }}>{displayedProduct.name}</h2>
+            <h2 className="u-fs-18 u-m-6-0-4">{displayedProduct.name}</h2>
             {displayedProduct.description ? (
-              <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '4px 0 8px' }}>{displayedProduct.description}</p>
+              <p className="u-text-muted u-fs-13 u-m-4-0-8">{displayedProduct.description}</p>
             ) : null}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+            <div className="u-flex u-flex-wrap u-gap-8 u-mt-8">
               {displayedProduct.category ? <StatusBadge tone="info">{displayedProduct.category.name}</StatusBadge> : null}
               <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[displayedProduct.unit]}</StatusBadge>
               {displayedProduct.lowStockThreshold != null ? (
@@ -69,9 +63,9 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
             </div>
           </div>
 
-          <div style={{ padding: '20px 24px' }}>
+          <div className="u-p-20-24">
             <SectionLabel>{t('products.drawerPricingSection')}</SectionLabel>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: 10, marginBottom: 20 }}>
+            <div className="u-grid u-gap-10 u-grid-cols-fit-135 u-mb-20">
               {displayedProduct.costPriceUzs > 0 ? (
                 <PriceBox label={t('products.drawerCostUzs')} amount={displayedProduct.costPriceUzs} currency="UZS" />
               ) : null}
@@ -92,30 +86,22 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
               ) : null}
             </div>
 
-            <Divider style={{ margin: '0 0 16px' }} />
+            <Divider className="u-m-0-0-16" />
 
             <SectionLabel>{t('products.drawerStockSection')}</SectionLabel>
             {stockLoading ? (
               <Skeleton active paragraph={{ rows: 2 }} />
             ) : inventory.length === 0 ? (
-              <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>{t('products.drawerNoStock')}</div>
+              <div className="u-text-muted u-fs-13 u-p-12-0">{t('products.drawerNoStock')}</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="u-flex u-flex-col u-gap-8">
                 {inventory.map((item) => (
                   <div
                     key={item.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 14px',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
-                      background: 'var(--surface-2)',
-                    }}
+                    className="u-items-center u-bg-surface-2 u-rounded-8 u-border-default u-flex u-justify-between u-p-10-14"
                   >
-                    <span style={{ fontWeight: 500 }}>{item.branch.name}</span>
-                    <span className="num" style={{ fontWeight: 700 }}>
+                    <span className="u-fw-500">{item.branch.name}</span>
+                    <span className="num u-fw-700" >
                       {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[displayedProduct.unit]}
                     </span>
                   </div>

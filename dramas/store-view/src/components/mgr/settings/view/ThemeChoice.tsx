@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { CheckIcon } from '@phosphor-icons/react'
+
 
 interface ThemeChoiceProps {
   value: 'light' | 'dark'
@@ -30,7 +30,7 @@ export function ThemeChoice({ value, selected, title, description, icon, onSelec
         <span className="settings-theme-choice__icon">{icon}</span>
         <span><strong>{title}</strong><small>{description}</small></span>
       </span>
-      <span className="settings-theme-choice__check" aria-hidden="true"><CheckIcon size={12} weight="bold" /></span>
+      <span className="settings-theme-choice__check" aria-hidden="true"><i className="icons-check icon-size-12" /></span>
     </button>
   )
 }

@@ -12,20 +12,15 @@ export function CustomerKpiBox({
   tone: 'danger' | 'success' | 'muted'
 }) {
   //
-  const colors: Record<string, string> = {
-    danger: 'var(--danger)',
-    success: 'var(--success)',
-    muted: 'var(--ink-2)',
-  }
   return (
-    <div className="card" style={{ padding: '14px 16px' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+    <div className="card u-p-14-16" >
+      <div className="u-text-muted u-fs-11 u-fw-700 u-tracking-wide u-mb-6 u-text-uppercase">
         {label}
       </div>
-      <div className="num" style={{ fontSize: 16, fontWeight: 700, color: colors[tone] }}>
+      <div className={`num customer-kpi-value tone-${tone}`}>
         {value}
       </div>
-      <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>{hint}</div>
+      <div className="u-text-muted u-fs-12 u-mt-4">{hint}</div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Alert, Empty, Input, Select, Table } from 'antd'
-import { PlusIcon } from '@phosphor-icons/react'
+
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -53,11 +53,11 @@ export function TransferFormView({
   const selectedProductIds = new Set(cart.map((item) => item.productId))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+    <div className="u-flex u-flex-col u-gap-12">
+      <div className="u-grid u-gap-12 u-grid-cols-fit-260">
         <div>
           <Label>{t('transferModal.labelFrom')}</Label>
-          <div style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 6, background: 'var(--surface-2)', fontSize: 13 }}>
+          <div className="u-bg-surface-2 u-rounded-6 u-border-default u-fs-13 u-p-5-11">
             {branches.find((branch) => branch.id === sourceBranchId)?.name ?? t('transferModal.yourBranch')}
           </div>
         </div>
@@ -71,7 +71,7 @@ export function TransferFormView({
                 value={field.value}
                 onChange={field.onChange}
                 placeholder={t('transferModal.placeholderBranch')}
-                style={{ width: '100%' }}
+                className="u-w-full"
                 loading={branchesLoading}
                 notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
                 options={availableBranches.map((branch) => ({ value: branch.id, label: branch.name }))}
@@ -89,9 +89,9 @@ export function TransferFormView({
           onChange={onAddProduct}
           value={null}
           placeholder={t('transferModal.placeholderSearch')}
-          style={{ width: '100%' }}
+          className="u-w-full"
           loading={productSelectLoading}
-          suffixIcon={productSelectLoading ? undefined : <PlusIcon size={16} />}
+          suffixIcon={productSelectLoading ? undefined : <i className="icons-plus icon-size-16" />}
           disabled={!sourceBranchId}
           notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
           options={transferableProducts
@@ -103,16 +103,16 @@ export function TransferFormView({
                 value: product.id,
                 searchText: [product.sku, product.name].filter(Boolean).join(' '),
                 label: (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <div className="u-items-center u-flex u-gap-8 u-min-w-0">
                     {product.sku ? (
-                      <span className="num" style={{ display: 'inline-block', flexShrink: 0, maxWidth: 88, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 11, color: 'var(--ink-3)' }}>
+                      <span className="num u-text-muted u-inline-block u-shrink-0 u-fs-11 u-max-w-88 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
                         {product.sku}
                       </span>
                     ) : null}
-                    <span style={{ flex: '1 1 auto', minWidth: 0, fontWeight: 600 }}>
+                    <span className="u-flex-auto u-fw-600 u-min-w-0">
                       <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
                     </span>
-                    <span style={{ flexShrink: 0, fontSize: 12, color: 'var(--ink-3)' }}>
+                    <span className="u-text-muted u-shrink-0 u-fs-12">
                       {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${product.unit}`)}
                     </span>
                   </div>
@@ -123,7 +123,7 @@ export function TransferFormView({
       </div>
 
       {cart.length === 0 ? (
-        <Empty description={t('transferModal.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: '16px 0' }} />
+        <Empty description={t('transferModal.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} className="u-p-16-0" />
       ) : (
         <>
           {insufficientStockItems.length > 0 ? (
@@ -132,7 +132,7 @@ export function TransferFormView({
               showIcon
               message={t('transferModal.insufficientStock')}
               description={(
-                <div style={{ display: 'grid', gap: 2 }}>
+                <div className="u-grid u-gap-2">
                   {insufficientStockItems.map((item) => {
                     //
                     const stock = stockByProductId.get(item.productId) ?? 0
@@ -161,9 +161,9 @@ export function TransferFormView({
               onRemoveItem,
             })}
           />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, fontSize: 13, paddingRight: 32 }}>
-            <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('transferModal.totalCostLabel')}</span>
-            <span className="num" style={{ display: 'inline-block', fontWeight: 800, fontSize: 15, whiteSpace: 'nowrap' }}>
+          <div className="u-items-center u-flex u-fs-13 u-gap-8 u-justify-end u-pr-32">
+            <span className="u-text-muted u-mr-8">{t('transferModal.totalCostLabel')}</span>
+            <span className="num u-inline-block u-fs-15 u-fw-800 u-whitespace-nowrap" >
               <MoneyDisplay amount={totalCost} currency="UZS" />
             </span>
           </div>

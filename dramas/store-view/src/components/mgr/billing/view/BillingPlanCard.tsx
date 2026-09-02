@@ -1,5 +1,5 @@
 import { Button, Tag } from 'antd'
-import { CheckCircle, CreditCardIcon, Crown, Sparkle } from '@phosphor-icons/react'
+
 import type { PublicBillingPlan } from '@store/store-stub'
 import { formatBillingMoney, getPlanFeatures } from '../lib/billing-formatters'
 import type { BillingTranslate } from './types'
@@ -25,11 +25,11 @@ export function BillingPlanCard({ plan, current, upgrade, upgradeHref, t }: Bill
       <div className="billing-plan-card__head">
         <span className="billing-plan-card__icon">
           {current ? (
-            <Crown size={20} weight="duotone" />
+            <i className="icons-tariff icon-size-20" />
           ) : upgrade ? (
-            <Sparkle size={20} weight="duotone" />
+            <i className="icons-favourite icon-size-20" />
           ) : (
-            <CreditCardIcon size={20} weight="duotone" />
+            <i className="icons-payments icon-size-20" />
           )}
         </span>
         <div>
@@ -51,7 +51,7 @@ export function BillingPlanCard({ plan, current, upgrade, upgradeHref, t }: Bill
       <ul className="billing-plan-card__features">
         {getPlanFeatures(plan, t).map((feature) => (
           <li key={feature}>
-            <CheckCircle size={16} weight="duotone" />
+            <i className="icons-circle-check icon-size-16" />
             <span>{feature}</span>
           </li>
         ))}

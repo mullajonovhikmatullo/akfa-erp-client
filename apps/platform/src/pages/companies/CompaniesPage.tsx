@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { App as AntdApp, Button, Input, Modal, Select, Space, Table, Tag, Tooltip } from 'antd';
-import {
-  Buildings,
-  CheckCircle,
-  Clock,
-  Copy,
-  LinkSimple,
-  PencilSimple,
-  PauseCircle,
-  WarningCircle,
-} from '@phosphor-icons/react';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlatformFlowApi, PlatformSeekApi } from '@store/platform-stub';
 import type { PlatformStore, StoreStatus } from '@store/platform-stub';
@@ -44,14 +35,15 @@ const storeStatusColors: Record<StoreStatus, string> = {
 };
 
 const statusIcons: Record<StoreStatus, ReactNode> = {
-  TRIALING: <Clock size={16} weight="duotone" />,
-  ACTIVE: <CheckCircle size={16} weight="duotone" />,
-  PAST_DUE: <WarningCircle size={16} weight="duotone" />,
-  SUSPENDED: <PauseCircle size={16} weight="duotone" />,
-  CANCELLED: <PauseCircle size={16} weight="duotone" />,
+  TRIALING: <i className="icons-clock icon-size-16" />,
+  ACTIVE: <i className="icons-circle-check icon-size-16" />,
+  PAST_DUE: <i className="icons-warning icon-size-16" />,
+  SUSPENDED: <i className="icons-timer icon-size-16" />,
+  CANCELLED: <i className="icons-timer icon-size-16" />,
 };
 
 export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: CompaniesPageProps) => {
+  //
   const { message } = AntdApp.useApp();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
@@ -78,6 +70,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
   } | null>(null);
 
   useEffect(() => {
+    //
     setStatus(initialStatus);
     setPage(1);
   }, [initialStatus]);
@@ -120,6 +113,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             : undefined,
       }),
     onSuccess: async () => {
+      //
       message.success('Do‘kon statusi yangilandi');
       setPendingStatusChange(null);
       setStatusNote('');
@@ -132,6 +126,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       ]);
     },
     onError: (error) => {
+      //
       setStatusPassword('');
       message.error(error instanceof Error ? error.message : 'Statusni yangilab bo‘lmadi');
       void Promise.all([
@@ -143,6 +138,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
   });
   const planMutation = useMutation({
     mutationFn: () => {
+      //
       if (!pendingPlanChange || !selectedPlanId) {
         throw new Error('Tarifni tanlang');
       }
@@ -156,6 +152,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       });
     },
     onSuccess: async () => {
+      //
       message.success('Do‘kon tarifi yangilandi');
       setPendingPlanChange(null);
       setSelectedPlanId('');
@@ -166,6 +163,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       ]);
     },
     onError: (error) => {
+      //
       setPendingPlanChange(null);
       setSelectedPlanId('');
       message.error(error instanceof Error ? error.message : 'Do‘kon tarifini yangilab bo‘lmadi');
@@ -176,6 +174,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
     mutationFn: (store: PlatformStore) =>
       PlatformFlowApi.regenerateOwnerSetup(store.id, setupPassword),
     onSuccess: (result, store) => {
+      //
       setSetupTarget(null);
       setSetupPassword('');
       setSetupResult({
@@ -186,6 +185,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       });
     },
     onError: (error) => {
+      //
       setSetupPassword('');
       message.error(error instanceof Error ? error.message : 'Setup manzilini yangilab bo‘lmadi');
     },
@@ -202,6 +202,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
     (storesByStatus.CANCELLED ?? 0);
 
   const confirmStatusChange = () => {
+    //
     if (!pendingStatusChange) return;
 
     statusMutation.mutate({
@@ -214,11 +215,13 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
   };
 
   const openPlanChange = (store: PlatformStore) => {
+    //
     setPendingPlanChange(store);
     setSelectedPlanId(store.plan?.id ?? '');
   };
 
   const openSetupRegeneration = (store: PlatformStore) => {
+    //
     try {
       createOwnerSetupUrl('configuration-check');
       setSetupTarget(store);
@@ -236,7 +239,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
           <span className="operation-page__eyebrow">Platform admin</span>
           <h1>{title}</h1>
         </div>
-        <Button icon={<Buildings size={18} weight="duotone" />} onClick={() => void storesQuery.refetch()}>
+        <Button icon={<i className="icons-buildings icon-size-18" />} onClick={() => void storesQuery.refetch()}>
           Yangilash
         </Button>
       </div>
@@ -273,6 +276,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             onSearch={(value) => {
+              //
               setSearch(value.trim());
               setPage(1);
             }}
@@ -284,6 +288,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             value={status}
             options={statusOptions}
             onChange={(value) => {
+              //
               setStatus(value);
               setPage(1);
             }}
@@ -301,6 +306,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             total,
             showSizeChanger: true,
             onChange: (nextPage, nextPageSize) => {
+              //
               setPage(nextPage);
               setPageSize(nextPageSize);
             },
@@ -342,7 +348,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
                   <Button
                     type="link"
                     size="small"
-                    icon={<PencilSimple size={15} />}
+                    icon={<i className="icons-pen-line icon-size-15" />}
                     onClick={() => openPlanChange(store)}
                   >
                     Tarifni almashtirish
@@ -398,7 +404,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
                     )}
                     disabled={store.allowedStatusTransitions.length === 0}
                     onChange={(nextStatus) => setPendingStatusChange({ store, status: nextStatus })}
-                    style={{ width: 140 }}
+                    className="u-w-140"
                   />
                   {store.ownerAccount?.mustChangePassword &&
                   store.ownerAccount.isActive &&
@@ -407,7 +413,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
                     <Tooltip title="Yangi setup manzili">
                       <Button
                         aria-label="Yangi setup manzili"
-                        icon={<LinkSimple size={18} />}
+                        icon={<i className="icons-link icon-size-18" />}
                         loading={
                           setupMutation.isPending &&
                           setupMutation.variables?.id === store.id
@@ -438,6 +444,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
         }}
         onOk={() => planMutation.mutate()}
         onCancel={() => {
+          //
           setPendingPlanChange(null);
           setSelectedPlanId('');
         }}
@@ -456,7 +463,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
               label: `${plan.name} — ${formatMoney(plan.monthlyPriceUzs)}`,
             }))}
             onChange={setSelectedPlanId}
-            style={{ width: '100%' }}
+            className="u-w-full"
           />
         </div>
       </Modal>
@@ -484,6 +491,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
         }}
         onOk={confirmStatusChange}
         onCancel={() => {
+          //
           setPendingStatusChange(null);
           setStatusNote('');
           setStatusConfirmation('');
@@ -537,10 +545,12 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
         confirmLoading={setupMutation.isPending}
         okButtonProps={{ disabled: setupPassword.length === 0 }}
         onOk={() => {
+          //
           if (!setupTarget || !setupPassword) return;
           setupMutation.mutate(setupTarget);
         }}
         onCancel={() => {
+          //
           setSetupTarget(null);
           setSetupPassword('');
         }}
@@ -556,6 +566,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             autoComplete="current-password"
             placeholder="Platform egasining joriy paroli"
             onPressEnter={() => {
+              //
               if (setupTarget && setupPassword) {
                 setupMutation.mutate(setupTarget);
               }
@@ -571,8 +582,9 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
           <Button
             key="copy"
             type="primary"
-            icon={<Copy size={18} />}
+            icon={<i className="icons-copy icon-size-18" />}
             onClick={() => {
+              //
               if (!setupResult) return;
               void navigator.clipboard
                 .writeText(createOwnerSetupUrl(setupResult.setupCode))

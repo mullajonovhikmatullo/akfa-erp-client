@@ -1,6 +1,6 @@
 import { Controller, type Control, type UseFormHandleSubmit, type UseFormSetValue } from 'react-hook-form'
 import { Alert, Button, DatePicker, InputNumber, Select, Tooltip } from 'antd'
-import { CheckCircleIcon, CheckIcon } from '@phosphor-icons/react'
+
 import dayjs from 'dayjs'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { Label, Row } from './index'
@@ -50,21 +50,21 @@ export function SaleSummaryView({
 }: SaleSummaryViewProps) {
   //
   return (
-    <div className="card" style={{ position: 'sticky', top: 76 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t('newSale.summary')}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div className="card u-sticky u-top-76" >
+      <div className="u-fs-13 u-fw-700 u-mb-14">{t('newSale.summary')}</div>
+      <div className="u-flex u-flex-col u-gap-10">
         <Row label={t('newSale.rowProducts')} value={`${cart.length} ${t('newSale.typeSuffix')} · ${cart.reduce((sum, item) => sum + Math.max(item.quantity, 0), 0).toLocaleString('ru-RU')} ${t('newSale.qtySuffix')}`} />
-        <Row label={t('newSale.rowTotal')} value={<span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={subtotal} currency="UZS" /></span>} />
+        <Row label={t('newSale.rowTotal')} value={<span className="num u-fw-700" ><MoneyDisplay amount={subtotal} currency="UZS" /></span>} />
       </div>
-      <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="u-border-t-default u-m-14-0" />
+      <div className="u-flex u-flex-col u-gap-12">
         <div>
           <Label>{t('newSale.paymentMethod')}</Label>
-          <Controller name="paymentMethod" control={control} render={({ field }) => <Select value={field.value} onChange={(value) => field.onChange(value)} options={paymentOptions} style={{ width: '100%' }} />} />
+          <Controller name="paymentMethod" control={control} render={({ field }) => <Select value={field.value} onChange={(value) => field.onChange(value)} options={paymentOptions} className="u-w-full" />} />
         </div>
         <div>
           <Label>{isUsdPayment ? `${t('newSale.paidAmount')} (USD)` : t('newSale.paidAmount')}</Label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+          <div className="u-grid u-gap-8 u-grid-cols-content-auto">
             <Controller
               name="paidAmount"
               control={control}
@@ -73,7 +73,7 @@ export function SaleSummaryView({
                   value={field.value}
                   onChange={onPaidAmountChange}
                   status={paidAmountError ? 'error' : undefined}
-                  style={{ width: '100%' }}
+                  className="u-w-full"
                   min={0}
                   max={fullPaidAmount}
                   step={isUsdPayment ? 1 : 10000}
@@ -84,16 +84,16 @@ export function SaleSummaryView({
               )}
             />
             <Tooltip title={t('newSale.markFullPaidTooltip')}>
-              <Button icon={<CheckCircleIcon size={18} weight="duotone" />} disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount} onClick={() => { setValue('paidAmount', fullPaidAmount, { shouldDirty: true }); onPaidAmountChange(fullPaidAmount) }}>{t('newSale.markFullPaid')}</Button>
+              <Button icon={<i className="icons-circle-check icon-size-18" />} disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount} onClick={() => { setValue('paidAmount', fullPaidAmount, { shouldDirty: true }); onPaidAmountChange(fullPaidAmount) }}>{t('newSale.markFullPaid')}</Button>
             </Tooltip>
           </div>
-          {paidAmountError ? <div role="alert" style={{ marginTop: 6, color: 'var(--danger)', fontSize: 12 }}>{t('newSale.paidAmountMaxError')}</div> : null}
+          {paidAmountError ? <div role="alert" className="u-text-danger u-fs-12 u-mt-6">{t('newSale.paidAmountMaxError')}</div> : null}
         </div>
-        {subtotal > 0 ? <div style={{ padding: '10px 12px', borderRadius: 8, border: `1px solid ${debtAmount > 0 ? 'var(--danger)' : 'var(--success)'}`, background: debtAmount > 0 ? 'rgba(220,38,38,.04)' : 'rgba(22,163,74,.04)' }}><div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}><span style={{ color: 'var(--ink-3)' }}>{t('sales.drawerDebt')}</span><span className="num" style={{ fontWeight: 700, color: debtAmount > 0 ? 'var(--danger)' : 'var(--success)' }}><MoneyDisplay amount={debtAmount} currency="UZS" /></span></div></div> : null}
-        {needsCustomer ? <div><Label>{t('newSale.debtDeadlineOptional')}</Label><Controller name="debtDueDateIso" control={control} render={({ field }) => <DatePicker value={field.value ? dayjs(field.value) : null} onChange={(value) => field.onChange(value ? value.toISOString() : undefined)} style={{ width: '100%' }} format="DD.MM.YYYY" placeholder={t('newSale.debtDeadlinePlaceholder')} disabledDate={(current) => Boolean(current && current < dayjs().startOf('day'))} allowClear />} /></div> : null}
+        {subtotal > 0 ? <div className={`sale-debt-summary sale-debt-summary--${debtAmount > 0 ? 'danger' : 'success'}`}><div className="u-flex u-fs-13 u-justify-between"><span className="u-text-muted">{t('sales.drawerDebt')}</span><span className={`num sale-debt-summary__value tone-${debtAmount > 0 ? 'danger' : 'success'}`}><MoneyDisplay amount={debtAmount} currency="UZS" /></span></div></div> : null}
+        {needsCustomer ? <div><Label>{t('newSale.debtDeadlineOptional')}</Label><Controller name="debtDueDateIso" control={control} render={({ field }) => <DatePicker value={field.value ? dayjs(field.value) : null} onChange={(value) => field.onChange(value ? value.toISOString() : undefined)} className="u-w-full" format="DD.MM.YYYY" placeholder={t('newSale.debtDeadlinePlaceholder')} disabledDate={(current) => Boolean(current && current < dayjs().startOf('day'))} allowClear />} /></div> : null}
       </div>
-      {needsCustomer && !customerId ? <Alert type="warning" showIcon message={t('newSale.debtNeedsCustomer')} style={{ marginTop: 12 }} /> : null}
-      <Button type="primary" size="large" block icon={<CheckIcon size={18} weight="bold" />} loading={isPending} disabled={!canSubmit} style={{ marginTop: 16 }} onClick={handleSubmit(onSubmit)}>{t('newSale.confirmSale')}</Button>
+      {needsCustomer && !customerId ? <Alert type="warning" showIcon message={t('newSale.debtNeedsCustomer')} className="u-mt-12" /> : null}
+      <Button type="primary" size="large" block icon={<i className="icons-check icon-size-18" />} loading={isPending} disabled={!canSubmit} className="u-mt-16" onClick={handleSubmit(onSubmit)}>{t('newSale.confirmSale')}</Button>
     </div>
   )
 }

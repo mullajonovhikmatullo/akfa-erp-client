@@ -41,9 +41,9 @@ export function TopProductsCard({ t, query, periodMeta }: { t: TFunc; query: Ana
       </div>
 
       {report.isLoading ? (
-        <div style={{ height: 360, display: 'grid', alignContent: 'center', gap: 14, padding: '16px 20px' }}>
+        <div className="u-content-center u-grid u-gap-14 u-h-360 u-p-16-20">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton.Input key={index} active size="small" style={{ width: `${92 - index * 9}%` }} />
+            <Skeleton.Input key={index} active size="small" className={`u-w-pct-${92 - index * 9}`} />
           ))}
         </div>
       ) : products.length === 0 ? (

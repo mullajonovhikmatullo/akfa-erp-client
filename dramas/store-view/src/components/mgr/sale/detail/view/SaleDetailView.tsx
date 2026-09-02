@@ -1,6 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Divider, Form, InputNumber, Select, Skeleton } from 'antd'
-import { PlusIcon } from '@phosphor-icons/react'
+
 import { PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -53,17 +53,17 @@ export function SaleDetailView({
 
   return (
     <>
-      <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace', letterSpacing: '.04em' }}>
+      <div className="u-border-b-default u-p-20-24">
+        <div className="u-text-muted u-font-mono u-fs-11 u-tracking-normal">
           #{(sale.id.split('-')[0] ?? '').toUpperCase()}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0 8px' }}>
-          <h2 style={{ margin: 0, fontSize: 16 }}>{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
+        <div className="u-items-center u-flex u-gap-8 u-m-6-0-8">
+          <h2 className="u-fs-16 u-m-0">{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
           <StatusBadge tone={sale.saleType === 'RETAIL' ? 'muted' : 'info'}>
             {t(sale.saleType === 'RETAIL' ? 'sales.typeRetail' : 'sales.typeWholesale')}
           </StatusBadge>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--ink-3)' }}>
+        <div className="u-text-muted u-flex u-flex-wrap u-fs-12-5 u-gap-8">
           <span>{sale.branch.name}</span>
           <span>·</span>
           <span>{formatDate(sale.createdAt)}</span>
@@ -72,9 +72,9 @@ export function SaleDetailView({
         </div>
       </div>
 
-      <div style={{ padding: '20px 24px' }}>
+      <div className="u-p-20-24">
         <SectionLabel>{t('sales.drawerPaymentSection')}</SectionLabel>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
+        <div className="u-grid u-gap-8 u-grid-cols-3-equal u-mb-16">
           <StatBox label={t('sales.drawerTotal')} value={<MoneyDisplay amount={sale.totalAmountUzs} currency="UZS" />} />
           <StatBox label={t('sales.drawerPaid')} value={<MoneyDisplay amount={sale.paidAmountUzs} currency="UZS" />} tone="success" />
           <StatBox
@@ -85,10 +85,10 @@ export function SaleDetailView({
         </div>
 
         {hasDebt ? (
-          <div style={{ marginBottom: 16 }}>
+          <div className="u-mb-16">
             {showPayForm ? (
-              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                <Form.Item label={t('sales.drawerAmountLabel')} style={{ flex: 1, minWidth: 140, margin: 0 }}>
+              <div className="u-items-end u-flex u-flex-wrap u-gap-8">
+                <Form.Item label={t('sales.drawerAmountLabel')} className="u-flex-1 u-m-0 u-min-w-140">
                   <Controller
                     name="amount"
                     control={control}
@@ -96,7 +96,7 @@ export function SaleDetailView({
                       <InputNumber<number>
                         value={field.value}
                         onChange={(value) => field.onChange(value ?? 0)}
-                        style={{ width: '100%' }}
+                        className="u-w-full"
                         min={1}
                         max={sale.debtAmountUzs}
                         step={10000}
@@ -106,11 +106,11 @@ export function SaleDetailView({
                     )}
                   />
                 </Form.Item>
-                <Form.Item label={t('sales.drawerMethodLabel')} style={{ flex: 1, minWidth: 140, margin: 0 }}>
+                <Form.Item label={t('sales.drawerMethodLabel')} className="u-flex-1 u-m-0 u-min-w-140">
                   <Controller
                     name="method"
                     control={control}
-                    render={({ field }) => <Select value={field.value} onChange={field.onChange} options={paymentOptions} style={{ width: '100%' }} />}
+                    render={({ field }) => <Select value={field.value} onChange={field.onChange} options={paymentOptions} className="u-w-full" />}
                   />
                 </Form.Item>
                 <Button type="primary" loading={paymentPending} disabled={payAmount <= 0} onClick={onSubmitPayment}>
@@ -119,43 +119,35 @@ export function SaleDetailView({
                 <Button onClick={onCancelPayment}>{t('sales.drawerCancelShort')}</Button>
               </div>
             ) : (
-              <Button icon={<PlusIcon size={13} />} onClick={onOpenPayForm}>
+              <Button icon={<i className="icons-plus icon-size-13" />} onClick={onOpenPayForm}>
                 {t('sales.drawerAddPayment')}
               </Button>
             )}
           </div>
         ) : null}
 
-        <Divider style={{ margin: '0 0 16px' }} />
+        <Divider className="u-m-0-0-16" />
         <SectionLabel>
           {t('sales.drawerItemsSection')} ({sale._count.items} {t('sales.drawerItemsSuffix')})
         </SectionLabel>
         {loading ? (
           <Skeleton active paragraph={{ rows: 3 }} />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+          <div className="u-flex u-flex-col u-gap-6 u-mb-16">
             {detail?.items.map((item) => (
               <div
                 key={item.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '10px 14px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 8,
-                  background: 'var(--surface-2)',
-                }}
+                className="u-items-center u-bg-surface-2 u-rounded-8 u-border-default u-flex u-justify-between u-p-10-14"
               >
                 <div>
-                  <div style={{ fontWeight: 500 }}>{item.product.name}</div>
-                  {item.product.sku ? <div style={{ fontSize: 11.5, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</div> : null}
+                  <div className="u-fw-500">{item.product.name}</div>
+                  {item.product.sku ? <div className="u-text-muted u-font-mono u-fs-11-5">{item.product.sku}</div> : null}
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div className="num" style={{ fontWeight: 700 }}>
+                <div className="u-text-right">
+                  <div className="num u-fw-700" >
                     <MoneyDisplay amount={item.totalPrice} currency="UZS" />
                   </div>
-                  <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
+                  <div className="u-text-muted u-fs-11-5">
                     {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[item.product.unit]} x{' '}
                     <MoneyDisplay amount={item.unitPrice} currency="UZS" />
                   </div>
@@ -167,39 +159,31 @@ export function SaleDetailView({
 
         {sale._count.payments > 0 ? (
           <>
-            <Divider style={{ margin: '0 0 16px' }} />
+            <Divider className="u-m-0-0-16" />
             <SectionLabel>
               {t('sales.drawerPaymentsSection')} ({sale._count.payments} {t('sales.drawerItemsSuffix')})
             </SectionLabel>
             {loading ? (
               <Skeleton active paragraph={{ rows: 2 }} />
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div className="u-flex u-flex-col u-gap-6">
                 {detail?.payments.map((payment) => (
                   <div
                     key={payment.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 14px',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
-                      background: 'var(--surface-2)',
-                    }}
+                    className="u-items-center u-bg-surface-2 u-rounded-8 u-border-default u-flex u-justify-between u-p-10-14"
                   >
                     <div>
-                      <div style={{ fontWeight: 500 }}>
+                      <div className="u-fw-500">
                         {t(`payment.${payment.paymentMethod}`) || PAYMENT_METHOD_LABELS[payment.paymentMethod]}
                       </div>
-                      <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
+                      <div className="u-text-muted u-fs-11-5">
                         {formatDate(payment.createdAt)} · {payment.receivedBy.fullName}
                       </div>
                     </div>
-                    <div className="num" style={{ fontWeight: 700 }}>
+                    <div className="num u-fw-700" >
                       {payment.amountUzs > 0 ? <MoneyDisplay amount={payment.amountUzs} currency="UZS" /> : null}
                       {payment.amountUsd > 0 ? (
-                        <span style={{ marginLeft: 4 }}><MoneyDisplay amount={payment.amountUsd} currency="USD" /></span>
+                        <span className="u-ml-4"><MoneyDisplay amount={payment.amountUsd} currency="USD" /></span>
                       ) : null}
                     </div>
                   </div>
@@ -211,8 +195,8 @@ export function SaleDetailView({
 
         {sale.note ? (
           <>
-            <Divider style={{ margin: '16px 0' }} />
-            <div style={{ fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>&quot;{sale.note}&quot;</div>
+            <Divider className="u-m-16-0" />
+            <div className="u-text-muted u-fs-13 u-font-italic">&quot;{sale.note}&quot;</div>
           </>
         ) : null}
       </div>

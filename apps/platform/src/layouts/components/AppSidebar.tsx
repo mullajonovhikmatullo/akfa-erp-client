@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CaretDown } from '@phosphor-icons/react';
+
 import clsx from 'clsx';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -55,7 +55,6 @@ export const AppSidebar = () => {
   const renderNavItem = (item: NavigationItem) => {
     //
     const hasChildren = Boolean(item.children?.length);
-    const Icon = item.icon;
     const active = item.path === location.pathname || itemHasActiveChild(item, location.pathname);
     const isOpen = openGroups.includes(item.id);
 
@@ -67,14 +66,9 @@ export const AppSidebar = () => {
           aria-expanded={isOpen}
           onClick={() => toggleGroup(item.id)}
         >
-          <Icon size={20} weight="duotone" aria-hidden="true" />
+          <i className={`icons-${item.icon} icon-size-20`} aria-hidden="true" />
           <span>{item.label}</span>
-          <CaretDown
-            className={clsx('sidebar-nav__chevron', isOpen && 'is-open')}
-            size={14}
-            weight="bold"
-            aria-hidden="true"
-          />
+          <i className={['icons-arrow-down icon-size-14', clsx('sidebar-nav__chevron', isOpen && 'is-open')].filter(Boolean).join(' ')} aria-hidden="true" />
         </button>
       );
 
@@ -110,7 +104,7 @@ export const AppSidebar = () => {
         type="button"
         onClick={() => handleNavigate(item)}
       >
-        <Icon size={20} weight="duotone" aria-hidden="true" />
+        <i className={`icons-${item.icon} icon-size-20`} aria-hidden="true" />
         <span>{item.label}</span>
       </button>
     );

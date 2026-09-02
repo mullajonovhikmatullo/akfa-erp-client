@@ -64,7 +64,7 @@ export function CustomerFormFields({
         )}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="u-grid u-gap-12 u-grid-cols-2">
         <Controller
           name="phone"
           control={control}
@@ -89,19 +89,19 @@ export function CustomerFormFields({
         <Alert
           type={linkedToBranch ? 'warning' : 'info'}
           showIcon
-          style={{ marginBottom: 12 }}
+          className="u-mb-12"
           message={t('customerForm.phoneExistsTitle')}
           description={
-            <div style={{ display: 'grid', gap: 8 }}>
+            <div className="u-grid u-gap-8">
               <span>
                 <strong>{existingCustomer.fullName}</strong>
                 {' · '}{existingCustomer.phone}
                 {' · '}{existingCustomer.branch.name}
               </span>
-              <span style={{ color: 'var(--ink-3)' }}>
+              <span className="u-text-muted">
                 {t(linkedToBranch ? 'customerForm.phoneExistsCurrentBranch' : 'customerForm.phoneExistsOtherBranch')}
               </span>
-              <Button type="primary" size="small" loading={linkingCustomer} onClick={onUseExistingCustomer} style={{ width: 'fit-content' }}>
+              <Button type="primary" size="small" loading={linkingCustomer} onClick={onUseExistingCustomer} className="u-w-fit">
                 {t('customerForm.useExisting')}
               </Button>
             </div>
@@ -111,7 +111,7 @@ export function CustomerFormFields({
 
       {!isEdit ? (
         <Form.Item label={t('customerForm.labelBalance')} validateStatus={errors.balance ? 'error' : undefined} help={errors.balance?.message}>
-          <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8 }}>
+          <div className="u-grid u-gap-8 u-grid-cols-160-content">
             <Controller
               name="balanceType"
               control={control}
@@ -120,7 +120,7 @@ export function CustomerFormFields({
                   {...field}
                   optionType="button"
                   buttonStyle="solid"
-                  style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}
+                  className="u-grid u-grid-cols-2"
                   options={[
                     { value: 'credit', label: t('customers.balanceCredit') },
                     { value: 'debt', label: t('customers.balanceDebt') },
@@ -139,7 +139,7 @@ export function CustomerFormFields({
                   ref={field.ref}
                   min={0}
                   step={1000}
-                  style={{ width: '100%' }}
+                  className="u-w-full"
                   formatter={(value) => (value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '')}
                   parser={(value) => Number(value?.replace(/\s/g, '') ?? 0)}
                   addonAfter="so'm"

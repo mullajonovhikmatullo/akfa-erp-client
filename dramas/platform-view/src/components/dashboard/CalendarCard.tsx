@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
-import { CaretLeft, CaretRight } from '@phosphor-icons/react';
+
 import clsx from 'clsx';
 import { GlassCard } from '../common/GlassCard';
 import { formatCalendarMonth } from '../../lib/formatters';
@@ -41,7 +41,7 @@ export const CalendarCard = ({ selectedCalendarDay }: CalendarCardProps) => {
           aria-label="Oldingi oy"
           onClick={() => setVisibleMonth((current) => current.subtract(1, 'month'))}
         >
-          <CaretLeft size={16} weight="bold" />
+          <i className="icons-chevron-left icon-size-16" />
         </button>
         <div>
           <span>{formatCalendarMonth(visibleMonth)}</span>
@@ -53,7 +53,7 @@ export const CalendarCard = ({ selectedCalendarDay }: CalendarCardProps) => {
           aria-label="Keyingi oy"
           onClick={() => setVisibleMonth((current) => current.add(1, 'month'))}
         >
-          <CaretRight size={16} weight="bold" />
+          <i className="icons-chevron-right icon-size-16" />
         </button>
       </div>
 

@@ -1,4 +1,3 @@
-import { Buildings } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { EmptyState } from '../common/EmptyState';
 import { GlassCard } from '../common/GlassCard';
@@ -27,7 +26,7 @@ export const TenantListCard = ({ tenants }: TenantListCardProps) => (
             onClick={() => toast.success('Kompaniya tanlandi')}
           >
             <span className="tenant-item__icon" aria-hidden="true">
-              <Buildings size={19} weight="duotone" />
+              <i className="icons-buildings icon-size-19" />
             </span>
             <span className="tenant-item__content">
               <strong>{tenant.name}</strong>
@@ -41,7 +40,7 @@ export const TenantListCard = ({ tenants }: TenantListCardProps) => (
       </div>
     ) : (
       <EmptyState
-        icon={Buildings}
+        icon="buildings"
         title="Mijoz kompaniya yo‘q"
         description="Yangi kompaniyalar qo‘shilganda ro‘yxat shu yerda chiqadi."
       />

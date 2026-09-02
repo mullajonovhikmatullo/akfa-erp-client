@@ -1,5 +1,5 @@
 import { Button } from 'antd';
-import { WarningCircle } from '@phosphor-icons/react';
+
 import { GlassCard } from './GlassCard';
 
 interface ErrorStateProps {
@@ -9,7 +9,7 @@ interface ErrorStateProps {
 export const ErrorState = ({ onRetry }: ErrorStateProps) => (
   <GlassCard className="error-state">
     <div className="empty-state__icon empty-state__icon--danger" aria-hidden="true">
-      <WarningCircle size={26} weight="duotone" />
+      <i className="icons-warning icon-size-26" />
     </div>
     <div>
       <h2>Ma’lumotlarni yuklab bo‘lmadi</h2>

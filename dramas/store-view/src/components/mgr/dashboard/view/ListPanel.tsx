@@ -9,18 +9,18 @@ export function ListPanel({ title, action, onAction, empty, emptyText, children 
         {action && (
           <button
             onClick={onAction}
-            style={{ fontSize: 12, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer' }}
+            className="u-bg-none u-border-none u-text-primary u-cursor-pointer u-fs-12"
           >
             {action}
           </button>
         )}
       </div>
       {empty ? (
-        <div style={{ padding: '28px 12px', textAlign: 'center', color: 'var(--ink-3)', border: '1px dashed var(--border)', borderRadius: 8 }}>
+        <div className="u-rounded-8 u-border-dashed u-text-muted u-p-28-12 u-text-center">
           {emptyText}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>{children}</div>
+        <div className="u-flex u-flex-col u-gap-8">{children}</div>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Check } from 'lucide-react';
+
 import { LandingSeekApi, type PublicPlan, type PublicPlanCode } from '@store/landing-stub';
 import { useI18n } from '../../i18n/I18nProvider';
 import { formatMessage } from '../../i18n/translations';
@@ -27,6 +27,7 @@ function formatPlanFeatures(
   pricing: TranslationDictionary['pricing'],
   locale: string,
 ) {
+  //
   const formatLimit = (value: number) => new Intl.NumberFormat(locale).format(value);
   const branchFeature = plan.maxBranches === null
     ? pricing.limits.unlimitedBranches
@@ -46,6 +47,7 @@ function formatPlanFeatures(
 const pricingSkeletonKeys = ['one', 'two', 'three'] as const;
 
 function PricingSkeleton() {
+  //
   return (
     <>
       {pricingSkeletonKeys.map((key) => (
@@ -67,6 +69,7 @@ function PricingSkeleton() {
 }
 
 export function Pricing() {
+  //
   const { locale, t } = useI18n();
   const { pricing } = t;
   const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
@@ -74,16 +77,19 @@ export function Pricing() {
   const [loadState, setLoadState] = useState<'loading' | 'success' | 'error'>('loading');
 
   useEffect(() => {
+    //
     let active = true;
     setLoadState('loading');
 
     LandingSeekApi.listPublicPlans()
       .then((plans) => {
+        //
         if (!active) return;
         setPublicPlans(plans);
         setLoadState('success');
       })
       .catch(() => {
+        //
         if (!active) return;
         setPublicPlans([]);
         setLoadState('error');
@@ -93,12 +99,14 @@ export function Pricing() {
   }, []);
 
   const plans = useMemo<DisplayPlan[]>(() => {
+    //
     const templates = new Map<string, PlanTemplate>(Object.entries(pricing.plans));
 
     return publicPlans
       .slice()
       .sort((left, right) => left.monthlyPriceUzs - right.monthlyPriceUzs)
       .map((livePlan) => {
+        //
         const template = templates.get(normalizePlanCode(livePlan.code));
         return {
           code: livePlan.code,
@@ -138,7 +146,7 @@ export function Pricing() {
               <span className="pricing-card__price-label">{pricing.afterTrial}</span>
               <div className="pricing-card__price"><strong>{plan.price}</strong><span>{plan.unit}</span></div>
               <ul>
-                {plan.features.map((feature, featureIndex) => <li key={`feature-${featureIndex}`}><Check size={14} strokeWidth={2.5} />{feature}</li>)}
+                {plan.features.map((feature, featureIndex) => <li key={`feature-${featureIndex}`}><i className="icons-check icon-size-14" />{feature}</li>)}
               </ul>
               <button className={`button ${plan.highlight ? 'button--primary' : 'button--ghost'}`} type="button" onClick={() => setSelectedPlan(plan)}>
                 {plan.cta}

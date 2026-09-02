@@ -1,6 +1,6 @@
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal, Select } from 'antd'
-import { LockIcon, UserSwitchIcon } from '@phosphor-icons/react'
+
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Branch, User } from '@store/store-stub'
@@ -41,8 +41,8 @@ export function AdminFormModal({
   return (
     <Modal
       title={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <UserSwitchIcon size={18} weight="duotone" />
+        <div className="u-items-center u-flex u-gap-8">
+          <i className="icons-user-switch icon-size-18" />
           {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('admins.modalCreate')}
         </div>
       }
@@ -54,7 +54,7 @@ export function AdminFormModal({
       destroyOnHidden
       width={480}
     >
-      <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+      <Form layout="vertical" autoComplete="off" className="u-mt-16">
         <Form.Item label={t('profile.fullName')} required validateStatus={errors.name ? 'error' : undefined} help={errors.name?.message}>
           <Controller
             name="name"
@@ -106,7 +106,7 @@ export function AdminFormModal({
                   {...field}
                   {...blockAutofill('store-admin-new-password')}
                   placeholder={t('pwd.minLen')}
-                  prefix={<LockIcon size={18} color="currentColor" style={{ color: 'var(--ink-3)' }} />}
+                  prefix={<i className="icons-lock icon-size-18 u-text-muted" />}
                 />
               )}
             />

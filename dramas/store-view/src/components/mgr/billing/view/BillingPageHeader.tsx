@@ -1,5 +1,5 @@
 import { Button, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, CreditCardIcon } from '@phosphor-icons/react'
+
 import type { BillingTranslate } from './types'
 
 interface BillingPageHeaderProps {
@@ -29,7 +29,7 @@ export function BillingPageHeader({
       <div className="billing-page__actions">
         <Button
           type="primary"
-          icon={<CreditCardIcon size={18} weight="duotone" />}
+          icon={<i className="icons-payments icon-size-18" />}
           disabled={!hasPlan || hasPendingPayment}
           onClick={onPay}
         >
@@ -38,7 +38,7 @@ export function BillingPageHeader({
         <Tooltip title={t('common.refresh')}>
           <Button
             aria-label={t('common.refresh')}
-            icon={<ArrowClockwiseIcon size={18} className={fetching ? 'ph-icon-spin' : undefined} />}
+            icon={<i className={['icons-reload icon-size-18', fetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
             onClick={onRefresh}
           />
         </Tooltip>

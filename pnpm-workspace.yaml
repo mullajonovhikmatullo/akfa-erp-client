@@ -2,5 +2,8 @@ packages:
   - "apps/*"
   - "dramas/*"
 
+allowBuilds:
+  '@parcel/watcher': false
+
 overrides:
   "@rc-component/util": "1.12.0"

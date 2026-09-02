@@ -1,4 +1,3 @@
-import { Megaphone, ShieldCheck } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { EmptyState } from '../common/EmptyState';
 import { GlassCard } from '../common/GlassCard';
@@ -22,7 +21,7 @@ export const SystemAnnouncementsCard = ({ announcements }: SystemAnnouncementsCa
       <div className="announcement-list">
         {announcements.map((announcement) => {
           //
-          const Icon = announcement.category === 'Admin' ? ShieldCheck : Megaphone;
+          const icon = announcement.category === 'Admin' ? 'user_check' : 'notification-bell';
           return (
             <button
               className="announcement-item"
@@ -31,7 +30,7 @@ export const SystemAnnouncementsCard = ({ announcements }: SystemAnnouncementsCa
               onClick={() => toast.info('Bu bo‘lim keyingi bosqichda qo‘shiladi')}
             >
               <span className="announcement-item__icon" aria-hidden="true">
-                <Icon size={19} weight="duotone" />
+                <i className={`icons-${icon} icon-size-19`} />
               </span>
               <span className="announcement-item__content">
                 <strong>{announcement.title}</strong>
@@ -44,7 +43,7 @@ export const SystemAnnouncementsCard = ({ announcements }: SystemAnnouncementsCa
       </div>
     ) : (
       <EmptyState
-        icon={Megaphone}
+        icon="notification-bell"
         title="Tizim xabari yo‘q"
         description="Yangiliklar e’lon qilinganda shu yerda ko‘rinadi."
       />

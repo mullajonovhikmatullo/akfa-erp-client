@@ -5,7 +5,7 @@ type Tone = 'success' | 'danger' | 'warning' | 'info' | 'muted'
 
 interface BranchNameProps {
   name: string
-  maxWidth?: number | string
+  maxWidth?: 132 | 180 | 190 | '100%'
   tone?: Tone
   as?: 'text' | 'badge'
 }

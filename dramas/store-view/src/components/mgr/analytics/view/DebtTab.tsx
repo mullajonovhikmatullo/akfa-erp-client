@@ -1,5 +1,5 @@
 import { Alert, Select, Skeleton, Table } from 'antd'
-import { WarningIcon } from '@phosphor-icons/react'
+
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { CustomerDebtData, SaleListItem, SaleType } from '@store/store-stub'
 import { KpiCard } from './AnalyticsShared'
@@ -52,7 +52,7 @@ export function DebtTab({
   const topDebtorOptions = data.topDebtors.map((customer) => ({
     value: customer.id,
     searchLabel: customer.fullName,
-    label: <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}><span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{customer.fullName}</span><span className="num" style={{ color: 'var(--danger)', fontWeight: 700, flex: '0 0 auto' }}>{formatCompactAmount(customer.balance)}</span></span>,
+    label: <span className="u-items-center u-flex u-gap-12 u-justify-between"><span className="u-min-w-0 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap">{customer.fullName}</span><span className="num u-text-danger u-flex-none u-fw-700" >{formatCompactAmount(customer.balance)}</span></span>,
   }))
 
   return (
@@ -63,17 +63,17 @@ export function DebtTab({
         <KpiCard label={t('dashboard.debtorCount')} value={data.summary.debtorCount} sub={t('analytics.debtorsNeedAttention')} tone={data.summary.debtorCount > 0 ? 'warning' : 'success'} />
       </div>
       {data.overdue.overdueCount > 0 ? <Alert type="warning" showIcon message={`${data.overdue.overdueCount} ${t('analytics.alertOverdueSuffix')}`} /> : null}
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 13 }}><WarningIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--warning)' }} />{tableTitle}</div>
-          <span style={{ color: 'var(--ink-3)', fontSize: 12.5 }}><strong>{debtTotal}</strong> {t('common.resultsSuffix')}</span>
+      <div className="card u-overflow-hidden u-p-0" >
+        <div className="u-items-center u-border-b-default u-flex u-flex-wrap u-gap-12 u-justify-between u-p-14-16">
+          <div className="u-items-center u-flex u-fs-13 u-fw-700 u-gap-8"><i className="icons-warning icon-size-18 u-text-warning" />{tableTitle}</div>
+          <span className="u-text-muted u-fs-12-5"><strong>{debtTotal}</strong> {t('common.resultsSuffix')}</span>
         </div>
         <div className="analytics-debt-filters">
-          <Select<DebtScope> value={debtScope} onChange={onDebtScopeChange} style={{ width: '100%' }} options={[{ value: 'overdue', label: t('analytics.scopeOverdue') }, { value: 'allDebt', label: t('analytics.scopeAllDebt') }]} />
-          <Select<DebtDeadlineFilter> value={debtDeadlineFilter} onChange={onDebtDeadlineChange} style={{ width: '100%' }} options={[{ value: 'all', label: t('analytics.deadlineAll') }, { value: 'withDeadline', label: t('analytics.deadlineSet') }, { value: 'withoutDeadline', label: t('analytics.deadlineMissing') }]} />
-          <Select value={debtCustomerId} onChange={onDebtCustomerChange} allowClear showSearch optionFilterProp="searchLabel" placeholder={t('analytics.filterTopDebtors')} className="analytics-debt-filters__customer" style={{ width: '100%' }} options={topDebtorOptions} />
-          <Select<SaleType> value={debtSaleType} onChange={onDebtSaleTypeChange} allowClear placeholder={t('sales.filterAllTypes')} style={{ width: '100%' }} options={[{ value: 'RETAIL', label: t('sales.typeRetail') }, { value: 'WHOLESALE', label: t('sales.typeWholesale') }]} />
-          <Select<DebtSort> value={debtSort} onChange={onDebtSortChange} style={{ width: '100%' }} options={[{ value: 'dueDateAsc', label: t('analytics.sortDueDateAsc') }, { value: 'debtDesc', label: t('analytics.sortDebtDesc') }, { value: 'lateDesc', label: t('analytics.sortLateDesc') }, { value: 'createdDesc', label: t('analytics.sortCreatedDesc') }]} />
+          <Select<DebtScope> value={debtScope} onChange={onDebtScopeChange} className="u-w-full" options={[{ value: 'overdue', label: t('analytics.scopeOverdue') }, { value: 'allDebt', label: t('analytics.scopeAllDebt') }]} />
+          <Select<DebtDeadlineFilter> value={debtDeadlineFilter} onChange={onDebtDeadlineChange} className="u-w-full" options={[{ value: 'all', label: t('analytics.deadlineAll') }, { value: 'withDeadline', label: t('analytics.deadlineSet') }, { value: 'withoutDeadline', label: t('analytics.deadlineMissing') }]} />
+          <Select value={debtCustomerId} onChange={onDebtCustomerChange} allowClear showSearch optionFilterProp="searchLabel" placeholder={t('analytics.filterTopDebtors')} className="analytics-debt-filters__customer u-w-full"  options={topDebtorOptions} />
+          <Select<SaleType> value={debtSaleType} onChange={onDebtSaleTypeChange} allowClear placeholder={t('sales.filterAllTypes')} className="u-w-full" options={[{ value: 'RETAIL', label: t('sales.typeRetail') }, { value: 'WHOLESALE', label: t('sales.typeWholesale') }]} />
+          <Select<DebtSort> value={debtSort} onChange={onDebtSortChange} className="u-w-full" options={[{ value: 'dueDateAsc', label: t('analytics.sortDueDateAsc') }, { value: 'debtDesc', label: t('analytics.sortDebtDesc') }, { value: 'lateDesc', label: t('analytics.sortLateDesc') }, { value: 'createdDesc', label: t('analytics.sortCreatedDesc') }]} />
         </div>
         <Table<SaleListItem>
           size="small"

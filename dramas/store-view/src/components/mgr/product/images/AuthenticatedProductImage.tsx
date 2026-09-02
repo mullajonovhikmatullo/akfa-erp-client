@@ -1,16 +1,15 @@
-import type { CSSProperties } from 'react'
-import { ImageSquareIcon } from '@phosphor-icons/react'
+
 import { useProductImageObjectUrl } from '../hooks/useProductImageObjectUrl'
 import { ProductImageSkeleton } from './ProductImageSkeleton'
 
 interface AuthenticatedProductImageProps {
   url?: string | null
   alt: string
-  width?: CSSProperties['width']
-  height?: CSSProperties['height']
-  borderRadius?: number
-  objectFit?: CSSProperties['objectFit']
-  style?: CSSProperties
+  width?: 34 | 40 | 42 | 44 | '100%'
+  height?: 34 | 40 | 42 | 44 | 'auto' | '100%'
+  borderRadius?: 0 | 6
+  objectFit?: 'contain' | 'cover' | 'scale-down'
+  className?: string
 }
 
 export function AuthenticatedProductImage({
@@ -20,47 +19,31 @@ export function AuthenticatedProductImage({
   height = 44,
   borderRadius = 6,
   objectFit = 'cover',
-  style,
+  className = '',
 }: AuthenticatedProductImageProps) {
   //
   const { rootRef, visible, objectUrl, failed } = useProductImageObjectUrl(url)
-
-  const frameStyle: CSSProperties = {
-    width,
-    height,
-    flex: '0 0 auto',
-    overflow: 'hidden',
-    borderRadius,
-    border: '1px solid var(--border)',
-    background: 'var(--surface-2)',
-    display: 'grid',
-    placeItems: 'center',
-    color: 'var(--ink-4)',
-    ...style,
-  }
   const preserveWholeImage = objectFit === 'contain' || objectFit === 'scale-down'
+  const dimensionClass = `product-image-frame--${String(width).replace('%', 'pct')}-${String(height).replace('%', 'pct')}`
 
   return (
-    <div ref={rootRef} style={frameStyle} role="img" aria-label={alt}>
+    <div
+      ref={rootRef}
+      className={`product-image-frame ${dimensionClass} product-image-frame--radius-${borderRadius} ${className}`}
+      role="img"
+      aria-label={alt}
+    >
       {objectUrl && !failed ? (
         <img
           src={objectUrl}
           alt={alt}
           draggable={false}
-          style={{
-            display: 'block',
-            width: preserveWholeImage ? 'auto' : '100%',
-            height: preserveWholeImage ? 'auto' : '100%',
-            maxWidth: '100%',
-            maxHeight: '100%',
-            objectFit,
-            objectPosition: 'center',
-          }}
+          className={`product-image-frame__image product-image-frame__image--${objectFit}${preserveWholeImage ? ' product-image-frame__image--preserve' : ''}`}
         />
       ) : visible && url && !failed ? (
         <ProductImageSkeleton borderRadius={borderRadius} />
       ) : (
-        <ImageSquareIcon size={Math.min(typeof width === 'number' ? width * 0.48 : 28, 30)} weight="duotone" aria-hidden />
+        <i className="icons-image product-image-frame__placeholder" aria-hidden />
       )}
     </div>
   )

@@ -3,13 +3,12 @@ import { formatDateTime } from '@store/store-shared/lib/formatters'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { StockBatch, StockReceipt } from '@store/store-stub'
 import { useStockReceiptItemsPage } from '../../../inventory/hooks/useStockReceiptItemsPage'
-import { usePagination } from '../../../shared/hooks/usePagination'
 import { createReceiptItemColumns } from './receiptColumns'
 
 export function ReceiptItemsFolder({ receipt, t }: { receipt: StockReceipt; t: (key: string) => string }) {
   //
-  const { page, pageSize, onChange: onPageChange } = usePagination(25, `receipt-${receipt.id}-`)
-  const query = useStockReceiptItemsPage(receipt.id, page, pageSize)
+  const query = useStockReceiptItemsPage(receipt.id, 25)
+  const { page, pageSize, onPageChange } = query
 
   return (
     <div className="purchase-folder-content" onClick={(event) => event.stopPropagation()}>

@@ -30,19 +30,19 @@ export function MoneyDisplay({
       : amount
 
   const formatted = formatMoney(converted, effectiveCurrency, compact)
-  const color = colorize ? (amount < 0 ? 'var(--danger)' : amount > 0 ? 'var(--success)' : undefined) : undefined
+  const colorClassName = colorize ? (amount < 0 ? 'txt-danger' : amount > 0 ? 'txt-success' : '') : ''
   const uzsSuffix = " so'm"
 
   if (effectiveCurrency === 'UZS' && formatted.endsWith(uzsSuffix)) {
     return (
-      <span className="num" style={color ? { color } : undefined}>
+      <span className={`num ${colorClassName}`}>
         {formatted.slice(0, -uzsSuffix.length)} <span className="money-currency">so'm</span>
       </span>
     )
   }
 
   return (
-    <span className="num" style={color ? { color } : undefined}>
+    <span className={`num ${colorClassName}`}>
       {formatted}
     </span>
   )

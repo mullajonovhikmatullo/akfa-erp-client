@@ -108,7 +108,7 @@ export function createReceiptItemColumns(t: (key: string) => string, page: numbe
       dataIndex: 'remainingQty',
       width: 140,
       align: 'right',
-      render: (quantity: number, batch) => <strong className="num" style={{ color: quantity > 0 ? 'var(--success)' : 'var(--ink-4)' }}>{quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[batch.product.unit]}</strong>,
+      render: (quantity: number, batch) => <strong className={`num ${quantity > 0 ? 'tone-success' : 'tone-quiet'}`}>{quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[batch.product.unit]}</strong>,
     },
     {
       title: t('purchases.colCost'),

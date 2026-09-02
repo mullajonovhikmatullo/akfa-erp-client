@@ -1,6 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Select } from 'antd'
-import { MapPinIcon } from '@phosphor-icons/react'
+
 import type { Branch } from '@store/store-stub'
 import type { HeaderBranchFormValues } from '../hooks/useHeaderBranchSelection'
 
@@ -45,7 +45,7 @@ export function HeaderBranchControl({
             onBranchChange(value)
           }}
           className="topbar__branch-select topbar-hide-mobile"
-          suffixIcon={<MapPinIcon size={16} />}
+          suffixIcon={<i className="icons-location-pin icon-size-16" />}
           options={[
             { value: '__all__', label: t('header.allBranches') },
             ...branches.map((branch) => ({ value: branch.id, label: branch.name })),

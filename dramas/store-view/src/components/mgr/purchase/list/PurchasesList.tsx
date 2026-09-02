@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PlusIcon } from '@phosphor-icons/react'
+
 import dayjs, { type Dayjs } from 'dayjs'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -10,7 +10,6 @@ import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { StockInModal } from '../../inventory/stock-in/StockInModal'
 import { useStockBatchSummary } from '../../inventory/hooks/useStockBatchSummary'
 import { useStockReceiptsPage } from '../../inventory/hooks/useStockReceiptsPage'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { PurchaseKpiBox } from './view/PurchaseKpiBox'
 import { ReceiptItemsFolder } from './view/ReceiptItemsFolder'
 import { createReceiptColumns } from './view/receiptColumns'
@@ -30,7 +29,6 @@ interface PurchasesListProps {
 
 export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, exchangeRate }: PurchasesListProps) {
   //
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch, setValue } = useForm<PurchaseFiltersForm>({
     defaultValues: { branchId: undefined, dateRange: [null, null] },
   })
@@ -40,19 +38,19 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
   const headerBranchId = isStoreOwner && activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
   const scopedBranchId = isStoreOwner ? (headerBranchId ?? filters.branchId) : (userBranchId ?? undefined)
 
-  useEffect(() => {
-    //
-    setValue('branchId', undefined)
-    onPageChange(1, pageSize)
-  }, [activeBranchId, onPageChange, pageSize, setValue])
-
   const receiptsQuery = useStockReceiptsPage({
-    page,
-    pageSize,
     branchId: scopedBranchId,
     from: dateRange[0]?.startOf('day').toISOString(),
     to: dateRange[1]?.endOf('day').toISOString(),
   })
+  const { page, pageSize, onPageChange, resetPage, rowIndex } = receiptsQuery
+
+  useEffect(() => {
+    //
+    setValue('branchId', undefined)
+    resetPage()
+  }, [activeBranchId, resetPage, setValue])
+
   const { data: summary } = useStockBatchSummary({ branchId: scopedBranchId })
   const { data: branches = [] } = useBranchesList()
   const receipts = receiptsQuery.data?.items ?? []
@@ -73,11 +71,11 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
           <div className="sub">{t('purchases.receiptsSubtitle')}</div>
         </div>
         <div className="purchase-page-actions">
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setCreating(true)}>
             {t('purchases.newPurchase')}
           </Button>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<ArrowClockwiseIcon size={18} className={receiptsQuery.isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => void receiptsQuery.refetch()} />
+            <Button icon={<i className={['icons-reload icon-size-18', receiptsQuery.isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => void receiptsQuery.refetch()} />
           </Tooltip>
         </div>
       </div>
@@ -100,7 +98,7 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
                   allowClear
                   placeholder={t('header.allBranches')}
                   options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                  onChange={(value) => { field.onChange(value); onPageChange(1, pageSize) }}
+                  onChange={(value) => { field.onChange(value); resetPage() }}
                 />
               )}
             />
@@ -111,7 +109,7 @@ export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, e
             render={({ field }) => (
               <DatePicker.RangePicker
                 value={field.value}
-                onChange={(values) => { field.onChange(values ?? [null, null]); onPageChange(1, pageSize) }}
+                onChange={(values) => { field.onChange(values ?? [null, null]); resetPage() }}
                 allowClear
                 format="DD.MM.YYYY"
                 placeholder={[t('common.startDate'), t('common.endDate')]}

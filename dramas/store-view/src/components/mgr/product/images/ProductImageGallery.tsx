@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ImageSquareIcon, StarIcon } from '@phosphor-icons/react'
+
 import type { ProductImage } from '@store/store-stub'
 import { AuthenticatedProductImage } from './AuthenticatedProductImage'
 import type { Translate } from './image-utils'
@@ -33,20 +33,9 @@ export function ProductImageGallery({
   const selected = orderedImages.find((image) => image.id === selectedId) ?? orderedImages[0]
 
   return (
-    <div style={{ padding: '16px 24px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+    <div className="u-bg-surface-2 u-border-b-default u-p-16-24-14">
       <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          aspectRatio: '4 / 3',
-          display: 'grid',
-          placeItems: 'center',
-          overflow: 'hidden',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          background: 'var(--surface-1)',
-          color: 'var(--ink-3)',
-        }}
+        className="u-aspect-4-3 u-bg-surface-1 u-rounded-6 u-border-default u-text-muted u-grid u-overflow-hidden u-place-center u-relative u-w-full"
       >
         {loading ? (
           <ProductImageSkeleton borderRadius={0} />
@@ -58,50 +47,30 @@ export function ProductImageGallery({
             height="100%"
             borderRadius={0}
             objectFit="contain"
-            style={{ border: 0, background: 'var(--surface-1)' }}
+            className="u-bg-surface-1 u-border-0"
           />
         ) : (
-          <div style={{ textAlign: 'center' }}>
-            <ImageSquareIcon size={36} weight="duotone" />
-            <div style={{ marginTop: 5, fontSize: 12 }}>{t('productImages.empty')}</div>
+          <div className="u-text-center">
+            <i className="icons-image icon-size-36" />
+            <div className="u-fs-12 u-mt-5">{t('productImages.empty')}</div>
           </div>
         )}
         {!loading && selected?.isPrimary ? (
           <div
-            style={{
-              position: 'absolute',
-              top: 8,
-              left: 8,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: '4px 7px',
-              borderRadius: 5,
-              background: 'rgba(0, 0, 0, 0.68)',
-              color: '#fff',
-              fontSize: 10.5,
-              fontWeight: 700,
-            }}
+            className="u-items-center u-bg-overlay u-rounded-5 u-text-white u-flex u-fs-10-5 u-fw-700 u-gap-4 u-left-8 u-p-4-7 u-absolute u-top-8"
           >
-            <StarIcon size={11} weight="fill" />
+            <i className="icons-favourite icon-size-11" />
             {t('productImages.primary')}
           </div>
         ) : null}
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${MAX_PRODUCT_IMAGES}, minmax(0, 1fr))`,
-          gap: 8,
-          marginTop: 8,
-        }}
-      >
+      <div className="product-image-gallery__thumbnails">
         {Array.from({ length: MAX_PRODUCT_IMAGES }, (_, index) => {
           //
           if (loading) {
             return (
-              <div key={`loading-${index}`} style={{ aspectRatio: '1', minWidth: 0 }}>
+              <div key={`loading-${index}`} className="u-aspect-square u-min-w-0">
                 <ProductImageSkeleton />
               </div>
             )
@@ -113,18 +82,9 @@ export function ProductImageGallery({
               <div
                 key={`empty-${index}`}
                 aria-hidden
-                style={{
-                  aspectRatio: '1',
-                  minWidth: 0,
-                  display: 'grid',
-                  placeItems: 'center',
-                  border: '1px dashed var(--border)',
-                  borderRadius: 6,
-                  background: 'var(--surface-1)',
-                  color: 'var(--ink-4)',
-                }}
+                className="u-aspect-square u-bg-surface-1 u-rounded-6 u-border-dashed u-text-quiet u-grid u-min-w-0 u-place-center"
               >
-                <ImageSquareIcon size={20} weight="duotone" />
+                <i className="icons-image icon-size-20" />
               </div>
             )
           }
@@ -136,16 +96,7 @@ export function ProductImageGallery({
               aria-label={`${productName} ${index + 1}`}
               aria-pressed={image.id === selected?.id}
               onClick={() => setSelectedId(image.id)}
-              style={{
-                aspectRatio: '1',
-                minWidth: 0,
-                padding: 0,
-                overflow: 'hidden',
-                border: image.id === selected?.id ? '2px solid var(--primary)' : '1px solid var(--border)',
-                borderRadius: 6,
-                background: 'var(--surface-1)',
-                cursor: 'pointer',
-              }}
+              className={`product-image-gallery__thumbnail${image.id === selected?.id ? ' product-image-gallery__thumbnail--selected' : ''}`}
             >
               <AuthenticatedProductImage
                 url={image.thumbnailUrl}
@@ -153,7 +104,7 @@ export function ProductImageGallery({
                 width="100%"
                 height="100%"
                 borderRadius={0}
-                style={{ border: 0 }}
+                className="u-border-0"
               />
             </button>
           )

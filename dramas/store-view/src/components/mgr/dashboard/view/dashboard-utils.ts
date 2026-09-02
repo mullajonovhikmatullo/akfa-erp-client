@@ -17,17 +17,9 @@ export const COLORS = {
   violet: '#7c3aed',
 };
 
-export const DASH_PANEL_BG = 'linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%)';
 export const DASH_DOT_FILL = 'var(--surface)';
 export const DASH_GRID = 'var(--grid)';
 export const DASH_TICK = 'var(--ink-3)';
-export const DASH_TOOLTIP_STYLE = {
-  borderRadius: 8,
-  border: '1px solid var(--border)',
-  background: 'var(--surface)',
-  color: 'var(--ink-2)',
-  fontSize: 12,
-};
 
 const CHART_COLORS = ['#6f8ff2', '#68bd83', '#e0aa55', '#e47f7f', '#61afbf', '#9a83de'];
 
@@ -36,10 +28,11 @@ export const TOP_PRODUCTS_LIMIT = 10;
 
 export const getChartColor = (index: number) => CHART_COLORS[index % CHART_COLORS.length] ?? COLORS.primary;
 
-export const getColorHalo = (color: string) =>
-  color.startsWith('var(')
-    ? `color-mix(in srgb, ${color} 18%, transparent)`
-    : `${color}22`;
+export const getDashboardColorClass = (color: string) => {
+  //
+  const index = CHART_COLORS.indexOf(color)
+  return index >= 0 ? `dashboard-color-${index}` : 'dashboard-color-primary'
+};
 
 export const getTodayRange = (): [dayjs.Dayjs, dayjs.Dayjs] => [dayjs().startOf('day'), dayjs().endOf('day')];
 
@@ -148,6 +141,7 @@ export function describeArc(cx: number, cy: number, radius: number, startAngle: 
 }
 
 function polarToCartesian(cx: number, cy: number, radius: number, angle: number) {
+  //
   const angleRad = ((angle - 90) * Math.PI) / 180;
   return {
     x: cx + radius * Math.cos(angleRad),

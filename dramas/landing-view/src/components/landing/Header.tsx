@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+
 import { getAdminUrl } from "@store/landing-stub";
 import { site } from "../../config/site";
 import { useI18n } from "../../i18n/I18nProvider";
@@ -9,11 +9,13 @@ import { Logo } from "./Logo";
 const storeLoginUrl = getAdminUrl();
 
 export function Header() {
+  //
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    //
     const handleScroll = () => setScrolled(window.scrollY > 6);
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -52,7 +54,7 @@ export function Header() {
           aria-expanded={open}
           onClick={() => setOpen((current) => !current)}
         >
-          {open ? <X size={18} /> : <Menu size={18} />}
+          {open ? <i className="icons-close icon-size-18" /> : <i className="icons-menu icon-size-18" />}
         </button>
       </div>
 

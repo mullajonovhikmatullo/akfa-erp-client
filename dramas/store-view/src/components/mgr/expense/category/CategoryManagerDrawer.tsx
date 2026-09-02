@@ -67,7 +67,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
       ) : categories.length === 0 ? (
         <Empty description={t('categoryDrawer.emptyCategories')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div className="u-flex u-flex-col u-gap-8">
           {categories.map((category) => (
             <ExpenseCategoryRow
               key={category.id}

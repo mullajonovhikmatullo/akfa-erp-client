@@ -1,5 +1,5 @@
 import { Button, Popconfirm } from 'antd'
-import { TrashIcon } from '@phosphor-icons/react'
+
 import { formatDate } from '@store/store-shared/lib/formatters'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -22,14 +22,14 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
       key: '_idx',
       width: 40,
       render: (_: unknown, __: Expense, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+        <span className="u-text-quiet u-fs-11 u-numeric-tabular">{rowIndex(index)}</span>
       ),
     },
     {
       title: t('common.date'),
       dataIndex: 'expenseDate',
       width: 120,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>,
+      render: (value: string) => <span className="u-text-muted u-fs-12">{formatDate(value)}</span>,
     },
     {
       title: t('nav.categories'),
@@ -47,7 +47,7 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
     {
       title: t('expenses.colNote'),
       dataIndex: 'description',
-      render: (value: string | null) => value ? <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>{value}</span> : <span style={{ color: 'var(--ink-4)' }}>-</span>,
+      render: (value: string | null) => value ? <span className="u-text-secondary u-fs-13">{value}</span> : <span className="u-text-quiet">-</span>,
     },
     {
       title: t('expenses.colAmount'),
@@ -55,12 +55,12 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
       width: 190,
       align: 'right',
       render: (_: unknown, expense: Expense) => (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-          <span className="num" style={{ fontWeight: 700 }}>
+        <div className="u-items-end u-flex u-flex-col u-gap-2">
+          <span className="num u-fw-700" >
             <MoneyDisplay amount={expense.currency === 'USD' ? expense.amountUsd : expense.amount} currency={expense.currency} />
           </span>
           {expense.currency === 'USD' ? (
-            <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
+            <span className="u-text-muted u-fs-11-5">
               <MoneyDisplay amount={expense.amount} currency="UZS" /> · {expense.usdToUzsRate?.toLocaleString('ru-RU')} UZS
             </span>
           ) : null}
@@ -72,7 +72,7 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
       key: 'createdBy',
       width: 150,
       responsiveHide: true,
-      render: (_: unknown, expense: Expense) => <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{expense.createdBy.fullName}</span>,
+      render: (_: unknown, expense: Expense) => <span className="u-text-muted u-fs-12-5">{expense.createdBy.fullName}</span>,
     },
     {
       title: '',
@@ -97,7 +97,7 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
             size="small"
             type="text"
             danger
-            icon={<TrashIcon size={18} />}
+            icon={<i className="icons-trash icon-size-18" />}
             loading={deleting && deletingId === expense.id}
             onClick={(event) => event.stopPropagation()}
           />

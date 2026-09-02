@@ -1,10 +1,10 @@
-import { BarChart3, Boxes, Building2, CreditCard, PackageSearch, TrendingUp } from "lucide-react";
 import { useI18n } from "../../i18n/I18nProvider";
 
-const benefitIcons = [BarChart3, Building2, Boxes, CreditCard] as const;
+const benefitIcons = ['chart-bar', 'building-02', 'category', 'payments'] as const;
 const productValues = [12_400, 9_100, 7_800, 6_200] as const;
 
 export function Problem() {
+  //
   const { locale, t } = useI18n();
   const { problem } = t;
   const compactNumber = new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 });
@@ -19,10 +19,11 @@ export function Problem() {
         <div className="benefits-layout">
           <div className="benefits-list" data-reveal-group>
             {problem.benefits.map(({ title, text }, index) => {
-              const Icon = benefitIcons[index];
-              return Icon ? (
+              //
+              const icon = benefitIcons[index];
+              return icon ? (
                 <article key={`benefit-${index}`} data-reveal="left">
-                  <span><Icon size={19} /></span>
+                  <span><i className={`icons-${icon} icon-size-19`} /></span>
                   <div><h3>{title}</h3><p>{text}</p></div>
                 </article>
               ) : null;
@@ -35,10 +36,10 @@ export function Problem() {
             <div className="benefits-stat benefits-stat--top">
               <small>{problem.stats.topProducts}</small>
               {problem.stats.products.map((product, index) => (
-                <p key={`product-${index}`}><PackageSearch size={13}/><span>{product}</span><b>{compactNumber.format(productValues[index] ?? 0)}</b></p>
+                <p key={`product-${index}`}><i className="icons-search icon-size-13" /><span>{product}</span><b>{compactNumber.format(productValues[index] ?? 0)}</b></p>
               ))}
             </div>
-            <TrendingUp className="benefits-bg-icon" size={120} />
+            <i className="icons-chart_line icon-size-120 benefits-bg-icon" />
           </div>
         </div>
       </div>

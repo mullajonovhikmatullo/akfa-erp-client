@@ -1,6 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Radio, Select } from 'antd'
-import { PlusIcon } from '@phosphor-icons/react'
+
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import { Label } from './index'
 import type { SaleFormValues } from './types'
@@ -31,18 +31,18 @@ export function SaleSetupView({
 }: SaleSetupViewProps) {
   //
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+    <div className="u-grid u-gap-12 u-grid-cols-2 u-mb-16">
       <div>
         <Label>{t('newSale.typeLabel')}</Label>
         <Controller
           name="saleType"
           control={control}
           render={({ field }) => (
-            <Radio.Group value={field.value} onChange={(event) => field.onChange(event.target.value)} style={{ display: 'flex' }}>
-              <Radio.Button value="RETAIL" style={{ flex: 1, textAlign: 'center' }}>
+            <Radio.Group value={field.value} onChange={(event) => field.onChange(event.target.value)} className="u-flex">
+              <Radio.Button value="RETAIL" className="u-flex-1 u-text-center">
                 {t('sales.typeRetail')}
               </Radio.Button>
-              <Radio.Button value="WHOLESALE" style={{ flex: 1, textAlign: 'center' }}>
+              <Radio.Button value="WHOLESALE" className="u-flex-1 u-text-center">
                 {t('sales.typeWholesale')}
               </Radio.Button>
             </Radio.Group>
@@ -51,7 +51,7 @@ export function SaleSetupView({
       </div>
       <div>
         <Label>{t('newSale.customerOptional')}</Label>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+        <div className="u-grid u-gap-8 u-grid-cols-content-auto">
           <Controller
             name="customerId"
             control={control}
@@ -63,14 +63,14 @@ export function SaleSetupView({
                 value={selectedCustomerId}
                 onChange={onCustomerChange}
                 placeholder={t('newSale.customerPlaceholder')}
-                style={{ width: '100%' }}
+                className="u-w-full"
                 loading={customersLoading}
                 notFoundContent={customersLoading ? <SelectLoadingContent /> : undefined}
                 options={customerOptions}
               />
             )}
           />
-          <Button icon={<PlusIcon size={13} />} onClick={onCreateCustomer}>
+          <Button icon={<i className="icons-plus icon-size-13" />} onClick={onCreateCustomer}>
             {t('customers.newCustomer')}
           </Button>
         </div>

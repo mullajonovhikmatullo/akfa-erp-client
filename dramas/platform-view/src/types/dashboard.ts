@@ -1,16 +1,7 @@
-import type { ComponentType } from 'react';
-
 export type ThemeMode = 'light' | 'dark';
 export type ThemePreference = ThemeMode | 'system';
 
-export type IconWeight = 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone';
-
-export type AppIconComponent = ComponentType<{
-  size?: number;
-  weight?: IconWeight;
-  className?: string;
-  color?: string;
-}>;
+export type AppIconName = string;
 
 export type AccentTone = 'primary' | 'success' | 'warning' | 'danger' | 'purple' | 'neutral';
 
@@ -97,7 +88,7 @@ export interface CalendarEvent {
 export interface NavigationItem {
   id: string;
   label: string;
-  icon: AppIconComponent;
+  icon: AppIconName;
   path?: string;
   children?: NavigationItem[];
 }

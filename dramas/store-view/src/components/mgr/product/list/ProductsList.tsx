@@ -1,13 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Select, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, MagnifyingGlassIcon, PlusIcon } from '@phosphor-icons/react'
+
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import type { CreateProductPayload, Currency, Product, ProductUnit } from '@store/store-stub'
 import { useCategoriesList } from '../../category/hooks/useCategoriesList'
 import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { ProductDetailDrawer } from '../detail/ProductDetailDrawer'
 import { ProductFormModal } from '../form/ProductFormModal'
 import { useProductMutation } from '../hooks/useProductMutation'
@@ -40,7 +39,6 @@ interface ProductsListProps {
 
 export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeBranchId }: ProductsListProps) {
   //
-  const { page, pageSize, onChange: onPageChange, rowIndex } = usePagination()
   const { control, watch } = useForm<ProductFiltersForm>({
     defaultValues: {
       search: '',
@@ -60,9 +58,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
       : undefined
     : userBranchId ?? undefined
 
-  const { data: result, isLoading, isFetching, refetch } = useProductsPage({
-    page,
-    pageSize,
+  const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, resetPage, rowIndex } = useProductsPage({
     search: filters.search || undefined,
     categoryId: filters.categoryId,
     unit: filters.unit,
@@ -114,8 +110,6 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
     void Promise.all([refetch(), refetchProductSummary(), refetchStockBatches()])
   }
 
-  const resetPage = () => onPageChange(1, pageSize)
-
   return (
     <>
       <div className="page-head">
@@ -123,19 +117,19 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
           <h1>{t('nav.products')}</h1>
           <div className="sub">
             <strong>{activeProducts + inactiveProducts} {t('analytics.skuSuffix')}</strong> ·{' '}
-            <span style={{ color: 'var(--success)' }}>
+            <span className="u-text-success">
               {activeProducts} {t('common.active')}
             </span>{' '}
             ·{' '}
-            <span style={{ color: 'var(--danger)' }}>
+            <span className="u-text-danger">
               {inactiveProducts} {t('common.inactive')}
             </span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="u-flex u-gap-8">
           {canManage ? (
             <>
-              <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setEditProduct(null)}>
+              <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setEditProduct(null)}>
                 {t('products.newProduct')}
               </Button>
               <ExcelImportButton<CreateProductPayload>
@@ -171,30 +165,23 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
           ) : null}
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<ArrowClockwiseIcon size={18} className={isFetching ? 'ph-icon-spin' : undefined} />}
+              icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
               onClick={handleRefresh}
             />
           </Tooltip>
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card u-overflow-hidden u-p-0" >
         <div
-          style={{
-            display: 'flex',
-            gap: 10,
-            padding: '14px 16px',
-            borderBottom: '1px solid var(--border)',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
+          className="u-items-center u-border-b-default u-flex u-flex-wrap u-gap-10 u-p-14-16"
         >
           <Controller
             name="search"
             control={control}
             render={({ field }) => (
               <Input
-                prefix={<MagnifyingGlassIcon size={18} />}
+                prefix={<i className="icons-search icon-size-18" />}
                 placeholder={t('products.searchPlaceholder')}
                 value={field.value}
                 onChange={(event) => {
@@ -203,7 +190,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   resetPage()
                 }}
                 allowClear
-                style={{ maxWidth: 300 }}
+                className="u-max-w-300"
               />
             )}
           />
@@ -220,7 +207,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                 }}
                 allowClear
                 placeholder={t('products.filterAllCategories')}
-                style={{ minWidth: 220 }}
+                className="u-min-w-220"
                 options={categories.map((category) => ({ value: category.id, label: category.name }))}
               />
             )}
@@ -236,7 +223,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                   field.onChange(value)
                   resetPage()
                 }}
-                style={{ minWidth: 160 }}
+                className="u-min-w-160"
                 options={[
                   { value: 'all', label: t('products.filterAllStatuses') },
                   { value: 'active', label: t('common.active') },
@@ -258,7 +245,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                 }}
                 allowClear
                 placeholder={t('products.filterAllUnits')}
-                style={{ minWidth: 150 }}
+                className="u-min-w-150"
                 options={PRODUCT_IMPORT_UNITS.map((unit) => ({ value: unit, label: t(`units.${unit}`) }))}
               />
             )}
@@ -276,12 +263,12 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
                 }}
                 allowClear
                 placeholder={t('products.filterAllCurrencies')}
-                style={{ minWidth: 150 }}
+                className="u-min-w-150"
                 options={PRODUCT_FILTER_CURRENCIES.map((currency) => ({ value: currency, label: currency }))}
               />
             )}
           />
-          <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
+          <span className="u-text-muted u-fs-12-5 u-ml-auto">
             <strong>{total}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
@@ -302,7 +289,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
           }}
           onRow={(product) => ({
             onClick: () => setDrawerProduct(product),
-            style: { cursor: 'pointer' },
+            className: 'clickable-row',
           })}
           emptyText={t('products.empty')}
         />

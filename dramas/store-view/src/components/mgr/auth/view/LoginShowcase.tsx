@@ -1,4 +1,4 @@
-import { ChartBarIcon, UserCircleIcon } from '@phosphor-icons/react';
+
 import { MavionBrand } from './MavionBrand';
 import type { TFunc } from './types';
 
@@ -11,8 +11,8 @@ export function LoginShowcase({ t }: { t: TFunc }) {
       <div className="mavion-login__orbit mavion-login__orbit--small" aria-hidden="true" />
       <div className="mavion-login__glass-card mavion-login__glass-card--top" aria-hidden="true"><i /><i /><i /></div>
       <div className="mavion-login__glass-card mavion-login__glass-card--bottom" aria-hidden="true"><i /><i /><i /></div>
-      <div className="mavion-login__floating-icon mavion-login__floating-icon--chart" aria-hidden="true"><ChartBarIcon size={29} weight="fill" /></div>
-      <div className="mavion-login__floating-icon mavion-login__floating-icon--user" aria-hidden="true"><UserCircleIcon size={28} weight="fill" /></div>
+      <div className="mavion-login__floating-icon mavion-login__floating-icon--chart" aria-hidden="true"><i className="icons-chart-bar icon-size-29" /></div>
+      <div className="mavion-login__floating-icon mavion-login__floating-icon--user" aria-hidden="true"><i className="icons-user-circle icon-size-28" /></div>
 
       <div className="mavion-login__hero-card">
         <MavionBrand inverted />

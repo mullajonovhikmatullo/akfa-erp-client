@@ -1,5 +1,5 @@
 import { Button, Popconfirm, Tag, Tooltip } from 'antd'
-import { PencilSimpleIcon, StorefrontIcon, TrashIcon, UserPlusIcon } from '@phosphor-icons/react'
+
 import { formatDate } from '@store/store-shared/lib/formatters'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
 import type { Branch, User } from '@store/store-stub'
@@ -44,7 +44,7 @@ export function createBranchColumns({
       key: 'index',
       width: 48,
       render: (_: unknown, __: Branch, index: number) => (
-        <span style={{ fontSize: 12, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+        <span className="u-text-muted u-fs-12 u-numeric-tabular">{rowIndex(index)}</span>
       ),
     },
     {
@@ -54,33 +54,20 @@ export function createBranchColumns({
         //
         const isMain = branch.name === 'Main Branch'
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 6,
-                flexShrink: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: isMain ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'var(--primary)',
-                color: '#fff',
-                boxShadow: isMain ? '0 0 0 2px #fde68a' : undefined,
-              }}
-            >
-              <StorefrontIcon size={16} weight="duotone" />
+          <div className="u-items-center u-flex u-gap-8">
+            <span className={`branch-icon${isMain ? ' branch-icon--main' : ''}`}>
+              <i className="icons-building icon-size-16" />
             </span>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontWeight: 600 }}>{branch.name}</span>
+              <div className="u-items-center u-flex u-gap-6">
+                <span className="u-fw-600">{branch.name}</span>
                 {isMain ? (
-                  <span style={{ fontSize: 10, fontWeight: 700, lineHeight: 1, padding: '2px 5px', borderRadius: 4, background: '#fef3c7', color: '#92400e', letterSpacing: '.04em', textTransform: 'uppercase' }}>
+                  <span className="u-bg-warning-soft u-rounded-4 u-text-warning-dark u-fs-10 u-fw-700 u-tracking-normal u-lh-none u-p-2-5 u-text-uppercase">
                     {t('branches.mainBadge')}
                   </span>
                 ) : null}
               </div>
-              {branch.address ? <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{branch.address}</div> : null}
+              {branch.address ? <div className="u-text-muted u-fs-12">{branch.address}</div> : null}
             </div>
           </div>
         )
@@ -91,7 +78,7 @@ export function createBranchColumns({
       dataIndex: 'phone',
       width: 150,
       responsiveHide: true,
-      render: (value: string | null) => value ? <span style={{ fontSize: 13 }}>{value}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span>,
+      render: (value: string | null) => value ? <span className="u-fs-13">{value}</span> : <span className="u-text-quiet">—</span>,
     },
     {
       title: t('admins.colAdmin'),
@@ -102,8 +89,8 @@ export function createBranchColumns({
         const admin = getAssignedUser(branch.id)
         return admin ? (
           <div>
-            <div style={{ fontWeight: 500, fontSize: 13 }}>{admin.name}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>@{admin.username}</div>
+            <div className="u-fs-13 u-fw-500">{admin.name}</div>
+            <div className="u-text-muted u-fs-11-5">@{admin.username}</div>
           </div>
         ) : <Tag color="warning">{t('common.unassigned')}</Tag>
       },
@@ -113,7 +100,7 @@ export function createBranchColumns({
       dataIndex: 'createdAt',
       width: 120,
       responsiveHide: true,
-      render: (value?: string) => value ? <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span>,
+      render: (value?: string) => value ? <span className="u-text-muted u-fs-12">{formatDate(value)}</span> : <span className="u-text-quiet">—</span>,
     },
     {
       title: '',
@@ -121,11 +108,11 @@ export function createBranchColumns({
       width: 110,
       fixed: 'right',
       render: (_: unknown, branch: Branch) => (
-        <div style={{ display: 'flex', gap: 4 }}>
+        <div className="u-flex u-gap-4">
           <Tooltip title={t('branches.assignTooltip')}>
-            <Button size="small" type="text" icon={<UserPlusIcon size={13} />} onClick={(event) => { event.stopPropagation(); onAssign(branch) }} />
+            <Button size="small" type="text" icon={<i className="icons-user-add icon-size-13" />} onClick={(event) => { event.stopPropagation(); onAssign(branch) }} />
           </Tooltip>
-          <Button size="small" type="text" icon={<PencilSimpleIcon size={18} />} onClick={(event) => { event.stopPropagation(); onEdit(branch) }} />
+          <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-18" />} onClick={(event) => { event.stopPropagation(); onEdit(branch) }} />
           <Popconfirm
             title={t('common.deleteTitle')}
             description={t('branches.deleteDesc')}
@@ -135,7 +122,7 @@ export function createBranchColumns({
             onConfirm={(event) => { event?.stopPropagation(); onDelete(branch.id) }}
             onPopupClick={(event) => event.stopPropagation()}
           >
-            <Button size="small" type="text" danger icon={<TrashIcon size={18} />} loading={deleting && deletingId === branch.id} onClick={(event) => event.stopPropagation()} />
+            <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} loading={deleting && deletingId === branch.id} onClick={(event) => event.stopPropagation()} />
           </Popconfirm>
         </div>
       ),

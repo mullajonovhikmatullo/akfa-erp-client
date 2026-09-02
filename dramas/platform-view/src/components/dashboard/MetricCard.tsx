@@ -1,17 +1,17 @@
 import clsx from 'clsx';
-import { TrendUp } from '@phosphor-icons/react';
+
 import type { ReactNode } from 'react';
 import { GlassCard } from '../common/GlassCard';
 import { CircularMetric } from '../common/CircularMetric';
 import { formatPercent } from '../../lib/formatters';
-import type { AccentTone, AppIconComponent } from '../../types/dashboard';
+import type { AccentTone, AppIconName } from '../../types/dashboard';
 
 interface MetricCardProps {
   title: string;
   value: string;
   description: string;
   accent: AccentTone;
-  icon: AppIconComponent;
+  icon: AppIconName;
   change?: number;
   changeLabel?: string;
   progress?: number;
@@ -24,7 +24,7 @@ export const MetricCard = ({
   value,
   description,
   accent,
-  icon: Icon,
+  icon,
   change,
   changeLabel,
   progress,
@@ -37,7 +37,7 @@ export const MetricCard = ({
   >
     <div className="metric-card__heading">
       <div className="metric-card__icon" aria-hidden="true">
-        <Icon size={21} weight="duotone" />
+        <i className={`icons-${icon} icon-size-21`} />
       </div>
       <span className="metric-card__title">{title}</span>
     </div>
@@ -53,7 +53,7 @@ export const MetricCard = ({
     )}
     {typeof change === 'number' ? (
       <div className="metric-card__change">
-        <TrendUp size={16} weight="bold" aria-hidden="true" />
+        <i className="icons-chart_line icon-size-16" aria-hidden="true" />
         <span>{formatPercent(change)}</span>
         {changeLabel ? <small>{changeLabel}</small> : null}
       </div>

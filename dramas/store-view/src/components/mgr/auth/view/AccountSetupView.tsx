@@ -1,5 +1,5 @@
 import { Alert, Button, Form, Input } from 'antd'
-import { LockIcon, WarningIcon } from '@phosphor-icons/react'
+
 import type { TFunc } from './types'
 
 interface AccountSetupViewProps {
@@ -43,18 +43,18 @@ export function AccountSetupView({
         <p className="lead">{t('login.setupLead')}</p>
         {error ? (
           <Alert
-            icon={<WarningIcon size={18} weight="duotone" />}
+            icon={<i className="icons-warning icon-size-18" />}
             type="error"
             message={error}
             showIcon
-            style={{ marginBottom: 20, borderRadius: 8 }}
+            className="u-rounded-8 u-mb-20"
           />
         ) : null}
         <Form layout="vertical" onFinish={onSubmit}>
           <Form.Item label={t('login.newPassword')} required>
             <Input.Password
               size="large"
-              prefix={<LockIcon size={18} style={{ color: 'var(--ink-4)' }} />}
+              prefix={<i className="icons-lock icon-size-18 u-text-quiet" />}
               value={newPassword}
               onChange={(event) => onNewPasswordChange(event.target.value)}
               autoComplete="new-password"
@@ -65,7 +65,7 @@ export function AccountSetupView({
           <Form.Item label={t('login.confirmPassword')} required>
             <Input.Password
               size="large"
-              prefix={<LockIcon size={18} style={{ color: 'var(--ink-4)' }} />}
+              prefix={<i className="icons-lock icon-size-18 u-text-quiet" />}
               value={confirmPassword}
               onChange={(event) => onConfirmPasswordChange(event.target.value)}
               autoComplete="new-password"
@@ -79,7 +79,7 @@ export function AccountSetupView({
             htmlType="submit"
             block
             loading={pending}
-            style={{ height: 44, fontWeight: 600 }}
+            className="u-fw-600 u-h-44"
           >
             {t('login.activateAccount')}
           </Button>

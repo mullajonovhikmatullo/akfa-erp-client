@@ -36,7 +36,7 @@ export function BranchFormModal({
       confirmLoading={pending}
       destroyOnHidden
     >
-      <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+      <Form layout="vertical" autoComplete="off" className="u-mt-16">
         <Form.Item
           label={t('branches.labelName')}
           required

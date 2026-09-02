@@ -1,12 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Button, Popconfirm, Progress, Tooltip, Upload } from 'antd'
-import {
-  ArrowClockwiseIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  StarIcon,
-  TrashIcon,
-} from '@phosphor-icons/react'
+
 import { toast } from 'sonner'
 import { useProductImagesList } from '../hooks/useProductImagesList'
 import { AuthenticatedProductImage } from './AuthenticatedProductImage'
@@ -127,16 +121,7 @@ export function ProductImageManager({
     const isPrimary = effectivePrimaryId === image.id
 
     return (
-      <div
-        key={image.id}
-        style={{
-          minWidth: 0,
-          overflow: 'hidden',
-          border: isPrimary ? '1px solid var(--warning)' : '1px solid var(--border)',
-          borderRadius: 6,
-          background: 'var(--surface-1)',
-        }}
-      >
+      <div key={image.id} className={`product-image-tile${isPrimary ? ' product-image-tile--primary' : ''}`}>
         {replacement ? (
           <LocalFilePreview file={replacement} alt={`${productName} - ${index + 1}`} />
         ) : (
@@ -146,26 +131,19 @@ export function ProductImageManager({
             width="100%"
             height="auto"
             borderRadius={0}
-            style={{ aspectRatio: '1 / 1', border: 0 }}
+            className="u-aspect-square u-border-0"
           />
         )}
-        <div style={{ height: 72, padding: 6, boxSizing: 'border-box' }}>
+        <div className="u-box-border u-h-72 u-p-6">
           <div
             title={replacement?.name ?? image.originalFilename}
-            style={{
-              minHeight: 16,
-              fontSize: 10.5,
-              color: 'var(--ink-3)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
+            className="u-text-muted u-fs-10-5 u-min-h-16 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap"
           >
             {replacement?.name ?? image.originalFilename}
           </div>
           {isPrimary ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, color: 'var(--warning)', fontSize: 10.5, fontWeight: 700 }}>
-              <StarIcon size={11} weight="fill" />
+            <div className="u-items-center u-text-warning u-flex u-fs-10-5 u-fw-700 u-gap-3">
+              <i className="icons-favourite icon-size-11" />
               {t('productImages.primary')}
             </div>
           ) : (
@@ -173,27 +151,18 @@ export function ProductImageManager({
               type="button"
               disabled={uploading}
               onClick={() => handlePrimary(image.id)}
-              style={{
-                minHeight: 16,
-                padding: 0,
-                border: 0,
-                background: 'transparent',
-                color: 'var(--primary)',
-                fontSize: 10.5,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="u-bg-transparent u-border-0 u-text-primary u-cursor-pointer u-fs-10-5 u-fw-600 u-min-h-16 u-p-0"
             >
               {t('productImages.setPrimary')}
             </button>
           )}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, marginTop: 4 }}>
+          <div className="u-grid u-gap-1 u-grid-cols-4 u-mt-4">
             <Tooltip title={t('productImages.moveLeft')}>
               <Button
                 type="text"
                 size="small"
                 aria-label={t('productImages.moveLeft')}
-                icon={<ArrowLeftIcon size={14} />}
+                icon={<i className="icons-arrow-left icon-size-14" />}
                 disabled={uploading || index === 0}
                 onClick={() => handleMove(index, -1)}
               />
@@ -203,7 +172,7 @@ export function ProductImageManager({
                 type="text"
                 size="small"
                 aria-label={t('productImages.moveRight')}
-                icon={<ArrowRightIcon size={14} />}
+                icon={<i className="icons-arrow-right icon-size-14" />}
                 disabled={uploading || index === visibleImages.length - 1}
                 onClick={() => handleMove(index, 1)}
               />
@@ -224,7 +193,7 @@ export function ProductImageManager({
                   type="text"
                   size="small"
                   aria-label={t('productImages.replace')}
-                  icon={<ArrowClockwiseIcon size={14} />}
+                  icon={<i className="icons-reload icon-size-14" />}
                   disabled={uploading}
                 />
               </Tooltip>
@@ -242,7 +211,7 @@ export function ProductImageManager({
                   size="small"
                   danger
                   aria-label={t('productImages.delete')}
-                  icon={<TrashIcon size={14} />}
+                  icon={<i className="icons-trash icon-size-14" />}
                   disabled={uploading}
                 />
               </Tooltip>
@@ -254,10 +223,10 @@ export function ProductImageManager({
   })
 
   return (
-    <section style={{ borderTop: '1px solid var(--border)', paddingTop: 16, marginTop: 6 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
-        <div style={{ fontSize: 13, fontWeight: 700 }}>{t('productImages.title')}</div>
-        <span style={{ fontSize: 11.5, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>
+    <section className="u-border-t-default u-mt-6 u-pt-16">
+      <div className="u-items-baseline u-flex u-gap-12 u-justify-between u-mb-10">
+        <div className="u-fs-13 u-fw-700">{t('productImages.title')}</div>
+        <span className="u-text-muted u-fs-11-5 u-numeric-tabular">
           {isLoading ? '-' : visibleImages.length + pendingFiles.length}/{PRODUCT_IMAGE_MAX_COUNT}
         </span>
       </div>
@@ -273,7 +242,7 @@ export function ProductImageManager({
         disabled={uploading}
         markFirstPrimary={!effectivePrimaryId}
       />
-      {uploading ? <Progress percent={uploadProgress} size="small" style={{ marginTop: 10 }} /> : null}
+      {uploading ? <Progress percent={uploadProgress} size="small" className="u-mt-10" /> : null}
     </section>
   )
 }
@@ -290,13 +259,13 @@ function LocalFilePreview({ file, alt }: { file: File; alt: string }) {
   }, [file])
 
   return (
-    <div style={{ width: '100%', aspectRatio: '1 / 1', background: 'var(--surface-2)' }}>
+    <div className="u-aspect-square u-bg-surface-2 u-w-full">
       {previewUrl ? (
         <img
           src={previewUrl}
           alt={alt}
           draggable={false}
-          style={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain' }}
+          className="u-block u-h-full u-object-contain u-w-full"
         />
       ) : (
         <ProductImageSkeleton borderRadius={0} />

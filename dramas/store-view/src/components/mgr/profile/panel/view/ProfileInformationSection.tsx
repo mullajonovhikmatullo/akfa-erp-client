@@ -1,6 +1,6 @@
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Button, Input } from 'antd'
-import { CheckIcon, PencilSimpleIcon, UserCircleIcon, XIcon } from '@phosphor-icons/react'
+
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import type { ProfileFormValues } from '../profileSchemas'
 import { ProfileField } from './ProfileField'
@@ -31,14 +31,14 @@ export function ProfileInformationSection({
     <section className="profile-section" aria-labelledby="profile-basic-title">
       <div className="profile-section__head">
         <div className="profile-section__icon profile-section__icon--identity">
-          <UserCircleIcon size={20} weight="duotone" />
+          <i className="icons-user-circle icon-size-20" />
         </div>
         <div className="profile-section__heading">
           <h2 id="profile-basic-title">{t('profile.basicInfo')}</h2>
           <span>@{username}</span>
         </div>
         {!editing ? (
-          <Button icon={<PencilSimpleIcon size={16} />} onClick={onEdit}>
+          <Button icon={<i className="icons-pen-line icon-size-16" />} onClick={onEdit}>
             {t('profile.edit')}
           </Button>
         ) : null}
@@ -85,12 +85,12 @@ export function ProfileInformationSection({
             <Button
               type="primary"
               htmlType="submit"
-              icon={<CheckIcon size={18} weight="bold" />}
+              icon={<i className="icons-check icon-size-18" />}
               loading={pending}
             >
               {t('profile.save')}
             </Button>
-            <Button icon={<XIcon size={18} />} onClick={onCancel} disabled={pending}>
+            <Button icon={<i className="icons-close icon-size-18" />} onClick={onCancel} disabled={pending}>
               {t('profile.cancel')}
             </Button>
           </div>

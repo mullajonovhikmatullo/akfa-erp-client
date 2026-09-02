@@ -1,5 +1,5 @@
 import { Button, Popconfirm } from 'antd'
-import { ArrowRightIcon, CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react'
+
 import { formatDateTime } from '@store/store-shared/lib/formatters'
 import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -42,22 +42,22 @@ export function createTransferColumns({
       key: '_idx',
       width: 40,
       render: (_: unknown, __: Transfer, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
+        <span className="u-text-quiet u-fs-11 u-numeric-tabular">{rowIndex(index)}</span>
       ),
     },
     {
       title: t('common.date'),
       dataIndex: 'createdAt',
       width: 120,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDateTime(value)}</span>,
+      render: (value: string) => <span className="u-text-muted u-fs-12">{formatDateTime(value)}</span>,
     },
     {
       title: t('transfers.colRoute'),
       key: 'route',
       render: (_: unknown, transfer: Transfer) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="u-items-center u-flex u-gap-8">
           <StatusBadge tone="info">{transfer.fromBranch.name}</StatusBadge>
-          <ArrowRightIcon size={14} color="currentColor" style={{ color: 'var(--ink-4)' }} />
+          <i className="icons-arrow-right icon-size-14 u-text-quiet" />
           <StatusBadge tone="muted">{transfer.toBranch.name}</StatusBadge>
         </div>
       ),
@@ -69,7 +69,7 @@ export function createTransferColumns({
       align: 'center',
       responsiveHide: true,
       render: (_: unknown, transfer: Transfer) => (
-        <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
+        <span className="num u-text-muted u-fs-13" >
           {transfer.items.length} {t('transfers.itemTypeSuffix')}
         </span>
       ),
@@ -83,7 +83,7 @@ export function createTransferColumns({
         //
         const total = transfer.items.reduce((sum, item) => sum + item.totalCostUzs, 0)
         return (
-          <span className="num" style={{ fontWeight: 700 }}>
+          <span className="num u-fw-700" >
             <MoneyDisplay amount={total} currency="UZS" />
           </span>
         )
@@ -105,7 +105,7 @@ export function createTransferColumns({
       width: 140,
       responsiveHide: true,
       render: (_: unknown, transfer: Transfer) => (
-        <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{transfer.initiatedBy.fullName}</span>
+        <span className="u-text-muted u-fs-12-5">{transfer.initiatedBy.fullName}</span>
       ),
     },
     {
@@ -120,12 +120,12 @@ export function createTransferColumns({
         const canComplete = isReceiverBranch
         const canCancel = isStoreOwner || (!isReceiverBranch && transfer.initiatedBy.id === userId)
         return (
-          <div style={{ display: 'flex', gap: 4 }}>
+          <div className="u-flex u-gap-4">
             {canComplete ? (
               <Button
                 size="small"
                 type="text"
-                icon={<CheckCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--success)' }} />}
+                icon={<i className="icons-circle-check icon-size-18 u-text-success" />}
                 onClick={(event) => {
                   //
                   event.stopPropagation()
@@ -147,7 +147,7 @@ export function createTransferColumns({
                 }}
                 onPopupClick={(event) => event.stopPropagation()}
               >
-                <Button size="small" type="text" danger icon={<XCircleIcon size={18} />} onClick={(event) => event.stopPropagation()} />
+                <Button size="small" type="text" danger icon={<i className="icons-close-circle icon-size-18" />} onClick={(event) => event.stopPropagation()} />
               </Popconfirm>
             ) : null}
           </div>
@@ -182,9 +182,9 @@ export function createTransferConfirmColumns(t: (key: string) => string): Column
       width: 165,
       align: 'right',
       render: (_, item) => (
-        <span className="num" style={{ whiteSpace: 'nowrap' }}>
+        <span className="num u-whitespace-nowrap" >
           <MoneyDisplay amount={item.unitCostUzs} currency="UZS" />
-          <span style={{ marginLeft: 4, color: 'var(--ink-3)', fontSize: 11 }}>/ {t(`units.${item.product.unit}`)}</span>
+          <span className="u-text-muted u-fs-11 u-ml-4">/ {t(`units.${item.product.unit}`)}</span>
         </span>
       ),
     },
@@ -194,7 +194,7 @@ export function createTransferConfirmColumns(t: (key: string) => string): Column
       width: 150,
       align: 'right',
       render: (_, item) => (
-        <span className="num" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+        <span className="num u-fw-700 u-whitespace-nowrap" >
           <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
         </span>
       ),
@@ -205,7 +205,7 @@ export function createTransferConfirmColumns(t: (key: string) => string): Column
 export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (key: string) => string }) {
   //
   return (
-    <div style={{ padding: '8px 0 8px 48px' }}>
+    <div className="u-p-8-0-8-48">
       <DataTable<Transfer['items'][number]>
         rowKey="id"
         dataSource={transfer.items}
@@ -215,9 +215,9 @@ export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (k
             key: 'name',
             render: (_, item) => (
               <div>
-                <span style={{ fontWeight: 500 }}>{item.product.name}</span>
+                <span className="u-fw-500">{item.product.name}</span>
                 {item.product.sku ? (
-                  <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</span>
+                  <span className="u-text-muted u-font-mono u-fs-11 u-ml-8">{item.product.sku}</span>
                 ) : null}
               </div>
             ),
@@ -250,7 +250,7 @@ export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (k
             width: 150,
             align: 'right',
             render: (_, item) => (
-              <span className="num" style={{ fontWeight: 700 }}>
+              <span className="num u-fw-700" >
                 <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
               </span>
             ),
@@ -258,10 +258,10 @@ export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (k
         ]}
       />
       {transfer.note ? (
-        <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>&quot;{transfer.note}&quot;</div>
+        <div className="u-text-muted u-fs-13 u-font-italic u-mt-8">&quot;{transfer.note}&quot;</div>
       ) : null}
       {transfer.completedBy ? (
-        <div style={{ marginTop: 4, fontSize: 12, color: 'var(--ink-3)' }}>
+        <div className="u-text-muted u-fs-12 u-mt-4">
           {t('transfers.completedByLabel')}: {transfer.completedBy.fullName} · {formatDateTime(transfer.completedAt)}
         </div>
       ) : null}

@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ArrowRight, CheckCircle2, Eye, EyeOff, Loader2, Store, UserRound, X } from 'lucide-react';
+
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { createAdminHandoffUrl, getAdminUrl, registerStore, type PublicPlanCode } from '@store/landing-stub';
@@ -33,6 +33,7 @@ const initialForm: FormState = {
 const UZBEK_MOBILE_CODES = ['33', '50', '77', '88', '90', '91', '93', '94', '95', '97', '98', '99'];
 
 function createRegistrationSchema(validation: TranslationDictionary['registration']['validation']): yup.ObjectSchema<FormState> {
+  //
   return yup.object({
     storeName: yup.string().trim().required(validation.storeRequired).min(2, validation.storeMin).max(120, validation.storeMax),
     ownerName: yup.string().trim().required(validation.ownerRequired).min(2, validation.ownerMin).max(100, validation.ownerMax),
@@ -48,6 +49,7 @@ function createRegistrationSchema(validation: TranslationDictionary['registratio
 }
 
 function FieldError({ message }: { message?: string }) {
+  //
   return (
     <small className="registration-form__field-error" data-visible={Boolean(message)} title={message} aria-live="polite">
       {message || '\u00a0'}
@@ -56,6 +58,7 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export function RegistrationModal({ open, planCode, planName, onClose }: RegistrationModalProps) {
+  //
   const { language, t } = useI18n();
   const copy = t.registration;
   const titleId = useId();
@@ -79,11 +82,13 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   // Existing validation messages are cleared when the language changes so no
   // stale message remains visible in the previous language.
   useEffect(() => {
+    //
     clearErrors();
     setSubmitError(null);
   }, [clearErrors, language]);
 
   useEffect(() => {
+    //
     if (!open) return undefined;
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -92,6 +97,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', closeOnEscape);
     return () => {
+      //
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', closeOnEscape);
     };
@@ -100,6 +106,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   if (!open) return null;
 
   const submitRegistration = async (form: FormState) => {
+    //
     setSubmitError(null);
     try {
       const result = await registerStore({
@@ -117,6 +124,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
   };
 
   const resetAndClose = () => {
+    //
     reset(initialForm);
     setSubmitError(null);
     setCreatedStoreName(null);
@@ -133,23 +141,23 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
         <div className="registration-modal__header">
           <div><span className="registration-modal__eyebrow">{planName}</span><h3 id={titleId}>{copy.title}</h3></div>
           <button className="registration-modal__close" type="button" onClick={resetAndClose} aria-label={copy.close}>
-            <X className="h-4 w-4" />
+            <i className="icons-close h-4 w-4" />
           </button>
         </div>
 
         {createdStoreName ? (
           <div className="registration-success">
-            <CheckCircle2 className="h-10 w-10" />
+            <i className="icons-circle-check h-10 w-10" />
             <h4>{formatMessage(copy.successTitle, { storeName: createdStoreName })}</h4>
             <p id={introId}>{copy.successText}</p>
-            <a className="btn-primary" href={adminUrl ?? getAdminUrl()}>{copy.openAdmin}<ArrowRight className="h-4 w-4" /></a>
+            <a className="btn-primary" href={adminUrl ?? getAdminUrl()}>{copy.openAdmin}<i className="icons-arrow-right h-4 w-4" /></a>
           </div>
         ) : (
           <form className="registration-form" onSubmit={handleSubmit(submitRegistration)} noValidate>
             <p className="registration-form__intro" id={introId}>{copy.intro}</p>
 
             <section className="registration-form__section">
-              <div className="registration-form__section-title"><Store className="h-4 w-4" /><span>{copy.storeSection}</span></div>
+              <div className="registration-form__section-title"><i className="icons-building h-4 w-4" /><span>{copy.storeSection}</span></div>
               <div className="registration-form__fields">
                 <label className="registration-form__field--wide">
                   <span>{copy.fields.storeName}</span>
@@ -184,7 +192,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
             </section>
 
             <section className="registration-form__section">
-              <div className="registration-form__section-title"><UserRound className="h-4 w-4" /><span>{copy.accountSection}</span></div>
+              <div className="registration-form__section-title"><i className="icons-user-circle h-4 w-4" /><span>{copy.accountSection}</span></div>
               <div className="registration-form__fields">
                 <label className="registration-form__field--wide">
                   <span>{copy.fields.username}</span>
@@ -196,7 +204,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                   <div className="registration-form__password-control">
                     <input {...register('password')} type={showPassword ? 'text' : 'password'} placeholder={copy.fields.passwordPlaceholder} aria-invalid={Boolean(errors.password)} />
                     <button className="registration-form__password-toggle" type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? copy.hidePassword : copy.showPassword} aria-pressed={showPassword}>
-                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                      {showPassword ? <i className="icons-hide icon-size-17" /> : <i className="icons-eye icon-size-17" />}
                     </button>
                   </div>
                   <FieldError message={errors.password?.message} />
@@ -206,7 +214,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
                   <div className="registration-form__password-control">
                     <input {...register('confirmPassword')} type={showConfirmPassword ? 'text' : 'password'} placeholder={copy.fields.confirmPasswordPlaceholder} aria-invalid={Boolean(errors.confirmPassword)} />
                     <button className="registration-form__password-toggle" type="button" onClick={() => setShowConfirmPassword((visible) => !visible)} aria-label={showConfirmPassword ? copy.hideConfirmPassword : copy.showConfirmPassword} aria-pressed={showConfirmPassword}>
-                      {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                      {showConfirmPassword ? <i className="icons-hide icon-size-17" /> : <i className="icons-eye icon-size-17" />}
                     </button>
                   </div>
                   <FieldError message={errors.confirmPassword?.message} />
@@ -216,7 +224,7 @@ export function RegistrationModal({ open, planCode, planName, onClose }: Registr
 
             {submitError ? <div className="registration-form__error" role="alert">{submitError}</div> : null}
             <button className="btn-primary registration-form__submit" type="submit" disabled={isSubmitting} aria-label={isSubmitting ? copy.submitting : copy.submit}>
-              {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              {isSubmitting ? <i className="icons-reload h-4 w-4 animate-spin" /> : <i className="icons-arrow-right h-4 w-4" />}
               {isSubmitting ? copy.submitting : copy.submit}
             </button>
           </form>

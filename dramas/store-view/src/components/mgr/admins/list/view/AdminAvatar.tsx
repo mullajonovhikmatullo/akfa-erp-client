@@ -13,19 +13,7 @@ export function AdminAvatar({ name }: AdminAvatarProps) {
 
   return (
     <span
-      style={{
-        width: 26,
-        height: 26,
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, #0e7490, #0e7490cc)',
-        color: '#fff',
-        fontSize: 10,
-        fontWeight: 700,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
+      className="u-items-center u-bg-gradient-teal u-rounded-full u-text-white u-inline-flex u-shrink-0 u-fs-10 u-fw-700 u-h-26 u-justify-center u-w-26"
     >
       {initials}
     </span>

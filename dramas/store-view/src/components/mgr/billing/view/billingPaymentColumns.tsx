@@ -1,5 +1,5 @@
 import { Button, Tag, Tooltip, type TableColumnsType } from 'antd'
-import { Eye } from '@phosphor-icons/react'
+
 import type { PaymentStatus, TenantPayment } from '@store/store-stub'
 import { formatBillingDate, formatBillingDateTime, formatBillingMoney } from '../lib/billing-formatters'
 import { PaymentDetailsPopover } from './PaymentDetailsPopover'
@@ -81,7 +81,7 @@ export function createBillingPaymentColumns({
             type="text"
             shape="circle"
             aria-label={t('common.view')}
-            icon={<Eye size={18} />}
+            icon={<i className="icons-eye icon-size-18" />}
             loading={openingReceiptId === payment.receiptMedia.id}
             onClick={() => onOpenReceipt(payment)}
           />

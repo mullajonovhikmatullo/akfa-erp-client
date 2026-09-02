@@ -1,6 +1,6 @@
 import { Controller } from 'react-hook-form'
 import { Button, Input } from 'antd'
-import { PlusIcon } from '@phosphor-icons/react'
+
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import type { CategoryManagerFormControl, CategoryManagerFormErrors } from './types'
 
@@ -23,7 +23,7 @@ export function ExpenseCategoryCreateForm({
 }: ExpenseCategoryCreateFormProps) {
   //
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 20 }}>
+    <div className="u-items-start u-flex u-gap-8 u-mb-20">
       <Controller
         name="newName"
         control={control}
@@ -32,7 +32,7 @@ export function ExpenseCategoryCreateForm({
           maxLength: { value: 100, message: t('categoryDrawer.nameMax') },
         }}
         render={({ field }) => (
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="u-flex-1 u-min-w-0">
             <Input
               {...field}
               {...blockAutofill('store-expense-category-new-name')}
@@ -40,13 +40,13 @@ export function ExpenseCategoryCreateForm({
               onPressEnter={onSubmit}
               status={errors.newName ? 'error' : undefined}
             />
-            {errors.newName?.message ? <div style={{ marginTop: 4, color: 'var(--danger)', fontSize: 11 }}>{errors.newName.message}</div> : null}
+            {errors.newName?.message ? <div className="u-text-danger u-fs-11 u-mt-4">{errors.newName.message}</div> : null}
           </div>
         )}
       />
       <Button
         type="primary"
-        icon={<PlusIcon size={13} weight="bold" />}
+        icon={<i className="icons-plus icon-size-13" />}
         loading={pending}
         disabled={!name.trim()}
         onClick={onSubmit}

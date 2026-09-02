@@ -1,7 +1,7 @@
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   //
   return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>
+    <div className="u-text-muted u-fs-11 u-fw-700 u-tracking-wide u-mb-10 u-text-uppercase">
       {children}
     </div>
   )

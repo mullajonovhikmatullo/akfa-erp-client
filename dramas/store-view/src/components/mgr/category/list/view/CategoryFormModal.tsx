@@ -1,6 +1,6 @@
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal, Switch } from 'antd'
-import { TagIcon } from '@phosphor-icons/react'
+
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import type { Category } from '@store/store-stub'
 
@@ -35,8 +35,8 @@ export function CategoryFormModal({
   return (
     <Modal
       title={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <TagIcon size={18} weight="duotone" />
+        <div className="u-items-center u-flex u-gap-8">
+          <i className="icons-tag icon-size-18" />
           {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('categories.modalCreate')}
         </div>
       }
@@ -48,7 +48,7 @@ export function CategoryFormModal({
       destroyOnHidden
       width={440}
     >
-      <Form layout="vertical" autoComplete="off" style={{ marginTop: 16 }}>
+      <Form layout="vertical" autoComplete="off" className="u-mt-16">
         <Form.Item
           label={t('common.name')}
           required

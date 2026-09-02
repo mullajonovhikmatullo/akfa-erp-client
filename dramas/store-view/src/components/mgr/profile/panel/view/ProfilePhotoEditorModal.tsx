@@ -1,5 +1,5 @@
 import { Button, Modal, Slider } from 'antd'
-import { ArrowClockwiseIcon, ImageSquareIcon } from '@phosphor-icons/react'
+
 
 interface ProfilePhotoEditorModalProps {
   t: (key: string) => string
@@ -43,9 +43,9 @@ export function ProfilePhotoEditorModal({
       <div className="profile-photo-editor">
         <div className="profile-photo-editor__stage">
           {photoUrl ? (
-            <img src={photoUrl} alt="" style={{ transform: `rotate(${rotation}deg) scale(${zoom})` }} />
+            <img src={photoUrl} alt="" className={`profile-photo-transform-r${rotation}-z${Math.round(zoom * 100)}`} />
           ) : (
-            <ImageSquareIcon size={42} weight="duotone" />
+            <i className="icons-image icon-size-42" />
           )}
           <div className="profile-photo-editor__ring" aria-hidden />
         </div>
@@ -54,7 +54,7 @@ export function ProfilePhotoEditorModal({
             <span>{t('profile.photoZoom')}</span>
             <Slider min={1} max={2.5} step={0.05} value={zoom} onChange={onZoomChange} />
           </div>
-          <Button icon={<ArrowClockwiseIcon size={17} />} onClick={onRotate}>
+          <Button icon={<i className="icons-reload icon-size-17" />} onClick={onRotate}>
             {t('profile.photoRotate')}
           </Button>
         </div>

@@ -1,9 +1,9 @@
-import { BarChart3, Boxes, Building2, ClipboardList, ShieldCheck, ShoppingCart } from "lucide-react";
 import { useI18n } from "../../i18n/I18nProvider";
 
-const featureIcons = [BarChart3, ShoppingCart, Boxes, ClipboardList, Building2, ShieldCheck] as const;
+const featureIcons = ['chart-bar', 'payments', 'category', 'assignment', 'building-02', 'user_check'] as const;
 
 export function Features() {
+  //
   const { t } = useI18n();
 
   return (
@@ -12,10 +12,11 @@ export function Features() {
         <div className="section-heading section-heading--center" data-reveal="up"><h2>{t.features.heading}</h2></div>
         <div className="features-grid" data-reveal-group>
           {t.features.items.map(({ title, text }, index) => {
-            const Icon = featureIcons[index];
-            return Icon ? (
+            //
+            const icon = featureIcons[index];
+            return icon ? (
               <article className="feature-card" key={`feature-${index}`} data-reveal="up">
-                <span className="feature-card__icon"><Icon size={23} /></span>
+                <span className="feature-card__icon"><i className={`icons-${icon} icon-size-23`} /></span>
                 <h3>{title}</h3>
                 <p>{text}</p>
               </article>

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 export function Label({ children }: { children: ReactNode }) {
   //
   return (
-    <div style={{ fontSize: 12, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
+    <div className="u-text-muted u-fs-12 u-tracking-normal u-mb-6 u-text-uppercase">
       {children}
     </div>
   );

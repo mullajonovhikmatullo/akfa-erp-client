@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PlusIcon, TagIcon } from '@phosphor-icons/react'
+
 import dayjs, { type Dayjs } from 'dayjs'
 import type { Expense } from '@store/store-stub'
 import { CategoryManagerDrawer } from '../category/CategoryManagerDrawer'
@@ -103,12 +103,12 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
             {expenses.length} {t('expenses.subtitleRecords')} · {categories.length} {t('expenses.subtitleCategories')}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Button type="primary" icon={<PlusIcon size={13} weight="bold" />} onClick={() => setCreating(true)}>
+        <div className="u-items-center u-flex u-flex-wrap u-gap-8">
+          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setCreating(true)}>
             {t('expenses.newExpense')}
           </Button>
           {isStoreOwner ? (
-            <Button icon={<TagIcon size={13} />} onClick={() => setManagingCategories(true)}>
+            <Button icon={<i className="icons-tag icon-size-13" />} onClick={() => setManagingCategories(true)}>
               {t('nav.categories')}
             </Button>
           ) : null}
@@ -129,13 +129,13 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
                   { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day').startOf('day'), dayjs().endOf('day')] },
                   { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day').startOf('day'), dayjs().endOf('day')] },
                 ]}
-                style={{ minWidth: 240 }}
+                className="u-min-w-240"
               />
             )}
           />
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<ArrowClockwiseIcon size={18} className={isFetching || isSummaryFetching ? 'ph-icon-spin' : undefined} />}
+              icon={<i className={['icons-reload icon-size-18', isFetching || isSummaryFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
               onClick={() => {
                 //
                 refetch()
@@ -148,16 +148,10 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
 
       <ExpenseKpiCards items={kpiCategories} grandTotal={grandTotal} t={t} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="u-items-start u-grid u-gap-12 u-grid-cols-content-280">
+        <div className="card u-overflow-hidden u-p-0" >
           <div
-            style={{
-              display: 'flex',
-              gap: 10,
-              padding: '14px 16px',
-              borderBottom: '1px solid var(--border)',
-              alignItems: 'center',
-            }}
+            className="u-items-center u-border-b-default u-flex u-gap-10 u-p-14-16"
           >
             <Controller
               name="categoryId"
@@ -170,12 +164,12 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
                   }}
                   allowClear
                   placeholder={t('expenses.filterAll')}
-                  style={{ minWidth: 220 }}
+                  className="u-min-w-220"
                   options={categories.map((category) => ({ value: category.id, label: category.name }))}
                 />
               )}
             />
-            <span style={{ marginLeft: 'auto', color: 'var(--ink-3)', fontSize: 12.5 }}>
+            <span className="u-text-muted u-fs-12-5 u-ml-auto">
               <strong>{expenses.length}</strong> {t('common.resultsSuffix')}
             </span>
           </div>

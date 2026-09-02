@@ -1,6 +1,6 @@
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Divider, Form, InputNumber, Select, Skeleton, Tag } from 'antd'
-import { PlusIcon } from '@phosphor-icons/react'
+
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -59,28 +59,16 @@ export function CustomerDetailView({
   //
   return (
     <>
-      <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)' }}>
+      <div className="u-border-b-default u-p-20-24">
         <div
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            background: 'var(--primary)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 18,
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
+          className="u-items-center u-bg-primary u-rounded-full u-text-white u-flex u-fs-18 u-fw-700 u-h-48 u-justify-center u-mb-12 u-w-48"
         >
           {customer.fullName.charAt(0).toUpperCase()}
         </div>
-        <h2 style={{ margin: '0 0 4px', fontSize: 18 }}>{customer.fullName}</h2>
-        {customer.phone ? <div style={{ fontSize: 13, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{customer.phone}</div> : null}
-        {customer.address ? <div style={{ fontSize: 13, color: 'var(--ink-3)', marginTop: 2 }}>{customer.address}</div> : null}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+        <h2 className="u-fs-18 u-m-0-0-4">{customer.fullName}</h2>
+        {customer.phone ? <div className="u-text-muted u-font-mono u-fs-13">{customer.phone}</div> : null}
+        {customer.address ? <div className="u-text-muted u-fs-13 u-mt-2">{customer.address}</div> : null}
+        <div className="u-flex u-flex-wrap u-gap-8 u-mt-10">
           <StatusBadge tone="info">{customer.branch.name}</StatusBadge>
           <StatusBadge tone={customer.isActive ? 'success' : 'danger'} dot>
             {t(customer.isActive ? 'common.active' : 'common.inactive')}
@@ -88,35 +76,26 @@ export function CustomerDetailView({
         </div>
       </div>
 
-      <div style={{ padding: '20px 24px' }}>
+      <div className="u-p-20-24">
         <SectionLabel>{t('customers.colBalance')}</SectionLabel>
         <div
-          style={{
-            padding: '14px 16px',
-            border: '1px solid var(--border)',
-            borderRadius: 8,
-            background: 'var(--surface-2)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}
+          className="u-items-center u-bg-surface-2 u-rounded-8 u-border-default u-flex u-justify-between u-mb-20 u-p-14-16"
         >
-          <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>{t('customers.drawerCurrentBalance')}</span>
-          <div style={{ textAlign: 'right' }}>
-            <div className="num" style={{ fontSize: 16, fontWeight: 700 }}>
+          <span className="u-text-muted u-fs-13">{t('customers.drawerCurrentBalance')}</span>
+          <div className="u-text-right">
+            <div className="num u-fs-16 u-fw-700" >
               <MoneyDisplay amount={Math.abs(currentBalance)} currency="UZS" />
             </div>
             <StatusBadge tone={balanceTone}>{balanceLabel || '—'}</StatusBadge>
           </div>
         </div>
 
-        <Divider style={{ margin: '0 0 16px' }} />
+        <Divider className="u-m-0-0-16" />
         <SectionLabel>{t('customers.drawerDebtPayment')}</SectionLabel>
         {debtSalesLoading ? (
           <Skeleton active paragraph={{ rows: 2 }} />
         ) : unpaidSales.length === 0 ? (
-          <div style={{ padding: '12px 0 16px', color: 'var(--ink-3)', fontSize: 13 }}>{t('customers.drawerNoDebtSales')}</div>
+          <div className="u-text-muted u-fs-13 u-p-12-0-16">{t('customers.drawerNoDebtSales')}</div>
         ) : (
           <div className="customer-payment-list">
             {unpaidSales.map((sale) => {
@@ -130,7 +109,7 @@ export function CustomerDetailView({
                     <div className="customer-payment-card__meta">
                       <div className="customer-payment-card__identity">
                         <span>#{(sale.id.split('-')[0] ?? '').toUpperCase()}</span>
-                        <Tag style={{ margin: 0, fontSize: 11 }}>
+                        <Tag className="u-fs-11 u-m-0">
                           {t(sale.saleType === 'RETAIL' ? 'sales.typeRetail' : 'sales.typeWholesale')}
                         </Tag>
                       </div>
@@ -143,7 +122,7 @@ export function CustomerDetailView({
                         <MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />
                       </div>
                       {!isPaying ? (
-                        <Button size="small" type="primary" icon={<PlusIcon size={13} />} onClick={() => onStartPayment(sale)}>
+                        <Button size="small" type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => onStartPayment(sale)}>
                           {t('sales.drawerAddPayment')}
                         </Button>
                       ) : null}
@@ -161,7 +140,7 @@ export function CustomerDetailView({
                               <InputNumber<number>
                                 value={field.value}
                                 onChange={(value) => field.onChange(value ?? 0)}
-                                style={{ width: '100%' }}
+                                className="u-w-full"
                                 min={1}
                                 max={sale.debtAmountUzs}
                                 step={10000}
@@ -175,7 +154,7 @@ export function CustomerDetailView({
                           <Controller
                             name="method"
                             control={control}
-                            render={({ field }) => <Select value={field.value} onChange={field.onChange} options={paymentOptions} style={{ width: '100%' }} />}
+                            render={({ field }) => <Select value={field.value} onChange={field.onChange} options={paymentOptions} className="u-w-full" />}
                           />
                         </Form.Item>
                       </div>
@@ -195,42 +174,34 @@ export function CustomerDetailView({
           </div>
         )}
 
-        <Divider style={{ margin: '0 0 16px' }} />
+        <Divider className="u-m-0-0-16" />
         <SectionLabel>{t('customers.drawerRecentSales')}</SectionLabel>
         {detailLoading ? (
           <Skeleton active paragraph={{ rows: 3 }} />
         ) : !detail || detail.recentSales.length === 0 ? (
-          <div style={{ padding: '12px 0', color: 'var(--ink-3)', fontSize: 13 }}>{t('customers.drawerNoSales')}</div>
+          <div className="u-text-muted u-fs-13 u-p-12-0">{t('customers.drawerNoSales')}</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div className="u-flex u-flex-col u-gap-8">
             {detail.recentSales.map((sale) => (
               <div
                 key={sale.id}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '10px 14px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 8,
-                  background: 'var(--surface-2)',
-                }}
+                className="u-items-center u-bg-surface-2 u-rounded-8 u-border-default u-flex u-justify-between u-p-10-14"
               >
                 <div>
-                  <div style={{ fontWeight: 500, fontSize: 13 }}>
+                  <div className="u-fs-13 u-fw-500">
                     {sale._count.items} {t('customers.drawerProductsSuffix')} ·{' '}
-                    <Tag style={{ fontSize: 11 }}>
+                    <Tag className="u-fs-11">
                       {t(sale.saleType === 'RETAIL' ? 'sales.typeRetail' : 'sales.typeWholesale')}
                     </Tag>
                   </div>
-                  <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>{formatDate(sale.createdAt)}</div>
+                  <div className="u-text-muted u-fs-11-5 u-mt-2">{formatDate(sale.createdAt)}</div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div className="num" style={{ fontWeight: 700, fontSize: 13 }}>
+                <div className="u-text-right">
+                  <div className="num u-fs-13 u-fw-700" >
                     <MoneyDisplay amount={sale.totalAmountUzs} currency="UZS" />
                   </div>
                   {sale.debtAmountUzs > 0 ? (
-                    <div className="num" style={{ fontSize: 11.5, color: 'var(--danger)' }}>
+                    <div className="num u-text-danger u-fs-11-5" >
                       {t('sales.drawerDebt')}: <MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />
                     </div>
                   ) : null}

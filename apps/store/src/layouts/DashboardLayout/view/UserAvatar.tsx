@@ -5,10 +5,9 @@ export function UserAvatar({
 }: {
   name?: string
   photo?: string | null
-  size?: number
+  size?: 28 | 40
 }) {
   //
-  const tone = '#0476D0'
   const initials = (name ?? '?')
     .split(' ')
     .slice(0, 2)
@@ -17,26 +16,12 @@ export function UserAvatar({
     .toUpperCase()
 
   return (
-    <span
-      style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: `linear-gradient(135deg, ${tone}, ${tone}cc)`,
-        color: '#fff',
-        fontSize: size * 0.42,
-        fontWeight: 600,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
-    >
+    <span className={`user-avatar user-avatar--${size}`}>
       {photo ? (
         <img
           src={photo}
           alt=""
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+          className="u-rounded-inherit u-h-full u-object-cover u-w-full"
         />
       ) : initials}
     </span>

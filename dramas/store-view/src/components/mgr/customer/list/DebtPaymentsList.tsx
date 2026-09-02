@@ -5,7 +5,6 @@ import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { DebtPayment, PaymentMethod } from '@store/store-stub'
 import { useDebtPaymentsPage } from '../../sale/hooks/useDebtPaymentsPage'
-import { usePagination } from '../../shared/hooks/usePagination'
 import { useCustomersList } from '../hooks/useCustomersList'
 import { createDebtPaymentColumns } from './view/debtPaymentColumns'
 
@@ -18,7 +17,6 @@ const PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CASH_USD', 'CARD', 'TRANS
 
 export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
   //
-  const { page, pageSize, onChange: onPageChange } = usePagination()
   const [range, setRange] = useState<[Dayjs, Dayjs]>([dayjs().startOf('day'), dayjs().endOf('day')])
   const [customerId, setCustomerId] = useState<string>()
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>()
@@ -28,19 +26,16 @@ export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
     paymentMethod,
     from: range[0].toISOString(),
     to: range[1].toISOString(),
-    page,
-    pageSize,
   })
+  const { page, pageSize, onPageChange, resetPage } = payments
   const { data: customers = [] } = useCustomersList({ branchId: branchId ?? undefined })
   const customerOptions = useMemo(() => customers.map((customer) => ({
     value: customer.id,
     label: customer.fullName,
   })), [customers])
 
-  const resetPage = () => onPageChange(1, pageSize)
-
   return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+    <div className="card u-overflow-hidden u-p-0" >
       <div className="debt-payment-filters">
         <DatePicker.RangePicker
           value={range}
@@ -51,6 +46,7 @@ export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
             { label: t('analytics.last7Days'), value: [dayjs().subtract(6, 'day').startOf('day'), dayjs().endOf('day')] },
           ]}
           onChange={(value) => {
+            //
             if (!value?.[0] || !value[1]) return
             setRange([value[0].startOf('day'), value[1].endOf('day')])
             resetPage()

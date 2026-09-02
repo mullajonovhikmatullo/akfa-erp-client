@@ -1,4 +1,3 @@
-import { Bell, Headset, Storefront, Wallet } from '@phosphor-icons/react';
 import { ErrorState } from '../common/ErrorState';
 import { LoadingCard } from '../common/LoadingCard';
 import { formatCompactCurrencyUZS } from '../../lib/formatters';
@@ -69,7 +68,7 @@ export const PlatformDashboardView = () => {
           changeLabel="bu oy"
           progress={data.revenue.progress}
           accent="primary"
-          icon={Wallet}
+          icon="empty-wallet"
         />
 
         <MetricCard
@@ -81,7 +80,7 @@ export const PlatformDashboardView = () => {
           changeLabel="bu hafta"
           progress={data.tenants.progress}
           accent="success"
-          icon={Storefront}
+          icon="building"
         />
 
         <MetricCard
@@ -90,7 +89,7 @@ export const PlatformDashboardView = () => {
           value={`${data.payments.dueSoon}`}
           description="To‘lov muddati yaqin"
           accent="warning"
-          icon={Bell}
+          icon="bell-ring"
         />
 
         <MetricCard
@@ -99,7 +98,7 @@ export const PlatformDashboardView = () => {
           value={`${data.tenants.totalStores}`}
           description="Tizimdan foydalanmoqda"
           accent="purple"
-          icon={Storefront}
+          icon="building"
         />
 
         <MetricCard
@@ -108,7 +107,7 @@ export const PlatformDashboardView = () => {
           value={`${data.support.newRequests}`}
           description="Ko‘rib chiqilmagan"
           accent="danger"
-          icon={Headset}
+          icon="header-support"
         />
 
         <MetricCard
@@ -117,14 +116,13 @@ export const PlatformDashboardView = () => {
           value={`${data.platform.health}%`}
           description="Barqaror ishlamoqda"
           accent="success"
-          icon={Storefront}
+          icon="building"
         >
           <div className="health-indicators" aria-label="Tizim holati ko‘rsatkichlari">
             {data.platform.statusIndicators.map((indicator, index) => (
               <span
                 key={`${indicator}-${index}`}
-                className="health-indicators__bar"
-                style={{ transform: `scaleY(${indicator})` }}
+                className={`health-indicators__bar u-scale-y-${Math.round(indicator * 100)}`}
               />
             ))}
           </div>

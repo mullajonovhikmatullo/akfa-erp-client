@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { PushPinIcon } from '@phosphor-icons/react'
+
 import { useT } from '@/shared/lib/i18n'
 import { ALL_NAV_ITEMS } from '../navConfig'
 import { SidebarNavItem } from './SidebarNavItem'
@@ -50,7 +50,7 @@ export function SidebarFavorites({
   return (
     <div className="sb-fav-section">
       <div className="sb-fav-section__header">
-        <PushPinIcon size={9} weight="fill" className="sb-fav-section__pin" />
+        <i className="icons-pin icon-size-9 sb-fav-section__pin" />
         <span>{t('header.quickAccess')}</span>
       </div>
       <div className="sb-group__items-inner">

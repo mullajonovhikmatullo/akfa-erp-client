@@ -15,9 +15,9 @@ export function createTopProductColumns(t: (key: string) => string): ColumnDef<{
 }>[] {
   //
   return [
-    { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div style={{ fontWeight: 600 }}>{row.name}</div>{row.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{row.sku}</div> : null}</div> },
+    { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div className="u-fw-600">{row.name}</div>{row.sku ? <div className="u-text-muted u-font-mono u-fs-11">{row.sku}</div> : null}</div> },
     { title: t('analytics.colQty'), key: 'qty', width: 120, align: 'right', render: (_, row) => <span className="num">{row.totalQuantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[row.unit as ProductUnit] ?? row.unit}</span> },
-    { title: t('analytics.colRevenue'), key: 'rev', width: 160, align: 'right', render: (_, row) => <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={row.totalRevenue} currency="UZS" /></span> },
+    { title: t('analytics.colRevenue'), key: 'rev', width: 160, align: 'right', render: (_, row) => <span className="num u-fw-700" ><MoneyDisplay amount={row.totalRevenue} currency="UZS" /></span> },
   ]
 }
 
@@ -33,21 +33,21 @@ export function createLowStockColumns(t: (key: string) => string): ColumnDef<{
 }>[] {
   //
   return [
-    { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div style={{ fontWeight: 500 }}>{row.name}</div><div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{row.branchName}</div></div> },
-    { title: t('analytics.colRemaining'), key: 'stock', width: 130, align: 'right', render: (_, row) => <span className="num" style={{ color: 'var(--danger)', fontWeight: 600 }}>{row.currentStock} / {row.threshold} {PRODUCT_UNIT_LABELS[row.unit as ProductUnit] ?? row.unit}</span> },
+    { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div className="u-fw-500">{row.name}</div><div className="u-text-muted u-fs-11">{row.branchName}</div></div> },
+    { title: t('analytics.colRemaining'), key: 'stock', width: 130, align: 'right', render: (_, row) => <span className="num u-text-danger u-fw-600" >{row.currentStock} / {row.threshold} {PRODUCT_UNIT_LABELS[row.unit as ProductUnit] ?? row.unit}</span> },
   ]
 }
 
 export function createDebtColumns(t: (key: string) => string, page: number, pageSize: number): ColumnDef<SaleListItem>[] {
   //
   return [
-    { title: '#', key: '_idx', width: 52, align: 'center', render: (_, __, index) => <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{(page - 1) * pageSize + index + 1}</span> },
-    { title: t('analytics.colCustomer'), key: 'customer', render: (_, sale) => sale.customer ? <div><div style={{ fontWeight: 600 }}>{sale.customer.fullName}</div></div> : <span style={{ color: 'var(--ink-4)' }}>{t('sales.anonymous')}</span> },
-    { title: t('analytics.colPhone'), key: 'phone', width: 150, render: (_, sale) => sale.customer?.phone ? <span style={{ fontSize: 12, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{sale.customer.phone}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span> },
+    { title: '#', key: '_idx', width: 52, align: 'center', render: (_, __, index) => <span className="u-text-quiet u-fs-11 u-numeric-tabular">{(page - 1) * pageSize + index + 1}</span> },
+    { title: t('analytics.colCustomer'), key: 'customer', render: (_, sale) => sale.customer ? <div><div className="u-fw-600">{sale.customer.fullName}</div></div> : <span className="u-text-quiet">{t('sales.anonymous')}</span> },
+    { title: t('analytics.colPhone'), key: 'phone', width: 150, render: (_, sale) => sale.customer?.phone ? <span className="u-text-muted u-font-mono u-fs-12">{sale.customer.phone}</span> : <span className="u-text-quiet">—</span> },
     { title: t('analytics.colBranch'), key: 'branch', width: 140, render: (_, sale) => <StatusBadge tone="muted">{sale.branch.name}</StatusBadge> },
-    { title: t('analytics.colDueDate'), key: 'dueDate', width: 150, render: (_, sale) => <div><div style={{ fontWeight: 700, color: sale.debtDueDate ? 'var(--danger)' : 'var(--ink-4)' }}>{sale.debtDueDate ? formatDate(sale.debtDueDate) : t('analytics.noDeadline')}</div><div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{t('common.date')}: {formatDate(sale.createdAt)}</div></div> },
+    { title: t('analytics.colDueDate'), key: 'dueDate', width: 150, render: (_, sale) => <div><div className={`analytics-due-date ${sale.debtDueDate ? 'tone-danger' : 'tone-quiet'}`}>{sale.debtDueDate ? formatDate(sale.debtDueDate) : t('analytics.noDeadline')}</div><div className="u-text-muted u-fs-11-5">{t('common.date')}: {formatDate(sale.createdAt)}</div></div> },
     { title: t('analytics.colOverdueBy'), key: 'lateBy', width: 130, align: 'center', render: (_, sale) => sale.debtDueDate ? <StatusBadge tone="danger" dot>{getLateDays(sale.debtDueDate)} {t('analytics.daysLateSuffix')}</StatusBadge> : <StatusBadge tone="muted">{t('analytics.noDeadline')}</StatusBadge> },
-    { title: t('analytics.colDebt'), key: 'debt', width: 170, align: 'right', render: (_, sale) => <span className="num" style={{ fontWeight: 700, color: 'var(--danger)' }}><MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" /></span> },
+    { title: t('analytics.colDebt'), key: 'debt', width: 170, align: 'right', render: (_, sale) => <span className="num u-text-danger u-fw-700" ><MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" /></span> },
   ]
 }
 

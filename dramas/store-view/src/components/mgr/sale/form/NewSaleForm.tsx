@@ -18,7 +18,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
 
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 12, alignItems: 'flex-start' }}>
+      <div className="u-items-start u-grid u-gap-12 u-grid-cols-content-340">
         <div className="card">
           <SaleSetupView
             t={t}

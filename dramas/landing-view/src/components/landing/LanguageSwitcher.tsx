@@ -1,9 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Check, ChevronDown } from 'lucide-react';
+
 import { useI18n } from '../../i18n/I18nProvider';
 import { formatMessage, languageOptions } from '../../i18n/translations';
 
 export function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
+  //
   const { language, setLanguage, t } = useI18n();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -11,6 +12,7 @@ export function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
   const currentLanguage = languageOptions.find((option) => option.code === language) ?? languageOptions[0]!;
 
   useEffect(() => {
+    //
     if (!open) return undefined;
 
     const closeOnOutsideClick = (event: PointerEvent) => {
@@ -23,6 +25,7 @@ export function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
     document.addEventListener('pointerdown', closeOnOutsideClick);
     document.addEventListener('keydown', closeOnEscape);
     return () => {
+      //
       document.removeEventListener('pointerdown', closeOnOutsideClick);
       document.removeEventListener('keydown', closeOnEscape);
     };
@@ -41,12 +44,13 @@ export function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
       >
         <span className="language-switcher__flag" aria-hidden="true">{currentLanguage.flag}</span>
         <span>{currentLanguage.shortLabel}</span>
-        <ChevronDown size={14} aria-hidden="true" />
+        <i className="icons-arrow-down icon-size-14" aria-hidden="true" />
       </button>
 
       {open ? (
         <div className="language-switcher__menu" id={menuId} role="menu" aria-label={t.language.select}>
           {languageOptions.map((option) => {
+            //
             const selected = option.code === language;
             return (
               <button
@@ -56,13 +60,14 @@ export function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
                 aria-checked={selected}
                 key={option.code}
                 onClick={() => {
+                  //
                   setLanguage(option.code);
                   setOpen(false);
                 }}
               >
                 <span className="language-switcher__flag" aria-hidden="true">{option.flag}</span>
                 <span>{option.nativeLabel}</span>
-                {selected ? <Check size={14} aria-hidden="true" /> : null}
+                {selected ? <i className="icons-check icon-size-14" aria-hidden="true" /> : null}
               </button>
             );
           })}

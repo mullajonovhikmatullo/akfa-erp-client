@@ -1,5 +1,5 @@
 import { Alert, Button, Spin } from 'antd'
-import { WarningIcon } from '@phosphor-icons/react'
+
 import type { TFunc } from './types'
 
 interface HandoffTransitionViewProps {
@@ -22,7 +22,7 @@ export function HandoffTransitionView({ pending, error, t, onRetry }: HandoffTra
         ) : (
           <>
             <Alert
-              icon={<WarningIcon size={18} weight="duotone" />}
+              icon={<i className="icons-warning icon-size-18" />}
               type="warning"
               message={error}
               showIcon

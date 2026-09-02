@@ -15,13 +15,7 @@ export function StatusBadge({ tone = 'muted', dot, children }: StatusBadgeProps)
     <span className={clsx('tagpill', tone)}>
       {dot && (
         <span
-          style={{
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            background: 'currentColor',
-            display: 'inline-block',
-          }}
+          className="u-bg-current u-rounded-full u-inline-block u-h-6 u-w-6"
         />
       )}
       {children}

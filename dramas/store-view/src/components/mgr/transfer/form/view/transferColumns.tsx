@@ -1,5 +1,5 @@
 import { Button, InputNumber } from 'antd'
-import { TrashIcon } from '@phosphor-icons/react'
+
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { QuantityStepper } from './QuantityStepper'
@@ -22,14 +22,14 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
       key: 'product',
       width: 270,
       render: (_: unknown, item: TransferCartItem) => (
-        <div style={{ minWidth: 0, maxWidth: 270 }}>
-          <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>
+        <div className="u-max-w-270 u-min-w-0">
+          <div className="u-fs-13 u-fw-600 u-lh-tight">
             <EllipsisText maxWidth="100%">{item.product.name}</EllipsisText>
           </div>
           {item.product.sku ? (
             <div
-              className="num"
-              style={{ fontSize: 11, color: 'var(--ink-3)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              className="num u-text-muted u-fs-11 u-max-w-180 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap"
+
             >
               {item.product.sku}
             </div>
@@ -67,7 +67,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
         const hasInsufficientStock = item.quantity > stock
         const remainingStock = stock - item.quantity
         return (
-          <span className="num" style={{ color: hasInsufficientStock ? 'var(--danger)' : undefined, fontWeight: 700, fontSize: 12 }}>
+          <span className={`num transfer-stock-value${hasInsufficientStock ? ' tone-danger' : ''}`}>
             {hasInsufficientStock ? '—' : `${remainingStock.toLocaleString('ru-RU')} ${t(`units.${item.product.unit}`)}`}
           </span>
         )
@@ -83,7 +83,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
           onChange={(value) => onUpdateItem(item._key, { unitCostUzs: value ?? 0 })}
           min={0}
           step={1000}
-          style={{ width: '100%' }}
+          className="u-w-full"
           formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
           parser={(value) => Number(value?.replace(/\s/g, ''))}
         />
@@ -95,7 +95,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
       width: 200,
       align: 'right' as const,
       render: (_: unknown, item: TransferCartItem) => (
-        <span className="num" style={{ display: 'inline-block', fontWeight: 700, fontSize: 13, whiteSpace: 'nowrap' }}>
+        <span className="num u-inline-block u-fs-13 u-fw-700 u-whitespace-nowrap" >
           <MoneyDisplay amount={item.quantity * item.unitCostUzs} currency="UZS" />
         </span>
       ),
@@ -105,7 +105,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
       key: 'del',
       width: 32,
       render: (_: unknown, item: TransferCartItem) => (
-        <Button size="small" type="text" danger icon={<TrashIcon size={18} />} onClick={() => onRemoveItem(item._key)} />
+        <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} onClick={() => onRemoveItem(item._key)} />
       ),
     },
   ]

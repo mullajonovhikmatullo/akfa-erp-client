@@ -83,7 +83,7 @@ export function ExpenseFormFields({
         )}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      <div className="u-grid u-gap-12 u-grid-cols-2">
         <Controller
           name="amount"
           control={control}
@@ -99,7 +99,7 @@ export function ExpenseFormFields({
                 onChange={(value) => field.onChange(value ?? 0)}
                 onBlur={field.onBlur}
                 ref={field.ref}
-                style={{ width: '100%' }}
+                className="u-w-full"
                 min={0}
                 step={currency === 'USD' ? 1 : 10000}
                 precision={currency === 'USD' ? 2 : 0}
@@ -129,7 +129,7 @@ export function ExpenseFormFields({
                   onBlur={field.onBlur}
                   ref={field.ref}
                   disabled
-                  style={{ width: '100%' }}
+                  className="u-w-full"
                   min={1}
                   step={50}
                   precision={0}
@@ -148,7 +148,7 @@ export function ExpenseFormFields({
           render={({ field }) => (
             <Form.Item label={t('expenseForm.labelDate')}>
               <DatePicker
-                style={{ width: '100%' }}
+                className="u-w-full"
                 value={field.value ? dayjs(field.value) : null}
                 onChange={(value) => field.onChange(value ? value.toISOString() : '')}
                 showTime={{ format: 'HH:mm' }}

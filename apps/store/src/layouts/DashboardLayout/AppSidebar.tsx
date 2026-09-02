@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { ArrowLineLeftIcon, ArrowLineRightIcon } from '@phosphor-icons/react'
+
 import clsx from 'clsx'
 import { useTransfersList } from '@store/store-view/transfer'
 import { MavionBrand } from '@store/store-view/auth'
@@ -65,7 +65,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
           type="button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <ArrowLineRightIcon size={16} /> : <ArrowLineLeftIcon size={16} />}
+          {collapsed ? <i className="icons-chevron-right icon-size-16" /> : <i className="icons-chevron-left icon-size-16" />}
         </button>
       </div>
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { InputNumber, Radio } from 'antd'
-import { MoonIcon, SunIcon } from '@phosphor-icons/react'
+
 import type { Currency } from '@store/store-stub'
 import { SectionTitle } from './view/SectionTitle'
 import { ThemeChoice } from './view/ThemeChoice'
@@ -68,9 +68,9 @@ export function SettingsPanel({
       <div className="grid-2">
         <div className="card">
           <SectionTitle>{t('settings.currency')}</SectionTitle>
-          <div className="col" style={{ gap: 12 }}>
+          <div className="col u-gap-12" >
             <div>
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.displayCurrency')}</div>
+              <div className="u-text-muted u-fs-12 u-mb-6">{t('settings.displayCurrency')}</div>
               <Controller
                 name="displayCurrency"
                 control={control}
@@ -89,10 +89,10 @@ export function SettingsPanel({
                   </Radio.Group>
                 )}
               />
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 6 }}>{t('settings.currencyNote')}</div>
+              <div className="u-text-muted u-fs-12 u-mt-6">{t('settings.currencyNote')}</div>
             </div>
             <div>
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.exchangeRate')}</div>
+              <div className="u-text-muted u-fs-12 u-mb-6">{t('settings.exchangeRate')}</div>
               <Controller
                 name="exchangeRate"
                 control={control}
@@ -107,13 +107,13 @@ export function SettingsPanel({
                       field.onChange(value)
                       onExchangeRateChange(value)
                     }}
-                    style={{ width: 220 }}
+                    className="u-w-220"
                     formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
                     addonAfter="so'm"
                   />
                 )}
               />
-              <div style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 6 }}>{t('settings.exchangeRateNote')}</div>
+              <div className="u-text-muted u-fs-12 u-mt-6">{t('settings.exchangeRateNote')}</div>
             </div>
           </div>
         </div>
@@ -121,7 +121,7 @@ export function SettingsPanel({
         <div className="card">
           <SectionTitle>{t('settings.localization')}</SectionTitle>
           <div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 6 }}>{t('settings.interfaceLang')}</div>
+            <div className="u-text-muted u-fs-12 u-mb-6">{t('settings.interfaceLang')}</div>
             <Controller
               name="lang"
               control={control}
@@ -158,6 +158,7 @@ export function SettingsPanel({
                 //
                 const selectedTheme = field.value === 'system' ? 'light' : field.value
                 const selectTheme = (value: Exclude<SettingsTheme, 'system'>) => {
+                  //
                   field.onChange(value)
                   onThemeChange(value)
                 }
@@ -169,7 +170,7 @@ export function SettingsPanel({
                       selected={selectedTheme === 'light'}
                       title={t('settings.themeLight')}
                       description={t('settings.themeLightDescription')}
-                      icon={<SunIcon size={18} weight="duotone" />}
+                      icon={<i className="icons-sun icon-size-18" />}
                       onSelect={selectTheme}
                     />
                     <ThemeChoice
@@ -177,7 +178,7 @@ export function SettingsPanel({
                       selected={selectedTheme === 'dark'}
                       title={t('settings.themeDark')}
                       description={t('settings.themeDarkDescription')}
-                      icon={<MoonIcon size={18} weight="duotone" />}
+                      icon={<i className="icons-moon icon-size-18" />}
                       onSelect={selectTheme}
                     />
                   </div>

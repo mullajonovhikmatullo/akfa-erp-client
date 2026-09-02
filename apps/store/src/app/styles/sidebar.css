@@ -169,11 +169,18 @@
 
 
 .sb-group__items {
+  display: grid;
+  grid-template-rows: 0fr;
   overflow: hidden;
-  transition: height 220ms cubic-bezier(.4,0,.2,1);
-  will-change: height;
+  transition: grid-template-rows 220ms cubic-bezier(.4,0,.2,1);
+  will-change: grid-template-rows;
 }
-.sb-group__items-inner { padding: 2px 0; }
+.sb-group--open .sb-group__items { grid-template-rows: 1fr; }
+.sb-group__items-inner {
+  min-height: 0;
+  overflow: hidden;
+  padding: 2px 0;
+}
 
 
 .sb-group--collapsed .sb-group__divider {

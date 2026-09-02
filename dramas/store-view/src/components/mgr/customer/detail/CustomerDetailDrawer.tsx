@@ -74,13 +74,12 @@ export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDra
 
   return (
     <Drawer
-      rootClassName="ant-drawer-root"
+      rootClassName="ant-drawer-root detail-drawer--flush"
       title={null}
       open={Boolean(customer)}
       onClose={onClose}
       width={560}
       closable={{ placement: 'end' }}
-      styles={{ body: { padding: 0 } }}
       destroyOnHidden
     >
       {customer ? (

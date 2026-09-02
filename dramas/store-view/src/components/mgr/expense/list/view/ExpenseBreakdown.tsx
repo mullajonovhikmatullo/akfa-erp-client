@@ -9,34 +9,34 @@ interface ExpenseBreakdownItem {
 export function ExpenseBreakdown({ items, grandTotal, t }: { items: ExpenseBreakdownItem[]; grandTotal: number; t: (key: string) => string }) {
   //
   return (
-    <div className="card" style={{ position: 'sticky', top: 76 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t('expenses.breakdown')}</div>
+    <div className="card u-sticky u-top-76" >
+      <div className="u-fs-13 u-fw-700 u-mb-14">{t('expenses.breakdown')}</div>
       {items.length === 0 ? (
-        <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>{t('common.noData')}</div>
+        <div className="u-text-muted u-fs-13">{t('common.noData')}</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="u-flex u-flex-col u-gap-12">
           {items.map((item) => {
             //
             const pct = grandTotal > 0 ? (item.total / grandTotal) * 100 : 0
             return (
               <div key={item.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
-                  <span style={{ color: 'var(--ink-2)', fontWeight: 500 }}>{item.name}</span>
-                  <span className="num" style={{ color: 'var(--ink-3)' }}>{pct.toFixed(0)}%</span>
+                <div className="u-flex u-fs-12-5 u-justify-between u-mb-4">
+                  <span className="u-text-secondary u-fw-500">{item.name}</span>
+                  <span className="num u-text-muted" >{pct.toFixed(0)}%</span>
                 </div>
-                <div style={{ height: 5, borderRadius: 3, background: 'var(--border)', overflow: 'hidden' }}>
-                  <div style={{ width: `${pct}%`, height: '100%', background: 'var(--primary)', borderRadius: 3 }} />
+                <div className="u-bg-border u-rounded-3 u-h-5 u-overflow-hidden">
+                  <div className={`progress-fill u-w-pct-${Math.round(pct)}`} />
                 </div>
-                <div className="num" style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}><MoneyDisplay amount={item.total} currency="UZS" /></div>
+                <div className="num u-text-muted u-fs-11-5 u-mt-2" ><MoneyDisplay amount={item.total} currency="UZS" /></div>
               </div>
             )
           })}
         </div>
       )}
-      <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-        <span style={{ color: 'var(--ink-3)' }}>{t('common.total')}</span>
-        <span className="num" style={{ fontWeight: 700 }}><MoneyDisplay amount={grandTotal} currency="UZS" /></span>
+      <div className="u-border-t-default u-m-14-0" />
+      <div className="u-flex u-fs-14 u-justify-between">
+        <span className="u-text-muted">{t('common.total')}</span>
+        <span className="num u-fw-700" ><MoneyDisplay amount={grandTotal} currency="UZS" /></span>
       </div>
     </div>
   )

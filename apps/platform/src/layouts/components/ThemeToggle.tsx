@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd';
-import { Moon, Sun } from '@phosphor-icons/react';
+
 import { useUIStore } from '../../app/stores/uiStore';
 
 export const ThemeToggle = () => {
@@ -17,7 +17,7 @@ export const ThemeToggle = () => {
         type="button"
         onClick={toggleTheme}
       >
-        {isDark ? <Sun size={20} weight="duotone" /> : <Moon size={20} weight="duotone" />}
+        {isDark ? <i className="icons-sun icon-size-20" /> : <i className="icons-moon icon-size-20" />}
       </button>
     </Tooltip>
   );

@@ -1,6 +1,6 @@
 import type { ChangeEventHandler, RefObject } from 'react'
 import { Button, Image, Popconfirm } from 'antd'
-import { PencilSimpleIcon, TrashIcon, UploadSimpleIcon } from '@phosphor-icons/react'
+
 import type { User } from '@store/store-stub'
 
 interface ProfileIdentitySectionProps {
@@ -57,7 +57,7 @@ export function ProfileIdentitySection({
           disabled={photoBusy}
           onClick={() => photoInputRef.current?.click()}
         >
-          <PencilSimpleIcon size={17} weight="bold" />
+          <i className="icons-pen-line icon-size-17" />
         </button>
       </div>
 
@@ -74,7 +74,7 @@ export function ProfileIdentitySection({
             onChange={onPhotoSelected}
           />
           <Button
-            icon={<UploadSimpleIcon size={17} />}
+            icon={<i className="icons-upload icon-size-17" />}
             loading={photoProcessing || updatePhotoPending}
             disabled={deletePhotoPending}
             onClick={() => photoInputRef.current?.click()}
@@ -91,7 +91,7 @@ export function ProfileIdentitySection({
             >
               <Button
                 danger
-                icon={<TrashIcon size={17} />}
+                icon={<i className="icons-trash icon-size-17" />}
                 disabled={photoProcessing || updatePhotoPending}
               >
                 {t('profile.photoRemove')}
