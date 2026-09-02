@@ -1,17 +1,19 @@
 import { useEffect, useMemo } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Button, Empty, InputNumber, Select, Table } from 'antd'
-import { MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { PlusIcon } from '@phosphor-icons/react'
 import { getProductPrice, getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Branch, Product } from '@store/store-stub'
-import { useBranches } from '../../branch/hooks/useBranches'
-import { useProducts } from '../../product/hooks/useProducts'
-import { useStockInBatch } from '../hooks/useInventory'
+import { useBranchesList } from '../../branch/hooks/useBranchesList'
+import { useProductsList } from '../../product/hooks/useProductsList'
+import { useInventoryMutation } from '../hooks/useInventoryMutation'
+import { Label } from './view/Label'
+import { createStockInColumns } from './view/stockInColumns'
+import type { StockInCartItem } from './view/types'
 
 interface StockInModalProps {
   t: (key: string) => string
@@ -22,18 +24,9 @@ interface StockInModalProps {
   exchangeRate: number
 }
 
-interface CartItem {
-  _key: string
-  productId: string
-  product: Product
-  quantity: number
-  costPriceUzs: number
-  costPriceUsd?: number
-}
-
 type StockInFormValues = {
   branchId?: string
-  cart: CartItem[]
+  cart: StockInCartItem[]
 }
 
 const MIN_QTY = 1
@@ -53,9 +46,9 @@ function findDefaultBranch(branches: Branch[]) {
 export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exchangeRate }: StockInModalProps) {
   //
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
-  const { data: branches = [], isLoading: branchesLoading } = useBranches()
-  const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true })
-  const stockInBatch = useStockInBatch(t)
+  const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
+  const { data: products = [], isLoading: productsLoading } = useProductsList({ isActive: true })
+  const { stockInBatch } = useInventoryMutation(t)
   const { control, handleSubmit, reset, setValue, watch } = useForm<StockInFormValues>({
     defaultValues: {
       branchId: isStoreOwner ? undefined : (userBranchId ?? undefined),
@@ -98,7 +91,7 @@ export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exc
     })
   }
 
-  const updateItem = (key: string, patch: Partial<CartItem>) => {
+  const updateItem = (key: string, patch: Partial<StockInCartItem>) => {
     //
     const index = cart.findIndex((item) => item._key === key)
     if (index < 0) return
@@ -242,101 +235,19 @@ export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exc
           <Empty description={t('stockIn.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: '16px 0' }} />
         ) : (
           <>
-            <Table<CartItem>
+            <Table<StockInCartItem>
               size="small"
               pagination={false}
               rowKey="_key"
               dataSource={cart}
               scroll={{ x: 860 }}
-              columns={[
-                {
-                  title: t('stockIn.colProduct'),
-                  key: 'product',
-                  width: 270,
-                  render: (_, item) => (
-                    <div style={{ minWidth: 0, maxWidth: 270 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>
-                        <EllipsisText maxWidth="100%">{item.product.name}</EllipsisText>
-                      </div>
-                      {item.product.sku ? (
-                        <div
-                          className="num"
-                          style={{
-                            fontSize: 11,
-                            color: 'var(--ink-3)',
-                            maxWidth: 180,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {item.product.sku}
-                        </div>
-                      ) : null}
-                    </div>
-                  ),
-                },
-                {
-                  title: t('stockIn.colQty'),
-                  key: 'qty',
-                  width: 220,
-                  render: (_, item) => (
-                    <QuantityStepper
-                      value={item.quantity}
-                      unitLabel={t(`units.${item.product.unit}`)}
-                      onMinus={() => changeQty(item._key, -1)}
-                      onPlus={() => changeQty(item._key, 1)}
-                      onChange={(value) => updateQty(item._key, value)}
-                    />
-                  ),
-                },
-                {
-                  title: t('stockIn.colCost'),
-                  key: 'cost',
-                  width: 170,
-                  render: (_, item) => (
-                    <InputNumber
-                      value={item.costPriceUzs}
-                      onChange={(value) => updateItem(item._key, { costPriceUzs: value ?? 0, costPriceUsd: undefined })}
-                      min={0}
-                      step={1000}
-                      style={{ width: '100%' }}
-                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                      parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-                    />
-                  ),
-                },
-                {
-                  title: t('stockIn.colTotal'),
-                  key: 'total',
-                  width: 150,
-                  align: 'right',
-                  render: (_, item) => (
-                    <span
-                      className="num"
-                      style={{
-                        display: 'inline-block',
-                        maxWidth: 140,
-                        fontWeight: 700,
-                        fontSize: 13,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      <MoneyDisplay amount={Math.max(item.quantity, 0) * item.costPriceUzs} currency="UZS" compact />
-                    </span>
-                  ),
-                },
-                {
-                  title: '',
-                  key: 'del',
-                  width: 32,
-                  render: (_, item) => (
-                    <Button size="small" type="text" danger icon={<TrashIcon size={18} />} onClick={() => removeItem(item._key)} />
-                  ),
-                },
-              ]}
+              columns={createStockInColumns({
+                t,
+                onChangeQty: changeQty,
+                onUpdateQty: updateQty,
+                onUpdateItem: updateItem,
+                onRemoveItem: removeItem,
+              })}
             />
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, fontSize: 13, paddingRight: 32 }}>
               <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('stockIn.totalCostLabel')}</span>
@@ -351,65 +262,5 @@ export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exc
         )}
       </div>
     </AppModal>
-  )
-}
-
-function Label({ children }: { children: ReactNode }) {
-  //
-  return (
-    <div style={{ fontSize: 12, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
-      {children}
-    </div>
-  )
-}
-
-function QuantityStepper({
-  value,
-  unitLabel,
-  onMinus,
-  onPlus,
-  onChange,
-}: {
-  value: number
-  unitLabel: string
-  onMinus: () => void
-  onPlus: () => void
-  onChange: (value: number | null) => void
-}) {
-  //
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(96px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
-      <Button icon={<MinusIcon size={16} />} onClick={onMinus} disabled={value <= MIN_QTY} style={{ width: 30, height: 30, padding: 0 }} />
-      <InputNumber
-        value={value > 0 ? value : null}
-        onChange={(value) => onChange(value == null ? null : Number(value))}
-        min={0}
-        step={1}
-        controls={false}
-        placeholder="0"
-        style={{ width: '100%' }}
-        formatter={(value) => `${value ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-        parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-      />
-      <Button icon={<PlusIcon size={16} />} onClick={onPlus} style={{ width: 30, height: 30, padding: 0 }} />
-      <span
-        style={{
-          height: 30,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          background: 'var(--surface-2)',
-          color: 'var(--ink-3)',
-          fontSize: 11,
-          fontWeight: 700,
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {unitLabel}
-      </span>
-    </div>
   )
 }

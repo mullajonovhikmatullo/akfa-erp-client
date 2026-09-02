@@ -1,22 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
-import { Alert, Button, DatePicker, Empty, InputNumber, Radio, Select, Tooltip } from 'antd'
-import { CheckCircleIcon, CheckIcon, MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
-import dayjs from 'dayjs'
-import type { ReactNode } from 'react'
+import { Button, Radio, Select } from 'antd'
+import { PlusIcon } from '@phosphor-icons/react'
 import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import { getSaleProductPrice, getSaleProductPriceUzs } from '@store/store-shared/lib/product-pricing'
-import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Customer, PaymentMethod, Product, SaleType } from '@store/store-stub'
-import { useBranches } from '../../branch/hooks/useBranches'
+import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { CustomerFormModal } from '../../customer/form/CustomerFormModal'
-import { useCustomers } from '../../customer/hooks/useCustomers'
-import { useStockBatches } from '../../inventory/hooks/useInventory'
-import { AuthenticatedProductImage } from '../../product/images/AuthenticatedProductImage'
-import { useProducts } from '../../product/hooks/useProducts'
-import { useCreateSale } from '../hooks/useSales'
+import { useCustomersList } from '../../customer/hooks/useCustomersList'
+import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
+import { useProductsList } from '../../product/hooks/useProductsList'
+import { useSaleMutation } from '../hooks/useSaleMutation'
 import { clearSaleDraft, readSaleDraft, writeSaleDraft } from './saleDraft'
+import { Label, Row } from './view'
+import { SaleCartView } from './view/SaleCartView'
+import { SaleSummaryView } from './view/SaleSummaryView'
+import type { CartItem, SaleFormValues } from './view/types'
 
 interface NewSaleFormProps {
   t: (key: string) => string
@@ -26,32 +26,7 @@ interface NewSaleFormProps {
   onSuccess?: () => void
 }
 
-interface CartItem {
-  _key: string
-  productId: string
-  product: Product
-  quantity: number
-}
-
-type SaleFormCartItem = {
-  key: string
-  productId: string
-  quantity: number
-}
-
-type SaleFormValues = {
-  branchId?: string
-  saleType: SaleType
-  customerId?: string
-  paymentMethod: PaymentMethod
-  paidAmount: number
-  debtDueDateIso?: string
-  selectedProductId?: string
-  cart: SaleFormCartItem[]
-}
-
 const MIN_QTY = 0.0001
-const CART_GRID_COLUMNS = 'minmax(170px, 1fr) minmax(188px, 220px) minmax(90px, 120px) minmax(126px, 150px) minmax(150px, 178px) 28px'
 
 function emptySaleFormValues(branchId?: string): SaleFormValues {
   //
@@ -91,8 +66,8 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   //
   const branchFilter = userBranchId ?? undefined
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
-  const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true })
-  const { data: batches = [], isLoading: batchesLoading } = useStockBatches(
+  const { data: products = [], isLoading: productsLoading } = useProductsList({ isActive: true })
+  const { data: batches = [], isLoading: batchesLoading } = useStockBatchesList(
     branchFilter ? { branchId: branchFilter, depleted: false } : undefined,
     { enabled: Boolean(branchFilter) },
   )
@@ -105,11 +80,11 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
     isLoading: customersLoading,
     isFetching: customersFetching,
     refetch: refetchCustomers,
-  } = useCustomers(customerFilters)
-  const { data: branches = [], isLoading: branchesLoading } = useBranches()
+  } = useCustomersList(customerFilters)
+  const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
   const productSelectLoading = Boolean(branchFilter) && (productsLoading || batchesLoading)
 
-  const createSale = useCreateSale(t)
+  const { createSale } = useSaleMutation(t)
   const { control, handleSubmit, reset, setValue } = useForm<SaleFormValues>({
     defaultValues: persistedSaleFormValues(),
   })
@@ -131,7 +106,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   const [optimisticCustomer, setOptimisticCustomer] = useState<Customer | null>(null)
 
   const customerOptions = useMemo(() => {
-    // Keep a just-created customer selectable while the invalidated list query refetches.
+    //
     const visibleCustomers = optimisticCustomer && !customers.some((customer) => customer.id === optimisticCustomer.id)
       ? [optimisticCustomer, ...customers]
       : customers
@@ -252,7 +227,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
     cart.length > 0 &&
     hasValidQuantities &&
     (!needsExchangeRate || exchangeRate > 0) &&
-    (!needsCustomer || customerId)
+    (!needsCustomer || Boolean(customerId))
 
   useEffect(() => {
     //
@@ -282,7 +257,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   }, [branchFilter, formBranchId, reset, setValue])
 
   useEffect(() => {
-    // Normalize a persisted or externally changed draft when the latest stock is available.
+    //
     if (!branchFilter || batchesLoading || cartDraft.length === 0) return
     const normalizedCart = cartDraft.map((item) => {
       const stock = stockByProductId.get(item.productId) ?? 0
@@ -297,8 +272,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
   }, [branchFilter])
 
   useEffect(() => {
-    // Drafts may contain a deleted customer or one belonging to another branch.
-    // Never leave that orphaned id as the Select's visible label.
+    //
     if (!customerId || customersLoading || customersFetching || optimisticCustomer) return
     if (!customerOptionIds.has(customerId)) {
       setValue('customerId', undefined, { shouldDirty: true })
@@ -416,285 +390,44 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
             </div>
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <Controller
-              name="selectedProductId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  key={productSelectKey}
-                  showSearch
-                  optionFilterProp="searchText"
-                  value={field.value}
-                  onChange={(value) => {
-                    //
-                    field.onChange(value)
-                    addToCart(value)
-                  }}
-                  placeholder={t('newSale.productSearchPlaceholder')}
-                  style={{ width: '100%' }}
-                  loading={productSelectLoading}
-                  suffixIcon={productSelectLoading ? undefined : <PlusIcon size={16} />}
-                  notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
-                  options={sellableProducts
-                    .filter((product) => !selectedProductIds.has(product.id))
-                    .map((product) => {
-                      //
-                      const stock = stockByProductId.get(product.id) ?? 0
-                      return {
-                        value: product.id,
-                        searchText: [product.sku, product.name].filter(Boolean).join(' '),
-                        label: (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                              <AuthenticatedProductImage
-                                url={product.primaryThumbnailUrl ?? product.primaryImageUrl}
-                                alt={product.name}
-                                width={34}
-                                height={34}
-                              />
-                              <div style={{ minWidth: 0 }}>
-                                <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</div>
-                                {product.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{product.sku}</div> : null}
-                              </div>
-                            </div>
-                            <span style={{ flexShrink: 0, fontSize: 12, color: 'var(--ink-3)' }}>
-                              {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${product.unit}`)}
-                            </span>
-                          </div>
-                        ),
-                      }
-                    })}
-                />
-              )}
-            />
-          </div>
-
-          {cart.length === 0 ? (
-            <Empty description={t('newSale.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ padding: '24px 0' }} />
-          ) : (
-            <>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: CART_GRID_COLUMNS,
-                  gap: 8,
-                  padding: '6px 10px',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'var(--ink-3)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '.04em',
-                  borderBottom: '1px solid var(--border)',
-                  marginBottom: 6,
-                }}
-              >
-                <div style={{ whiteSpace: 'nowrap' }}>{t('newSale.colProduct')}</div>
-                <div style={{ whiteSpace: 'nowrap' }}>{t('newSale.colQty')}</div>
-                <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colRemainingStock')}</div>
-                <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colUnitPrice')}</div>
-                <div style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{t('newSale.colTotal')}</div>
-                <div />
-              </div>
-
-              {cart.map((item) => {
-                //
-                const originalPrice = getSaleProductPrice(item.product, saleType)
-                const unitPriceUzs = unitPrice(item.product)
-                const availableStock = stockByProductId.get(item.productId) ?? 0
-                const remainingStock = Number(Math.max(0, availableStock - item.quantity).toFixed(4))
-                const hasNoRemainingStock = remainingStock <= 0
-                return (
-                  <div
-                    key={item._key}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: CART_GRID_COLUMNS,
-                      gap: 8,
-                      alignItems: 'center',
-                      padding: '8px 10px',
-                      borderBottom: '1px solid var(--border)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
-                      <AuthenticatedProductImage
-                        url={item.product.primaryThumbnailUrl ?? item.product.primaryImageUrl}
-                        alt={item.product.name}
-                        width={40}
-                        height={40}
-                      />
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product.name}</div>
-                        {item.product.sku ? <div style={{ fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</div> : null}
-                      </div>
-                    </div>
-                    <QuantityStepper
-                      value={item.quantity}
-                      max={availableStock}
-                      unitLabel={t(`units.${item.product.unit}`)}
-                      onMinus={() => changeQty(item._key, -1)}
-                      onPlus={() => changeQty(item._key, 1)}
-                      onChange={(value) => updateQty(item._key, value)}
-                    />
-                    <div
-                      className="num"
-                      style={{
-                        color: hasNoRemainingStock ? 'var(--danger)' : 'var(--ink-2)',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        textAlign: 'right',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
-                    </div>
-                    <PriceCell original={originalPrice} uzs={unitPriceUzs} />
-                    <PriceCell original={{ ...originalPrice, amount: originalPrice.amount * Math.max(item.quantity, 0) }} uzs={Math.max(item.quantity, 0) * unitPriceUzs} strong />
-                    <Button size="small" type="text" danger icon={<TrashIcon size={18} />} onClick={() => removeItem(item._key)} />
-                  </div>
-                )
-              })}
-            </>
-          )}
+          <SaleCartView
+            t={t}
+            control={control}
+            productSelectKey={productSelectKey}
+            productSelectLoading={productSelectLoading}
+            sellableProducts={sellableProducts}
+            selectedProductIds={selectedProductIds}
+            stockByProductId={stockByProductId}
+            addToCart={addToCart}
+            cart={cart}
+            saleType={saleType}
+            unitPrice={unitPrice}
+            changeQty={changeQty}
+            updateQty={updateQty}
+            removeItem={removeItem}
+          />
         </div>
 
-        <div className="card" style={{ position: 'sticky', top: 76 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t('newSale.summary')}</div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <Row
-              label={t('newSale.rowProducts')}
-              value={`${cart.length} ${t('newSale.typeSuffix')} · ${cart.reduce((sum, item) => sum + Math.max(item.quantity, 0), 0).toLocaleString('ru-RU')} ${t('newSale.qtySuffix')}`}
-            />
-            <Row
-              label={t('newSale.rowTotal')}
-              value={
-                <span className="num" style={{ fontWeight: 700 }}>
-                  <MoneyDisplay amount={subtotal} currency="UZS" />
-                </span>
-              }
-            />
-          </div>
-
-          <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div>
-              <Label>{t('newSale.paymentMethod')}</Label>
-              <Controller
-                name="paymentMethod"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value}
-                    onChange={(value) => {
-                      //
-                      field.onChange(value)
-                      setPaidAmountError(false)
-                    }}
-                    options={paymentOptions}
-                    style={{ width: '100%' }}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Label>{isUsdPayment ? `${t('newSale.paidAmount')} (USD)` : t('newSale.paidAmount')}</Label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
-                <Controller
-                  name="paidAmount"
-                  control={control}
-                  render={({ field }) => (
-                    <InputNumber<number>
-                      value={field.value}
-                      onChange={handlePaidAmountChange}
-                      status={paidAmountError ? 'error' : undefined}
-                      style={{ width: '100%' }}
-                      min={0}
-                      max={fullPaidAmount}
-                      step={isUsdPayment ? 1 : 10000}
-                      precision={isUsdPayment ? 2 : 0}
-                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                      parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-                    />
-                  )}
-                />
-                <Tooltip title={t('newSale.markFullPaidTooltip')}>
-                  <Button
-                    icon={<CheckCircleIcon size={18} weight="duotone" />}
-                    disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount}
-                    onClick={() => {
-                      //
-                      setValue('paidAmount', fullPaidAmount, { shouldDirty: true })
-                      setPaidAmountError(false)
-                    }}
-                  >
-                    {t('newSale.markFullPaid')}
-                  </Button>
-                </Tooltip>
-              </div>
-              {paidAmountError ? (
-                <div role="alert" style={{ marginTop: 6, color: 'var(--danger)', fontSize: 12 }}>
-                  {t('newSale.paidAmountMaxError')}
-                </div>
-              ) : null}
-            </div>
-
-            {subtotal > 0 ? (
-              <div
-                style={{
-                  padding: '10px 12px',
-                  borderRadius: 8,
-                  border: `1px solid ${debtAmount > 0 ? 'var(--danger)' : 'var(--success)'}`,
-                  background: debtAmount > 0 ? 'rgba(220,38,38,.04)' : 'rgba(22,163,74,.04)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                  <span style={{ color: 'var(--ink-3)' }}>{t('sales.drawerDebt')}</span>
-                  <span className="num" style={{ fontWeight: 700, color: debtAmount > 0 ? 'var(--danger)' : 'var(--success)' }}>
-                    <MoneyDisplay amount={debtAmount} currency="UZS" />
-                  </span>
-                </div>
-              </div>
-            ) : null}
-
-            {needsCustomer ? (
-              <div>
-                <Label>{t('newSale.debtDeadlineOptional')}</Label>
-                <Controller
-                  name="debtDueDateIso"
-                  control={control}
-                  render={({ field }) => (
-                    <DatePicker
-                      value={field.value ? dayjs(field.value) : null}
-                      onChange={(value) => field.onChange(value ? value.toISOString() : undefined)}
-                      style={{ width: '100%' }}
-                      format="DD.MM.YYYY"
-                      placeholder={t('newSale.debtDeadlinePlaceholder')}
-                      disabledDate={(current) => Boolean(current && current < dayjs().startOf('day'))}
-                      allowClear
-                    />
-                  )}
-                />
-              </div>
-            ) : null}
-          </div>
-
-          {needsCustomer && !customerId ? <Alert type="warning" showIcon message={t('newSale.debtNeedsCustomer')} style={{ marginTop: 12 }} /> : null}
-
-          <Button
-            type="primary"
-            size="large"
-            block
-            icon={<CheckIcon size={18} weight="bold" />}
-            loading={createSale.isPending}
-            disabled={!canSubmit}
-            style={{ marginTop: 16 }}
-            onClick={handleSubmit(submitSale)}
-          >
-            {t('newSale.confirmSale')}
-          </Button>
-        </div>
+        <SaleSummaryView
+          t={t}
+          control={control}
+          handleSubmit={handleSubmit}
+          setValue={setValue}
+          paymentOptions={paymentOptions}
+          cart={cart}
+          isUsdPayment={isUsdPayment}
+          paidAmount={paidAmount}
+          paidAmountError={paidAmountError}
+          onPaidAmountChange={handlePaidAmountChange}
+          fullPaidAmount={fullPaidAmount}
+          subtotal={subtotal}
+          debtAmount={debtAmount}
+          needsCustomer={needsCustomer}
+          customerId={customerId}
+          isPending={createSale.isPending}
+          canSubmit={canSubmit}
+          onSubmit={submitSale}
+        />
       </div>
 
       <CustomerFormModal
@@ -709,101 +442,5 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
         branchesLoading={branchesLoading}
       />
     </>
-  )
-}
-
-function Label({ children }: { children: ReactNode }) {
-  //
-  return (
-    <div style={{ fontSize: 12, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
-      {children}
-    </div>
-  )
-}
-
-function Row({ label, value }: { label: string; value: ReactNode }) {
-  //
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-      <span style={{ color: 'var(--ink-3)' }}>{label}</span>
-      <span>{value}</span>
-    </div>
-  )
-}
-
-function PriceCell({
-  original,
-  uzs,
-  strong = false,
-}: {
-  original: { amount: number; currency: 'UZS' | 'USD' }
-  uzs: number
-  strong?: boolean
-}) {
-  //
-  return (
-    <div className="num" style={{ textAlign: 'right', fontWeight: strong ? 700 : undefined, fontSize: 13, lineHeight: 1.25, whiteSpace: 'nowrap' }}>
-      <MoneyDisplay amount={uzs} currency="UZS" />
-      {original.currency === 'USD' ? (
-        <div style={{ fontSize: 10.5, color: 'var(--ink-3)', fontWeight: 500, whiteSpace: 'nowrap' }}>
-          <MoneyDisplay amount={original.amount} currency="USD" noConvert />
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-function QuantityStepper({
-  value,
-  max,
-  unitLabel,
-  onMinus,
-  onPlus,
-  onChange,
-}: {
-  value: number
-  max: number
-  unitLabel: string
-  onMinus: () => void
-  onPlus: () => void
-  onChange: (value: number | null) => void
-}) {
-  //
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(86px, 1fr) 30px minmax(38px, auto)', gap: 4, alignItems: 'center' }}>
-      <Button icon={<MinusIcon size={16} />} onClick={onMinus} disabled={value <= 1} style={{ width: 30, height: 30, padding: 0 }} />
-      <InputNumber
-        value={value > 0 ? value : null}
-        onChange={(value) => onChange(value == null ? null : Number(value))}
-        min={0}
-        max={max || undefined}
-        step={1}
-        controls={false}
-        placeholder="0"
-        style={{ width: '100%' }}
-        formatter={(value) => `${value ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-        parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-      />
-      <Button icon={<PlusIcon size={16} />} disabled={max > 0 && value >= max} onClick={onPlus} style={{ width: 30, height: 30, padding: 0 }} />
-      <span
-        style={{
-          height: 30,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          background: 'var(--surface-2)',
-          color: 'var(--ink-3)',
-          fontSize: 11,
-          fontWeight: 700,
-          lineHeight: 1,
-          padding: '0 6px',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {unitLabel}
-      </span>
-    </div>
   )
 }

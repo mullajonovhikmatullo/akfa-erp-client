@@ -1,21 +1,20 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Form, Input, Modal, Popconfirm, Switch, Tag, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PencilSimpleIcon, PlusIcon, TagIcon, TrashIcon } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, PlusIcon, TagIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import type { Category } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
-import { formatDate } from '@store/store-shared/lib/formatters'
 import { getField } from '@store/store-shared/lib/parse-excel'
-import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
-import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
+import { getLocalizedApiErrorMessage } from '@store/store-shared'
+import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import { categoryApi } from '@store/store-stub'
-import type { CreateCategoryPayload, UpdateCategoryPayload } from '@store/store-stub'
+import type { Category, CreateCategoryPayload, UpdateCategoryPayload } from '@store/store-stub'
 import { usePagination } from '../../shared/hooks/usePagination'
-import { useCategoriesPage, useCategorySummary, useCreateCategory, useDeleteCategory, useUpdateCategory } from '../hooks/useCategories'
-import { CategoryIcon } from '../shared/CategoryIcon'
+import { useCategoriesPage } from '../hooks/useCategoriesPage'
+import { useCategoryMutation } from '../hooks/useCategoryMutation'
+import { useCategorySummary } from '../hooks/useCategorySummary'
+import { createCategoryColumns } from './view/categoryColumns'
 
 type Translate = (key: string) => string
 
@@ -48,9 +47,7 @@ export function CategoriesList({ t }: CategoriesListProps) {
   const categories = result?.items ?? []
   const filteredTotal = result?.total ?? 0
 
-  const createMutation = useCreateCategory()
-  const updateMutation = useUpdateCategory()
-  const deleteMutation = useDeleteCategory()
+  const { createCategory: createMutation, updateCategory: updateMutation, deleteCategory: deleteMutation } = useCategoryMutation()
 
   const {
     control: categoryControl,
@@ -132,101 +129,19 @@ export function CategoriesList({ t }: CategoriesListProps) {
     refetchSummary()
   }
 
-  const columns: ColumnDef<Category>[] = [
-    {
-      title: '#',
-      key: '_idx',
-      width: 40,
-      render: (_: unknown, __: unknown, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
-    },
-    {
-      title: t('common.name'),
-      key: 'name',
-      render: (_: unknown, category: Category) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <CategoryIcon name={category.name} />
-          <div>
-            <div style={{ fontWeight: 600 }}>{category.name}</div>
-            {category.description && <div style={{ fontSize: 12, color: 'var(--ink-3)', maxWidth: 300 }}>{category.description}</div>}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: t('common.status'),
-      key: 'isActive',
-      width: 110,
-      responsiveHide: true,
-      filters: [
-        { text: t('common.active'), value: 'active' },
-        { text: t('common.inactive'), value: 'inactive' },
-      ],
-      filterMultiple: false,
-      filteredValue: statusFilter === 'all' ? null : [statusFilter],
-      render: (_: unknown, category: Category) =>
-        category.isActive ? <StatusBadge tone="success">{t('common.active')}</StatusBadge> : <Tag color="default">{t('common.inactive')}</Tag>,
-    },
-    {
-      title: t('common.added'),
-      key: 'createdAt',
-      width: 120,
-      responsiveHide: true,
-      render: (_: unknown, category: Category) =>
-        category.createdAt ? (
-          <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(category.createdAt)}</span>
-        ) : (
-          <span style={{ color: 'var(--ink-4)' }}>—</span>
-        ),
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 90,
-      fixed: 'right',
-      render: (_: unknown, category: Category) => (
-        <div style={{ display: 'flex', gap: 4 }}>
-          <Button
-            size="small"
-            type="text"
-            icon={<PencilSimpleIcon size={18} />}
-            onClick={(event) => {
-              //
-              event.stopPropagation()
-              openEdit(category)
-            }}
-          />
-          <Popconfirm
-            title={t('categories.deleteTitle')}
-            description={t('categories.deleteDesc')}
-            okText={t('common.delete')}
-            cancelText={t('common.cancel')}
-            okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === category.id }}
-            onConfirm={(event) => {
-              //
-              event?.stopPropagation()
-              deleteMutation.mutate(category.id, {
-                onSuccess: () => toast.success(t('categories.deleteSuccess')),
-                onError: (error: unknown) =>
-                  toast.error(getLocalizedApiErrorMessage(error, t, 'categories.deleteError')),
-              })
-            }}
-            onPopupClick={(event) => event.stopPropagation()}
-          >
-            <Button
-              size="small"
-              type="text"
-              danger
-              icon={<TrashIcon size={18} />}
-              loading={deleteMutation.isPending && deleteMutation.variables === category.id}
-              onClick={(event) => event.stopPropagation()}
-            />
-          </Popconfirm>
-        </div>
-      ),
-    },
-  ]
+  const columns = createCategoryColumns({
+    t,
+    rowIndex,
+    statusFilter,
+    deleting: deleteMutation.isPending,
+    deletingId: deleteMutation.variables,
+    onEdit: openEdit,
+    onDelete: (id) =>
+      deleteMutation.mutate(id, {
+        onSuccess: () => toast.success(t('categories.deleteSuccess')),
+        onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'categories.deleteError')),
+      }),
+  })
 
   return (
     <>

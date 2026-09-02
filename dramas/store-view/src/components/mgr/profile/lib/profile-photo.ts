@@ -16,6 +16,7 @@ interface LoadedPhoto {
 }
 
 async function loadPhoto(file: File): Promise<LoadedPhoto> {
+  //
   if ('createImageBitmap' in window) {
     const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' })
     return {
@@ -41,6 +42,7 @@ async function loadPhoto(file: File): Promise<LoadedPhoto> {
 }
 
 function renderSquare(source: LoadedPhoto, size: number, transform: ProfilePhotoTransform) {
+  //
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
@@ -75,6 +77,7 @@ export async function prepareProfilePhoto(
   file: File,
   transform: ProfilePhotoTransform,
 ): Promise<PreparedProfilePhoto> {
+  //
   const source = await loadPhoto(file)
 
   try {

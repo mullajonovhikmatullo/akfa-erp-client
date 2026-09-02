@@ -1,22 +1,20 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, DatePicker, Popconfirm, Select, Tooltip } from 'antd'
-import { ArrowClockwiseIcon, PlusIcon, TagIcon, TrashIcon } from '@phosphor-icons/react'
+import { Button, DatePicker, Select, Tooltip } from 'antd'
+import { ArrowClockwiseIcon, PlusIcon, TagIcon } from '@phosphor-icons/react'
 import dayjs, { type Dayjs } from 'dayjs'
-import { formatDate } from '@store/store-shared/lib/formatters'
-import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
-import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Expense } from '@store/store-stub'
 import { CategoryManagerDrawer } from '../category/CategoryManagerDrawer'
 import { ExpenseFormModal } from '../form/ExpenseFormModal'
-import {
-  useDeleteExpense,
-  useExpenseCategories,
-  useExpenseCategorySummary,
-  useExpenses,
-} from '../hooks/useExpenses'
+import { useExpenseCategoriesList } from '../hooks/useExpenseCategoriesList'
+import { useExpenseCategorySummary } from '../hooks/useExpenseCategorySummary'
+import { useExpenseMutation } from '../hooks/useExpenseMutation'
+import { useExpensesList } from '../hooks/useExpensesList'
 import { usePagination } from '../../shared/hooks/usePagination'
+import { ExpenseBreakdown } from './view/ExpenseBreakdown'
+import { ExpenseKpiCards } from './view/ExpenseKpiCards'
+import { createExpenseColumns } from './view/expenseColumns'
+import { DataTable } from '@store/store-shared/ui/data-table'
 
 const KPI_CATEGORY_LIMIT = 5
 
@@ -56,7 +54,7 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
     isLoading,
     isFetching,
     refetch,
-  } = useExpenses({
+  } = useExpensesList({
     branchId,
     categoryId: filters.categoryId,
     ...dateFilters,
@@ -73,8 +71,8 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
     limit: KPI_CATEGORY_LIMIT,
   })
 
-  const { data: categories = [] } = useExpenseCategories()
-  const deleteExpense = useDeleteExpense(t)
+  const { data: categories = [] } = useExpenseCategoriesList()
+  const { deleteExpense } = useExpenseMutation(t)
 
   const fallbackGrandTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0)
   const fallbackByCategory = categories
@@ -108,105 +106,13 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
         ]
       : byCategory)
 
-  const columns: ColumnDef<Expense>[] = [
-    {
-      title: '#',
-      key: '_idx',
-      width: 40,
-      render: (_: unknown, __: Expense, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
-    },
-    {
-      title: t('common.date'),
-      dataIndex: 'expenseDate',
-      width: 120,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>,
-    },
-    {
-      title: t('nav.categories'),
-      key: 'category',
-      width: 180,
-      render: (_: unknown, expense: Expense) => <StatusBadge tone="muted">{expense.category.name}</StatusBadge>,
-    },
-    {
-      title: t('common.branch'),
-      key: 'branch',
-      width: 150,
-      responsiveHide: true,
-      render: (_: unknown, expense: Expense) => <StatusBadge tone="info">{expense.branch.name}</StatusBadge>,
-    },
-    {
-      title: t('expenses.colNote'),
-      dataIndex: 'description',
-      render: (value: string | null) =>
-        value ? (
-          <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>{value}</span>
-        ) : (
-          <span style={{ color: 'var(--ink-4)' }}>-</span>
-        ),
-    },
-    {
-      title: t('expenses.colAmount'),
-      key: 'amount',
-      width: 190,
-      align: 'right',
-      render: (_: unknown, expense: Expense) => (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-          <span className="num" style={{ fontWeight: 700 }}>
-            <MoneyDisplay amount={expense.currency === 'USD' ? expense.amountUsd : expense.amount} currency={expense.currency} />
-          </span>
-          {expense.currency === 'USD' ? (
-            <span style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
-              <MoneyDisplay amount={expense.amount} currency="UZS" /> · {expense.usdToUzsRate?.toLocaleString('ru-RU')} UZS
-            </span>
-          ) : null}
-        </div>
-      ),
-    },
-    {
-      title: t('common.enteredBy'),
-      key: 'createdBy',
-      width: 150,
-      responsiveHide: true,
-      render: (_: unknown, expense: Expense) => (
-        <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{expense.createdBy.fullName}</span>
-      ),
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 60,
-      fixed: 'right',
-      render: (_: unknown, expense: Expense) => (
-        <Popconfirm
-          title={t('common.deleteTitle')}
-          description={t('expenses.deleteDesc')}
-          okText={t('common.yes')}
-          cancelText={t('common.cancel')}
-          okButtonProps={{
-            danger: true,
-            loading: deleteExpense.isPending && deleteExpense.variables === expense.id,
-          }}
-          onConfirm={(event) => {
-            //
-            event?.stopPropagation()
-            deleteExpense.mutate(expense.id)
-          }}
-          onPopupClick={(event) => event.stopPropagation()}
-        >
-          <Button
-            size="small"
-            type="text"
-            danger
-            icon={<TrashIcon size={18} />}
-            loading={deleteExpense.isPending && deleteExpense.variables === expense.id}
-            onClick={(event) => event.stopPropagation()}
-          />
-        </Popconfirm>
-      ),
-    },
-  ]
+  const columns = createExpenseColumns({
+    t,
+    rowIndex,
+    deleting: deleteExpense.isPending,
+    deletingId: deleteExpense.variables,
+    onDelete: (id) => deleteExpense.mutate(id),
+  })
 
   return (
     <>
@@ -258,58 +164,7 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
         </div>
       </div>
 
-      {kpiCategories.length > 0 ? (
-        <div
-          style={{
-            display: 'flex',
-            gap: 12,
-            marginBottom: 16,
-            overflowX: 'auto',
-            paddingBottom: 4,
-            scrollSnapType: 'x proximity',
-          }}
-        >
-          {kpiCategories.map((category) => {
-            //
-            const pct = grandTotal > 0 ? (category.total / grandTotal) * 100 : 0
-            return (
-              <div
-                key={category.id}
-                className="card"
-                style={{
-                  padding: '14px 16px',
-                  flex: '1 0 190px',
-                  minWidth: 190,
-                  maxWidth: 240,
-                  scrollSnapAlign: 'start',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: 'var(--ink-3)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '.06em',
-                    marginBottom: 6,
-                  }}
-                >
-                  {category.name}
-                </div>
-                <div className="num" style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
-                  <MoneyDisplay amount={category.total} currency="UZS" />
-                </div>
-                <div style={{ height: 4, borderRadius: 2, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
-                  <div style={{ width: `${pct}%`, height: '100%', background: 'var(--primary)', borderRadius: 2 }} />
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>
-                  {pct.toFixed(0)}% {t('expenses.pctSuffix')}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      ) : null}
+      <ExpenseKpiCards items={kpiCategories} grandTotal={grandTotal} t={t} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 12, alignItems: 'flex-start' }}>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -358,40 +213,7 @@ export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: Expens
           />
         </div>
 
-        <div className="card" style={{ position: 'sticky', top: 76 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 14 }}>{t('expenses.breakdown')}</div>
-          {byCategory.length === 0 ? (
-            <div style={{ color: 'var(--ink-3)', fontSize: 13 }}>{t('common.noData')}</div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {byCategory.map((category) => {
-                //
-                const pct = grandTotal > 0 ? (category.total / grandTotal) * 100 : 0
-                return (
-                  <div key={category.id}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
-                      <span style={{ color: 'var(--ink-2)', fontWeight: 500 }}>{category.name}</span>
-                      <span className="num" style={{ color: 'var(--ink-3)' }}>{pct.toFixed(0)}%</span>
-                    </div>
-                    <div style={{ height: 5, borderRadius: 3, background: 'var(--border)', overflow: 'hidden' }}>
-                      <div style={{ width: `${pct}%`, height: '100%', background: 'var(--primary)', borderRadius: 3 }} />
-                    </div>
-                    <div className="num" style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>
-                      <MoneyDisplay amount={category.total} currency="UZS" />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-          <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-            <span style={{ color: 'var(--ink-3)' }}>{t('common.total')}</span>
-            <span className="num" style={{ fontWeight: 700 }}>
-              <MoneyDisplay amount={grandTotal} currency="UZS" />
-            </span>
-          </div>
-        </div>
+        <ExpenseBreakdown items={byCategory} grandTotal={grandTotal} t={t} />
       </div>
 
       <ExpenseFormModal t={t} exchangeRate={exchangeRate} branchId={branchId} open={creating} onClose={() => setCreating(false)} />

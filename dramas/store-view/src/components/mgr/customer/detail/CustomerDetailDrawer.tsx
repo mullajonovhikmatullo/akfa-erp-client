@@ -7,8 +7,10 @@ import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Customer, PaymentMethod, SaleListItem } from '@store/store-stub'
-import { useAddPayment, useSales } from '../../sale/hooks/useSales'
-import { useCustomerDetail } from '../hooks/useCustomers'
+import { useSaleMutation } from '../../sale/hooks/useSaleMutation'
+import { useSalesList } from '../../sale/hooks/useSalesList'
+import { useCustomerDetail } from '../hooks/useCustomerDetail'
+import { SectionLabel } from './view/SectionLabel'
 
 interface CustomerDetailDrawerProps {
   t: (key: string) => string
@@ -26,10 +28,10 @@ type DebtPaymentFormValues = {
 export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDrawerProps) {
   //
   const { data: detail, isLoading } = useCustomerDetail(customer?.id ?? null)
-  const debtSales = useSales(customer ? { customerId: customer.id, hasDebt: true, limit: 100 } : undefined, {
+  const debtSales = useSalesList(customer ? { customerId: customer.id, hasDebt: true, limit: 100 } : undefined, {
     enabled: Boolean(customer),
   })
-  const addPayment = useAddPayment(t)
+  const { addPayment } = useSaleMutation(t)
   const [payingSaleId, setPayingSaleId] = useState<string | null>(null)
   const { control, reset, watch, handleSubmit } = useForm<DebtPaymentFormValues>({
     defaultValues: {
@@ -301,14 +303,5 @@ export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDra
         </>
       )}
     </Drawer>
-  )
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  //
-  return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>
-      {children}
-    </div>
   )
 }

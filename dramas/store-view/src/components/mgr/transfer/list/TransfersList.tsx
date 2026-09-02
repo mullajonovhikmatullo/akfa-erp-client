@@ -1,28 +1,19 @@
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Alert, Button, Modal, Popconfirm, Select, Table, Tooltip } from 'antd'
+import { Alert, Button, Modal, Select, Table, Tooltip } from 'antd'
 import {
   ArrowClockwiseIcon,
-  ArrowRightIcon,
   ArrowsLeftRightIcon,
-  CheckCircleIcon,
-  XCircleIcon,
 } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
-import { formatDateTime } from '@store/store-shared/lib/formatters'
-import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
+import { DataTable } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Transfer, TransferStatus } from '@store/store-stub'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { NewTransferModal } from '../form/NewTransferModal'
-import { useCancelTransfer, useCompleteTransfer, useTransfers } from '../hooks/useTransfers'
-
-const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
-  PENDING: 'warning',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-}
+import { useTransferMutation } from '../hooks/useTransferMutation'
+import { useTransfersList } from '../hooks/useTransfersList'
+import { InfoRow } from './view/InfoRow'
+import { ExpandedTransferRow, createTransferColumns, createTransferConfirmColumns } from './view/transferColumns'
 
 type TransferFiltersForm = {
   status?: TransferStatus
@@ -47,14 +38,13 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
   const [creating, setCreating] = useState(false)
   const [confirmingTransfer, setConfirmingTransfer] = useState<Transfer | null>(null)
 
-  const { data: transfers = [], isLoading, isFetching, refetch } = useTransfers({
+  const { data: transfers = [], isLoading, isFetching, refetch } = useTransfersList({
     branchId,
     status: filters.status,
     limit: 100,
   })
 
-  const completeTransfer = useCompleteTransfer(t)
-  const cancelTransfer = useCancelTransfer(t)
+  const { completeTransfer, cancelTransfer } = useTransferMutation(t)
 
   const pendingCount = transfers.filter((transfer) => transfer.status === 'PENDING').length
   const confirmingTotal = confirmingTransfer?.items.reduce((sum, item) => sum + item.totalCostUzs, 0) ?? 0
@@ -71,125 +61,17 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
     CANCELLED: t('transfers.statusCancelled'),
   }
 
-  const columns: ColumnDef<Transfer>[] = [
-    {
-      title: '#',
-      key: '_idx',
-      width: 40,
-      render: (_: unknown, __: Transfer, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
-    },
-    {
-      title: t('common.date'),
-      dataIndex: 'createdAt',
-      width: 120,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDateTime(value)}</span>,
-    },
-    {
-      title: t('transfers.colRoute'),
-      key: 'route',
-      render: (_: unknown, transfer: Transfer) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <StatusBadge tone="info">{transfer.fromBranch.name}</StatusBadge>
-          <ArrowRightIcon size={14} color="currentColor" style={{ color: 'var(--ink-4)' }} />
-          <StatusBadge tone="muted">{transfer.toBranch.name}</StatusBadge>
-        </div>
-      ),
-    },
-    {
-      title: t('nav.products'),
-      key: 'items',
-      width: 90,
-      align: 'center',
-      responsiveHide: true,
-      render: (_: unknown, transfer: Transfer) => (
-        <span className="num" style={{ color: 'var(--ink-3)', fontSize: 13 }}>
-          {transfer.items.length} {t('transfers.itemTypeSuffix')}
-        </span>
-      ),
-    },
-    {
-      title: t('transfers.colCost'),
-      key: 'cost',
-      width: 160,
-      align: 'right',
-      render: (_: unknown, transfer: Transfer) => {
-        //
-        const total = transfer.items.reduce((sum, item) => sum + item.totalCostUzs, 0)
-        return (
-          <span className="num" style={{ fontWeight: 700 }}>
-            <MoneyDisplay amount={total} currency="UZS" />
-          </span>
-        )
-      },
-    },
-    {
-      title: t('common.status'),
-      dataIndex: 'status',
-      width: 140,
-      render: (value: TransferStatus) => (
-        <StatusBadge tone={STATUS_TONE[value]} dot>
-          {statusLabel[value]}
-        </StatusBadge>
-      ),
-    },
-    {
-      title: t('transfers.colCreatedBy'),
-      key: 'initiatedBy',
-      width: 140,
-      responsiveHide: true,
-      render: (_: unknown, transfer: Transfer) => (
-        <span style={{ fontSize: 12.5, color: 'var(--ink-3)' }}>{transfer.initiatedBy.fullName}</span>
-      ),
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 100,
-      fixed: 'right',
-      render: (_: unknown, transfer: Transfer) => {
-        //
-        if (transfer.status !== 'PENDING') return null
-        const isReceiverBranch = transfer.toBranch.id === userBranchId
-        const canComplete = isReceiverBranch
-        const canCancel = isStoreOwner || (!isReceiverBranch && transfer.initiatedBy.id === userId)
-        return (
-          <div style={{ display: 'flex', gap: 4 }}>
-            {canComplete ? (
-              <Button
-                size="small"
-                type="text"
-                icon={<CheckCircleIcon size={18} weight="duotone" color="currentColor" style={{ color: 'var(--success)' }} />}
-                onClick={(event) => {
-                  //
-                  event.stopPropagation()
-                  setConfirmingTransfer(transfer)
-                }}
-              />
-            ) : null}
-            {canCancel ? (
-              <Popconfirm
-                title={t('transfers.cancelTitle')}
-                description={t('transfers.cancelDesc')}
-                okText={t('transfers.cancelOk')}
-                cancelText={t('common.no')}
-                okButtonProps={{ danger: true, loading: cancelTransfer.isPending }}
-                onConfirm={(event) => {
-                  //
-                  event?.stopPropagation()
-                  cancelTransfer.mutate(transfer.id)
-                }}
-                onPopupClick={(event) => event.stopPropagation()}
-              >
-                <Button size="small" type="text" danger icon={<XCircleIcon size={18} />} onClick={(event) => event.stopPropagation()} />
-              </Popconfirm>
-            ) : null}
-          </div>
-        )
-      },
-    },
-  ]
+  const columns = createTransferColumns({
+    t,
+    rowIndex,
+    statusLabel,
+    isStoreOwner,
+    userBranchId,
+    userId,
+    cancelPending: cancelTransfer.isPending,
+    onComplete: setConfirmingTransfer,
+    onCancel: (id) => cancelTransfer.mutate(id),
+  })
 
   return (
     <>
@@ -290,130 +172,11 @@ export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId,
               scroll={{ x: 650 }}
               rowKey="id"
               dataSource={confirmingTransfer.items}
-              columns={[
-                {
-                  title: t('transfers.colProduct'),
-                  key: 'product',
-                  render: (_, item) => item.product.name,
-                },
-                {
-                  title: t('transfers.colQty'),
-                  key: 'quantity',
-                  width: 130,
-                  align: 'right',
-                  render: (_, item) => (
-                    <span className="num">
-                      {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
-                    </span>
-                  ),
-                },
-                {
-                  title: t('transfers.colCost'),
-                  key: 'unitCost',
-                  width: 165,
-                  align: 'right',
-                  render: (_, item) => (
-                    <span className="num" style={{ whiteSpace: 'nowrap' }}>
-                      <MoneyDisplay amount={item.unitCostUzs} currency="UZS" />
-                      <span style={{ marginLeft: 4, color: 'var(--ink-3)', fontSize: 11 }}>/ {t(`units.${item.product.unit}`)}</span>
-                    </span>
-                  ),
-                },
-                {
-                  title: t('transfers.colTotal'),
-                  key: 'totalCost',
-                  width: 150,
-                  align: 'right',
-                  render: (_, item) => (
-                    <span className="num" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
-                      <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
-                    </span>
-                  ),
-                },
-              ]}
+              columns={createTransferConfirmColumns(t)}
             />
           </div>
         ) : null}
       </Modal>
     </>
-  )
-}
-
-function InfoRow({ label, value }: { label: string; value: ReactNode }) {
-  //
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-      <span style={{ color: 'var(--ink-3)' }}>{label}</span>
-      <span style={{ fontWeight: 600, textAlign: 'right' }}>{value}</span>
-    </div>
-  )
-}
-
-function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (key: string) => string }) {
-  //
-  return (
-    <div style={{ padding: '8px 0 8px 48px' }}>
-      <Table<Transfer['items'][number]>
-        size="small"
-        pagination={false}
-        rowKey="id"
-        dataSource={transfer.items}
-        columns={[
-          {
-            title: t('transfers.colProduct'),
-            key: 'name',
-            render: (_, item) => (
-              <div>
-                <span style={{ fontWeight: 500 }}>{item.product.name}</span>
-                {item.product.sku ? (
-                  <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--ink-3)', fontFamily: 'monospace' }}>{item.product.sku}</span>
-                ) : null}
-              </div>
-            ),
-          },
-          {
-            title: t('transfers.colQty'),
-            key: 'qty',
-            width: 120,
-            align: 'right',
-            render: (_, item) => (
-              <span className="num">
-                {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}
-              </span>
-            ),
-          },
-          {
-            title: t('transfers.colCost'),
-            key: 'unit',
-            width: 150,
-            align: 'right',
-            render: (_, item) => (
-              <span className="num">
-                <MoneyDisplay amount={item.unitCostUzs} currency="UZS" />
-              </span>
-            ),
-          },
-          {
-            title: t('transfers.colTotal'),
-            key: 'total',
-            width: 150,
-            align: 'right',
-            render: (_, item) => (
-              <span className="num" style={{ fontWeight: 700 }}>
-                <MoneyDisplay amount={item.totalCostUzs} currency="UZS" />
-              </span>
-            ),
-          },
-        ]}
-      />
-      {transfer.note ? (
-        <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ink-3)', fontStyle: 'italic' }}>"{transfer.note}"</div>
-      ) : null}
-      {transfer.completedBy ? (
-        <div style={{ marginTop: 4, fontSize: 12, color: 'var(--ink-3)' }}>
-          {t('transfers.completedByLabel')}: {transfer.completedBy.fullName} · {formatDateTime(transfer.completedAt)}
-        </div>
-      ) : null}
-    </div>
   )
 }

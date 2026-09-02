@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Button, Input, Select, Table, Tag } from 'antd';
 import { ArrowClockwiseIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
-import { AuthenticatedProductImage, useProducts } from '@store/store-view/product';
-import { useInventoryRecords, useStockBatchSummary, useStockBatches } from '@store/store-view/inventory';
+import { AuthenticatedProductImage, useProductsList } from '@store/store-view/product';
+import { useInventoryList, useStockBatchSummary, useStockBatchesList } from '@store/store-view/inventory';
 import { MoneyDisplay } from '@store/store-shared/ui/money-display';
-import type { InventoryRecord, ProductUnit } from '@store/store-stub';
+import { ProductUnit } from '@store/store-stub';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useCurrentUser } from '@/entities/user';
 import { useT } from '@/shared/lib/i18n';
@@ -32,7 +32,7 @@ export function InventoryPage() {
   const activeBranchId = useUIStore((state) => state.activeBranchId);
   const [search, setSearch] = useState('');
   const [quantityFilter, setQuantityFilter] = useState<QuantityFilter>('all');
-  const { data: products = [] } = useProducts();
+  const { data: products = [] } = useProductsList();
   const productImagesById = useMemo(
     () => new Map(products.map((product) => [product.id, product.primaryThumbnailUrl ?? product.primaryImageUrl ?? null])),
     [products],
@@ -40,8 +40,8 @@ export function InventoryPage() {
   const scopedBranchId = isStoreOwner
     ? activeBranchId !== '__all__' ? activeBranchId : undefined
     : branchId ?? undefined;
-  const inventoryQuery = useInventoryRecords(scopedBranchId ? { branchId: scopedBranchId } : undefined);
-  const stockBatchesQuery = useStockBatches(scopedBranchId ? { branchId: scopedBranchId } : undefined);
+  const inventoryQuery = useInventoryList(scopedBranchId ? { branchId: scopedBranchId } : undefined);
+  const stockBatchesQuery = useStockBatchesList(scopedBranchId ? { branchId: scopedBranchId } : undefined);
   const { data: stockSummary } = useStockBatchSummary({ branchId: scopedBranchId });
   const stockedProductIds = useMemo(
     () => new Set((stockBatchesQuery.data ?? []).map((batch) => batch.product.id)),

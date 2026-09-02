@@ -1,19 +1,22 @@
 import { useEffect, useMemo } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Alert, Button, Empty, Input, InputNumber, Select, Table } from 'antd'
-import { MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
+import { PlusIcon } from '@phosphor-icons/react'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import type { Branch, Product } from '@store/store-stub'
-import { useBranches } from '../../branch/hooks/useBranches'
-import { useInventoryRecords } from '../../inventory/hooks/useInventory'
-import { useProducts } from '../../product/hooks/useProducts'
-import { useCreateTransfer } from '../hooks/useTransfers'
+import type { Branch } from '@store/store-stub'
+import { useBranchesList } from '../../branch/hooks/useBranchesList'
+import { useInventoryList } from '../../inventory/hooks/useInventoryList'
+import { useProductsList } from '../../product/hooks/useProductsList'
+import { useTransferMutation } from '../hooks/useTransferMutation'
+import { Label } from './view/Label'
+import { QuantityStepper } from './view/QuantityStepper'
+import { createTransferColumns } from './view/transferColumns'
+import type { TransferCartItem } from './view/types'
 
 interface NewTransferModalProps {
   t: (key: string) => string
@@ -24,19 +27,11 @@ interface NewTransferModalProps {
   exchangeRate: number
 }
 
-interface CartItem {
-  _key: string
-  productId: string
-  product: Product
-  quantity: number
-  unitCostUzs: number
-}
-
 type TransferFormValues = {
   fromBranchId?: string
   toBranchId?: string
   note: string
-  cart: CartItem[]
+  cart: TransferCartItem[]
 }
 
 const MIN_QTY = 1
@@ -56,9 +51,9 @@ function findDefaultBranch(branches: Branch[]) {
 export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId, exchangeRate }: NewTransferModalProps) {
   //
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
-  const { data: branches = [], isLoading: branchesLoading } = useBranches()
-  const { data: products = [], isLoading: productsLoading } = useProducts({ isActive: true })
-  const createTransfer = useCreateTransfer(t)
+  const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
+  const { data: products = [], isLoading: productsLoading } = useProductsList({ isActive: true })
+  const { createTransfer } = useTransferMutation(t)
   const { control, handleSubmit, reset, setValue, watch } = useForm<TransferFormValues>({
     defaultValues: {
       fromBranchId: isStoreOwner ? undefined : (userBranchId ?? undefined),
@@ -79,7 +74,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
   const defaultFromBranchId = useMemo(() => findDefaultBranch(branches), [branches])
 
   const sourceBranchId = isStoreOwner ? (userBranchId ?? defaultFromBranchId) : (userBranchId ?? undefined)
-  const { data: inventoryRecords = [], isLoading: inventoryLoading } = useInventoryRecords(
+  const { data: inventoryRecords = [], isLoading: inventoryLoading } = useInventoryList(
     sourceBranchId ? { branchId: sourceBranchId } : undefined,
     { enabled: Boolean(sourceBranchId) },
   )
@@ -139,7 +134,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
     return Math.max(integerValue, MIN_QTY)
   }
 
-  const updateItem = (key: string, patch: Partial<CartItem>) => {
+  const updateItem = (key: string, patch: Partial<TransferCartItem>) => {
     //
     const index = cart.findIndex((item) => item._key === key)
     if (index < 0) return
@@ -333,118 +328,20 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
                 )}
               />
             ) : null}
-            <Table<CartItem>
+            <Table<TransferCartItem>
               size="small"
               pagination={false}
               rowKey="_key"
               dataSource={cart}
               scroll={{ x: 970 }}
-              columns={[
-                {
-                  title: t('transferModal.colProduct'),
-                  key: 'product',
-                  width: 270,
-                  render: (_, item) => (
-                    <div style={{ minWidth: 0, maxWidth: 270 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>
-                        <EllipsisText maxWidth="100%">{item.product.name}</EllipsisText>
-                      </div>
-                      {item.product.sku ? (
-                        <div
-                          className="num"
-                          style={{
-                            fontSize: 11,
-                            color: 'var(--ink-3)',
-                            maxWidth: 180,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {item.product.sku}
-                        </div>
-                      ) : null}
-                    </div>
-                  ),
-                },
-                {
-                  title: t('transferModal.colQty'),
-                  key: 'qty',
-                  width: 240,
-                  render: (_, item) => {
-                    //
-                    const stock = stockByProductId.get(item.productId) ?? 0
-                    return (
-                      <QuantityStepper
-                        value={item.quantity}
-                        max={stock}
-                        unitLabel={t(`units.${item.product.unit}`)}
-                        onMinus={() => changeQty(item._key, -1)}
-                        onPlus={() => changeQty(item._key, 1)}
-                        onChange={(value) => updateQty(item._key, value)}
-                      />
-                    )
-                  },
-                },
-                {
-                  title: t('newSale.colRemainingStock'),
-                  key: 'stock',
-                  width: 140,
-                  align: 'right',
-                  render: (_, item) => {
-                    //
-                    const stock = stockByProductId.get(item.productId) ?? 0
-                    const hasInsufficientStock = item.quantity > stock
-                    const remainingStock = stock - item.quantity
-                    return (
-                      <span className="num" style={{ color: hasInsufficientStock ? 'var(--danger)' : undefined, fontWeight: 700, fontSize: 12 }}>
-                        {hasInsufficientStock ? '—' : `${remainingStock.toLocaleString('ru-RU')} ${t(`units.${item.product.unit}`)}`}
-                      </span>
-                    )
-                  },
-                },
-                {
-                  title: t('transferModal.colCost'),
-                  key: 'cost',
-                  width: 170,
-                  render: (_, item) => (
-                    <InputNumber
-                      value={item.unitCostUzs}
-                      onChange={(value) => updateItem(item._key, { unitCostUzs: value ?? 0 })}
-                      min={0}
-                      step={1000}
-                      style={{ width: '100%' }}
-                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                      parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-                    />
-                  ),
-                },
-                {
-                  title: t('transferModal.colTotal'),
-                  key: 'total',
-                  width: 200,
-                  align: 'right',
-                  render: (_, item) => (
-                    <span
-                      className="num"
-                      style={{
-                        display: 'inline-block',
-                        fontWeight: 700,
-                        fontSize: 13,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      <MoneyDisplay amount={item.quantity * item.unitCostUzs} currency="UZS" />
-                    </span>
-                  ),
-                },
-                {
-                  title: '',
-                  key: 'del',
-                  width: 32,
-                  render: (_, item) => <Button size="small" type="text" danger icon={<TrashIcon size={18} />} onClick={() => removeItem(item._key)} />,
-                },
-              ]}
+              columns={createTransferColumns({
+                t,
+                stockByProductId,
+                onChangeQty: changeQty,
+                onUpdateQty: updateQty,
+                onUpdateItem: updateItem,
+                onRemoveItem: removeItem,
+              })}
             />
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, fontSize: 13, paddingRight: 32 }}>
               <span style={{ color: 'var(--ink-3)', marginRight: 8 }}>{t('transferModal.totalCostLabel')}</span>
@@ -477,72 +374,5 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
         </div>
       </div>
     </AppModal>
-  )
-}
-
-function Label({ children }: { children: ReactNode }) {
-  //
-  return (
-    <div style={{ fontSize: 12, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
-      {children}
-    </div>
-  )
-}
-
-function QuantityStepper({
-  value,
-  max,
-  unitLabel,
-  onMinus,
-  onPlus,
-  onChange,
-}: {
-  value: number
-  max: number
-  unitLabel: string
-  onMinus: () => void
-  onPlus: () => void
-  onChange: (value: number | null) => void
-}) {
-  //
-  const effectiveMax = Math.max(max, MIN_QTY)
-
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '30px minmax(96px, 1fr) 30px 38px', gap: 4, alignItems: 'center' }}>
-      <Button icon={<MinusIcon size={16} />} onClick={onMinus} disabled={value <= MIN_QTY} style={{ width: 30, height: 30, padding: 0 }} />
-      <InputNumber
-        value={value > 0 ? value : null}
-        onChange={(value) => onChange(value == null ? null : Number(value))}
-        onFocus={(event) => event.target.select()}
-        min={MIN_QTY}
-        step={1}
-        precision={0}
-        controls={false}
-        status={value > max ? 'error' : undefined}
-        placeholder="0"
-        style={{ width: '100%' }}
-        formatter={(value) => `${value ?? ''}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-        parser={(value) => Number(value?.replace(/\s/g, '')) as unknown as 0}
-      />
-      <Button icon={<PlusIcon size={16} />} onClick={onPlus} disabled={value >= effectiveMax} style={{ width: 30, height: 30, padding: 0 }} />
-      <span
-        style={{
-          height: 30,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid var(--border)',
-          borderRadius: 6,
-          background: 'var(--surface-2)',
-          color: 'var(--ink-3)',
-          fontSize: 11,
-          fontWeight: 700,
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {unitLabel}
-      </span>
-    </div>
   )
 }

@@ -11,6 +11,7 @@ export interface ProductImageChanges {
 }
 
 export function createEmptyProductImageChanges(): ProductImageChanges {
+  //
   return {
     deletedImageIds: [],
     replacements: [],
@@ -20,6 +21,7 @@ export function createEmptyProductImageChanges(): ProductImageChanges {
 }
 
 export function hasExistingProductImageChanges(changes: ProductImageChanges) {
+  //
   return (
     changes.deletedImageIds.length > 0 ||
     changes.replacements.length > 0 ||

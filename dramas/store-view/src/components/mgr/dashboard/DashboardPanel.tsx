@@ -23,11 +23,11 @@ import { StatusBadge } from '@store/store-shared/ui/status-badge';
 import type { AnalyticsQuery } from '@store/store-stub';
 import {
   useCustomerDebt,
-  useDashboard,
+  useDashboardReport,
   useExpenseReport,
   useInventoryReport,
   useSalesReport,
-} from '../analytics/hooks/useAnalyticsReports';
+} from '../analytics';
 import {
   COLORS,
   DashboardSkeleton,
@@ -93,7 +93,7 @@ export function DashboardPanel({
   const inventoryQuery: AnalyticsQuery = { ...branchParam, limit: 5 };
   const salesQuery: AnalyticsQuery = { ...periodQuery, topProductsSort: 'revenue' };
 
-  const periodDashboard = useDashboard(periodQuery);
+  const periodDashboard = useDashboardReport(periodQuery);
   const sales = useSalesReport(salesQuery);
   const expenses = useExpenseReport(periodQuery);
   const inventory = useInventoryReport(inventoryQuery);

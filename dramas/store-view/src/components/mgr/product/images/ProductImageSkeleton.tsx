@@ -5,6 +5,7 @@ interface ProductImageSkeletonProps {
 }
 
 export function ProductImageSkeleton({ borderRadius = 6 }: ProductImageSkeletonProps) {
+  //
   return (
     <Skeleton.Node
       active

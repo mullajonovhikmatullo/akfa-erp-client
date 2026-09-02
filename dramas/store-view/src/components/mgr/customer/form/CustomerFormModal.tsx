@@ -1,14 +1,15 @@
 import { Controller, useWatch } from 'react-hook-form'
 import { Alert, Button, Form, Input, InputNumber, Radio, Select, Switch } from 'antd'
-import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import { UzbekPhoneInput } from '@store/store-shared/ui/uzbek-phone-input'
-import { isValidUzbekMobilePhone } from '@store/store-shared/lib/uzbek-phone'
-import type { Customer } from '@store/store-stub'
+import { isValidUzbekMobilePhone } from '@store/store-shared'
+import { UzbekPhoneInput } from '@store/store-shared'
+import type { Branch, Customer } from '@store/store-stub'
 import { useCustomerForm } from './useCustomerForm'
-import { useCustomerPhoneCheck, useLinkCustomerBranch } from '../hooks/useCustomers'
+import { FormSection } from './view/FormSection'
+import { useCustomerMutation } from '../hooks/useCustomerMutation'
+import { useCustomerPhoneCheck } from '../hooks/useCustomerPhoneCheck'
 
 interface CustomerFormModalProps {
   t: (key: string) => string
@@ -56,7 +57,7 @@ export function CustomerFormModal({
   const formBranchId = useWatch({ control, name: 'branchId' })
   const targetBranchId = isStoreOwner ? formBranchId : branchId ?? undefined
   const phoneCheck = useCustomerPhoneCheck(phone, targetBranchId, !isEdit && open && isValidUzbekMobilePhone(phone))
-  const linkCustomer = useLinkCustomerBranch(t)
+  const { linkCustomerBranch: linkCustomer } = useCustomerMutation(t)
   const existingCustomer = phoneCheck.data?.customer ?? null
 
   const useExistingCustomer = () => {
@@ -93,6 +94,7 @@ export function CustomerFormModal({
       ]}
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
+        <FormSection>
         {isStoreOwner && !isEdit && (
           <Controller
             name="branchId"
@@ -217,6 +219,7 @@ export function CustomerFormModal({
             )}
           />
         )}
+        </FormSection>
       </Form>
     </AppModal>
   )

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Branch } from '@store/store-shared/core'
 import type { Customer } from '@store/store-stub'
-import { useCreateCustomer, useUpdateCustomer } from '../hooks/useCustomers'
+import { useCustomerMutation } from '../hooks/useCustomerMutation'
 import { createCustomerSchema, type CustomerFormValues } from './customerSchema'
 
 interface UseCustomerFormOptions {
@@ -66,8 +66,7 @@ export function useCustomerForm({
     }
   }, [branchId, customer, form, open])
 
-  const createMutation = useCreateCustomer(t)
-  const updateMutation = useUpdateCustomer(t)
+  const { createCustomer: createMutation, updateCustomer: updateMutation } = useCustomerMutation(t)
   const isPending = createMutation.isPending || updateMutation.isPending
 
   const onSubmit = form.handleSubmit((values) => {

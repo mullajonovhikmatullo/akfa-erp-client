@@ -2,6 +2,7 @@ import { Skeleton } from 'antd';
 import { SkeletonPanel } from './SkeletonPanel';
 
 export function DashboardSkeleton() {
+  //
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>

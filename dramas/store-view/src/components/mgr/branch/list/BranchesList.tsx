@@ -1,29 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Alert, Button, Form, Input, Modal, Popconfirm, Select, Tag, Tooltip } from 'antd'
+import { Alert, Button, Form, Input, Modal, Select, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowClockwiseIcon,
   ArrowUpRight,
-  PencilSimpleIcon,
   PlusIcon,
-  StorefrontIcon,
-  TrashIcon,
   UserPlusIcon,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { formatDate } from '@store/store-shared/lib/formatters'
-import { isValidUzbekMobilePhone } from '@store/store-shared/lib/uzbek-phone'
-import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
+import { isValidUzbekMobilePhone } from '@store/store-shared'
+import { DataTable } from '@store/store-shared/ui/data-table'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
-import { UzbekPhoneInput } from '@store/store-shared/ui/uzbek-phone-input'
-import type { BranchPayload, User } from '@store/store-stub'
-import { useAssignBranch, useUsers } from '../../admins/hooks/useAdminUsers'
+import { UzbekPhoneInput } from '@store/store-shared'
+import type { Branch, BranchPayload, User } from '@store/store-stub'
+import { useUserMutation } from '../../admins/hooks/useUserMutation'
+import { useUsersList } from '../../admins/hooks/useUsersList'
 import { usePagination } from '../../shared/hooks/usePagination'
-import { useBranchesPage, useCreateBranch, useDeleteBranch, useUpdateBranch } from '../hooks/useBranches'
+import { useBranchMutation } from '../hooks/useBranchMutation'
+import { useBranchesPage } from '../hooks/useBranchesPage'
+import { createBranchColumns } from './view/branchColumns'
 
 type Translate = (key: string) => string
 
@@ -47,12 +45,10 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
   const maxBranches = currentUser?.store?.plan?.maxBranches
   const branchLimitReached = typeof maxBranches === 'number' && total >= maxBranches
   const [branchLimitNoticeDismissed, setBranchLimitNoticeDismissed] = useState(false)
-  const { data: users = [], isLoading: usersLoading } = useUsers()
+  const { data: users = [], isLoading: usersLoading } = useUsersList()
 
-  const createMutation = useCreateBranch()
-  const updateMutation = useUpdateBranch()
-  const deleteMutation = useDeleteBranch()
-  const assignMutation = useAssignBranch()
+  const { createBranch: createMutation, updateBranch: updateMutation, deleteBranch: deleteMutation } = useBranchMutation()
+  const { assignBranch: assignMutation } = useUserMutation()
 
   const {
     control: branchControl,
@@ -171,161 +167,21 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
       .catch(() => toast.error(t('branches.assignError')))
   }
 
-  const columns: ColumnDef<Branch>[] = [
-    {
-      title: '#',
-      key: 'index',
-      width: 48,
-      render: (_: unknown, __: Branch, index: number) => (
-        <span style={{ fontSize: 12, color: 'var(--ink-3)', fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
-    },
-    {
-      title: t('nav.branches'),
-      key: 'name',
-      render: (_: unknown, branch: Branch) => {
-        //
-        const isMain = branch.name === 'Main Branch'
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 6,
-                flexShrink: 0,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: isMain ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'var(--primary)',
-                color: '#fff',
-                boxShadow: isMain ? '0 0 0 2px #fde68a' : undefined,
-              }}
-            >
-              <StorefrontIcon size={16} weight="duotone" />
-            </span>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontWeight: 600 }}>{branch.name}</span>
-                {isMain && (
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      padding: '2px 5px',
-                      borderRadius: 4,
-                      background: '#fef3c7',
-                      color: '#92400e',
-                      letterSpacing: '.04em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {t('branches.mainBadge')}
-                  </span>
-                )}
-              </div>
-              {branch.address && <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>{branch.address}</div>}
-            </div>
-          </div>
-        )
-      },
-    },
-    {
-      title: t('common.phone'),
-      dataIndex: 'phone',
-      width: 150,
-      responsiveHide: true,
-      render: (value: string | null) =>
-        value ? <span style={{ fontSize: 13 }}>{value}</span> : <span style={{ color: 'var(--ink-4)' }}>—</span>,
-    },
-    {
-      title: t('admins.colAdmin'),
-      key: 'admin',
-      width: 200,
-      render: (_: unknown, branch: Branch) => {
-        //
-        const admin = getAssignedUser(branch.id)
-        return admin ? (
-          <div>
-            <div style={{ fontWeight: 500, fontSize: 13 }}>{admin.name}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>@{admin.username}</div>
-          </div>
-        ) : (
-          <Tag color="warning">{t('common.unassigned')}</Tag>
-        )
-      },
-    },
-    {
-      title: t('common.added'),
-      dataIndex: 'createdAt',
-      width: 120,
-      responsiveHide: true,
-      render: (value?: string) =>
-        value ? (
-          <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>
-        ) : (
-          <span style={{ color: 'var(--ink-4)' }}>—</span>
-        ),
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 110,
-      fixed: 'right',
-      render: (_: unknown, branch: Branch) => (
-        <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title={t('branches.assignTooltip')}>
-            <Button
-              size="small"
-              type="text"
-              icon={<UserPlusIcon size={13} />}
-              onClick={(event) => {
-                //
-                event.stopPropagation()
-                openAssign(branch)
-              }}
-            />
-          </Tooltip>
-          <Button
-            size="small"
-            type="text"
-            icon={<PencilSimpleIcon size={18} />}
-            onClick={(event) => {
-              //
-              event.stopPropagation()
-              openEdit(branch)
-            }}
-          />
-          <Popconfirm
-            title={t('common.deleteTitle')}
-            description={t('branches.deleteDesc')}
-            okText={t('common.delete')}
-            cancelText={t('common.cancel')}
-            okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === branch.id }}
-            onConfirm={(event) => {
-              //
-              event?.stopPropagation()
-              deleteMutation.mutate(branch.id, {
-                onSuccess: () => toast.success(t('branches.deleteSuccess')),
-                onError: () => toast.error(t('branches.deleteError')),
-              })
-            }}
-            onPopupClick={(event) => event.stopPropagation()}
-          >
-            <Button
-              size="small"
-              type="text"
-              danger
-              icon={<TrashIcon size={18} />}
-              loading={deleteMutation.isPending && deleteMutation.variables === branch.id}
-              onClick={(event) => event.stopPropagation()}
-            />
-          </Popconfirm>
-        </div>
-      ),
-    },
-  ]
+  const columns = createBranchColumns({
+    t,
+    rowIndex,
+    branchAdmins,
+    currentUser,
+    isStoreOwner,
+    deleting: deleteMutation.isPending,
+    deletingId: deleteMutation.variables,
+    onAssign: openAssign,
+    onEdit: openEdit,
+    onDelete: (id) => deleteMutation.mutate(id, {
+      onSuccess: () => toast.success(t('branches.deleteSuccess')),
+      onError: () => toast.error(t('branches.deleteError')),
+    }),
+  })
 
   const unassignedAdmins = branchAdmins.filter((user) => !user.branchId || user.branchId === assignTarget?.id)
 

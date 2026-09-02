@@ -41,6 +41,7 @@ export function PendingProductImages({
   disabled = false,
   markFirstPrimary = true,
 }: PendingProductImagesProps) {
+  //
   const addFiles = (incoming: File[]) => {
     const known = new Set(files.map(productImageFileKey))
     const valid: File[] = []
@@ -135,6 +136,7 @@ export function PendingProductImages({
 }
 
 function ProductImageLoadingSlot() {
+  //
   return (
     <div
       style={{
@@ -164,6 +166,7 @@ function ProductImageLoadingSlot() {
 }
 
 function EmptyProductImageSlot() {
+  //
   return (
     <div
       aria-hidden
@@ -211,6 +214,7 @@ function PendingImageTile({
   onMove: (index: number, direction: -1 | 1) => void
   onDelete: () => void
 }) {
+  //
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {

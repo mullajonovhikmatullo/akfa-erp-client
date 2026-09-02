@@ -17,18 +17,13 @@ import {
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
-import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
+import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import type { User } from '@store/store-stub'
-import {
-  useChangePassword,
-  useDeleteProfilePhoto,
-  useUpdateProfile,
-  useUpdateProfilePhoto,
-} from '../../admins/hooks/useAdminUsers'
+import { useUserMutation } from '../../admins/hooks/useUserMutation'
 import { prepareProfilePhoto } from '../lib/profile-photo'
-import { MaskedInput } from '../shared/MaskedInput'
-import { PasswordStrength } from '../shared/PasswordStrength'
-import { ProfileField } from '../shared/ProfileField'
+import { MaskedInput } from './view/MaskedInput'
+import { PasswordStrength } from './view/PasswordStrength'
+import { ProfileField } from './view/ProfileField'
 
 type Translate = (key: string) => string
 
@@ -40,6 +35,8 @@ interface PendingPhoto {
   url: string
 }
 
+type UserWithPhoto = User & { base64Photo?: string | null }
+
 export interface ProfilePanelProps {
   t: Translate
   user?: User | null
@@ -47,16 +44,15 @@ export interface ProfilePanelProps {
 }
 
 export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
+  //
+  const viewUser = user as UserWithPhoto | null | undefined
   const [profileEditing, setProfileEditing] = useState(false)
   const [pendingPhoto, setPendingPhoto] = useState<PendingPhoto | null>(null)
   const [photoZoom, setPhotoZoom] = useState(1)
   const [photoRotation, setPhotoRotation] = useState(0)
   const [photoProcessing, setPhotoProcessing] = useState(false)
   const photoInputRef = useRef<HTMLInputElement>(null)
-  const updateProfile = useUpdateProfile(onUserUpdated)
-  const updateProfilePhoto = useUpdateProfilePhoto(onUserUpdated)
-  const deleteProfilePhoto = useDeleteProfilePhoto(onUserUpdated)
-  const changePassword = useChangePassword()
+  const { updateProfile, updateProfilePhoto, deleteProfilePhoto, changePassword } = useUserMutation({ onUpdated: onUserUpdated })
 
   const profileSchema = z.object({
     fullName: z
@@ -122,16 +118,19 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   }, [pendingPhoto])
 
   function startEditing() {
+    //
     profileForm.reset({ fullName: user?.name ?? '', username: user?.username ?? '' })
     setProfileEditing(true)
   }
 
   function cancelEditing() {
+    //
     profileForm.reset({ fullName: user?.name ?? '', username: user?.username ?? '' })
     setProfileEditing(false)
   }
 
   function closePhotoEditor() {
+    //
     if (photoProcessing || updateProfilePhoto.isPending) return
     setPendingPhoto(null)
     setPhotoZoom(1)
@@ -139,6 +138,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   }
 
   async function handleProfileSave(values: ProfileFormValues) {
+    //
     const changed: Record<string, string> = {}
     if (values.fullName !== user?.name) changed.fullName = values.fullName
     if (values.username !== user?.username) changed.username = values.username
@@ -159,6 +159,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   }
 
   function handlePasswordSave(values: PasswordFormValues) {
+    //
     changePassword.mutate(values, {
       onSuccess: () => {
         toast.success(t('profile.passwordSuccess'))
@@ -176,6 +177,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   }
 
   function handlePhotoSelected(event: ChangeEvent<HTMLInputElement>) {
+    //
     const input = event.currentTarget
     const file = input.files?.[0]
     input.value = ''
@@ -196,6 +198,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   }
 
   async function handlePhotoApply() {
+    //
     if (!pendingPhoto) return
     setPhotoProcessing(true)
     try {
@@ -216,6 +219,7 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
   }
 
   function handlePhotoDelete() {
+    //
     deleteProfilePhoto.mutate(undefined, {
       onSuccess: () => toast.success(t('profile.photoRemoveSuccess')),
       onError: (error: unknown) =>
@@ -244,13 +248,13 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
       <section className="profile-identity" aria-labelledby="profile-identity-name">
         <div className="profile-avatar-wrap">
           <div className="profile-avatar">
-            {user?.base64Photo ? (
+            {viewUser?.base64Photo ? (
               <Image
-                src={user.base64Photo}
-                alt={user.name}
+                src={viewUser.base64Photo}
+                alt={viewUser.name}
                 width={132}
                 height={132}
-                preview={{ src: user.base64Photo, mask: t('profile.photoPreview') }}
+                preview={{ src: viewUser.base64Photo, mask: t('profile.photoPreview') }}
               />
             ) : (
               <span className="profile-avatar__initials">{initials}</span>
@@ -259,8 +263,8 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
           <button
             type="button"
             className="profile-avatar__edit"
-            aria-label={user?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
-            title={user?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
+            aria-label={viewUser?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
+            title={viewUser?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
             disabled={photoBusy}
             onClick={() => photoInputRef.current?.click()}
           >
@@ -286,9 +290,9 @@ export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
               disabled={deleteProfilePhoto.isPending}
               onClick={() => photoInputRef.current?.click()}
             >
-              {user?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
+              {viewUser?.base64Photo ? t('profile.photoChange') : t('profile.photoUpload')}
             </Button>
-            {user?.base64Photo ? (
+            {viewUser?.base64Photo ? (
               <Popconfirm
                 title={t('profile.photoRemoveConfirm')}
                 okText={t('profile.photoRemove')}

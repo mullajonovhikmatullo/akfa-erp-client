@@ -5,13 +5,14 @@ import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Branch, Product, ProductUnit } from '@store/store-stub'
-import { useBranches } from '../../branch/hooks/useBranches'
-import { useCategories } from '../../category/hooks/useCategories'
+import { useBranchesList } from '../../branch/hooks/useBranchesList'
+import { useCategoriesList } from '../../category/hooks/useCategoriesList'
 import { PendingProductImages } from '../images/PendingProductImages'
 import { ProductImageManager } from '../images/ProductImageManager'
 import { PRODUCT_IMAGE_MAX_COUNT } from '../images/image-utils'
 import { createEmptyProductImageChanges } from '../images/product-image-changes'
 import { useProductForm } from './useProductForm'
+import { FormSection } from './view/FormSection'
 
 interface ProductFormModalProps {
   t: (key: string) => string
@@ -76,8 +77,8 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
     setValue,
   } = form
 
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories(true)
-  const { data: branches = [], isLoading: branchesLoading } = useBranches()
+  const { data: categories = [], isLoading: categoriesLoading } = useCategoriesList(true)
+  const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
 
   const priceCurrency = watch('priceCurrency')
   const retailUzs = watch('retailPriceUzs')
@@ -156,6 +157,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
       ]}
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
+        <FormSection>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <Controller
             name="name"
@@ -484,6 +486,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
             {isUploading ? <Progress percent={uploadProgress} size="small" style={{ marginTop: 10 }} /> : null}
           </section>
         )}
+        </FormSection>
       </Form>
     </AppModal>
   )

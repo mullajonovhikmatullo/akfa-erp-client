@@ -6,6 +6,7 @@ import type { LoginLanguage, LoginPanelProps } from './view';
 export type { LoginLanguage, LoginPanelProps } from './view';
 
 export function LoginPanel(props: LoginPanelProps) {
+  //
   const currentLanguage = languageOptions.find((option) => option.value === props.language) ?? languageOptions[0]!;
   const languageMenuItems = languageOptions.map((option) => ({
     key: option.value,

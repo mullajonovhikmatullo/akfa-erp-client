@@ -1,2 +1,6 @@
 export { CustomersList } from './list/CustomersList'
-export * from './hooks/useCustomers'
+export * from './hooks/customerKeys'
+export * from './hooks/useCustomerDetail'
+export * from './hooks/useCustomerMutation'
+export * from './hooks/useCustomerPhoneCheck'
+export * from './hooks/useCustomersList'

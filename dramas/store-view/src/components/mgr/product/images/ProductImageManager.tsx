@@ -44,6 +44,7 @@ export function ProductImageManager({
   uploading,
   uploadProgress,
 }: ProductImageManagerProps) {
+  //
   const queryOptions = ProductSeekApi.fetch.findProductImages(productId)
   const { data: images = [], isLoading } = useQuery(queryOptions)
 
@@ -273,6 +274,7 @@ export function ProductImageManager({
 }
 
 function LocalFilePreview({ file, alt }: { file: File; alt: string }) {
+  //
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {

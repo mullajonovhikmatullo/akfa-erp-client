@@ -38,6 +38,7 @@ export const getColorHalo = (color: string) =>
 export const getTodayRange = (): [dayjs.Dayjs, dayjs.Dayjs] => [dayjs().startOf('day'), dayjs().endOf('day')];
 
 export function describeArc(cx: number, cy: number, radius: number, startAngle: number, endAngle: number) {
+  //
   const start = polarToCartesian(cx, cy, radius, endAngle);
   const end = polarToCartesian(cx, cy, radius, startAngle);
   const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';

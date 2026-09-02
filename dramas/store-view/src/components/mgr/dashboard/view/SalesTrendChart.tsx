@@ -15,6 +15,7 @@ export function SalesTrendChart({
   debtLabel: string;
   expensesLabel: string;
 }) {
+  //
   const series: { key: 'revenue' | 'debt' | 'expenses'; label: string; color: string; gradientId: string }[] = [
     { key: 'revenue', label: revenueLabel, color: COLORS.primary, gradientId: 'dashRevenue' },
     { key: 'debt', label: debtLabel, color: COLORS.danger, gradientId: 'dashDebt' },

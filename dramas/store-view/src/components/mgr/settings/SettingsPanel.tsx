@@ -1,8 +1,10 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { InputNumber, Radio } from 'antd'
-import { CheckIcon, MoonIcon, SunIcon } from '@phosphor-icons/react'
+import { MoonIcon, SunIcon } from '@phosphor-icons/react'
 import type { Currency } from '@store/store-shared/core'
+import { SectionTitle } from './view/SectionTitle'
+import { ThemeChoice } from './view/ThemeChoice'
 
 type TFunc = (key: string) => string
 export type SettingsLang = 'uz-cy' | 'uz-la' | 'ru' | 'en'
@@ -185,54 +187,5 @@ export function SettingsPanel({
         </div>
       </div>
     </>
-  )
-}
-
-function ThemeChoice({
-  value,
-  selected,
-  title,
-  description,
-  icon,
-  onSelect,
-}: {
-  value: 'light' | 'dark'
-  selected: boolean
-  title: string
-  description: string
-  icon: ReactNode
-  onSelect: (value: 'light' | 'dark') => void
-}) {
-  return (
-    <button
-      type="button"
-      className={`settings-theme-choice settings-theme-choice--${value}${selected ? ' is-selected' : ''}`}
-      role="radio"
-      aria-checked={selected}
-      onClick={() => onSelect(value)}
-    >
-      <span className="settings-theme-choice__preview" aria-hidden="true">
-        <i className="settings-theme-choice__sidebar" />
-        <i className="settings-theme-choice__header" />
-        <i className="settings-theme-choice__card settings-theme-choice__card--one" />
-        <i className="settings-theme-choice__card settings-theme-choice__card--two" />
-      </span>
-      <span className="settings-theme-choice__copy">
-        <span className="settings-theme-choice__icon">{icon}</span>
-        <span><strong>{title}</strong><small>{description}</small></span>
-      </span>
-      <span className="settings-theme-choice__check" aria-hidden="true"><CheckIcon size={12} weight="bold" /></span>
-    </button>
-  )
-}
-
-function SectionTitle({ children }: { children: ReactNode }) {
-  //
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0 12px' }}>
-      <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--ink-2)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
-        {children}
-      </h3>
-    </div>
   )
 }

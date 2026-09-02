@@ -11,6 +11,7 @@ export function productImageFileKey(file: File) {
 }
 
 export function validateProductImageFile(file: File, t: Translate) {
+  //
   if (!supportedTypes.has(file.type)) return t('productImages.invalidType')
   if (file.size > PRODUCT_IMAGE_MAX_SIZE_BYTES) return t('productImages.tooLarge')
   return null
@@ -19,4 +20,4 @@ export function validateProductImageFile(file: File, t: Translate) {
 export function getApiErrorMessage(error: unknown, t: Translate, fallbackKey: string) {
   return getLocalizedApiErrorMessage(error, t, fallbackKey)
 }
-import { getLocalizedApiErrorMessage } from '@store/store-shared/lib/api-error'
+import { getLocalizedApiErrorMessage } from '@store/store-shared'

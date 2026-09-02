@@ -15,6 +15,7 @@ import { readRememberedUsername, rememberedUsernameKey } from './login-utils';
 import type { LoginFormProps } from './types';
 
 export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }: LoginFormProps) {
+  //
   const rememberedUsername = readRememberedUsername();
   const [rememberMe, setRememberMe] = useState(Boolean(rememberedUsername));
   const [passwordVisible, setPasswordVisible] = useState(false);

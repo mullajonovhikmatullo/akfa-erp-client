@@ -20,6 +20,7 @@ export function ProductImageGallery({
   t,
   loading = false,
 }: ProductImageGalleryProps) {
+  //
   const orderedImages = useMemo(
     () => [...images].sort((left, right) => left.sortOrder - right.sortOrder).slice(0, MAX_PRODUCT_IMAGES),
     [images],

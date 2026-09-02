@@ -2,13 +2,15 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Divider, Drawer, Form, InputNumber, Select, Skeleton } from 'antd'
 import { PlusIcon } from '@phosphor-icons/react'
-import type { ReactNode } from 'react'
 import { PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { PaymentMethod, SaleListItem } from '@store/store-stub'
-import { useAddPayment, useSaleDetail } from '../hooks/useSales'
+import { useSaleDetail } from '../hooks/useSaleDetail'
+import { useSaleMutation } from '../hooks/useSaleMutation'
+import { SectionLabel } from './view/SectionLabel'
+import { StatBox } from './view/StatBox'
 
 interface SaleDetailDrawerProps {
   t: (key: string) => string
@@ -24,7 +26,7 @@ type PaymentFormValues = {
 export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
   //
   const { data: detail, isLoading } = useSaleDetail(sale?.id ?? null)
-  const addPayment = useAddPayment(t)
+  const { addPayment } = useSaleMutation(t)
   const [showPayForm, setShowPayForm] = useState(false)
   const { control, handleSubmit, reset, watch } = useForm<PaymentFormValues>({
     defaultValues: {
@@ -248,27 +250,5 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
         </>
       ) : null}
     </Drawer>
-  )
-}
-
-function SectionLabel({ children }: { children: ReactNode }) {
-  //
-  return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>
-      {children}
-    </div>
-  )
-}
-
-function StatBox({ label, value, tone = 'muted' }: { label: string; value: ReactNode; tone?: 'success' | 'danger' | 'muted' }) {
-  //
-  const color = tone === 'success' ? 'var(--success)' : tone === 'danger' ? 'var(--danger)' : 'var(--ink-1)'
-  return (
-    <div style={{ padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
-      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4 }}>{label}</div>
-      <div className="num" style={{ fontWeight: 700, fontSize: 14, color }}>
-        {value}
-      </div>
-    </div>
   )
 }

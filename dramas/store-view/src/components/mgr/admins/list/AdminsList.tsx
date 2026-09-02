@@ -10,17 +10,15 @@ import {
   UserSwitchIcon,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import type { Branch } from '@store/store-shared/core'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
-import { formatDate } from '@store/store-shared/lib/formatters'
-import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
+import { DataTable } from '@store/store-shared/ui/data-table'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
-import type { CreateAdminPayload, UpdateAdminPayload, User } from '@store/store-stub'
-import { useBranches } from '../../branch/hooks/useBranches'
+import type { Branch, CreateAdminPayload, UpdateAdminPayload, User } from '@store/store-stub'
+import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { usePagination } from '../../shared/hooks/usePagination'
-import { AdminAvatar } from '../shared/AdminAvatar'
-import { useAdminsPage, useCreateAdmin, useDeleteAdmin, useUpdateAdmin } from '../hooks/useAdminUsers'
+import { useAdminsPage } from '../hooks/useAdminsPage'
+import { useUserMutation } from '../hooks/useUserMutation'
+import { createAdminColumns } from './view/adminColumns'
 
 type Translate = (key: string) => string
 
@@ -41,11 +39,9 @@ export function AdminsList({ t }: AdminsListProps) {
   const { data: result, isLoading, isFetching, refetch } = useAdminsPage(page, pageSize)
   const admins = result?.items ?? []
   const total = result?.total ?? 0
-  const { data: branches = [], isLoading: branchesLoading } = useBranches()
+  const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
 
-  const createMutation = useCreateAdmin()
-  const updateMutation = useUpdateAdmin()
-  const deleteMutation = useDeleteAdmin()
+  const { createAdmin: createMutation, updateAdmin: updateMutation, deleteAdmin: deleteMutation } = useUserMutation()
 
   const {
     control,
@@ -118,105 +114,19 @@ export function AdminsList({ t }: AdminsListProps) {
     }
   }
 
-  const getBranch = (branchId: string | null | undefined): Branch | undefined =>
-    branches.find((branch) => branch.id === branchId)
-
-  const columns: ColumnDef<User>[] = [
-    {
-      title: '#',
-      key: '_idx',
-      width: 40,
-      render: (_: unknown, __: unknown, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
-    },
-    {
-      title: t('admins.colAdmin'),
-      key: 'name',
-      render: (_: unknown, user: User) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <AdminAvatar name={user.name} />
-          <div>
-            <div style={{ fontWeight: 600 }}>{user.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>@{user.username}</div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: t('admins.colAssignedBranch'),
-      key: 'branch',
-      width: 220,
-      render: (_: unknown, user: User) => {
-        //
-        const branch = getBranch(user.branchId)
-        return branch ? <StatusBadge tone="info">{branch.name}</StatusBadge> : <Tag color="warning">{t('common.unassigned')}</Tag>
-      },
-    },
-    {
-      title: t('admins.colRole'),
-      key: 'role',
-      width: 140,
-      render: () => <StatusBadge tone="muted">{t('admins.roleBranchAdmin')}</StatusBadge>,
-    },
-    {
-      title: t('common.added'),
-      key: 'createdAt',
-      width: 120,
-      responsiveHide: true,
-      render: (_: unknown, user: User) =>
-        user.createdAt ? (
-          <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(user.createdAt)}</span>
-        ) : (
-          <span style={{ color: 'var(--ink-4)' }}>—</span>
-        ),
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 90,
-      fixed: 'right',
-      render: (_: unknown, user: User) => (
-        <div style={{ display: 'flex', gap: 4 }}>
-          <Button
-            size="small"
-            type="text"
-            icon={<PencilSimpleIcon size={18} />}
-            onClick={(event) => {
-              //
-              event.stopPropagation()
-              openEdit(user)
-            }}
-          />
-          <Popconfirm
-            title={t('common.deleteTitle')}
-            description={t('admins.deleteDesc')}
-            okText={t('common.delete')}
-            cancelText={t('common.cancel')}
-            okButtonProps={{ danger: true, loading: deleteMutation.isPending && deleteMutation.variables === user.id }}
-            onConfirm={(event) => {
-              //
-              event?.stopPropagation()
-              deleteMutation.mutate(user.id, {
-                onSuccess: () => toast.success(t('admins.deleteSuccess')),
-                onError: () => toast.error(t('admins.deleteError')),
-              })
-            }}
-            onPopupClick={(event) => event.stopPropagation()}
-          >
-            <Button
-              size="small"
-              type="text"
-              danger
-              icon={<TrashIcon size={18} />}
-              loading={deleteMutation.isPending && deleteMutation.variables === user.id}
-              onClick={(event) => event.stopPropagation()}
-            />
-          </Popconfirm>
-        </div>
-      ),
-    },
-  ]
+  const columns = createAdminColumns({
+    t,
+    rowIndex,
+    branches,
+    deleting: deleteMutation.isPending,
+    deletingId: deleteMutation.variables,
+    onEdit: openEdit,
+    onDelete: (id) =>
+      deleteMutation.mutate(id, {
+        onSuccess: () => toast.success(t('admins.deleteSuccess')),
+        onError: () => toast.error(t('admins.deleteError')),
+      }),
+  })
 
   const assigned = result?.totalAssigned ?? 0
   const unassigned = result?.totalUnassigned ?? 0

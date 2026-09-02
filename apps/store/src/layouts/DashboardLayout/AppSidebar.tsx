@@ -24,7 +24,7 @@ import {
 } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react';
 import clsx from 'clsx';
-import { useTransfers } from '@store/store-view/transfer';
+import { useTransfersList } from '@store/store-view/transfer';
 import { MavionBrand } from '@store/store-view/auth';
 import { useAuthStore } from '@/entities/user';
 import { useUIStore } from '@/app/stores/ui.store';
@@ -303,7 +303,7 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
     [can],
   );
   const canViewTransfers = can('transfers:view');
-  const { data: pendingTransfers = [] } = useTransfers(
+  const { data: pendingTransfers = [] } = useTransfersList(
     { status: 'PENDING', limit: 200 },
     { enabled: canViewTransfers },
   );

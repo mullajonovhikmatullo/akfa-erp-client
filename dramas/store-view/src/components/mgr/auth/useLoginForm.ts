@@ -1,11 +1,9 @@
 import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { UserFlowApi } from '@store/store-stub'
 import type { LoginResponse } from '@store/store-stub'
 import { createLoginSchema, type LoginFormValues } from './loginSchema'
+import { useAuthMutation } from './hooks/useAuthMutation'
 import type { TFunc } from './view/types'
 
 interface UseLoginFormOptions {
@@ -26,13 +24,9 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
     reValidateMode: 'onChange',
   })
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: UserFlowApi.login,
-    onSuccess: (response) => {
-      //
-      onAuthenticated(response)
-      toast.success(`${t('login.welcomeToast')}, ${response.user.name.split(' ')[0]}!`, { duration: 2200 })
-    },
+  const { mutate, isPending } = useAuthMutation({
+    t,
+    onAuthenticated,
     onError: (error: unknown) => {
       //
       const httpError = error as { isAxiosError?: boolean; code?: string; response?: { status?: number } }

@@ -3,6 +3,7 @@ import { MavionBrand } from './MavionBrand';
 import type { TFunc } from './types';
 
 export function LoginShowcase({ t }: { t: TFunc }) {
+  //
   return (
     <aside className="mavion-login__showcase" aria-label={t('login.showcaseAria')}>
       <div className="mavion-login__showcase-grid" aria-hidden="true" />

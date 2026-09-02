@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ProductFlowApi, ProductSeekApi, type Product, type ProductImage } from '@store/store-stub'
-import { useCreateProduct, useUpdateProduct } from '../hooks/useProducts'
+import { useProductMutation } from '../hooks/useProductMutation'
 import { getApiErrorMessage } from '../images/image-utils'
 import {
   createEmptyProductImageChanges,
@@ -23,6 +23,8 @@ interface UseProductFormOptions {
   onImageChangesChange: (changes: ProductImageChanges) => void
   onSuccess?: () => void
 }
+
+type ProductWithThreshold = Product & { lowStockThreshold?: number | null }
 
 const emptyValues: ProductFormValues = {
   name: '',
@@ -78,7 +80,7 @@ export function useProductForm({
         description: product.description ?? '',
         sku: product.sku ?? '',
         unit: product.unit,
-        lowStockThreshold: product.lowStockThreshold ?? undefined,
+        lowStockThreshold: (product as ProductWithThreshold).lowStockThreshold ?? undefined,
         categoryId: product.category?.id ?? '',
         branchId: '',
         priceCurrency: hasUsdOnly ? 'USD' : 'UZS',
@@ -96,8 +98,7 @@ export function useProductForm({
     form.reset(emptyValues)
   }, [form, open, product])
 
-  const createMutation = useCreateProduct(t)
-  const updateMutation = useUpdateProduct(t)
+  const { createProduct: createMutation, updateProduct: updateMutation } = useProductMutation(t)
   const isPending = createMutation.isPending || updateMutation.isPending || isUploading
 
   const resetFlow = useCallback(() => {
@@ -302,9 +303,8 @@ export function useProductForm({
         resetFlow()
         onSuccess?.()
         form.reset()
-      } catch {
-        // The mutation owns the translated API error notification.
-      }
+    } catch {
+    }
       return
     }
 
@@ -330,7 +330,6 @@ export function useProductForm({
       onSuccess?.()
       form.reset()
     } catch {
-      // Create/update mutations display their own API errors.
     }
   })
 

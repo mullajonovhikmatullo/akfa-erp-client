@@ -6,8 +6,10 @@ import dayjs from 'dayjs'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
-import { useCreateExpense, useExpenseCategories } from '../hooks/useExpenses'
+import { useExpenseCategoriesList } from '../hooks/useExpenseCategoriesList'
+import { useExpenseMutation } from '../hooks/useExpenseMutation'
 import { createExpenseSchema, type ExpenseFormValues } from './expenseSchema'
+import { FormSection } from './view/FormSection'
 
 interface ExpenseFormModalProps {
   t: (key: string) => string
@@ -29,8 +31,8 @@ const getDefaultValues = (): ExpenseFormValues => ({
 export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: ExpenseFormModalProps) {
   //
   const schema = useMemo(() => createExpenseSchema(t), [t])
-  const { data: categories = [], isLoading: categoriesLoading } = useExpenseCategories()
-  const createExpense = useCreateExpense(t)
+  const { data: categories = [], isLoading: categoriesLoading } = useExpenseCategoriesList()
+  const { createExpense } = useExpenseMutation(t)
 
   const {
     control,
@@ -90,6 +92,7 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: E
       ]}
     >
       <Form layout="vertical" component="div" style={{ marginTop: 4 }}>
+        <FormSection>
         <Controller
           name="categoryId"
           control={control}
@@ -234,6 +237,7 @@ export function ExpenseFormModal({ t, open, onClose, exchangeRate, branchId }: E
             </Form.Item>
           )}
         />
+        </FormSection>
       </Form>
     </AppModal>
   )

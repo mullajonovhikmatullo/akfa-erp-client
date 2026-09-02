@@ -4,6 +4,7 @@ type MavionBrandProps = {
 };
 
 export function MavionBrand({ inverted = false, compact = false }: MavionBrandProps) {
+  //
   return (
     <div className={`mavion-brand${inverted ? ' mavion-brand--inverted' : ''}${compact ? ' mavion-brand--compact' : ''}`}>
       <svg className="mavion-brand__mark" viewBox="0 0 52 38" aria-hidden="true">

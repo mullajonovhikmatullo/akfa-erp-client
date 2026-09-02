@@ -3,30 +3,24 @@ import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Popconfirm, Select, Tooltip } from 'antd'
 import {
   ArrowClockwiseIcon,
-  BoxArrowDownIcon,
-  EyeIcon,
   MagnifyingGlassIcon,
-  PencilSimpleIcon,
   PlusIcon,
-  TrashIcon,
 } from '@phosphor-icons/react'
 import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
-import { formatDate } from '@store/store-shared/lib/formatters'
 import { getField, hasMaxTwoDecimals, isUuid, parseExcelNumber } from '@store/store-shared/lib/parse-excel'
-import { getProductPrice } from '@store/store-shared/lib/product-pricing'
-import { DataTable, type ColumnDef } from '@store/store-shared/ui/data-table'
+import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
-import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import { ProductFlowApi } from '@store/store-stub'
 import type { CreateProductPayload, Currency, Product, ProductUnit } from '@store/store-stub'
-import { useCategories } from '../../category/hooks/useCategories'
-import { useStockBatches } from '../../inventory/hooks/useInventory'
+import { useCategoriesList } from '../../category/hooks/useCategoriesList'
+import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { ProductDetailDrawer } from '../detail/ProductDetailDrawer'
 import { ProductFormModal } from '../form/ProductFormModal'
-import { useDeleteProduct, useProductSummary, useProductsPage } from '../hooks/useProducts'
-import { AuthenticatedProductImage } from '../images/AuthenticatedProductImage'
+import { useProductMutation } from '../hooks/useProductMutation'
+import { useProductSummary } from '../hooks/useProductSummary'
+import { useProductsPage } from '../hooks/useProductsPage'
+import { createProductColumns } from './view/productColumns'
 
 const PRODUCT_IMPORT_UNIT_ALIASES: Record<ProductUnit, string[]> = {
   KG: ['KG', 'KGS', 'KILOGRAM', 'KILOGRAMM', 'КГ', 'КИЛО', 'КИЛОГРАММ'],
@@ -116,7 +110,7 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
   const scopedBranchId = isStoreOwner
     ? activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
     : userBranchId ?? undefined
-  const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } = useStockBatches({
+  const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } = useStockBatchesList({
     branchId: scopedBranchId,
   })
   const { data: productSummary, refetch: refetchProductSummary } = useProductSummary()
@@ -124,8 +118,8 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
   const inactiveProducts = productSummary?.totalInactive ?? 0
   const totalProducts = activeProducts + inactiveProducts
 
-  const { data: categories = [] } = useCategories()
-  const deleteProduct = useDeleteProduct(t)
+  const { data: categories = [] } = useCategoriesList()
+  const { deleteProduct } = useProductMutation(t)
   const defaultProductCategoryName = categories[0]?.name ?? ''
   const importBranchId = scopedBranchId
   const unitHintText = PRODUCT_IMPORT_UNITS.map((unit) => `${unit} / ${t(`units.${unit}`)}`).join(', ')
@@ -165,208 +159,17 @@ export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeB
     return Boolean(stockBatches) && !stockedProductIds.has(product.id)
   }
 
-  const columns: ColumnDef<Product>[] = [
-    {
-      title: '#',
-      key: '_idx',
-      width: 40,
-      render: (_: unknown, __: Product, index: number) => (
-        <span style={{ color: 'var(--ink-4)', fontSize: 11, fontVariantNumeric: 'tabular-nums' }}>{rowIndex(index)}</span>
-      ),
-    },
-    {
-      title: t('products.productCode'),
-      dataIndex: 'sku',
-      width: 140,
-      responsiveHide: true,
-      render: (value: string | null) =>
-        value ? (
-          <span className="num" style={{ color: 'var(--ink-2)', fontSize: 12 }}>
-            {value}
-          </span>
-        ) : (
-          <span style={{ color: 'var(--ink-4)' }}>-</span>
-        ),
-    },
-    {
-      title: t('nav.products'),
-      key: 'name',
-      render: (_: unknown, product: Product) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
-          <AuthenticatedProductImage
-            url={product.primaryThumbnailUrl}
-            alt={product.name}
-            width={42}
-            height={42}
-          />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-              <span style={{ fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</span>
-              {isNewProduct(product) ? (
-                <StatusBadge tone="warning">
-                  <BoxArrowDownIcon size={12} weight="duotone" />
-                  {t('products.newBadge')}
-                </StatusBadge>
-              ) : null}
-            </div>
-            {product.category ? <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{product.category.name}</div> : null}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: t('products.colUnit'),
-      dataIndex: 'unit',
-      width: 90,
-      responsiveHide: true,
-      render: (value: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[value]}</StatusBadge>,
-    },
-    {
-      title: t('products.colLowStock'),
-      key: 'lowStockThreshold',
-      width: 125,
-      responsiveHide: true,
-      render: (_: unknown, product: Product) => product.lowStockThreshold == null ? (
-        <span style={{ color: 'var(--ink-4)' }}>—</span>
-      ) : (
-        <span className="num" style={{ color: 'var(--warning)', fontWeight: 600 }}>
-          {product.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}
-        </span>
-      ),
-    },
-    {
-      title: t('products.colCost'),
-      key: 'cost',
-      width: 150,
-      align: 'right',
-      responsiveHide: true,
-      render: (_: unknown, product: Product) => {
-        //
-        const price = getProductPrice(product, 'cost')
-        return (
-          <span className="num">
-            <MoneyDisplay amount={price.amount} currency={price.currency} noConvert={price.currency === 'USD'} />
-          </span>
-        )
-      },
-    },
-    {
-      title: t('products.colWholesale'),
-      key: 'wholesale',
-      width: 150,
-      align: 'right',
-      responsiveHide: true,
-      render: (_: unknown, product: Product) => {
-        //
-        const price = getProductPrice(product, 'wholesale')
-        return (
-          <span className="num" style={{ fontWeight: 600 }}>
-            <MoneyDisplay amount={price.amount} currency={price.currency} noConvert={price.currency === 'USD'} />
-          </span>
-        )
-      },
-    },
-    {
-      title: t('products.colRetail'),
-      key: 'retail',
-      width: 150,
-      align: 'right',
-      render: (_: unknown, product: Product) => {
-        //
-        const price = getProductPrice(product, 'retail')
-        return (
-          <span className="num" style={{ fontWeight: 600 }}>
-            <MoneyDisplay amount={price.amount} currency={price.currency} noConvert={price.currency === 'USD'} />
-          </span>
-        )
-      },
-    },
-    {
-      title: t('common.status'),
-      dataIndex: 'isActive',
-      width: 100,
-      align: 'center',
-      responsiveHide: true,
-      render: (value: boolean) =>
-        value ? (
-          <StatusBadge tone="success" dot>
-            {t('common.active')}
-          </StatusBadge>
-        ) : (
-          <StatusBadge tone="danger" dot>
-            {t('common.inactive')}
-          </StatusBadge>
-        ),
-    },
-    {
-      title: t('common.added'),
-      dataIndex: 'createdAt',
-      width: 120,
-      responsiveHide: true,
-      render: (value: string) => <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>{formatDate(value)}</span>,
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 100,
-      fixed: 'right',
-      render: (_: unknown, product: Product) => (
-        <div style={{ display: 'flex', gap: 4 }}>
-          <Tooltip title={t('common.view')}>
-            <Button
-              size="small"
-              type="text"
-              icon={<EyeIcon size={18} />}
-              onClick={(event) => {
-                //
-                event.stopPropagation()
-                setDrawerProduct(product)
-              }}
-            />
-          </Tooltip>
-          {canManage ? (
-            <>
-              <Button
-                size="small"
-                type="text"
-                icon={<PencilSimpleIcon size={18} />}
-                onClick={(event) => {
-                  //
-                  event.stopPropagation()
-                  setEditProduct(product)
-                }}
-              />
-              <Popconfirm
-                title={t('common.deleteTitle')}
-                description={`"${product.name}" ${t('products.deleteDesc')}`}
-                okText={t('common.yesDelete')}
-                cancelText={t('common.cancel')}
-                okButtonProps={{
-                  danger: true,
-                  loading: deleteProduct.isPending && deleteProduct.variables === product.id,
-                }}
-                onConfirm={(event) => {
-                  //
-                  event?.stopPropagation()
-                  deleteProduct.mutate(product.id)
-                }}
-                onPopupClick={(event) => event.stopPropagation()}
-              >
-                <Button
-                  size="small"
-                  type="text"
-                  danger
-                  icon={<TrashIcon size={18} />}
-                  loading={deleteProduct.isPending && deleteProduct.variables === product.id}
-                  onClick={(event) => event.stopPropagation()}
-                />
-              </Popconfirm>
-            </>
-          ) : null}
-        </div>
-      ),
-    },
-  ]
+  const columns = createProductColumns({
+    t,
+    rowIndex,
+    canManage,
+    deleting: deleteProduct.isPending,
+    deletingId: deleteProduct.variables,
+    isNewProduct,
+    onView: setDrawerProduct,
+    onEdit: setEditProduct,
+    onDelete: (id) => deleteProduct.mutate(id),
+  })
 
   return (
     <>

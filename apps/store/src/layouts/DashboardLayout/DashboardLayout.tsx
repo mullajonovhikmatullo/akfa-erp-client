@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Alert } from 'antd';
 import { ClockCountdown } from '@phosphor-icons/react';
 import clsx from 'clsx';
-import { useBranches } from '@store/store-view/branch';
+import { useBranchesList } from '@store/store-view/branch';
 import { useUIStore } from '@/app/stores/ui.store';
 import { useAuthStore } from '@/entities/user';
 import { AppHeader } from './AppHeader';
@@ -19,7 +19,7 @@ export function DashboardLayout() {
   const closeMobileSidebar = useUIStore((s) => s.closeMobileSidebar);
   const activeBranchId = useUIStore((s) => s.activeBranchId);
   const setActiveBranch = useUIStore((s) => s.setActiveBranch);
-  const { data: branches = [] } = useBranches();
+  const { data: branches = [] } = useBranchesList();
   const location = useLocation();
   const t = useT();
   const trialEndsAt = user?.store?.status === 'TRIALING'

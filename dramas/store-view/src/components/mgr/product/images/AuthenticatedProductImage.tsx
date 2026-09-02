@@ -22,6 +22,7 @@ export function AuthenticatedProductImage({
   objectFit = 'cover',
   style,
 }: AuthenticatedProductImageProps) {
+  //
   const rootRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [blobUrl, setBlobUrl] = useState<string | null>(null)

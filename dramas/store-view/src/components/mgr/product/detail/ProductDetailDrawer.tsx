@@ -1,11 +1,13 @@
 import { Divider, Drawer, Skeleton } from 'antd'
-import type { ReactNode } from 'react'
 import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
-import type { Currency, Product } from '@store/store-stub'
+import type { Product } from '@store/store-stub'
 import { ProductImageGallery } from '../images/ProductImageGallery'
-import { useProductDetail, useProductInventory } from '../hooks/useProducts'
+import { useProductDetail } from '../hooks/useProductDetail'
+import { useProductInventory } from '../hooks/useProductInventory'
+import { PriceBox } from './view/PriceBox'
+import { SectionLabel } from './view/SectionLabel'
 
 interface ProductDetailDrawerProps {
   t: (key: string) => string
@@ -13,11 +15,13 @@ interface ProductDetailDrawerProps {
   onClose: () => void
 }
 
+type ProductWithThreshold = Product & { lowStockThreshold?: number | null }
+
 export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawerProps) {
   //
   const { data: inventory = [], isLoading: stockLoading } = useProductInventory(product?.id ?? null)
   const { data: productDetail, isLoading: detailLoading } = useProductDetail(product?.id ?? null)
-  const displayedProduct = productDetail ?? product
+  const displayedProduct = (productDetail ?? product) as ProductWithThreshold | null
 
   return (
     <Drawer rootClassName="ant-drawer-root" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} styles={{ body: { padding: 0 } }} destroyOnHidden>
@@ -125,26 +129,5 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
         </>
       ) : null}
     </Drawer>
-  )
-}
-
-function SectionLabel({ children }: { children: ReactNode }) {
-  //
-  return (
-    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 10 }}>
-      {children}
-    </div>
-  )
-}
-
-function PriceBox({ label, amount, currency }: { label: string; amount: number; currency: Currency }) {
-  //
-  return (
-    <div style={{ padding: '12px 14px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface-2)' }}>
-      <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 4 }}>{label}</div>
-      <div className="num" style={{ fontSize: 16, fontWeight: 700 }}>
-        <MoneyDisplay amount={amount} currency={currency} noConvert />
-      </div>
-    </div>
   )
 }

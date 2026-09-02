@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { isValidUzbekMobilePhone } from '@store/store-shared/lib/uzbek-phone'
+import { isValidUzbekMobilePhone } from '@store/store-shared'
 
 export const createCustomerSchema = (t: (key: string) => string) =>
   z.object({
