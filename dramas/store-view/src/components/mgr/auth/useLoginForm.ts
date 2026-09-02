@@ -6,8 +6,7 @@ import { toast } from 'sonner'
 import { UserFlowApi } from '@store/store-stub'
 import type { LoginResponse } from '@store/store-stub'
 import { createLoginSchema, type LoginFormValues } from './loginSchema'
-
-type TFunc = (key: string) => string
+import type { TFunc } from './view/types'
 
 interface UseLoginFormOptions {
   t: TFunc

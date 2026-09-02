@@ -1,7 +1,6 @@
-import { ChartBarIcon, UserCircleIcon } from '@phosphor-icons/react'
-import { MavionBrand } from './MavionBrand'
-
-type TFunc = (key: string) => string
+import { ChartBarIcon, UserCircleIcon } from '@phosphor-icons/react';
+import { MavionBrand } from './MavionBrand';
+import type { TFunc } from './types';
 
 export function LoginShowcase({ t }: { t: TFunc }) {
   return (
@@ -21,5 +20,5 @@ export function LoginShowcase({ t }: { t: TFunc }) {
         <p>{t('login.showcaseDescription')}</p>
       </div>
     </aside>
-  )
+  );
 }

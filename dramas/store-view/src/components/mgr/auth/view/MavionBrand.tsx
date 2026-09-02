@@ -1,7 +1,7 @@
 type MavionBrandProps = {
-  inverted?: boolean
-  compact?: boolean
-}
+  inverted?: boolean;
+  compact?: boolean;
+};
 
 export function MavionBrand({ inverted = false, compact = false }: MavionBrandProps) {
   return (
@@ -21,5 +21,5 @@ export function MavionBrand({ inverted = false, compact = false }: MavionBrandPr
       </svg>
       <span className="mavion-brand__name">Mavion</span>
     </div>
-  )
+  );
 }
