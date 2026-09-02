@@ -24,6 +24,7 @@ export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }:
     onAuthenticated,
     initialUsername: rememberedUsername,
     onBeforeSubmit: ({ username }) => {
+      //
       if (rememberMe) globalThis.localStorage?.setItem(rememberedUsernameKey, username);
       else globalThis.localStorage?.removeItem(rememberedUsernameKey);
     },
@@ -67,6 +68,7 @@ export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }:
                 aria-invalid={Boolean(errors.username || isCredentialError)}
                 aria-describedby={errors.username?.message ? 'login-username-error' : undefined}
                 onChange={(event) => {
+                  //
                   field.onChange(event);
                   clearCredentialErrors();
                 }}
@@ -97,6 +99,7 @@ export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }:
                 aria-invalid={Boolean(errors.password || isCredentialError)}
                 aria-describedby={errors.password?.message ? 'login-password-error' : undefined}
                 onChange={(event) => {
+                  //
                   field.onChange(event);
                   clearCredentialErrors();
                 }}

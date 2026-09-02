@@ -1,0 +1,5 @@
+export { enTranslations } from './en'
+export { ruTranslations } from './ru'
+export { uzCyTranslations } from './uzCy'
+export { uzLatnTranslations } from './uzLatn'
+export type { TranslationDictionary } from './types'

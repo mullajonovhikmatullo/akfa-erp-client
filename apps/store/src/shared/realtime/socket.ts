@@ -1,9 +1,10 @@
 import { io, type Socket } from 'socket.io-client';
+import type { TransferStatus } from '@store/store-stub';
 import { BASE_URL, tokenStore } from '@/shared/api/client';
 
 export type TransferChangedPayload = {
   transferId: string;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  status: TransferStatus;
   fromBranchId: string;
   toBranchId: string;
 };

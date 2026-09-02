@@ -24,7 +24,7 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
     reValidateMode: 'onChange',
   })
 
-  const { mutate, isPending } = useAuthMutation({
+  const { login } = useAuthMutation({
     t,
     onAuthenticated,
     onError: (error: unknown) => {
@@ -88,6 +88,7 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
       })
     },
   })
+  const { mutate, isPending } = login
 
   const onSubmit = form.handleSubmit((values) => {
     //

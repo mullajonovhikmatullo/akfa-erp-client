@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Spin } from 'antd';
+import { AuthLayout } from '@/layouts/AuthLayout';
+import { DashboardLayout } from '@/layouts/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { RoleRoute } from './RoleRoute';
 import { ROUTES } from '@/shared/config/routes';
@@ -23,15 +25,14 @@ import {
   InventoryPage,
 } from './LazyRoutes';
 
-const PageLoader = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-    <Spin size="large" />
-  </div>
-);
-
-// Layouts are imported directly (not lazy) because they render on every route
-import { DashboardLayout } from '@/layouts/DashboardLayout';
-import { AuthLayout } from '@/layouts/AuthLayout';
+function PageLoader() {
+  //
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+      <Spin size="large" />
+    </div>
+  );
+}
 
 const routerBasename = import.meta.env.BASE_URL === '/' ? undefined : import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -41,12 +42,10 @@ export function AppRouter() {
     <BrowserRouter basename={routerBasename}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public routes */}
           <Route element={<AuthLayout />}>
             <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           </Route>
 
-          {/* Protected routes — require authentication */}
           <Route element={<ProtectedRoute />}>
             <Route element={<DashboardLayout />}>
               <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
@@ -60,7 +59,6 @@ export function AppRouter() {
               <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
               <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
 
-              {/* Super admin only */}
               <Route element={<RoleRoute permission="analytics:global" />}>
                 <Route path={ROUTES.ANALYTICS} element={<AnalyticsPage />} />
               </Route>

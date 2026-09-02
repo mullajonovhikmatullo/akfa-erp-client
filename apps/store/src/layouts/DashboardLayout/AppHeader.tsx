@@ -1,155 +1,75 @@
-import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Select, Dropdown, Tooltip } from 'antd';
-import {
-  ArrowLineLeftIcon,
-  ArrowLineRightIcon,
-  CaretDownIcon,
-  GearIcon,
-  GlobeIcon,
-  MapPinIcon,
-  MoneyIcon,
-  MoonIcon,
-  SignOutIcon,
-  SunIcon,
-  UserCircleIcon,
-} from '@phosphor-icons/react';
-import { useAuthStore } from '@/entities/user';
-import { useUIStore } from '@/app/stores/ui.store';
-import { useT } from '@/shared/lib/i18n';
-import { ROUTES } from '@/shared/config/routes';
-import type { Lang, Theme } from '@/app/stores/ui.store';
-import { ALL_NAV_ITEMS, NAV_GROUPS_DEF } from './navConfig';
-import { queryClient } from '@/app/providers';
+import { useNavigate } from 'react-router-dom'
+import { ArrowLineLeftIcon, ArrowLineRightIcon } from '@phosphor-icons/react'
+import type { Branch } from '@store/store-stub'
+import { queryClient } from '@/app/providers/query/queryClient'
+import { useUIStore } from '@/app/stores/ui.store'
+import { useAuthStore } from '@/entities/user'
+import { ROUTES } from '@/shared/config/routes'
+import { useT } from '@/shared/lib/i18n'
+import { useHeaderBranchSelection } from './hooks/useHeaderBranchSelection'
+import { useHeaderNavigation } from './hooks/useHeaderNavigation'
+import { useHeaderTheme } from './hooks/useHeaderTheme'
+import { createHeaderMenuItems, HeaderActions, HeaderBranchControl } from './view'
 
 interface AppHeaderProps {
-  branches: Array<{ id: string; name: string }>;
+  branches: Branch[]
 }
-
-const LANG_OPTIONS: { value: Lang; label: string }[] = [
-  { value: 'uz-cy', label: 'Ўз' },
-  { value: 'uz-la', label: "O'z" },
-  { value: 'ru', label: 'Рус' },
-  { value: 'en', label: 'Eng' },
-];
 
 export function AppHeader({ branches }: AppHeaderProps) {
   //
-  const navigate = useNavigate();
-  const location = useLocation();
-  const t = useT();
-  const user = useAuthStore((s) => s.user);
-  const zustandLogout = useAuthStore((s) => s.logout);
-  const isStoreOwner = useAuthStore((s) => s.isStoreOwner)();
+  const navigate = useNavigate()
+  const t = useT()
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
+  const exchangeRate = useUIStore((state) => state.exchangeRate)
+  const sidebarCollapsed = useUIStore((state) => state.sidebarCollapsed)
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar)
+  const toggleMobileSidebar = useUIStore((state) => state.toggleMobileSidebar)
+  const lang = useUIStore((state) => state.lang)
+  const setLang = useUIStore((state) => state.setLang)
+  const { groupLabel, pageLabel } = useHeaderNavigation()
+  const { isDarkActive, toggleTheme } = useHeaderTheme()
+  const {
+    activeBranch,
+    control,
+    isStoreOwner,
+    setActiveBranch,
+    userBranch,
+  } = useHeaderBranchSelection(branches)
 
-  const activeBranchId = useUIStore((s) => s.activeBranchId);
-  const exchangeRate = useUIStore((s) => s.exchangeRate);
-  const setActiveBranch = useUIStore((s) => s.setActiveBranch);
-  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
-  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
-  const toggleMobileSidebar = useUIStore((s) => s.toggleMobileSidebar);
-  const theme = useUIStore((s) => s.theme);
-  const setTheme = useUIStore((s) => s.setTheme);
-  const lang = useUIStore((s) => s.lang);
-  const setLang = useUIStore((s) => s.setLang);
-
-  const handleToggle = () => {
+  function toggleNavigation() {
     //
-    if (window.innerWidth < 768) toggleMobileSidebar();
-    else toggleSidebar();
-  };
+    if (window.innerWidth < 768) {
+      toggleMobileSidebar()
+      return
+    }
 
-  const toggleDark = () => {
+    toggleSidebar()
+  }
+
+  async function handleLogout() {
     //
-    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    const next: Theme = isDark ? 'light' : 'dark';
-    setTheme(next);
-  };
+    await queryClient.cancelQueries()
+    queryClient.clear()
+    logout()
+    navigate(ROUTES.LOGIN)
+  }
 
-  const isDarkActive = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-  const activeBranch = branches.find((b) => b.id === activeBranchId);
-  const userBranch = branches.find((b) => b.id === user?.branchId);
-  const branchSelectValue = activeBranch ? activeBranchId : '__all__';
-  const { control: branchControl, reset: resetBranchForm } = useForm<{ activeBranchId: string }>({
-    defaultValues: { activeBranchId: branchSelectValue },
-  });
-
-  useEffect(() => {
-    //
-    resetBranchForm({ activeBranchId: branchSelectValue });
-  }, [branchSelectValue, resetBranchForm]);
-
-  const currentNav = ALL_NAV_ITEMS.find((n) => {
-    //
-    if (n.path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(n.path);
-  });
-  const pageLabel = currentNav ? t(`nav.${currentNav.key}`) : t('nav.dashboard');
-  const currentGroup = NAV_GROUPS_DEF.find((group) =>
-    group.items.some((item) => item.key === currentNav?.key),
-  );
-  const groupLabel = currentGroup ? t(currentGroup.groupLabelKey) : t('nav.group.main');
-
-  const langMenuItems = LANG_OPTIONS.map((opt) => ({
-    key: opt.value,
-    label: opt.label,
-    onClick: () => setLang(opt.value),
-  }));
-  const userRoleLabel = user?.role ? t(`role.${user.role}`) : '';
-
-  const profileMenuItems = [
-    {
-      key: 'header',
-      type: 'group' as const,
-      label: (
-        <div className="profile-menu__summary">
-          <UserAvatar name={user?.name} photo={user?.thumbnailPhoto} size={40} />
-          <div className="profile-menu__identity">
-            <div className="profile-menu__name">{user?.name}</div>
-            <div className="profile-menu__meta">
-              <span className="profile-menu__role">{userRoleLabel}</span>
-              <span className="profile-menu__branch">
-                {userBranch?.name?.split(' — ')[0] ?? t('header.allBranches')}
-              </span>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    { type: 'divider' as const },
-    {
-      key: 'profile',
-      icon: <UserCircleIcon size={18} />,
-      label: t('header.profile'),
-      onClick: () => navigate(ROUTES.PROFILE),
-    },
-    {
-      key: 'settings',
-      icon: <GearIcon size={18} />,
-      label: t('header.settings'),
-      onClick: () => navigate(ROUTES.SETTINGS),
-    },
-    {
-      key: 'logout',
-      icon: <SignOutIcon size={18} />,
-      label: <span style={{ color: 'var(--danger)' }}>{t('header.logout')}</span>,
-      onClick: async () => {
-        await queryClient.cancelQueries();
-        queryClient.clear();
-        zustandLogout();
-        navigate(ROUTES.LOGIN);
-      },
-    },
-  ];
-
-  const currentLangLabel = LANG_OPTIONS.find((o) => o.value === lang)?.label ?? 'UZ';
+  const { currentLangLabel, languageMenuItems, profileMenuItems } = createHeaderMenuItems({
+    lang,
+    onLanguageChange: setLang,
+    onLogout: handleLogout,
+    onOpenProfile: () => navigate(ROUTES.PROFILE),
+    onOpenSettings: () => navigate(ROUTES.SETTINGS),
+    t,
+    user,
+    userBranch,
+  })
 
   return (
     <header className="topbar">
       <div className="topbar__inner">
-        <button className="sidebar-toggle topbar-sidebar-toggle" onClick={handleToggle} type="button">
+        <button className="sidebar-toggle topbar-sidebar-toggle" onClick={toggleNavigation} type="button">
           {sidebarCollapsed ? <ArrowLineRightIcon size={20} /> : <ArrowLineLeftIcon size={20} />}
         </button>
 
@@ -159,119 +79,31 @@ export function AppHeader({ branches }: AppHeaderProps) {
         </div>
 
         <div className="topbar__branch-control">
-          {isStoreOwner ? (
-            <Controller
-              name="activeBranchId"
-              control={branchControl}
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    setActiveBranch(value);
-                  }}
-                  className="topbar__branch-select topbar-hide-mobile"
-                  suffixIcon={<MapPinIcon size={16} />}
-                  options={[
-                    { value: '__all__', label: t('header.allBranches') },
-                    ...branches.map((b) => ({ value: b.id, label: b.name })),
-                  ]}
-                />
-              )}
-            />
-          ) : (
-            <span className="branchchip topbar-hide-mobile">
-              <span className="dot" /> {activeBranch?.name ?? userBranch?.name}
-            </span>
-          )}
+          <HeaderBranchControl
+            activeBranch={activeBranch}
+            branches={branches}
+            control={control}
+            isStoreOwner={isStoreOwner}
+            onBranchChange={setActiveBranch}
+            t={t}
+            userBranch={userBranch}
+          />
         </div>
 
         <div className="grow" />
 
-        <div className="topbar__actions">
-          <span className="tagpill info topbar__exchange topbar-hide-mobile">
-            <MoneyIcon size={13} weight="duotone" />
-            1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
-          </span>
-
-          {/* Language selector */}
-          <Dropdown
-            menu={{ items: langMenuItems, selectedKeys: [lang] }}
-            trigger={['click']}
-            placement="bottomRight"
-            overlayClassName="topbar-language-menu"
-          >
-            <button
-              type="button"
-              className="sidebar-toggle topbar__language topbar-hide-mobile"
-            >
-              <GlobeIcon size={16} />
-              {currentLangLabel}
-            </button>
-          </Dropdown>
-
-          {/* Theme toggle */}
-          <Tooltip title={isDarkActive ? t('settings.themeLight') : t('settings.themeDark')} placement="bottom">
-            <button
-              type="button"
-              onClick={toggleDark}
-              className="sidebar-toggle topbar__icon-button topbar-hide-mobile"
-            >
-              {isDarkActive ? <SunIcon size={20} /> : <MoonIcon size={20} />}
-            </button>
-          </Tooltip>
-
-          <Dropdown
-            menu={{ items: profileMenuItems }}
-            trigger={['click']}
-            placement="bottomRight"
-            overlayClassName="profile-menu-popup"
-            destroyOnHidden
-          >
-            <button className="profile-trigger topbar__profile" type="button">
-              <UserAvatar name={user?.name} photo={user?.thumbnailPhoto} size={28} />
-              <span className="profile-name">{user?.name?.split(' ')[0]}</span>
-              <CaretDownIcon size={12} color="currentColor" />
-            </button>
-          </Dropdown>
-        </div>
+        <HeaderActions
+          currentLangLabel={currentLangLabel}
+          exchangeRate={exchangeRate}
+          isDarkActive={isDarkActive}
+          lang={lang}
+          languageMenuItems={languageMenuItems}
+          onToggleTheme={toggleTheme}
+          profileMenuItems={profileMenuItems}
+          t={t}
+          user={user}
+        />
       </div>
     </header>
-  );
-}
-
-function UserAvatar({ name, photo, size = 28 }: { name?: string; photo?: string | null; size?: number }) {
-  //
-  const tone = '#0476D0';
-  const initials = (name ?? '?')
-    .split(' ')
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join('')
-    .toUpperCase();
-  return (
-    <span
-      style={{
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: `linear-gradient(135deg, ${tone}, ${tone}cc)`,
-        color: '#fff',
-        fontSize: size * 0.42,
-        fontWeight: 600,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
-    >
-      {photo ? (
-        <img
-          src={photo}
-          alt=""
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
-        />
-      ) : initials}
-    </span>
-  );
+  )
 }

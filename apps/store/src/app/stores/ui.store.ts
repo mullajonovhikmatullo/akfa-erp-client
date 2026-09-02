@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+import type { Currency } from '@store/store-stub';
 import type { Lang } from '@/shared/lib/lang';
-import type { Currency } from '@/shared/types';
 
 type Density = 'compact' | 'default' | 'spacious';
 export type Theme = 'light' | 'dark' | 'system';

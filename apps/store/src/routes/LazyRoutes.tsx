@@ -1,8 +1,5 @@
 import { lazy } from 'react';
 
-// Each page is lazy-loaded — only downloaded when the user navigates to it.
-// Vite automatically creates separate chunks per lazy import.
-
 export const DashboardPage = lazy(() =>
   import('@/pages/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })),
 );

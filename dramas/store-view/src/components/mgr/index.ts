@@ -1,6 +1,7 @@
 export * from './admins'
 export * from './analytics'
 export * from './auth'
+export * from './billing'
 export * from './branch'
 export * from './category'
 export * from './customer'

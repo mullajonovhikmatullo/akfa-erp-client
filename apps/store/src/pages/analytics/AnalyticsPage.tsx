@@ -1,16 +1,11 @@
 import { AnalyticsWorkspace } from '@store/store-view/analytics'
-import { useUIStore } from '@/app/stores/ui.store'
-import { useCurrentUser } from '@/entities/user'
+import { useBranchScope } from '@/shared/hooks/useBranchScope'
 import { useT } from '@/shared/lib/i18n'
 
 export function AnalyticsPage() {
   //
   const t = useT()
-  const activeBranchId = useUIStore((state) => state.activeBranchId)
-  const { isStoreOwner, branchId } = useCurrentUser()
-  const scopedBranchId = isStoreOwner
-    ? activeBranchId !== '__all__' ? activeBranchId : undefined
-    : branchId ?? undefined
+  const { scopedBranchId } = useBranchScope()
 
   return <AnalyticsWorkspace t={t} branchId={scopedBranchId} />
 }

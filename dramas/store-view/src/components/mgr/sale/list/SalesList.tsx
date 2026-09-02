@@ -7,7 +7,7 @@ import type { SaleListItem, SaleType } from '@store/store-stub'
 import { usePagination } from '../../shared/hooks/usePagination'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
 import { NewSaleForm } from '../form/NewSaleForm'
-import { useSalesPage } from '../hooks/useSalesPage'
+import { useSalesPage } from '../hooks'
 import { createSalesColumns } from './view/salesColumns'
 
 type SalesFiltersForm = {

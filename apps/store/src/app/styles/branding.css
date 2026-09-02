@@ -1,0 +1,186 @@
+.mavion-brand:not(.mavion-brand--inverted) .mavion-brand__name{
+  color:#102142;
+  font-weight:800;
+  letter-spacing:-.045em;
+}
+
+
+.sb-brand>.mavion-brand{
+  min-width:0;
+  gap:9px;
+  overflow:hidden;
+}
+.sb-brand>.mavion-brand .mavion-brand__mark{
+  width:34px;
+  height:25px;
+  flex:0 0 auto;
+}
+.sb-brand>.mavion-brand .mavion-brand__name{
+  color:#102142;
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:-.045em;
+}
+.sb-root--collapsed .sb-brand>.mavion-brand{
+  gap:0;
+}
+.sb-root--collapsed .sb-brand>.mavion-brand .mavion-brand__name{
+  display:none;
+}
+html.dark .sb-brand>.mavion-brand .mavion-brand__name{
+  color:#f1f5f9;
+}
+.mavion-login__form-content{
+  width:min(540px,100%);
+}
+.mavion-login__form-topbar{
+  margin-bottom:30px;
+}
+.mavion-login__auth-card{
+  width:100%;
+  padding:28px;
+  border:1px solid rgba(205,220,239,.78);
+  border-radius:20px;
+  background:rgba(255,255,255,.78);
+  box-shadow:
+    0 24px 60px -34px rgba(24,66,128,.34),
+    0 8px 24px -18px rgba(18,54,110,.18),
+    inset 0 1px rgba(255,255,255,.96);
+  -webkit-backdrop-filter:blur(18px) saturate(1.08);
+  backdrop-filter:blur(18px) saturate(1.08);
+}
+.mavion-login__auth-card .mavion-login__heading{
+  margin-bottom:27px;
+}
+.mavion-login__language-selector{
+  width:86px;
+  min-width:86px;
+  height:38px;
+  gap:4px;
+  margin-top:0;
+  padding-inline:7px;
+  border-radius:9px;
+  font-size:11px;
+}
+.mavion-login__language-selector>svg:first-child{
+  width:14px;
+  height:14px;
+}
+.mavion-login__language-caret{width:11px;height:11px}
+.mavion-login__language-menu,
+.mavion-login__language-menu .ant-dropdown-menu{
+  width:86px !important;
+  min-width:86px !important;
+  max-width:86px !important;
+}
+.mavion-login__language-menu .ant-dropdown-menu-item{
+  min-height:34px;
+  padding:6px 8px;
+  font-size:11px;
+}
+@media(max-width:480px){
+  .mavion-login__form-topbar{margin-bottom:24px}
+  .mavion-login__auth-card{padding:24px 18px;border-radius:17px}
+  .mavion-login__language-selector{width:86px;min-width:86px}
+  .mavion-login__language-menu,
+  .mavion-login__language-menu .ant-dropdown-menu{width:86px !important;min-width:86px !important;max-width:86px !important}
+}
+
+
+.mavion-login__auth-card .mavion-login__form{
+  gap:14px;
+}
+.mavion-login__auth-card .mavion-field{
+  gap:6px;
+}
+.mavion-login__auth-card .mavion-field__label{
+  font-size:12px;
+}
+.mavion-login__auth-card .mavion-field__control{
+  height:46px;
+  gap:10px;
+  padding:0 13px;
+  border:1px solid rgba(188,207,232,.72);
+  border-radius:10px;
+  background:rgba(248,251,255,.7);
+  box-shadow:inset 0 1px rgba(255,255,255,.92),0 6px 18px -16px rgba(24,67,132,.35);
+  -webkit-backdrop-filter:blur(12px) saturate(1.08);
+  backdrop-filter:blur(12px) saturate(1.08);
+}
+.mavion-login__auth-card .mavion-field__control:hover{
+  border-color:rgba(92,151,218,.58);
+  background:rgba(255,255,255,.84);
+}
+.mavion-login__auth-card .mavion-field__control:focus-within{
+  border-color:rgba(4,118,208,.72);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 0 0 3px rgba(4,118,208,.1),0 10px 24px -18px rgba(4,86,147,.35);
+}
+.mavion-login__auth-card .mavion-field__control>svg{
+  width:18px;
+  height:18px;
+}
+.mavion-login__auth-card .mavion-field__control input{
+  font-size:13px;
+}
+.mavion-login__auth-card .mavion-field__visibility{
+  width:32px;
+  height:32px;
+}
+.mavion-login__auth-card .mavion-login__form-options{
+  min-height:24px;
+  font-size:12px;
+}
+.mavion-login__auth-card .mavion-checkbox span{
+  width:17px;
+  height:17px;
+}
+.mavion-login__auth-card .mavion-login__submit{
+  height:46px;
+  min-height:46px;
+  border:1px solid rgba(92,171,236,.66);
+  border-radius:10px;
+  background:linear-gradient(110deg,rgba(18,143,232,.94),rgba(4,103,210,.95));
+  box-shadow:0 12px 26px -16px rgba(0,91,196,.65),inset 0 1px rgba(255,255,255,.28);
+  -webkit-backdrop-filter:blur(10px) saturate(1.12);
+  backdrop-filter:blur(10px) saturate(1.12);
+}
+.mavion-login__auth-card .mavion-login__divider{
+  margin:0;
+}
+.mavion-login__auth-card .mavion-login__socials{
+  gap:9px;
+}
+.mavion-login__auth-card .mavion-login__social-button{
+  height:40px;
+  min-height:40px;
+  border:1px solid rgba(191,209,231,.72);
+  border-radius:9px;
+  background:rgba(255,255,255,.62);
+  box-shadow:inset 0 1px rgba(255,255,255,.92),0 8px 20px -18px rgba(25,64,120,.38);
+  -webkit-backdrop-filter:blur(12px) saturate(1.06);
+  backdrop-filter:blur(12px) saturate(1.06);
+  font-size:11px;
+}
+.mavion-login__auth-card .mavion-login__social-button:hover{
+  border-color:rgba(86,151,218,.55);
+  background:rgba(248,252,255,.88);
+}
+
+
+.mavion-login__auth-card .mavion-login__heading h1{
+  min-height:1.1em;
+  line-height:1.1;
+}
+.mavion-login__auth-card .mavion-login__heading p{
+  min-height:3.2em;
+  line-height:1.6;
+}
+.mavion-login__auth-card .mavion-login__form-options{
+  min-height:26px;
+}
+@media(max-width:480px){
+  .mavion-login__auth-card .mavion-login__heading p{
+    min-height:4.8em;
+  }
+}

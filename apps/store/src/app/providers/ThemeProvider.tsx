@@ -1,471 +1,58 @@
-import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
-import type { Locale } from 'antd/es/locale';
-import type { ReactNode } from 'react';
-import { useState, useEffect, useLayoutEffect } from 'react';
-import dayjs from 'dayjs';
-import 'dayjs/locale/en';
-import 'dayjs/locale/ru';
-import 'dayjs/locale/uz';
-import 'dayjs/locale/uz-latn';
-import { useUIStore } from '@/app/stores/ui.store';
-import { normalizeLang, type Lang } from '@/shared/lib/lang';
-
-const { darkAlgorithm, defaultAlgorithm } = antdTheme;
-
-const BASE_TOKENS = {
-  borderRadius: 8,
-  borderRadiusLG: 12,
-  fontFamily: "'Inter Tight', system-ui, sans-serif",
-  fontSize: 13,
-  fontSizeSM: 11,
-  fontSizeLG: 14,
-  lineHeight: 1.45,
-  controlHeight: 34,
-  controlHeightSM: 26,
-  padding: 14,
-  paddingSM: 10,
-  paddingXS: 6,
-  margin: 14,
-  marginSM: 10,
-  marginXS: 6,
-  colorSuccess: '#16a34a',
-  colorWarning: '#d97706',
-  colorError: '#dc2626',
-};
-
-const LIGHT_TOKENS = {
-  ...BASE_TOKENS,
-  colorPrimary: '#0476D0',
-  colorInfo: '#0476D0',
-  colorBorder: '#e6e9ef',
-  colorBorderSecondary: '#eef0f4',
-  colorBgBase: '#f8fafc',
-  colorBgContainer: '#ffffff',
-  colorTextBase: '#0f172a',
-};
-
-const DARK_TOKENS = {
-  ...BASE_TOKENS,
-  colorPrimary: '#28A9F4',
-  colorInfo: '#28A9F4',
-  colorBorder: '#334155',
-  colorBorderSecondary: '#243047',
-  colorBgBase: '#0f172a',
-  colorBgContainer: '#1e293b',
-  colorTextBase: '#f1f5f9',
-};
-
-const SHARED_COMPONENTS = {
-  Button: { controlHeight: 34, fontWeight: 500, primaryShadow: 'none' },
-  Select: { controlHeight: 34 },
-  Input: { controlHeight: 34 },
-  InputNumber: { controlHeight: 34 },
-  Form: { itemMarginBottom: 12, labelFontSize: 12 },
-  Card: { paddingLG: 16, headerFontSize: 13, headerHeight: 44 },
-  Modal: {
-    titleFontSize: 16,
-    titleLineHeight: 1.35,
-    padding: 20,
-    paddingContentHorizontalLG: 20,
-    borderRadiusLG: 16,
-  },
-  Drawer: { footerPaddingBlock: 10, footerPaddingInline: 14 },
-};
-
-const COMMON_PICKER_FORMATS = {
-  yearFormat: 'YYYY',
-  dayFormat: 'D',
-  cellMeridiemFormat: 'A',
-  monthBeforeYear: true,
-};
-
-const PICKER_LABELS = {
-  uz: {
-    locale: 'uz_UZ',
-    today: 'Бугун',
-    now: 'Ҳозир',
-    backToToday: 'Бугунга қайтиш',
-    clear: 'Тозалаш',
-    week: 'Ҳафта',
-    month: 'Ой',
-    year: 'Йил',
-    timeSelect: 'Вақтни танланг',
-    dateSelect: 'Санани танланг',
-    weekSelect: 'Ҳафтани танланг',
-    monthSelect: 'Ойни танланг',
-    yearSelect: 'Йилни танланг',
-    decadeSelect: 'Ўн йилликни танланг',
-    previousMonth: 'Олдинги ой',
-    nextMonth: 'Кейинги ой',
-    previousYear: 'Олдинги йил',
-    nextYear: 'Кейинги йил',
-    previousDecade: 'Олдинги ўн йиллик',
-    nextDecade: 'Кейинги ўн йиллик',
-    previousCentury: 'Олдинги аср',
-    nextCentury: 'Кейинги аср',
-  },
-  'uz-latn': {
-    locale: 'uz_UZ',
-    today: 'Bugun',
-    now: 'Hozir',
-    backToToday: 'Bugunga qaytish',
-    clear: 'Tozalash',
-    week: 'Hafta',
-    month: 'Oy',
-    year: 'Yil',
-    timeSelect: 'Vaqtni tanlang',
-    dateSelect: 'Sanani tanlang',
-    weekSelect: 'Haftani tanlang',
-    monthSelect: 'Oyni tanlang',
-    yearSelect: 'Yilni tanlang',
-    decadeSelect: "O'n yillikni tanlang",
-    previousMonth: 'Oldingi oy',
-    nextMonth: 'Keyingi oy',
-    previousYear: 'Oldingi yil',
-    nextYear: 'Keyingi yil',
-    previousDecade: "Oldingi o'n yillik",
-    nextDecade: "Keyingi o'n yillik",
-    previousCentury: 'Oldingi asr',
-    nextCentury: 'Keyingi asr',
-  },
-  ru: {
-    locale: 'ru_RU',
-    today: 'Сегодня',
-    now: 'Сейчас',
-    backToToday: 'Текущая дата',
-    clear: 'Очистить',
-    week: 'Неделя',
-    month: 'Месяц',
-    year: 'Год',
-    timeSelect: 'Выбрать время',
-    dateSelect: 'Выбрать дату',
-    weekSelect: 'Выбрать неделю',
-    monthSelect: 'Выбрать месяц',
-    yearSelect: 'Выбрать год',
-    decadeSelect: 'Выбрать десятилетие',
-    previousMonth: 'Предыдущий месяц',
-    nextMonth: 'Следующий месяц',
-    previousYear: 'Предыдущий год',
-    nextYear: 'Следующий год',
-    previousDecade: 'Предыдущее десятилетие',
-    nextDecade: 'Следующее десятилетие',
-    previousCentury: 'Предыдущий век',
-    nextCentury: 'Следующий век',
-  },
-  en: {
-    locale: 'en_US',
-    today: 'Today',
-    now: 'Now',
-    backToToday: 'Back to today',
-    clear: 'Clear',
-    week: 'Week',
-    month: 'Month',
-    year: 'Year',
-    timeSelect: 'Select time',
-    dateSelect: 'Select date',
-    weekSelect: 'Choose a week',
-    monthSelect: 'Choose a month',
-    yearSelect: 'Choose a year',
-    decadeSelect: 'Choose a decade',
-    previousMonth: 'Previous month',
-    nextMonth: 'Next month',
-    previousYear: 'Previous year',
-    nextYear: 'Next year',
-    previousDecade: 'Previous decade',
-    nextDecade: 'Next decade',
-    previousCentury: 'Previous century',
-    nextCentury: 'Next century',
-  },
-};
-
-const createLocale = ({
-  locale,
-  placeholder,
-  close,
-  noData,
-  filterTitle,
-  filterReset,
-  filterSearchPlaceholder,
-  selectAll,
-  selectInvert,
-  sortTitle,
-  expand,
-  collapse,
-  okText,
-  cancelText,
-  searchPlaceholder,
-  itemUnit,
-  itemsUnit,
-  datePlaceholder,
-  rangePlaceholder,
-  timePlaceholder,
-  optional,
-  requiredTemplate,
-}: {
-  locale: string;
-  placeholder: string;
-  close: string;
-  noData: string;
-  filterTitle: string;
-  filterReset: string;
-  filterSearchPlaceholder: string;
-  selectAll: string;
-  selectInvert: string;
-  sortTitle: string;
-  expand: string;
-  collapse: string;
-  okText: string;
-  cancelText: string;
-  searchPlaceholder: string;
-  itemUnit: string;
-  itemsUnit: string;
-  datePlaceholder: string;
-  rangePlaceholder: [string, string];
-  timePlaceholder: string;
-  optional: string;
-  requiredTemplate: string;
-}): Locale => {
-  //
-  const picker = PICKER_LABELS[locale as keyof typeof PICKER_LABELS] ?? PICKER_LABELS.en;
-
-  return ({
-    locale,
-    global: { placeholder, close },
-    Table: {
-      filterTitle,
-      filterConfirm: okText,
-      filterReset,
-      filterEmptyText: noData,
-      filterCheckAll: selectAll,
-      filterSearchPlaceholder,
-      emptyText: noData,
-      selectAll,
-      selectInvert,
-      selectNone: filterReset,
-      selectionAll: selectAll,
-      sortTitle,
-      expand,
-      collapse,
-    },
-    DatePicker: {
-      lang: {
-        ...COMMON_PICKER_FORMATS,
-        ...picker,
-        ok: okText,
-        locale: picker.locale,
-        placeholder: datePlaceholder,
-        yearPlaceholder: picker.yearSelect,
-        quarterPlaceholder: picker.decadeSelect,
-        monthPlaceholder: picker.monthSelect,
-        weekPlaceholder: picker.weekSelect,
-        rangePlaceholder,
-        rangeYearPlaceholder: rangePlaceholder,
-        rangeQuarterPlaceholder: rangePlaceholder,
-        rangeMonthPlaceholder: rangePlaceholder,
-        rangeWeekPlaceholder: rangePlaceholder,
-      },
-      timePickerLocale: {
-        placeholder: timePlaceholder,
-        rangePlaceholder,
-      },
-    },
-    TimePicker: {
-      placeholder: timePlaceholder,
-      rangePlaceholder,
-    },
-    Modal: { okText, cancelText, justOkText: okText },
-    Popconfirm: { okText, cancelText },
-    Transfer: {
-      titles: ['', ''],
-      searchPlaceholder,
-      itemUnit,
-      itemsUnit,
-      remove: cancelText,
-      selectCurrent: selectAll,
-      selectAll,
-      deselectAll: filterReset,
-      removeAll: filterReset,
-      selectInvert,
-    },
-    Empty: { description: noData },
-    Form: {
-      optional,
-      defaultValidateMessages: {
-        required: requiredTemplate,
-      },
-    },
-  }) as unknown as Locale;
-};
-
-const ANTD_LOCALES: Record<Lang, Locale> = {
-  'uz-cy': createLocale({
-    locale: 'uz',
-    placeholder: 'Танланг',
-    close: 'Ёпиш',
-    noData: 'Маълумот йўқ',
-    filterTitle: 'Филтр',
-    filterReset: 'Тозалаш',
-    filterSearchPlaceholder: 'Филтрларда қидириш',
-    selectAll: 'Барчасини танлаш',
-    selectInvert: 'Танловни алмаштириш',
-    sortTitle: 'Саралаш',
-    expand: 'Қаторни очиш',
-    collapse: 'Қаторни ёпиш',
-    okText: 'OK',
-    cancelText: 'Бекор қилиш',
-    searchPlaceholder: 'Қидириш',
-    itemUnit: 'та',
-    itemsUnit: 'та',
-    datePlaceholder: 'Санани танланг',
-    rangePlaceholder: ['Бошланиш санаси', 'Тугаш санаси'],
-    timePlaceholder: 'Вақтни танланг',
-    optional: '(ихтиёрий)',
-    requiredTemplate: '${label} киритилиши шарт',
-  }),
-  'uz-la': createLocale({
-    locale: 'uz-latn',
-    placeholder: 'Tanlang',
-    close: 'Yopish',
-    noData: "Ma'lumot yo'q",
-    filterTitle: 'Filtr',
-    filterReset: 'Tozalash',
-    filterSearchPlaceholder: 'Filtrlarda qidirish',
-    selectAll: 'Barchasini tanlash',
-    selectInvert: 'Tanlovni almashtirish',
-    sortTitle: 'Saralash',
-    expand: 'Qatorni ochish',
-    collapse: 'Qatorni yopish',
-    okText: 'OK',
-    cancelText: 'Bekor qilish',
-    searchPlaceholder: 'Qidirish',
-    itemUnit: 'ta',
-    itemsUnit: 'ta',
-    datePlaceholder: 'Sanani tanlang',
-    rangePlaceholder: ['Boshlanish sanasi', 'Tugash sanasi'],
-    timePlaceholder: 'Vaqtni tanlang',
-    optional: '(ixtiyoriy)',
-    requiredTemplate: '${label} kiritilishi shart',
-  }),
-  ru: createLocale({
-    locale: 'ru',
-    placeholder: 'Выберите',
-    close: 'Закрыть',
-    noData: 'Нет данных',
-    filterTitle: 'Фильтр',
-    filterReset: 'Сбросить',
-    filterSearchPlaceholder: 'Поиск в фильтрах',
-    selectAll: 'Выбрать все',
-    selectInvert: 'Инвертировать выбор',
-    sortTitle: 'Сортировка',
-    expand: 'Развернуть строку',
-    collapse: 'Свернуть строку',
-    okText: 'OK',
-    cancelText: 'Отмена',
-    searchPlaceholder: 'Поиск',
-    itemUnit: 'элем.',
-    itemsUnit: 'элем.',
-    datePlaceholder: 'Выберите дату',
-    rangePlaceholder: ['Дата начала', 'Дата окончания'],
-    timePlaceholder: 'Выберите время',
-    optional: '(необязательно)',
-    requiredTemplate: 'Пожалуйста, введите ${label}',
-  }),
-  en: createLocale({
-    locale: 'en',
-    placeholder: 'Select',
-    close: 'Close',
-    noData: 'No data',
-    filterTitle: 'Filter',
-    filterReset: 'Reset',
-    filterSearchPlaceholder: 'Search in filters',
-    selectAll: 'Select all',
-    selectInvert: 'Invert selection',
-    sortTitle: 'Sort',
-    expand: 'Expand row',
-    collapse: 'Collapse row',
-    okText: 'OK',
-    cancelText: 'Cancel',
-    searchPlaceholder: 'Search',
-    itemUnit: 'item',
-    itemsUnit: 'items',
-    datePlaceholder: 'Select date',
-    rangePlaceholder: ['Start date', 'End date'],
-    timePlaceholder: 'Select time',
-    optional: '(optional)',
-    requiredTemplate: 'Please enter ${label}',
-  }),
-};
+import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
+import { App as AntdApp, ConfigProvider } from 'antd'
+import dayjs from 'dayjs'
+import 'dayjs/locale/en'
+import 'dayjs/locale/ru'
+import 'dayjs/locale/uz'
+import 'dayjs/locale/uz-latn'
+import { useUIStore } from '@/app/stores/ui.store'
+import { normalizeLang } from '@/shared/lib/lang'
+import { ANTD_LOCALES } from './theme/antdLocales'
+import { createAntdTheme } from './theme/antdTheme'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   //
-  const themeMode = useUIStore((s) => s.theme);
-  const lang = useUIStore((s) => s.lang);
-  const normalizedLang = normalizeLang(lang);
-  const dayjsLocale = normalizedLang === 'uz-cy' ? 'uz' : normalizedLang === 'uz-la' ? 'uz-latn' : normalizedLang;
-  dayjs.locale(dayjsLocale);
-
-  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
-    return typeof window !== 'undefined'
-      ? window.matchMedia('(prefers-color-scheme: dark)').matches
-      : false;
-  });
-  const isDark = themeMode === 'dark' || (themeMode === 'system' && systemIsDark);
+  const themeMode = useUIStore((state) => state.theme)
+  const lang = useUIStore((state) => state.lang)
+  const normalizedLang = normalizeLang(lang)
+  const dayjsLocale = normalizedLang === 'uz-cy'
+    ? 'uz'
+    : normalizedLang === 'uz-la'
+      ? 'uz-latn'
+      : normalizedLang
+  const [systemIsDark, setSystemIsDark] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches,
+  )
+  const isDark = themeMode === 'dark' || (themeMode === 'system' && systemIsDark)
+  const theme = useMemo(() => createAntdTheme(isDark), [isDark])
 
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    setSystemIsDark(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setSystemIsDark(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
+    //
+    dayjs.locale(dayjsLocale)
+  }, [dayjsLocale])
+
+  useEffect(() => {
+    //
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (event: MediaQueryListEvent) => setSystemIsDark(event.matches)
+    setSystemIsDark(mediaQuery.matches)
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
 
   useLayoutEffect(() => {
-    const html = document.documentElement;
-    html.classList.toggle('dark', isDark);
-  }, [isDark]);
+    //
+    document.documentElement.classList.toggle('dark', isDark)
+  }, [isDark])
 
   useLayoutEffect(() => {
-    document.documentElement.lang = normalizedLang;
-  }, [normalizedLang]);
-
-  const locale = ANTD_LOCALES[normalizedLang];
+    //
+    document.documentElement.lang = normalizedLang
+  }, [normalizedLang])
 
   return (
-    <ConfigProvider
-      locale={locale}
-      theme={{
-        algorithm: isDark ? darkAlgorithm : defaultAlgorithm,
-        token: isDark ? DARK_TOKENS : LIGHT_TOKENS,
-        components: {
-          ...SHARED_COMPONENTS,
-          Table: {
-            headerBg: isDark ? '#1a2236' : '#f3f5f9',
-            headerColor: isDark ? '#94a3b8' : '#475569',
-            rowHoverBg: isDark ? 'rgba(40,169,244,.07)' : 'rgba(4,118,208,.035)',
-            borderColor: isDark ? '#334155' : '#e6e9ef',
-            cellFontSize: 12,
-            cellFontSizeMD: 12,
-            cellFontSizeSM: 12,
-            cellPaddingBlock: 5,
-            cellPaddingBlockMD: 5,
-            cellPaddingBlockSM: 4,
-            cellPaddingInline: 8,
-            cellPaddingInlineMD: 8,
-            cellPaddingInlineSM: 8,
-            headerBorderRadius: 6,
-          },
-          Menu: {
-            itemBg: 'transparent',
-            itemSelectedBg: isDark ? 'rgba(40,169,244,.13)' : 'rgba(4,118,208,.08)',
-            itemSelectedColor: isDark ? '#28A9F4' : '#0476D0',
-            itemHoverBg: isDark ? 'rgba(255,255,255,.05)' : 'rgba(15,23,42,.04)',
-          },
-        },
-      }}
-    >
-      <AntdApp>
-        {children}
-      </AntdApp>
+    <ConfigProvider locale={ANTD_LOCALES[normalizedLang]} theme={theme}>
+      <AntdApp>{children}</AntdApp>
     </ConfigProvider>
-  );
+  )
 }

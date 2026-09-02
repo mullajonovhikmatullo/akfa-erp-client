@@ -27,6 +27,10 @@
       "types": "./dist/@types/components/mgr/branch/index.d.ts",
       "import": "./dist/branch.js"
     },
+    "./billing": {
+      "types": "./dist/@types/components/mgr/billing/index.d.ts",
+      "import": "./dist/billing.js"
+    },
     "./category": {
       "types": "./dist/@types/components/mgr/category/index.d.ts",
       "import": "./dist/category.js"

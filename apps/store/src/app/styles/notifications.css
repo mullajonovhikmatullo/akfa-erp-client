@@ -1,0 +1,135 @@
+[data-sonner-toaster] {
+  --width: min(376px, calc(100vw - 24px));
+  z-index: 1200 !important;
+}
+
+[data-sonner-toast].mavion-toast {
+  position: relative;
+  overflow: hidden;
+  min-height: 66px;
+  padding: 13px 42px 13px 14px !important;
+  border: 1px solid color-mix(in srgb, var(--border) 76%, transparent) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 94%, transparent), color-mix(in srgb, var(--surface-2) 88%, transparent)) !important;
+  color: var(--ink-1, var(--ink)) !important;
+  box-shadow:
+    0 18px 48px rgba(15, 23, 42, 0.14),
+    0 4px 14px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 color-mix(in srgb, #fff 62%, transparent) !important;
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
+[data-sonner-toast].mavion-toast::before {
+  content: '';
+  position: absolute;
+  inset: 8px auto 8px 0;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: var(--primary);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--primary) 52%, transparent);
+}
+
+[data-sonner-toast].mavion-toast[data-type='success']::before { background: var(--success); }
+[data-sonner-toast].mavion-toast[data-type='error']::before { background: var(--danger); }
+[data-sonner-toast].mavion-toast[data-type='warning']::before { background: var(--warning); }
+
+[data-sonner-toast].mavion-toast [data-icon] {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, currentColor 11%, transparent);
+  flex: 0 0 30px;
+}
+
+[data-sonner-toast].mavion-toast [data-title] {
+  color: var(--ink-1, var(--ink)) !important;
+  font-size: 13px;
+  font-weight: 680;
+  line-height: 1.35;
+  letter-spacing: 0.005em;
+}
+
+[data-sonner-toast].mavion-toast [data-description] {
+  margin-top: 3px;
+  color: var(--ink-3) !important;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+[data-sonner-toast].mavion-toast [data-close-button] {
+  inset: 10px 10px auto auto !important;
+  left: auto !important;
+  right: 10px !important;
+  top: 10px !important;
+  width: 24px;
+  height: 24px;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent) !important;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface-2) 78%, transparent) !important;
+  color: var(--ink-3) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+[data-sonner-toast].mavion-toast [data-close-button]:hover {
+  color: var(--ink-1, var(--ink)) !important;
+  background: color-mix(in srgb, var(--surface-2) 88%, transparent) !important;
+}
+
+.dark [data-sonner-toast].mavion-toast {
+  border-color: rgba(96, 165, 250, 0.16) !important;
+  background:
+    linear-gradient(135deg, rgba(25, 39, 61, 0.94), rgba(14, 26, 44, 0.91)) !important;
+  box-shadow:
+    0 22px 58px rgba(0, 0, 0, 0.42),
+    0 5px 18px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+.ant-message-notice-content {
+  border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+  border-radius: 13px !important;
+  background: color-mix(in srgb, var(--surface) 92%, transparent) !important;
+  color: var(--ink-1, var(--ink));
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.14) !important;
+  backdrop-filter: blur(18px) saturate(145%);
+}
+
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    right: 12px !important;
+    left: 12px !important;
+    width: auto !important;
+  }
+
+  [data-sonner-toast].mavion-toast {
+    width: 100% !important;
+  }
+}
+
+
+.app-shell .ant-btn-primary:not(:disabled):not(.ant-btn-disabled),
+.app-shell .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
+.app-shell .ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
+  color: #fff !important;
+}
+
+.app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled),
+.app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
+.app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
+  border-color: #f0c76d !important;
+  background: linear-gradient(135deg,#9b6518 0%,#d69b32 42%,#f2cd79 72%,#b8791f 100%) !important;
+  color: #1f1608 !important;
+}
+
+html.dark .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled),
+html.dark .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
+html.dark .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
+  border-color: #e6b85d !important;
+  background: linear-gradient(135deg,#8e5a13 0%,#c48b27 42%,#e3b956 72%,#a96b18 100%) !important;
+  color: #1f1608 !important;
+}

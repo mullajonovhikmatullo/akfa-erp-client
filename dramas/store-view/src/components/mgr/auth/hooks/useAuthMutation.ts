@@ -1,7 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { UserFlowApi } from '@store/store-stub'
-import type { LoginResponse } from '@store/store-stub'
+import { UserFlowApi, type LoginResponse } from '@store/store-stub'
 import type { TFunc } from '../view/types'
 
 interface UseAuthMutationOptions {
@@ -12,7 +11,7 @@ interface UseAuthMutationOptions {
 
 export function useAuthMutation({ t, onAuthenticated, onError }: UseAuthMutationOptions) {
   //
-  return useMutation({
+  const login = useMutation({
     mutationFn: UserFlowApi.login,
     onSuccess: (response) => {
       //
@@ -21,4 +20,8 @@ export function useAuthMutation({ t, onAuthenticated, onError }: UseAuthMutation
     },
     onError,
   })
+  const exchangeHandoff = useMutation({ mutationFn: UserFlowApi.exchangeHandoff })
+  const completeAccountSetup = useMutation({ mutationFn: UserFlowApi.completeAccountSetup })
+
+  return { login, exchangeHandoff, completeAccountSetup }
 }

@@ -17,4 +17,3 @@ export function AppProviders({ children }: { children: ReactNode }) {
 }
 
 export { QueryProvider, RealtimeProvider, ThemeProvider };
-export { queryClient } from './QueryProvider';

@@ -31,6 +31,7 @@ export default defineConfig({
         analytics: entry('./src/components/mgr/analytics/index.ts'),
         auth: entry('./src/components/mgr/auth/index.ts'),
         branch: entry('./src/components/mgr/branch/index.ts'),
+        billing: entry('./src/components/mgr/billing/index.ts'),
         category: entry('./src/components/mgr/category/index.ts'),
         customer: entry('./src/components/mgr/customer/index.ts'),
         dashboard: entry('./src/components/mgr/dashboard/index.ts'),

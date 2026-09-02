@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import type { User } from '@/shared/types';
+import type { User } from '@store/store-stub';
 import { tokenStore } from '@/shared/api/client';
 import { can, type Permission } from '@/shared/config/permissions';
 

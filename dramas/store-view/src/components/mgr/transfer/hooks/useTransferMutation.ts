@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { TransferFlowApi } from '@store/store-stub'
 import type { CreateTransferPayload } from '@store/store-stub'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
-import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
+import { inventoryKeys } from '../../inventory'
 import { transferKeys } from './transferKeys'
 
 type Translate = (key: string) => string

@@ -1,0 +1,60 @@
+.placeholder-img{
+  background:
+    repeating-linear-gradient(45deg, #eef1f6 0 8px, #f4f6fa 8px 16px);
+  border:1px dashed var(--border-strong); border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:"JetBrains Mono", ui-monospace, monospace; color:var(--ink-3); font-size:11.5px;
+}
+
+
+.tagpill{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:2px 8px; border-radius:999px; font-size:11.5px; font-weight:600;
+  background:#f1f5f9; color:var(--ink-2); border:1px solid var(--border);
+  line-height:1.5;
+}
+.tagpill.success{ background:#ecfdf5; color:#047857; border-color:#a7f3d0; }
+.tagpill.danger{ background:#fef2f2; color:#b91c1c; border-color:#fecaca; }
+.tagpill.warn,
+.tagpill.warning{ background:#fffbeb; color:#b45309; border-color:#fde68a; }
+.tagpill.info{ background:#eff6ff; color:#1e40af; border-color:#bfdbfe; }
+.tagpill.muted{ background:#f1f5f9; color:#475569; }
+
+.ph-icon-spin{ animation: ph-icon-spin 1s linear infinite; }
+@keyframes ph-icon-spin{ to{ transform: rotate(360deg); } }
+
+
+body.density-compact .ant-table-thead > tr > th{ padding: 4px 8px !important; }
+body.density-compact .ant-table-tbody > tr > td{ padding: 4px 8px !important; }
+body.density-spacious .ant-table-thead > tr > th{ padding: 10px 14px !important; }
+body.density-spacious .ant-table-tbody > tr > td{ padding: 10px 14px !important; }
+
+
+.sales-grid{
+  display:grid;
+  grid-template-columns: 2.4fr 1.1fr .9fr 1.1fr 1.1fr 1.1fr 32px;
+  gap:8px; align-items:center;
+}
+.sales-grid.head{
+  color:var(--ink-3); font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:600;
+  padding:6px 4px; border-bottom:1px solid var(--border);
+}
+.sales-grid.row{
+  padding:8px 4px; border-bottom:1px dashed var(--border);
+}
+
+
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:10px; border:2px solid transparent; background-clip:padding-box; }
+::-webkit-scrollbar-thumb:hover{ background:#94a3b8; background-clip:padding-box; border:2px solid transparent; }
+
+
+.row{ display:flex; gap:12px; align-items:center; }
+.col{ display:flex; flex-direction:column; gap:8px; }
+.grid-3{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+.grid-4{ display:grid; grid-template-columns: repeat(4, 1fr); gap:14px; }
+.grid-2{ display:grid; grid-template-columns: repeat(2, 1fr); gap:14px; }
+@media (max-width: 1100px){
+  .grid-4{ grid-template-columns: repeat(2, 1fr); }
+  .grid-3{ grid-template-columns: 1fr 1fr; }
+}

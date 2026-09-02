@@ -1,4 +1,4 @@
-import type { UserRole } from '@/shared/types';
+import type { User } from '@store/store-stub';
 
 export type Permission =
   | 'branch:switch'
@@ -64,12 +64,12 @@ const BRANCH_ADMIN_PERMISSIONS: Permission[] = [
   'customers:edit',
 ];
 
-export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+export const ROLE_PERMISSIONS: Record<User['role'], Permission[]> = {
   store_owner: STORE_OWNER_PERMISSIONS,
   branch_admin: BRANCH_ADMIN_PERMISSIONS,
 };
 
-export function can(role: UserRole | undefined, permission: Permission): boolean {
+export function can(role: User['role'] | undefined, permission: Permission): boolean {
   //
   if (!role) return false;
   return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
