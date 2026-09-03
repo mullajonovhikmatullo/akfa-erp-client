@@ -10,8 +10,8 @@ const storeSharedCoreEntry = fileURLToPath(new URL('../../dramas/store-shared/sr
 const storeSharedRoot = fileURLToPath(new URL('../../dramas/store-shared/src', import.meta.url))
 const storeStubEntry = fileURLToPath(new URL('../../dramas/store-stub/src/index.ts', import.meta.url))
 const storeViewEntry = fileURLToPath(new URL('../../dramas/store-view/src/index.ts', import.meta.url))
-const storeViewMgrRoot = fileURLToPath(
-  new URL('../../dramas/store-view/src/components/mgr', import.meta.url),
+const storeViewRoot = fileURLToPath(
+  new URL('../../dramas/store-view/src/components/store', import.meta.url),
 )
 
 function getPackageName(id: string) {
@@ -168,7 +168,7 @@ export default defineConfig({
       { find: /^@store\/store-shared\/ui\/status-badge$/, replacement: `${storeSharedRoot}/ui/StatusBadge/StatusBadge.tsx` },
       { find: /^@store\/store-stub$/, replacement: storeStubEntry },
       { find: /^@store\/store-view$/, replacement: storeViewEntry },
-      { find: /^@store\/store-view\/([^/]+)$/, replacement: `${storeViewMgrRoot}/$1/index.ts` },
+      { find: /^@store\/store-view\/([^/]+)$/, replacement: `${storeViewRoot}/$1/index.ts` },
       { find: /^@\//, replacement: `${appSrc}/` },
     ],
   },

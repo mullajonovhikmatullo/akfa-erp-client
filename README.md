@@ -10,7 +10,7 @@ This repository is organized as a pnpm/turbo monorepo.
 - `dramas/store-shared` - local shared API, auth token, response type, i18n, and permission helpers.
 - `dramas/store-stub` - buildable API/type package boundary for store-management domains.
 - `dramas/store-view` - buildable React view package boundary for future domain UI extraction.
-- `shared-public` - shared Vite public assets such as the favicon, brand logo, and login illustration.
+- `shared-public` - shared Vite public assets such as the favicon and brand logo.
 
 ## Commands
 

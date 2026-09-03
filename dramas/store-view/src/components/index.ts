@@ -1,1 +1,1 @@
-export * from './mgr'
+export * from './store';

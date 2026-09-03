@@ -22,7 +22,7 @@
       "@store/store-shared/ui/status-badge": ["../../dramas/store-shared/src/ui/StatusBadge/StatusBadge.tsx"],
       "@store/store-stub": ["../../dramas/store-stub/src/index.ts"],
       "@store/store-view": ["../../dramas/store-view/src/index.ts"],
-      "@store/store-view/*": ["../../dramas/store-view/src/components/mgr/*/index.ts"]
+      "@store/store-view/*": ["../../dramas/store-view/src/components/store/*/index.ts"]
     },
     "noEmit": true
   },

@@ -12,67 +12,67 @@
       "import": "./dist/index.js"
     },
     "./admins": {
-      "types": "./dist/@types/components/mgr/admins/index.d.ts",
+      "types": "./dist/@types/components/store/admins/index.d.ts",
       "import": "./dist/admins.js"
     },
     "./analytics": {
-      "types": "./dist/@types/components/mgr/analytics/index.d.ts",
+      "types": "./dist/@types/components/store/analytics/index.d.ts",
       "import": "./dist/analytics.js"
     },
     "./auth": {
-      "types": "./dist/@types/components/mgr/auth/index.d.ts",
+      "types": "./dist/@types/components/store/auth/index.d.ts",
       "import": "./dist/auth.js"
     },
     "./branch": {
-      "types": "./dist/@types/components/mgr/branch/index.d.ts",
+      "types": "./dist/@types/components/store/branch/index.d.ts",
       "import": "./dist/branch.js"
     },
     "./billing": {
-      "types": "./dist/@types/components/mgr/billing/index.d.ts",
+      "types": "./dist/@types/components/store/billing/index.d.ts",
       "import": "./dist/billing.js"
     },
     "./category": {
-      "types": "./dist/@types/components/mgr/category/index.d.ts",
+      "types": "./dist/@types/components/store/category/index.d.ts",
       "import": "./dist/category.js"
     },
     "./customer": {
-      "types": "./dist/@types/components/mgr/customer/index.d.ts",
+      "types": "./dist/@types/components/store/customer/index.d.ts",
       "import": "./dist/customer.js"
     },
     "./dashboard": {
-      "types": "./dist/@types/components/mgr/dashboard/index.d.ts",
+      "types": "./dist/@types/components/store/dashboard/index.d.ts",
       "import": "./dist/dashboard.js"
     },
     "./expense": {
-      "types": "./dist/@types/components/mgr/expense/index.d.ts",
+      "types": "./dist/@types/components/store/expense/index.d.ts",
       "import": "./dist/expense.js"
     },
     "./inventory": {
-      "types": "./dist/@types/components/mgr/inventory/index.d.ts",
+      "types": "./dist/@types/components/store/inventory/index.d.ts",
       "import": "./dist/inventory.js"
     },
     "./product": {
-      "types": "./dist/@types/components/mgr/product/index.d.ts",
+      "types": "./dist/@types/components/store/product/index.d.ts",
       "import": "./dist/product.js"
     },
     "./profile": {
-      "types": "./dist/@types/components/mgr/profile/index.d.ts",
+      "types": "./dist/@types/components/store/profile/index.d.ts",
       "import": "./dist/profile.js"
     },
     "./purchase": {
-      "types": "./dist/@types/components/mgr/purchase/index.d.ts",
+      "types": "./dist/@types/components/store/purchase/index.d.ts",
       "import": "./dist/purchase.js"
     },
     "./sale": {
-      "types": "./dist/@types/components/mgr/sale/index.d.ts",
+      "types": "./dist/@types/components/store/sale/index.d.ts",
       "import": "./dist/sale.js"
     },
     "./settings": {
-      "types": "./dist/@types/components/mgr/settings/index.d.ts",
+      "types": "./dist/@types/components/store/settings/index.d.ts",
       "import": "./dist/settings.js"
     },
     "./transfer": {
-      "types": "./dist/@types/components/mgr/transfer/index.d.ts",
+      "types": "./dist/@types/components/store/transfer/index.d.ts",
       "import": "./dist/transfer.js"
     }
   },
