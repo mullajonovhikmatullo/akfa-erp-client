@@ -1,6 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { z } from 'zod'
 
-type Translate = (key: string) => string
+type Translate = StoreTranslator
 
 export function createProfileSchema(t: Translate) {
   //

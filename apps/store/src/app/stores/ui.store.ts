@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
+import type { StoreLocale } from '@store/store-i18n';
 import type { Currency } from '@store/store-stub';
-import type { Lang } from '@/shared/lib/lang';
 
 type Density = 'compact' | 'default' | 'spacious';
 export type Theme = 'light' | 'dark' | 'system';
-export type { Lang } from '@/shared/lib/lang';
+export type { StoreLocale } from '@store/store-i18n';
 
 interface UIState {
   activeBranchId: string;
-  lang: Lang;
+  lang: StoreLocale;
   theme: Theme;
   density: Density;
   sidebarCollapsed: boolean;
@@ -21,7 +21,7 @@ interface UIState {
 
 interface UIActions {
   setActiveBranch: (id: string) => void;
-  setLang: (lang: Lang) => void;
+  setLang: (lang: StoreLocale) => void;
   setTheme: (theme: Theme) => void;
   setDensity: (density: Density) => void;
   toggleSidebar: () => void;

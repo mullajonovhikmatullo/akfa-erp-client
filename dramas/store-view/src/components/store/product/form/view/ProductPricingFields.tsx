@@ -1,9 +1,10 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, InputNumber, Segmented } from 'antd'
 import type { ProductFormValues } from '../productSchema'
 
 interface ProductPricingFieldsProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<ProductFormValues>
   errors: FieldErrors<ProductFormValues>
   currency: ProductFormValues['priceCurrency']

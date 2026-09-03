@@ -1,6 +1,6 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
-import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import { getSaleProductPrice, getSaleProductPriceUzs } from '@store/store-shared/lib/product-pricing'
 import type { Customer, PaymentMethod, Product } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
@@ -12,13 +12,14 @@ import { clearSaleDraft, readSaleDraft, writeSaleDraft } from './saleDraft'
 import type { CartItem, SaleFormValues } from './view/types'
 
 interface UseNewSaleFormOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   userBranchId?: string | null
   exchangeRate: number
   onSuccess?: () => void
 }
 
 const MIN_QTY = 0.0001
+const SALE_PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CASH_USD', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT']
 
 function emptySaleFormValues(branchId?: string): SaleFormValues {
   //
@@ -128,8 +129,8 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
   )
   const selectedProductIds = useMemo(() => new Set(cart.map((item) => item.productId)), [cart])
   const paymentOptions = useMemo(
-    () => (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[]).map((key) => ({ value: key, label: PAYMENT_METHOD_LABELS[key] })),
-    [],
+    () => SALE_PAYMENT_METHODS.map((key) => ({ value: key, label: t(`payment.${key}`) })),
+    [t],
   )
   const unitPrice = useCallback(
     (product: Product) => getSaleProductPriceUzs(product, saleType, effectiveExchangeRate),

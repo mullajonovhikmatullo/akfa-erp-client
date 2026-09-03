@@ -1,11 +1,11 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
-import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
-import type { ProductUnit, SaleListItem } from '@store/store-stub'
+import type { SaleListItem } from '@store/store-stub'
 
-export function createTopProductColumns(t: (key: string) => string): ColumnDef<{
+export function createTopProductColumns(t: StoreTranslator): ColumnDef<{
   productId: string
   name: string
   sku: string | null
@@ -16,12 +16,12 @@ export function createTopProductColumns(t: (key: string) => string): ColumnDef<{
   //
   return [
     { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div className="u-fw-600">{row.name}</div>{row.sku ? <div className="u-text-muted u-font-mono u-fs-11">{row.sku}</div> : null}</div> },
-    { title: t('analytics.colQty'), key: 'qty', width: 120, align: 'right', render: (_, row) => <span className="num">{row.totalQuantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[row.unit as ProductUnit] ?? row.unit}</span> },
+    { title: t('analytics.colQty'), key: 'qty', width: 120, align: 'right', render: (_, row) => <span className="num">{row.totalQuantity.toLocaleString('ru-RU')} {t(row.unit === 'KG' ? 'units.KG' : row.unit === 'PIECE' ? 'units.PIECE' : 'units.unknown')}</span> },
     { title: t('analytics.colRevenue'), key: 'rev', width: 160, align: 'right', render: (_, row) => <span className="num u-fw-700" ><MoneyDisplay amount={row.totalRevenue} currency="UZS" /></span> },
   ]
 }
 
-export function createLowStockColumns(t: (key: string) => string): ColumnDef<{
+export function createLowStockColumns(t: StoreTranslator): ColumnDef<{
   productId: string
   name: string
   sku: string | null
@@ -34,11 +34,11 @@ export function createLowStockColumns(t: (key: string) => string): ColumnDef<{
   //
   return [
     { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div className="u-fw-500">{row.name}</div><div className="u-text-muted u-fs-11">{row.branchName}</div></div> },
-    { title: t('analytics.colRemaining'), key: 'stock', width: 130, align: 'right', render: (_, row) => <span className="num u-text-danger u-fw-600" >{row.currentStock} / {row.threshold} {PRODUCT_UNIT_LABELS[row.unit as ProductUnit] ?? row.unit}</span> },
+    { title: t('analytics.colRemaining'), key: 'stock', width: 130, align: 'right', render: (_, row) => <span className="num u-text-danger u-fw-600" >{row.currentStock} / {row.threshold} {t(row.unit === 'KG' ? 'units.KG' : row.unit === 'PIECE' ? 'units.PIECE' : 'units.unknown')}</span> },
   ]
 }
 
-export function createDebtColumns(t: (key: string) => string, page: number, pageSize: number): ColumnDef<SaleListItem>[] {
+export function createDebtColumns(t: StoreTranslator, page: number, pageSize: number): ColumnDef<SaleListItem>[] {
   //
   return [
     { title: '#', key: '_idx', width: 52, align: 'center', render: (_, __, index) => <span className="u-text-quiet u-fs-11 u-numeric-tabular">{(page - 1) * pageSize + index + 1}</span> },

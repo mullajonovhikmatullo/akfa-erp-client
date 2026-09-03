@@ -40,11 +40,10 @@ export function BillingPlanCards({ summary, publicPlans, loading, t }: BillingPl
           plan={plan}
           current={isCurrentBillingPlan(plan, summary.plan)}
           upgrade={isBillingPlanUpgrade(plan, summary.plan)}
-          upgradeHref={createUpgradeRequestHref(plan, summary.name, summary.plan?.name)}
+          upgradeHref={createUpgradeRequestHref(plan, t, summary.name, summary.plan?.name)}
           t={t}
         />
       ))}
     </div>
   )
 }
-

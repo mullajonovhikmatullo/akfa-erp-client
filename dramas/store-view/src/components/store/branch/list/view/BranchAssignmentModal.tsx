@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Form, Modal, Select } from 'antd'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
@@ -14,7 +15,7 @@ export type BranchAssignmentOption = {
 }
 
 interface BranchAssignmentModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   target: Branch | null
   control: Control<AssignBranchFormValues>
   options: BranchAssignmentOption[]

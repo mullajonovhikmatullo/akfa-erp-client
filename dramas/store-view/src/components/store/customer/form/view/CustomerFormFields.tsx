@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Alert, Button, Form, Input, InputNumber, Radio, Select, Switch } from 'antd'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
@@ -7,7 +8,7 @@ import type { Branch, Customer } from '@store/store-stub'
 import type { CustomerFormValues } from '../customerSchema'
 
 interface CustomerFormFieldsProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<CustomerFormValues>
   errors: FieldErrors<CustomerFormValues>
   isEdit: boolean
@@ -142,7 +143,7 @@ export function CustomerFormFields({
                   className="u-w-full"
                   formatter={(value) => (value ? `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : '')}
                   parser={(value) => Number(value?.replace(/\s/g, '') ?? 0)}
-                  addonAfter="so'm"
+                  addonAfter={t('currency.UZS')}
                 />
               )}
             />

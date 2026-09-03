@@ -1,17 +1,17 @@
 import type { MenuProps } from 'antd'
 
+import type { StoreLocale, StoreTranslator } from '@store/store-i18n'
 import type { Branch, User } from '@store/store-stub'
-import type { Lang } from '@/shared/lib/lang'
 import { LANGUAGE_OPTIONS } from '../headerConfig'
 import { UserAvatar } from './UserAvatar'
 
 interface HeaderMenuItemsOptions {
-  lang: Lang
-  onLanguageChange: (lang: Lang) => void
+  lang: StoreLocale
+  onLanguageChange: (lang: StoreLocale) => void
   onLogout: () => void
   onOpenProfile: () => void
   onOpenSettings: () => void
-  t: (key: string) => string
+  t: StoreTranslator
   user: User | null
   userBranch?: Branch
 }

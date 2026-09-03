@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,7 +12,7 @@ import { createProductSchema, type ProductFormValues } from './productSchema'
 import { useProductImagePersistence } from './useProductImagePersistence'
 
 interface UseProductFormOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   product?: Product | null
   imageFiles: File[]

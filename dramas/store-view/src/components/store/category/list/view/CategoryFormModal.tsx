@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal, Switch } from 'antd'
 
@@ -11,7 +12,7 @@ export type CategoryFormValues = {
 }
 
 interface CategoryFormModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   editTarget: Category | null
   control: Control<CategoryFormValues>

@@ -1,7 +1,6 @@
 import { Skeleton, Table } from 'antd'
-import { PAYMENT_METHOD_LABELS, SALE_TYPE_LABELS } from '@store/store-shared/core'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import type { SalesReportData, PaymentMethod, SaleType } from '@store/store-stub'
+import type { SalesReportData, PaymentMethod } from '@store/store-stub'
 import { Empty, KpiCard, ProgressBar, SectionTitle } from './AnalyticsShared'
 import { createTopProductColumns } from './analyticsColumns'
 import type { TFunc } from './types'
@@ -21,11 +20,11 @@ export function SalesTab({ data, loading, t }: { data?: SalesReportData; loading
       <div className="u-grid u-gap-12 u-grid-cols-2">
         <div className="card">
           <SectionTitle>{t('analytics.byType')}</SectionTitle>
-          {data.byType.map((row) => <div key={row.saleType} className="u-mb-12"><div className="u-flex u-fs-13 u-justify-between u-mb-4"><span className="u-fw-500">{SALE_TYPE_LABELS[row.saleType as SaleType]} ({row.count} {t('common.countSuffix')})</span><span className="num"><MoneyDisplay amount={row.revenue} currency="UZS" /></span></div><ProgressBar pct={(row.revenue / grandTotal) * 100} /></div>)}
+          {data.byType.map((row) => <div key={row.saleType} className="u-mb-12"><div className="u-flex u-fs-13 u-justify-between u-mb-4"><span className="u-fw-500">{t(row.saleType === 'RETAIL' ? 'sales.typeRetail' : 'sales.typeWholesale')} ({row.count} {t('common.countSuffix')})</span><span className="num"><MoneyDisplay amount={row.revenue} currency="UZS" /></span></div><ProgressBar pct={(row.revenue / grandTotal) * 100} /></div>)}
         </div>
         <div className="card">
           <SectionTitle>{t('analytics.byPayment')}</SectionTitle>
-          {data.byPaymentMethod.map((row) => <div key={row.paymentMethod} className="u-mb-12"><div className="u-flex u-fs-13 u-justify-between u-mb-4"><span className="u-fw-500">{PAYMENT_METHOD_LABELS[row.paymentMethod as PaymentMethod]} ({row.count})</span><span className="num"><MoneyDisplay amount={row.amount} currency="UZS" /></span></div><ProgressBar pct={(row.amount / grandTotal) * 100} /></div>)}
+          {data.byPaymentMethod.map((row) => <div key={row.paymentMethod} className="u-mb-12"><div className="u-flex u-fs-13 u-justify-between u-mb-4"><span className="u-fw-500">{t(`payment.${row.paymentMethod as PaymentMethod}`)} ({row.count})</span><span className="num"><MoneyDisplay amount={row.amount} currency="UZS" /></span></div><ProgressBar pct={(row.amount / grandTotal) * 100} /></div>)}
           {data.byPaymentMethod.length === 0 ? <Empty t={t} /> : null}
         </div>
       </div>

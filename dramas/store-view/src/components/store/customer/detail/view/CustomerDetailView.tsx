@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Divider, Form, InputNumber, Select, Skeleton, Tag } from 'antd'
 
@@ -18,7 +19,7 @@ interface PaymentOption {
 }
 
 interface CustomerDetailViewProps {
-  t: (key: string) => string
+  t: StoreTranslator
   customer: Customer
   detail?: CustomerDetail
   detailLoading: boolean

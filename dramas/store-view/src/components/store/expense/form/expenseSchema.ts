@@ -1,6 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { z } from 'zod'
 
-export const createExpenseSchema = (t: (key: string) => string) =>
+export const createExpenseSchema = (t: StoreTranslator) =>
   z
     .object({
       categoryId: z.string().uuid(t('validation.categorySelect')),

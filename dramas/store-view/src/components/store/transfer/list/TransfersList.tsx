@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Alert, Button, Modal, Select, Table, Tooltip } from 'antd'
 
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { Transfer, TransferStatus } from '@store/store-stub'
@@ -16,7 +17,6 @@ type TransferFiltersForm = {
 }
 
 interface TransfersListProps {
-  t: (key: string) => string
   isStoreOwner: boolean
   userBranchId?: string | null
   branchId?: string
@@ -24,8 +24,9 @@ interface TransfersListProps {
   exchangeRate: number
 }
 
-export function TransfersList({ t, isStoreOwner, userBranchId, branchId, userId, exchangeRate }: TransfersListProps) {
+export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, exchangeRate }: TransfersListProps) {
   //
+  const t = useStoreT()
   const rowIndex = (index: number) => index + 1
   const { control, watch } = useForm<TransferFiltersForm>({
     defaultValues: { status: undefined },

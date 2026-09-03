@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm } from 'antd'
 
 import { formatDateTime } from '@store/store-shared/lib/formatters'
@@ -13,7 +14,7 @@ const STATUS_TONE: Record<TransferStatus, 'warning' | 'success' | 'danger'> = {
 }
 
 type TransferColumnsOptions = {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   statusLabel: Record<TransferStatus, string>
   isStoreOwner: boolean
@@ -157,7 +158,7 @@ export function createTransferColumns({
   ]
 }
 
-export function createTransferConfirmColumns(t: (key: string) => string): ColumnDef<Transfer['items'][number]>[] {
+export function createTransferConfirmColumns(t: StoreTranslator): ColumnDef<Transfer['items'][number]>[] {
   //
   return [
     {
@@ -202,7 +203,7 @@ export function createTransferConfirmColumns(t: (key: string) => string): Column
   ]
 }
 
-export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: (key: string) => string }) {
+export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: StoreTranslator }) {
   //
   return (
     <div className="u-p-8-0-8-48">

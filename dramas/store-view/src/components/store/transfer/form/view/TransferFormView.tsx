@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Alert, Empty, Input, Select, Table } from 'antd'
 
@@ -11,7 +12,7 @@ import { createTransferColumns } from './transferColumns'
 import type { TransferCartItem, TransferFormValues } from './types'
 
 interface TransferFormViewProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<TransferFormValues>
   branches: Branch[]
   branchesLoading: boolean

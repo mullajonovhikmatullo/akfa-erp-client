@@ -1,5 +1,5 @@
 import type { Locale } from 'antd/es/locale'
-import type { Lang } from '@/shared/lib/lang'
+import type { StoreLocale } from '@store/store-i18n'
 
 const COMMON_PICKER_FORMATS = {
   yearFormat: 'YYYY',
@@ -226,7 +226,7 @@ const createLocale = ({
   }) as unknown as Locale;
 };
 
-export const ANTD_LOCALES: Record<Lang, Locale> = {
+export const ANTD_LOCALES: Record<StoreLocale, Locale> = {
   'uz-cy': createLocale({
     locale: 'uz',
     placeholder: 'Танланг',

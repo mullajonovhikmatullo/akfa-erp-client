@@ -1,3 +1,4 @@
+import { useStoreT } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Select } from 'antd'
 
@@ -10,7 +11,6 @@ interface HeaderBranchControlProps {
   control: Control<HeaderBranchFormValues>
   isStoreOwner: boolean
   onBranchChange: (branchId: string) => void
-  t: (key: string) => string
   userBranch?: Branch
 }
 
@@ -20,10 +20,11 @@ export function HeaderBranchControl({
   control,
   isStoreOwner,
   onBranchChange,
-  t,
   userBranch,
 }: HeaderBranchControlProps) {
   //
+  const t = useStoreT()
+
   if (!isStoreOwner) {
     return (
       <span className="branchchip topbar-hide-mobile">

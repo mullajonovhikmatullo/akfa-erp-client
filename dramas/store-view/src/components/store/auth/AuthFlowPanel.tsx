@@ -1,7 +1,8 @@
+import { useStoreT } from '@store/store-i18n'
 import type { LoginResponse } from '@store/store-stub'
 import { LoginPanel } from './LoginPanel'
 import { useAuthFlow } from './hooks/useAuthFlow'
-import type { LoginLanguage, TFunc } from './view/types'
+import type { LoginLanguage } from './view/types'
 import { AccountSetupView } from './view/AccountSetupView'
 import { HandoffTransitionView } from './view/HandoffTransitionView'
 
@@ -10,7 +11,6 @@ export interface AuthFlowPanelProps {
   onAuthenticated: (response: LoginResponse) => void
   onLanguageChange: (language: LoginLanguage) => void
   sessionExpired: boolean
-  t: TFunc
 }
 
 export function AuthFlowPanel({
@@ -18,9 +18,9 @@ export function AuthFlowPanel({
   onAuthenticated,
   onLanguageChange,
   sessionExpired,
-  t,
 }: AuthFlowPanelProps) {
   //
+  const t = useStoreT()
   const authFlow = useAuthFlow({ t, onAuthenticated })
   const showHandoff = authFlow.exchangeHandoff.isPending
     || Boolean(authFlow.handoffCode && authFlow.handoffRetryable)

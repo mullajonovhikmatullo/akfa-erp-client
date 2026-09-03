@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, InputNumber, Select, Switch } from 'antd'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
@@ -6,7 +7,7 @@ import type { Branch, Category, ProductUnit } from '@store/store-stub'
 import type { ProductFormValues } from '../productSchema'
 
 interface ProductBasicFieldsProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<ProductFormValues>
   errors: FieldErrors<ProductFormValues>
   categories: Category[]

@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,7 +8,7 @@ import { useExpenseMutation } from '../hooks/useExpenseMutation'
 import { createExpenseSchema, type ExpenseFormValues } from './expenseSchema'
 
 interface UseExpenseFormOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
   exchangeRate: number

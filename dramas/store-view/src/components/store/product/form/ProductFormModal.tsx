@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Form } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
@@ -12,7 +13,7 @@ import { ProductImagesSection } from './view/ProductImagesSection'
 import { ProductPricingFields } from './view/ProductPricingFields'
 
 interface ProductFormModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   product?: Product | null
   onClose: () => void

@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 const entry = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 const externalPackages = [
+  '@store/store-i18n',
   '@store/store-shared',
   '@store/store-stub',
   '@hookform/resolvers',

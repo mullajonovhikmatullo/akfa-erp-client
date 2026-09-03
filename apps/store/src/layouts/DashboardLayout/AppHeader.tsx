@@ -5,7 +5,7 @@ import { queryClient } from '@/app/providers/query/queryClient'
 import { useUIStore } from '@/app/stores/ui.store'
 import { useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
-import { useT } from '@/shared/lib/i18n'
+import { useStoreT } from '@store/store-i18n'
 import { useHeaderBranchSelection } from './hooks/useHeaderBranchSelection'
 import { useHeaderNavigation } from './hooks/useHeaderNavigation'
 import { useHeaderTheme } from './hooks/useHeaderTheme'
@@ -18,7 +18,7 @@ interface AppHeaderProps {
 export function AppHeader({ branches }: AppHeaderProps) {
   //
   const navigate = useNavigate()
-  const t = useT()
+  const t = useStoreT()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const exchangeRate = useUIStore((state) => state.exchangeRate)
@@ -85,7 +85,6 @@ export function AppHeader({ branches }: AppHeaderProps) {
             control={control}
             isStoreOwner={isStoreOwner}
             onBranchChange={setActiveBranch}
-            t={t}
             userBranch={userBranch}
           />
         </div>
@@ -100,7 +99,6 @@ export function AppHeader({ branches }: AppHeaderProps) {
           languageMenuItems={languageMenuItems}
           onToggleTheme={toggleTheme}
           profileMenuItems={profileMenuItems}
-          t={t}
           user={user}
         />
       </div>

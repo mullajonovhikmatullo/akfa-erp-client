@@ -1,10 +1,11 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { useStockInForm } from './useStockInForm'
 import { StockInFormView } from './view/StockInFormView'
 
 interface StockInModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
   isStoreOwner: boolean

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useStoreT } from '@store/store-i18n'
 import { useProductsList } from '../product/hooks/useProductsList'
 import { useInventoryList } from './hooks/useInventoryList'
 import { useStockBatchSummary } from './hooks/useStockBatchSummary'
@@ -9,17 +10,16 @@ import {
   InventoryPageHeader,
   InventorySummary,
   InventoryTable,
-  type InventoryTranslate,
   type QuantityFilter,
 } from './view'
 
 export interface InventoryPanelProps {
   branchId?: string | null
-  t: InventoryTranslate
 }
 
-export function InventoryPanel({ branchId, t }: InventoryPanelProps) {
+export function InventoryPanel({ branchId }: InventoryPanelProps) {
   //
+  const t = useStoreT()
   const [search, setSearch] = useState('')
   const [quantityFilter, setQuantityFilter] = useState<QuantityFilter>('all')
 

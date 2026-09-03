@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Drawer, Empty, Skeleton } from 'antd'
@@ -7,7 +8,7 @@ import { useExpenseMutation } from '../hooks/useExpenseMutation'
 import { ExpenseCategoryCreateForm, ExpenseCategoryRow, type CategoryManagerFormValues } from './view'
 
 interface CategoryManagerDrawerProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
 }

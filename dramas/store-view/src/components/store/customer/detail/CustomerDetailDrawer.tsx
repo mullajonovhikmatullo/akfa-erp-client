@@ -1,7 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Drawer } from 'antd'
-import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import type { Customer, PaymentMethod, SaleListItem } from '@store/store-stub'
 import { useSaleMutation } from '../../sale/hooks/useSaleMutation'
 import { useSalesList } from '../../sale/hooks/useSalesList'
@@ -9,7 +9,7 @@ import { useCustomerDetail } from '../hooks/useCustomerDetail'
 import { CustomerDetailView, type DebtPaymentFormValues } from './view/CustomerDetailView'
 
 interface CustomerDetailDrawerProps {
-  t: (key: string) => string
+  t: StoreTranslator
   customer: Customer | null
   onClose: () => void
 }
@@ -29,7 +29,7 @@ export function CustomerDetailDrawer({ t, customer, onClose }: CustomerDetailDra
   })
   const payAmount = watch('amount') ?? 0
   const paymentOptions = useMemo(
-    () => DEBT_PAYMENT_METHODS.map((method) => ({ value: method, label: t(`payment.${method}`) || PAYMENT_METHOD_LABELS[method] })),
+    () => DEBT_PAYMENT_METHODS.map((method) => ({ value: method, label: t(`payment.${method}`) })),
     [t],
   )
   const currentBalance = detail?.balance ?? customer?.balance ?? 0

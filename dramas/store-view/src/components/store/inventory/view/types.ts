@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import type { ProductUnit } from '@store/store-stub'
 
 export type StockRow = {
@@ -16,5 +17,5 @@ export type QuantityFilter = 'all' | 'out' | 'low' | 'available'
 
 export type InventoryTotals = Record<ProductUnit, number>
 
-export type InventoryTranslate = (key: string) => string
+export type InventoryTranslate = StoreTranslator
 

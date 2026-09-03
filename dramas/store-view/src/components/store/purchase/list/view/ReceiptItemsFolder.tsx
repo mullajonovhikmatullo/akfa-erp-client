@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Tag } from 'antd'
 import { formatDateTime } from '@store/store-shared/lib/formatters'
 import { DataTable } from '@store/store-shared/ui/data-table'
@@ -5,7 +6,7 @@ import type { StockBatch, StockReceipt } from '@store/store-stub'
 import { useStockReceiptItemsPage } from '../../../inventory/hooks/useStockReceiptItemsPage'
 import { createReceiptItemColumns } from './receiptColumns'
 
-export function ReceiptItemsFolder({ receipt, t }: { receipt: StockReceipt; t: (key: string) => string }) {
+export function ReceiptItemsFolder({ receipt, t }: { receipt: StockReceipt; t: StoreTranslator }) {
   //
   const query = useStockReceiptItemsPage(receipt.id, 25)
   const { page, pageSize, onPageChange } = query

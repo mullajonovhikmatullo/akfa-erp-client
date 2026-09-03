@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Radio, Select } from 'antd'
 
@@ -11,7 +12,7 @@ interface CustomerOption {
 }
 
 interface SaleSetupViewProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<SaleFormValues>
   customerOptions: CustomerOption[]
   selectedCustomerId?: string

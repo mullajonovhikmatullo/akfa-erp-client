@@ -1,8 +1,9 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Modal, Slider } from 'antd'
 
 
 interface ProfilePhotoEditorModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   photoUrl?: string
   zoom: number
   rotation: number

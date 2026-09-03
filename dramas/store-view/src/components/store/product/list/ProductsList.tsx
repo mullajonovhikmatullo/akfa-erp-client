@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Select, Tooltip } from 'antd'
 
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import type { CreateProductPayload, Currency, Product, ProductUnit } from '@store/store-stub'
@@ -30,15 +31,15 @@ type ProductFiltersForm = {
 }
 
 interface ProductsListProps {
-  t: (key: string) => string
   canManage: boolean
   isStoreOwner: boolean
   userBranchId?: string | null
   activeBranchId?: string
 }
 
-export function ProductsList({ t, canManage, isStoreOwner, userBranchId, activeBranchId }: ProductsListProps) {
+export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBranchId }: ProductsListProps) {
   //
+  const t = useStoreT()
   const { control, watch } = useForm<ProductFiltersForm>({
     defaultValues: {
       search: '',

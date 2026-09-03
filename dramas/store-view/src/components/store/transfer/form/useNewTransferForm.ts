@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
@@ -9,7 +10,7 @@ import { useTransferMutation } from '../hooks/useTransferMutation'
 import type { TransferCartItem, TransferFormValues } from './view/types'
 
 interface UseNewTransferFormOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
   isStoreOwner: boolean

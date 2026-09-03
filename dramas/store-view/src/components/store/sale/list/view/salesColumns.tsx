@@ -1,6 +1,6 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Tooltip } from 'antd';
 
-import { SALE_TYPE_LABELS } from '@store/store-shared/core';
 import { formatDateTime } from '@store/store-shared/lib/formatters';
 import type { ColumnDef } from '@store/store-shared/ui/data-table';
 import { MoneyDisplay } from '@store/store-shared/ui/money-display';
@@ -8,7 +8,7 @@ import { StatusBadge } from '@store/store-shared/ui/status-badge';
 import type { SaleListItem, SaleType } from '@store/store-stub';
 
 interface SalesColumnsOptions {
-  t: (key: string) => string;
+  t: StoreTranslator;
   rowIndex: (index: number) => number;
   onView: (sale: SaleListItem) => void;
 }
@@ -57,7 +57,11 @@ export function createSalesColumns({ t, rowIndex, onView }: SalesColumnsOptions)
       dataIndex: 'saleType',
       width: 100,
       responsiveHide: true,
-      render: (value: SaleType) => <StatusBadge tone={value === 'RETAIL' ? 'muted' : 'info'}>{SALE_TYPE_LABELS[value]}</StatusBadge>,
+      render: (value: SaleType) => (
+        <StatusBadge tone={value === 'RETAIL' ? 'muted' : 'info'}>
+          {t(value === 'RETAIL' ? 'sales.typeRetail' : 'sales.typeWholesale')}
+        </StatusBadge>
+      ),
     },
     {
       title: t('nav.products'),

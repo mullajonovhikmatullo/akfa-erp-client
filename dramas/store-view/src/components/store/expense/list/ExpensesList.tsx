@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
 
 import dayjs, { type Dayjs } from 'dayjs'
+import { useStoreT } from '@store/store-i18n'
 import type { Expense } from '@store/store-stub'
 import { CategoryManagerDrawer } from '../category/CategoryManagerDrawer'
 import { ExpenseFormModal } from '../form/ExpenseFormModal'
@@ -24,14 +25,14 @@ type ExpenseFiltersForm = {
 }
 
 interface ExpensesListProps {
-  t: (key: string) => string
   isStoreOwner: boolean
   branchId?: string
   exchangeRate: number
 }
 
-export function ExpensesList({ t, isStoreOwner, branchId, exchangeRate }: ExpensesListProps) {
+export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesListProps) {
   //
+  const t = useStoreT()
   const rowIndex = (index: number) => index + 1
   const { control, watch } = useForm<ExpenseFiltersForm>({
     defaultValues: {

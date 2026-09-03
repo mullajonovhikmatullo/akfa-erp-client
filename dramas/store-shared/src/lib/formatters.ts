@@ -9,7 +9,7 @@ export function formatUZS(n: number): string {
   if (Number.isNaN(n)) return '—'
   const sign = n < 0 ? '-' : ''
   const abs = Math.abs(Math.round(n))
-  return `${sign}${abs.toLocaleString('ru-RU').replace(/,/g, ' ')} so'm`
+  return `${sign}${abs.toLocaleString('ru-RU').replace(/,/g, ' ')} UZS`
 }
 
 export function formatUSD(n: number): string {
@@ -24,10 +24,10 @@ export function formatCompactUZS(n: number): string {
   if (n == null) return '—'
   const abs = Math.abs(n)
   const sign = n < 0 ? '-' : ''
-  if (abs >= 1e9) return `${sign}${(abs / 1e9).toFixed(2)} B so'm`
-  if (abs >= 1e6) return `${sign}${(abs / 1e6).toFixed(1)} M so'm`
-  if (abs >= 1e3) return `${sign}${(abs / 1e3).toFixed(0)}K so'm`
-  return `${sign}${abs} so'm`
+  if (abs >= 1e9) return `${sign}${(abs / 1e9).toFixed(2)} B UZS`
+  if (abs >= 1e6) return `${sign}${(abs / 1e6).toFixed(1)} M UZS`
+  if (abs >= 1e3) return `${sign}${(abs / 1e3).toFixed(0)}K UZS`
+  return `${sign}${abs} UZS`
 }
 
 export function formatMoney(n: number, currency: Currency, compact = false): string {

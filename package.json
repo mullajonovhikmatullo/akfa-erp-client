@@ -21,6 +21,7 @@
     "build:platform": "PATH=$PWD/tools:$PATH pnpm --filter @store/platform build",
     "contracts:sync": "node scripts/sync-openapi-contracts.mjs",
     "contracts:check": "node scripts/sync-openapi-contracts.mjs --check",
+    "i18n:check": "node scripts/check-store-ui-literals.mjs",
     "typecheck": "PATH=$PWD/tools:$PATH turbo run typecheck",
     "lint": "PATH=$PWD/tools:$PATH turbo run lint",
     "preview": "PATH=$PWD/tools:$PATH pnpm --filter @store/store preview",

@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ProductFlowApi } from '@store/store-stub'
@@ -7,7 +8,7 @@ import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
 import { productKeys } from './productKeys'
 
-type Translate = (key: string) => string
+type Translate = StoreTranslator
 
 interface ProductMutationOptions {
   showCreateSuccess?: boolean
@@ -28,7 +29,7 @@ export function useProductMutation(t: Translate, { showCreateSuccess = true }: P
     onSuccess: (product) => {
       //
       invalidateProductData()
-      if (showCreateSuccess) toast.success(t('products.createSuccess').replace('{name}', product.name))
+      if (showCreateSuccess) toast.success(t('products.createSuccess', { name: product.name }))
     },
     onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'products.createError')),
   })
@@ -38,7 +39,7 @@ export function useProductMutation(t: Translate, { showCreateSuccess = true }: P
     onSuccess: (product) => {
       //
       invalidateProductData()
-      toast.success(t('products.updateSuccess').replace('{name}', product.name))
+      toast.success(t('products.updateSuccess', { name: product.name }))
     },
     onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'products.updateError')),
   })

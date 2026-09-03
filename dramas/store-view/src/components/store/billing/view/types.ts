@@ -1,4 +1,5 @@
-export type BillingTranslate = (key: string) => string
+import type { StoreTranslator } from '@store/store-i18n'
+export type BillingTranslate = StoreTranslator
 
 export type PaymentFormValues = {
   note?: string

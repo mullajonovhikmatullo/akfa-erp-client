@@ -7,12 +7,12 @@ import { transferKeys } from '@store/store-view/transfer'
 import { sessionDetailQueryOptions, useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
 import { withAppBasePath } from '@/shared/lib/app-path'
-import { useT } from '@/shared/lib/i18n'
+import { useStoreT } from '@store/store-i18n'
 import { connectSocket, getSocket, type TransferChangedPayload } from '@/shared/realtime/socket'
 
 export function useRealtimeConnection() {
   //
-  const t = useT()
+  const t = useStoreT()
   const queryClient = useQueryClient()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)

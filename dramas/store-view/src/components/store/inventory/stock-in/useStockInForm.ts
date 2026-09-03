@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { getProductPrice, getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
@@ -8,7 +9,7 @@ import { useInventoryMutation } from '../hooks/useInventoryMutation'
 import type { StockInCartItem, StockInFormValues } from './view/types'
 
 interface UseStockInFormOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
   isStoreOwner: boolean

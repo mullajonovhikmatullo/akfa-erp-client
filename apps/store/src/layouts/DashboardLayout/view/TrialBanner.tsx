@@ -1,3 +1,4 @@
+import { useStoreT } from '@store/store-i18n'
 import { Link } from 'react-router-dom'
 
 import { ROUTES } from '@/shared/config/routes'
@@ -5,11 +6,12 @@ import { ROUTES } from '@/shared/config/routes'
 interface TrialBannerProps {
   daysLeft: number
   canManageBilling: boolean
-  t: (key: string) => string
 }
 
-export function TrialBanner({ daysLeft, canManageBilling, t }: TrialBannerProps) {
+export function TrialBanner({ daysLeft, canManageBilling }: TrialBannerProps) {
   //
+  const t = useStoreT()
+
   return (
     <div className={`trial-banner${daysLeft <= 3 ? ' trial-banner--urgent' : ''}`} role="status">
       <div className="trial-banner__pulse"><i className="icons-overdue-time icon-size-22" /></div>

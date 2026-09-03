@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { useT } from '@/shared/lib/i18n'
+import { useStoreT } from '@store/store-i18n'
 import { ALL_NAV_ITEMS } from '../navConfig'
 import { SidebarNavItem } from './SidebarNavItem'
 
@@ -20,7 +20,7 @@ export function SidebarFavorites({
   onItemClick,
 }: SidebarFavoritesProps) {
   //
-  const t = useT()
+  const t = useStoreT()
   const items = useMemo(
     () => ALL_NAV_ITEMS.filter((item) => favoriteKeys.includes(item.key)),
     [favoriteKeys],

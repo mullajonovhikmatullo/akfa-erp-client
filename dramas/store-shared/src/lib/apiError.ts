@@ -1,4 +1,5 @@
-export type ApiErrorTranslator = (key: string) => string
+import type { StoreTranslationKey, StoreTranslator } from '@store/store-i18n'
+export type ApiErrorTranslator = StoreTranslator
 
 type ApiErrorShape = {
   code?: string
@@ -10,6 +11,7 @@ type ApiErrorShape = {
 }
 
 function readMessage(error: unknown): string | null {
+  //
   const source = error as ApiErrorShape
   const payloads = [source.response?.data, error]
 
@@ -22,7 +24,8 @@ function readMessage(error: unknown): string | null {
   return null
 }
 
-function messageKey(message: string | null): string | null {
+function messageKey(message: string | null): StoreTranslationKey | null {
+  //
   if (!message) return null
   const normalized = message.toLowerCase()
 
@@ -47,8 +50,9 @@ function messageKey(message: string | null): string | null {
 export function getLocalizedApiErrorMessage(
   error: unknown,
   t: ApiErrorTranslator,
-  fallbackKey: string,
+  fallbackKey: StoreTranslationKey,
 ): string {
+  //
   const source = error as ApiErrorShape
   const specificKey = messageKey(readMessage(error))
   if (specificKey) return t(specificKey)

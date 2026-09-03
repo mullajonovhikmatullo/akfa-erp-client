@@ -83,6 +83,7 @@
     "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\""
   },
   "dependencies": {
+    "@store/store-i18n": "workspace:*",
     "@store/store-shared": "workspace:*",
     "@store/store-stub": "workspace:*",
     "@hookform/resolvers": "5.2.2",

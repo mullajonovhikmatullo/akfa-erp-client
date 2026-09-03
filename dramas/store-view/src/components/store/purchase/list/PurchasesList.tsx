@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
 
 import dayjs, { type Dayjs } from 'dayjs'
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { StockReceipt } from '@store/store-stub'
@@ -20,15 +21,15 @@ type PurchaseFiltersForm = {
 }
 
 interface PurchasesListProps {
-  t: (key: string) => string
   isStoreOwner: boolean
   userBranchId?: string | null
   activeBranchId?: string
   exchangeRate: number
 }
 
-export function PurchasesList({ t, isStoreOwner, userBranchId, activeBranchId, exchangeRate }: PurchasesListProps) {
+export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exchangeRate }: PurchasesListProps) {
   //
+  const t = useStoreT()
   const { control, watch, setValue } = useForm<PurchaseFiltersForm>({
     defaultValues: { branchId: undefined, dateRange: [null, null] },
   })

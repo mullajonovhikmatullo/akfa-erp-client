@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useWatch } from 'react-hook-form'
 import { Button, Form } from 'antd'
 import { isValidUzbekMobilePhone } from '@store/store-shared'
@@ -10,7 +11,7 @@ import { CustomerFormFields } from './view/CustomerFormFields'
 import { FormSection } from './view/FormSection'
 
 interface CustomerFormModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   customer?: Customer | null
   onClose: () => void

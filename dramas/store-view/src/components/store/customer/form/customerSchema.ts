@@ -1,7 +1,8 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { z } from 'zod'
 import { isValidUzbekMobilePhone } from '@store/store-shared'
 
-export const createCustomerSchema = (t: (key: string) => string) =>
+export const createCustomerSchema = (t: StoreTranslator) =>
   z.object({
     fullName: z.string().min(2, t('validation.fullNameMin')).max(150),
     phone: z

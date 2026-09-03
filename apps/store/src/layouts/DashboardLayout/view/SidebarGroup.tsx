@@ -1,6 +1,6 @@
 
 import clsx from 'clsx'
-import { useT } from '@/shared/lib/i18n'
+import { useStoreT } from '@store/store-i18n'
 import type { NavGroupDef } from '../navConfig'
 import { SidebarNavItem } from './SidebarNavItem'
 
@@ -26,7 +26,7 @@ export function SidebarGroup({
   onItemClick,
 }: SidebarGroupProps) {
   //
-  const t = useT()
+  const t = useStoreT()
 
   if (collapsed) {
     return (

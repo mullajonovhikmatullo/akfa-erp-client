@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import type { ExpenseReportData, SalesReportData } from '@store/store-stub';
 import type { Dayjs } from 'dayjs';
 
@@ -38,4 +39,4 @@ export type DashboardFiltersForm = {
   dateRange: [Dayjs | null, Dayjs | null];
 };
 
-export type TFunc = (key: string) => string;
+export type TFunc = StoreTranslator;

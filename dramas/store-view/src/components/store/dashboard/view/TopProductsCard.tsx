@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Empty, Segmented, Skeleton } from 'antd';
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { resolveStoreTranslationKey } from '@store/store-i18n';
 import { formatCompactUZS } from '@store/store-shared/lib/formatters';
 import type { AnalyticsQuery } from '@store/store-stub';
 import { useSalesReport } from '../../analytics';
@@ -55,7 +56,7 @@ export function TopProductsCard({ t, query, periodMeta }: { t: TFunc; query: Ana
             <XAxis
               type="number"
               tickFormatter={(value) => sortBy === 'revenue'
-                ? formatCompactUZS(Number(value)).replace(" so'm", '')
+                ? formatCompactUZS(Number(value)).replace(' UZS', '')
                 : Number(value).toLocaleString('ru-RU')}
               tickLine={false}
               axisLine={false}
@@ -63,7 +64,7 @@ export function TopProductsCard({ t, query, periodMeta }: { t: TFunc; query: Ana
             />
             <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: DASH_TICK }} width={120} interval={0} tickFormatter={(value) => String(value).length > 18 ? `${String(value).slice(0, 18)}...` : String(value)} />
             <Tooltip
-              content={<TopProductsTooltip revenueLabel={t('common.revenue')} quantityLabel={t('dashboard.soldQuantity')} skuLabel={t('products.productCode')} unitLabel={(unit) => t(`units.${unit}`)} />}
+              content={<TopProductsTooltip revenueLabel={t('common.revenue')} quantityLabel={t('dashboard.soldQuantity')} skuLabel={t('products.productCode')} unitLabel={(unit) => t(resolveStoreTranslationKey(`units.${unit}`, 'units.unknown'))} />}
               cursor={{ fill: 'var(--primary-soft)', fillOpacity: 0.58, radius: 8 }}
               allowEscapeViewBox={{ x: false, y: false }}
               offset={12}

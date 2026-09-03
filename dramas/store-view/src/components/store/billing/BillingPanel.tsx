@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { App as AntdApp, Form } from 'antd'
 import { useQueryClient } from '@tanstack/react-query'
+import { useStoreT } from '@store/store-i18n'
 import type { SubmitTenantPaymentPayload } from '@store/store-stub'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { isValidReceipt, readReceiptAsBase64 } from './lib/billing-receipt'
@@ -19,16 +20,12 @@ import {
   BillingSummary,
   PaymentSubmissionModal,
   ReceiptPreviewModal,
-  type BillingTranslate,
   type PaymentFormValues,
 } from './view'
 
-export interface BillingPanelProps {
-  t: BillingTranslate
-}
-
-export function BillingPanel({ t }: BillingPanelProps) {
+export function BillingPanel() {
   //
+  const t = useStoreT()
   const { message: messageApi } = AntdApp.useApp()
   const queryClient = useQueryClient()
   const [form] = Form.useForm<PaymentFormValues>()

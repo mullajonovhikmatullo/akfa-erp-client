@@ -1,6 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { z } from 'zod'
 
-export const createLoginSchema = (t: (key: string) => string) =>
+export const createLoginSchema = (t: StoreTranslator) =>
   z.object({
     username: z
       .string()

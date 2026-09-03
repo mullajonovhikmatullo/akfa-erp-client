@@ -8,6 +8,7 @@
     "declaration": true,
     "declarationMap": true,
     "paths": {
+      "@store/store-i18n": ["../../store-i18n/src/index.ts"],
       "@store/store-shared": ["../../store-shared/src/index.ts"],
       "@store/store-shared/core": ["../../store-shared/src/core/index.ts"],
       "@store/store-shared/lib/autofill": ["../../store-shared/src/lib/autofill.ts"],
@@ -28,6 +29,7 @@
   "include": ["src"],
   "exclude": ["dist", "node_modules"],
   "references": [
+    { "path": "../store-i18n" },
     { "path": "../store-shared" },
     { "path": "../store-stub" }
   ]

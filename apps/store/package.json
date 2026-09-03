@@ -8,7 +8,7 @@
     "start": "vite --host 127.0.0.1 --port 5173",
     "build": "vite build",
     "lint": "eslint \"src/**/*.{js,jsx}\" --no-error-on-unmatched-pattern",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "pnpm --workspace-root i18n:check && tsc -p tsconfig.json --noEmit",
     "preview": "vite preview",
     "clean": "node -e \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\"",
     "test:e2e": "playwright test",
@@ -17,6 +17,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@store/store-i18n": "workspace:*",
     "@store/store-shared": "workspace:*",
     "@store/store-stub": "workspace:*",
     "@store/store-view": "workspace:*",

@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 
 interface ExpenseKpiItem {
@@ -6,7 +7,7 @@ interface ExpenseKpiItem {
   total: number
 }
 
-export function ExpenseKpiCards({ items, grandTotal, t }: { items: ExpenseKpiItem[]; grandTotal: number; t: (key: string) => string }) {
+export function ExpenseKpiCards({ items, grandTotal, t }: { items: ExpenseKpiItem[]; grandTotal: number; t: StoreTranslator }) {
   //
   if (items.length === 0) return null
 

@@ -1,10 +1,10 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Tag } from 'antd'
 import { formatDateTime } from '@store/store-shared/lib/formatters'
 import { BranchName } from '@store/store-shared/ui/branch-name'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import type { StockBatch, StockReceipt } from '@store/store-stub'
 
 export function createReceiptColumns({
@@ -12,7 +12,7 @@ export function createReceiptColumns({
   rowIndex,
   supplierNote,
 }: {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   supplierNote: (note: string | null) => string | null
 }): ColumnDef<StockReceipt>[] {
@@ -82,7 +82,7 @@ export function createReceiptColumns({
   ]
 }
 
-export function createReceiptItemColumns(t: (key: string) => string, page: number, pageSize: number): ColumnDef<StockBatch>[] {
+export function createReceiptItemColumns(t: StoreTranslator, page: number, pageSize: number): ColumnDef<StockBatch>[] {
   //
   return [
     {
@@ -101,14 +101,14 @@ export function createReceiptItemColumns(t: (key: string) => string, page: numbe
       dataIndex: 'initialQty',
       width: 130,
       align: 'right',
-      render: (quantity: number, batch) => <strong className="num">{quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[batch.product.unit]}</strong>,
+      render: (quantity: number, batch) => <strong className="num">{quantity.toLocaleString('ru-RU')} {t(`units.${batch.product.unit}`)}</strong>,
     },
     {
       title: t('purchases.colRemaining'),
       dataIndex: 'remainingQty',
       width: 140,
       align: 'right',
-      render: (quantity: number, batch) => <strong className={`num ${quantity > 0 ? 'tone-success' : 'tone-quiet'}`}>{quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[batch.product.unit]}</strong>,
+      render: (quantity: number, batch) => <strong className={`num ${quantity > 0 ? 'tone-success' : 'tone-quiet'}`}>{quantity.toLocaleString('ru-RU')} {t(`units.${batch.product.unit}`)}</strong>,
     },
     {
       title: t('purchases.colCost'),

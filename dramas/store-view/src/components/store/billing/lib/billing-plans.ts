@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import type { PublicBillingPlan, TenantBillingSummary } from '@store/store-stub'
 import { normalizePlanCode } from './billing-formatters'
 
@@ -54,22 +55,17 @@ export function isBillingPlanUpgrade(
 
 export function createUpgradeRequestHref(
   targetPlan: Pick<PublicBillingPlan, 'name'>,
+  t: StoreTranslator,
   storeName?: string,
   currentPlanName?: string,
 ) {
   //
-  const subject = `Mavion tarifini yangilash: ${targetPlan.name}`
-  const body = [
-    'Assalomu alaykum,',
-    '',
-    'Akkauntim uchun quyidagi tarifga o‘tish bo‘yicha yordam kerak:',
-    `Do‘kon: ${storeName ?? '—'}`,
-    `Joriy tarif: ${currentPlanName ?? '—'}`,
-    `Tanlangan tarif: ${targetPlan.name}`,
-    '',
-    'Rahmat.',
-  ].join('\n')
+  const subject = t('billing.upgradeRequestSubject', { plan: targetPlan.name })
+  const body = t('billing.upgradeRequestBody', {
+    store: storeName ?? '—',
+    currentPlan: currentPlanName ?? '—',
+    targetPlan: targetPlan.name,
+  })
 
   return `https://t.me/mullajonovhikmatullo?text=${encodeURIComponent(`${subject}\n\n${body}`)}`
 }
-

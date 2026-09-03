@@ -1,11 +1,9 @@
 import { SettingsPanel } from '@store/store-view/settings'
 import type { SettingsLang, SettingsTheme } from '@store/store-view/settings'
 import { useUIStore } from '@/app/stores/ui.store'
-import { useT } from '@/shared/lib/i18n'
 
 export function SettingsPage() {
   //
-  const t = useT()
   const lang = useUIStore((state) => state.lang)
   const setLang = useUIStore((state) => state.setLang)
   const theme = useUIStore((state) => state.theme)
@@ -17,7 +15,6 @@ export function SettingsPage() {
 
   return (
     <SettingsPanel
-      t={t}
       displayCurrency={displayCurrency}
       exchangeRate={exchangeRate}
       lang={lang}

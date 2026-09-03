@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller } from 'react-hook-form'
 import { Button, Input } from 'antd'
 
@@ -5,7 +6,7 @@ import { blockAutofill } from '@store/store-shared/lib/autofill'
 import type { CategoryManagerFormControl, CategoryManagerFormErrors } from './types'
 
 interface ExpenseCategoryCreateFormProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: CategoryManagerFormControl
   errors: CategoryManagerFormErrors
   name: string

@@ -4,6 +4,7 @@ import { Alert, Button, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import { toast } from 'sonner'
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { Branch, BranchPayload, User } from '@store/store-stub'
 import { useUserMutation } from '../../admins/hooks/useUserMutation'
@@ -18,16 +19,14 @@ import {
 import { BranchFormModal } from './view/BranchFormModal'
 import { createBranchColumns } from './view/branchColumns'
 
-type Translate = (key: string) => string
-
 export interface BranchesListProps {
-  t: Translate
   currentUser?: User | null
   isStoreOwner?: boolean
 }
 
-export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesListProps) {
+export function BranchesList({ currentUser, isStoreOwner = false }: BranchesListProps) {
   //
+  const t = useStoreT()
   const navigate = useNavigate()
   const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, rowIndex } = useBranchesPage()
   const branches = result?.items ?? []
@@ -200,7 +199,7 @@ export function BranchesList({ t, currentUser, isStoreOwner = false }: BranchesL
               showIcon
               closable
               onClose={() => setBranchLimitNoticeDismissed(true)}
-              message={t('branches.limitReached').replace('{limit}', String(maxBranches))}
+              message={t('branches.limitReached', { limit: maxBranches })}
               action={
                 <Button
                   className="branch-limit-upgrade-button"

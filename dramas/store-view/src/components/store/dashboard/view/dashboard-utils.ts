@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import dayjs from 'dayjs';
 import type {
   AnalyticsQuery,
@@ -110,7 +111,7 @@ export function createTrendData({
 
 export function createPaymentChartData(
   rows: SalesReportData['byPaymentMethod'],
-  t: (key: string) => string,
+  t: StoreTranslator,
 ) {
   //
   const rowsByMethod = new Map(rows.map((row) => [row.paymentMethod, row]));

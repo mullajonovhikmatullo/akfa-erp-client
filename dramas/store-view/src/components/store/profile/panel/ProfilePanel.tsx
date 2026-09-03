@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { useStoreT } from '@store/store-i18n'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import type { UpdateProfilePayload, User } from '@store/store-stub'
 import { useUserMutation } from '../../admins/hooks/useUserMutation'
@@ -17,8 +18,6 @@ import { ProfileInformationSection } from './view/ProfileInformationSection'
 import { ProfilePhotoEditorModal } from './view/ProfilePhotoEditorModal'
 import { ProfileSecuritySection } from './view/ProfileSecuritySection'
 
-type Translate = (key: string) => string
-
 const PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 const PROFILE_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
@@ -28,7 +27,6 @@ interface PendingPhoto {
 }
 
 export interface ProfilePanelProps {
-  t: Translate
   user?: User | null
   onUserUpdated?: (user: User) => void
 }
@@ -43,8 +41,9 @@ function getInitials(name?: string) {
     .toUpperCase()
 }
 
-export function ProfilePanel({ t, user, onUserUpdated }: ProfilePanelProps) {
+export function ProfilePanel({ user, onUserUpdated }: ProfilePanelProps) {
   //
+  const t = useStoreT()
   const [profileEditing, setProfileEditing] = useState(false)
   const [pendingPhoto, setPendingPhoto] = useState<PendingPhoto | null>(null)
   const [photoZoom, setPhotoZoom] = useState(1)

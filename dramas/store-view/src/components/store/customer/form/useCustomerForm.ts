@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,7 +7,7 @@ import { useCustomerMutation } from '../hooks/useCustomerMutation'
 import { createCustomerSchema, type CustomerFormValues } from './customerSchema'
 
 interface UseCustomerFormOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   customer?: Customer | null
   onSuccess?: (customer: Customer) => void

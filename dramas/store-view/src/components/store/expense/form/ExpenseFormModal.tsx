@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Form } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { useExpenseForm } from './useExpenseForm'
@@ -5,7 +6,7 @@ import { ExpenseFormFields } from './view/ExpenseFormFields'
 import { FormSection } from './view/FormSection'
 
 interface ExpenseFormModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
   exchangeRate: number

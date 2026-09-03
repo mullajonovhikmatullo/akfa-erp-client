@@ -53,17 +53,17 @@ export function getPlanFeatures(plan: PlanFeatureSource, t: BillingTranslate) {
     plan.maxBranches === null
       ? t('billing.featureUnlimitedBranches')
       : typeof plan.maxBranches === 'number'
-        ? t('billing.featureBranches').replace('{count}', String(Math.max(plan.maxBranches - 1, 0)))
+        ? t('billing.featureBranches', { count: Math.max(plan.maxBranches - 1, 0) })
         : null,
     plan.maxUsers === null
       ? t('billing.featureUnlimitedUsers')
       : typeof plan.maxUsers === 'number'
-        ? t('billing.featureUsers').replace('{count}', String(plan.maxUsers))
+        ? t('billing.featureUsers', { count: plan.maxUsers })
         : null,
     plan.maxProducts === null
       ? t('billing.featureUnlimitedProducts')
       : typeof plan.maxProducts === 'number'
-        ? t('billing.featureProducts').replace('{count}', String(plan.maxProducts))
+        ? t('billing.featureProducts', { count: plan.maxProducts })
         : null,
     planCode === 'START' ? t('billing.featureBasicReports') : t('billing.featureAdvancedReports'),
     ...(planCode === 'START'
@@ -78,4 +78,3 @@ export function getPlanFeatures(plan: PlanFeatureSource, t: BillingTranslate) {
           ]),
   ].filter((feature): feature is string => Boolean(feature))
 }
-

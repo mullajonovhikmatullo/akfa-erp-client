@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Input } from 'antd'
 
+import { useStoreT } from '@store/store-i18n'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 
 interface MaskedInputProps {
@@ -14,6 +15,7 @@ interface MaskedInputProps {
 
 export function MaskedInput({ value, onChange, onBlur, inputName, placeholder, status }: MaskedInputProps) {
   //
+  const t = useStoreT()
   const [visible, setVisible] = useState(false)
   return (
     <Input
@@ -24,7 +26,7 @@ export function MaskedInput({ value, onChange, onBlur, inputName, placeholder, s
       onBlur={onBlur}
       placeholder={placeholder}
       prefix={<i className="icons-lock icon-size-18 u-text-quiet" />}
-      suffix={<button type="button" aria-label="Toggle password visibility" onClick={() => setVisible((value) => !value)} className="u-items-center u-bg-none u-border-none u-text-muted u-cursor-pointer u-flex u-p-0" tabIndex={-1}>{visible ? <i className="icons-hide icon-size-18" /> : <i className="icons-eye icon-size-18" />}</button>}
+      suffix={<button type="button" aria-label={t('common.togglePasswordVisibility')} onClick={() => setVisible((value) => !value)} className="u-items-center u-bg-none u-border-none u-text-muted u-cursor-pointer u-flex u-p-0" tabIndex={-1}>{visible ? <i className="icons-hide icon-size-18" /> : <i className="icons-eye icon-size-18" />}</button>}
       status={status}
       className={visible ? undefined : 'masked-input--concealed'}
     />

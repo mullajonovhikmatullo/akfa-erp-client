@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { ExpenseFlowApi } from '@store/store-stub'
@@ -5,7 +6,7 @@ import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { expenseKeys } from './expenseKeys'
 
-type Translate = (key: string) => string
+type Translate = StoreTranslator
 
 export function useExpenseMutation(t: Translate) {
   //

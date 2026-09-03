@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Alert, Progress } from 'antd'
 import type { Product } from '@store/store-stub'
 import { PendingProductImages } from '../../images/PendingProductImages'
@@ -6,7 +7,7 @@ import { PRODUCT_IMAGE_MAX_COUNT } from '../../images/image-utils'
 import type { ProductImageChanges } from '../../images/product-image-changes'
 
 interface ProductImagesSectionProps {
-  t: (key: string) => string
+  t: StoreTranslator
   product?: Product | null
   files: File[]
   changes: ProductImageChanges

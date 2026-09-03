@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { InventoryFlowApi } from '@store/store-stub'
@@ -6,7 +7,7 @@ import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { productKeys } from '../../product/hooks/productKeys'
 import { inventoryKeys } from './inventoryKeys'
 
-export function useInventoryMutation(t: (key: string) => string) {
+export function useInventoryMutation(t: StoreTranslator) {
   //
   const queryClient = useQueryClient()
 

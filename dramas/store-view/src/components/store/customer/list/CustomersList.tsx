@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Select, Tooltip } from 'antd'
 
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -25,14 +26,14 @@ type CustomerFiltersForm = {
 }
 
 interface CustomersListProps {
-  t: (key: string) => string
   canManage: boolean
   isStoreOwner: boolean
   branchId?: string | null
 }
 
-export function CustomersList({ t, canManage, isStoreOwner, branchId }: CustomersListProps) {
+export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersListProps) {
   //
+  const t = useStoreT()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = searchParams.get('tab') === 'payments' ? 'payments' : 'customers'
   const { control, watch } = useForm<CustomerFiltersForm>({
@@ -62,7 +63,7 @@ export function CustomersList({ t, canManage, isStoreOwner, branchId }: Customer
   })
   const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
   const defaultCustomerBranchId = branchId ?? branches[0]?.id ?? ''
-  const parseCustomerImportRow = useMemo(() => createCustomerImportParser(isStoreOwner), [isStoreOwner])
+  const parseCustomerImportRow = useMemo(() => createCustomerImportParser(isStoreOwner, t), [isStoreOwner, t])
   const { createCustomer: createMutation, deactivateCustomer: deleteMutation } = useCustomerMutation(t, {
     showCreateSuccess: false,
   })

@@ -43,7 +43,7 @@ export function BillingPlanCard({ plan, current, upgrade, upgradeHref, t }: Bill
       </div>
       <div className="billing-plan-card__price">
         <strong>{formatBillingMoney(plan.monthlyPriceUzs)}</strong>
-        <span>/ oy</span>
+        <span>{t('billing.perMonth')}</span>
       </div>
       <p className="billing-plan-card__description">
         {upgrade ? t('billing.upgradeDescription') : t('billing.featuresDescription')}
@@ -71,4 +71,3 @@ export function BillingPlanCard({ plan, current, upgrade, upgradeHref, t }: Bill
     </article>
   )
 }
-

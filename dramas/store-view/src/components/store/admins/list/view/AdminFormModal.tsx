@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal, Select } from 'antd'
 
@@ -13,7 +14,7 @@ export type AdminFormValues = {
 }
 
 interface AdminFormModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   editTarget: User | null
   control: Control<AdminFormValues>

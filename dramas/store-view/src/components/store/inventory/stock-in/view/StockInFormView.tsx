@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Empty, Select, Table } from 'antd'
 
@@ -10,7 +11,7 @@ import { createStockInColumns } from './stockInColumns'
 import type { StockInCartItem, StockInFormValues } from './types'
 
 interface StockInFormViewProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<StockInFormValues>
   isStoreOwner: boolean
   branches: Branch[]

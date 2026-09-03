@@ -2,12 +2,12 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { InputNumber, Radio } from 'antd'
 
+import { useStoreT, type StoreLocale } from '@store/store-i18n'
 import type { Currency } from '@store/store-stub'
 import { SectionTitle } from './view/SectionTitle'
 import { ThemeChoice } from './view/ThemeChoice'
 
-type TFunc = (key: string) => string
-export type SettingsLang = 'uz-cy' | 'uz-la' | 'ru' | 'en'
+export type SettingsLang = StoreLocale
 export type SettingsTheme = 'light' | 'dark' | 'system'
 
 interface SettingsFormValues {
@@ -18,7 +18,6 @@ interface SettingsFormValues {
 }
 
 export interface SettingsPanelProps extends SettingsFormValues {
-  t: TFunc
   onDisplayCurrencyChange: (currency: Currency) => void
   onExchangeRateChange: (rate: number) => void
   onLangChange: (lang: SettingsLang) => void
@@ -26,7 +25,6 @@ export interface SettingsPanelProps extends SettingsFormValues {
 }
 
 export function SettingsPanel({
-  t,
   displayCurrency,
   exchangeRate,
   lang,
@@ -37,6 +35,7 @@ export function SettingsPanel({
   onThemeChange,
 }: SettingsPanelProps) {
   //
+  const t = useStoreT()
   const { control, reset } = useForm<SettingsFormValues>({
     defaultValues: {
       displayCurrency,
@@ -84,8 +83,8 @@ export function SettingsPanel({
                       onDisplayCurrencyChange(value)
                     }}
                   >
-                    <Radio.Button value="UZS">UZS so'm</Radio.Button>
-                    <Radio.Button value="USD">USD $</Radio.Button>
+                    <Radio.Button value="UZS">UZS</Radio.Button>
+                    <Radio.Button value="USD">USD</Radio.Button>
                   </Radio.Group>
                 )}
               />
@@ -109,7 +108,7 @@ export function SettingsPanel({
                     }}
                     className="u-w-220"
                     formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                    addonAfter="so'm"
+                    addonAfter={t('currency.UZS')}
                   />
                 )}
               />
@@ -135,10 +134,10 @@ export function SettingsPanel({
                     onLangChange(value)
                   }}
                 >
-                  <Radio.Button value="uz-cy">O'z (Кирил)</Radio.Button>
-                  <Radio.Button value="uz-la">O'z (Lotin)</Radio.Button>
-                  <Radio.Button value="ru">Русский</Radio.Button>
-                  <Radio.Button value="en">English</Radio.Button>
+                  <Radio.Button value="uz-cy">{t('settings.langUzCy')}</Radio.Button>
+                  <Radio.Button value="uz-la">{t('settings.langUzLatn')}</Radio.Button>
+                  <Radio.Button value="ru">{t('settings.langRu')}</Radio.Button>
+                  <Radio.Button value="en">{t('settings.langEn')}</Radio.Button>
                 </Radio.Group>
               )}
             />

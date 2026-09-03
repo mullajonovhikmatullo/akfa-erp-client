@@ -1,7 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Divider, Form, InputNumber, Select, Skeleton } from 'antd'
 
-import { PAYMENT_METHOD_LABELS, PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -20,7 +20,7 @@ interface PaymentOption {
 }
 
 interface SaleDetailViewProps {
-  t: (key: string) => string
+  t: StoreTranslator
   sale: SaleListItem
   detail?: SaleDetail
   loading: boolean
@@ -148,7 +148,7 @@ export function SaleDetailView({
                     <MoneyDisplay amount={item.totalPrice} currency="UZS" />
                   </div>
                   <div className="u-text-muted u-fs-11-5">
-                    {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[item.product.unit]} x{' '}
+                    {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)} x{' '}
                     <MoneyDisplay amount={item.unitPrice} currency="UZS" />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export function SaleDetailView({
                   >
                     <div>
                       <div className="u-fw-500">
-                        {t(`payment.${payment.paymentMethod}`) || PAYMENT_METHOD_LABELS[payment.paymentMethod]}
+                        {t(`payment.${payment.paymentMethod}`)}
                       </div>
                       <div className="u-text-muted u-fs-11-5">
                         {formatDate(payment.createdAt)} · {payment.receivedBy.fullName}

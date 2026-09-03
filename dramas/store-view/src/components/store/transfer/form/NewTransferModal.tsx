@@ -1,10 +1,11 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
 import { useNewTransferForm } from './useNewTransferForm'
 import { TransferFormView } from './view/TransferFormView'
 
 interface NewTransferModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   onClose: () => void
   isStoreOwner: boolean

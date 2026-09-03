@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { CustomerFormModal } from '../../customer/form/CustomerFormModal'
 import { useNewSaleForm } from './useNewSaleForm'
 import { SaleCartView } from './view/SaleCartView'
@@ -5,7 +6,7 @@ import { SaleSetupView } from './view/SaleSetupView'
 import { SaleSummaryView } from './view/SaleSummaryView'
 
 interface NewSaleFormProps {
-  t: (key: string) => string
+  t: StoreTranslator
   isStoreOwner: boolean
   userBranchId?: string | null
   exchangeRate: number

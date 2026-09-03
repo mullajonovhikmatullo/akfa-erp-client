@@ -6,11 +6,9 @@ import { queryClient } from '@/app/providers/query/queryClient'
 import { useUIStore } from '@/app/stores/ui.store'
 import { useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
-import { useT } from '@/shared/lib/i18n'
 
 export function LoginPage() {
   //
-  const t = useT()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const login = useAuthStore((state) => state.login)
@@ -29,7 +27,6 @@ export function LoginPage() {
 
   return (
     <AuthFlowPanel
-      t={t}
       language={language}
       sessionExpired={sessionExpired}
       onLanguageChange={setLanguage}

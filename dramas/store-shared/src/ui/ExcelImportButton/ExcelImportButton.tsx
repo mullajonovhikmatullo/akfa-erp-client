@@ -1,13 +1,13 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useState } from 'react'
 import { Alert, Button, Modal, Progress, Table, Tag, Tooltip, Upload } from 'antd'
 
-import type { AxiosError } from 'axios'
 import { toast } from 'sonner'
+import { getLocalizedApiErrorMessage } from '../../lib/apiError'
 import { downloadTemplate, getField, parseExcelFile } from '../../lib/parseExcel'
-import type { ApiError } from '../../api/types'
 import type { TemplateHint } from '../../lib/parseExcel'
 
-type Translate = (key: string) => string
+type Translate = StoreTranslator
 
 export interface ParsedRow<T> {
   index: number
@@ -38,11 +38,9 @@ interface FailedRow {
   message: string
 }
 
-function extractError(err: unknown): string {
+function extractError(err: unknown, t: Translate): string {
   //
-  const data = (err as AxiosError<ApiError>)?.response?.data
-  if (data?.message) return data.message
-  return (err as Error)?.message ?? "Noma'lum xato"
+  return getLocalizedApiErrorMessage(err, t, 'excel.importError')
 }
 
 export function ExcelImportButton<T>({
@@ -103,7 +101,7 @@ export function ExcelImportButton<T>({
         failedRows.push({
           rowNum: row.index + 1,
           label: (templateHeaders[0] ? row.raw[templateHeaders[0]] : undefined) ?? `#${row.index + 1}`,
-          message: extractError(error),
+          message: extractError(error, t),
         })
       }
       setProgress(Math.round(((index + 1) / validRows.length) * 100))
@@ -162,7 +160,7 @@ export function ExcelImportButton<T>({
       render: (value: string) => <span className="u-fs-12 u-fw-500">{value}</span>,
     },
     {
-      title: 'Xato sababi',
+      title: t('excel.failureReason'),
       dataIndex: 'message',
       render: (value: string) => <span className="u-text-danger u-fs-12">{value}</span>,
     },

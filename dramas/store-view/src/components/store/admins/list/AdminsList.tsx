@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Button, Tooltip } from 'antd'
 
 import { toast } from 'sonner'
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { CreateAdminPayload, UpdateAdminPayload, User } from '@store/store-stub'
 import { useBranchesList } from '../../branch'
@@ -11,14 +12,9 @@ import { useUserMutation } from '../hooks/useUserMutation'
 import { AdminFormModal, type AdminFormValues } from './view/AdminFormModal'
 import { createAdminColumns } from './view/adminColumns'
 
-type Translate = (key: string) => string
-
-export interface AdminsListProps {
-  t: Translate
-}
-
-export function AdminsList({ t }: AdminsListProps) {
+export function AdminsList() {
   //
+  const t = useStoreT()
   const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, rowIndex } = useAdminsPage()
   const admins = result?.items ?? []
   const total = result?.total ?? 0

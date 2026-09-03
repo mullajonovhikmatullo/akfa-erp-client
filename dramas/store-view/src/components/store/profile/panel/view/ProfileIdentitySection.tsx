@@ -1,10 +1,11 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import type { ChangeEventHandler, RefObject } from 'react'
 import { Button, Image, Popconfirm } from 'antd'
 
 import type { User } from '@store/store-stub'
 
 interface ProfileIdentitySectionProps {
-  t: (key: string) => string
+  t: StoreTranslator
   user?: User | null
   initials: string
   roleLabel: string

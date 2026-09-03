@@ -6,6 +6,7 @@
     "paths": {
       "@/shared/ui": ["src/shared/ui/index.ts"],
       "@/*": ["src/*"],
+      "@store/store-i18n": ["../../dramas/store-i18n/src/index.ts"],
       "@store/store-shared": ["../../dramas/store-shared/src/index.ts"],
       "@store/store-shared/core": ["../../dramas/store-shared/src/core/index.ts"],
       "@store/store-shared/lib/autofill": ["../../dramas/store-shared/src/lib/autofill.ts"],
@@ -29,6 +30,7 @@
   "include": ["src"],
   "exclude": ["node_modules", "dist"],
   "references": [
+    { "path": "../../dramas/store-i18n" },
     { "path": "../../dramas/store-shared" },
     { "path": "../../dramas/store-stub" },
     { "path": "../../dramas/store-view" }

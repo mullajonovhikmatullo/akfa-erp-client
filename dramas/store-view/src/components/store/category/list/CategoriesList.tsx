@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Button, Tooltip } from 'antd'
 
 import { toast } from 'sonner'
+import { useStoreT } from '@store/store-i18n'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
@@ -14,20 +15,15 @@ import { createCategoryImportParser } from './categoryImport'
 import { CategoryFormModal, type CategoryFormValues } from './view/CategoryFormModal'
 import { createCategoryColumns } from './view/categoryColumns'
 
-type Translate = (key: string) => string
-
 type CategoryStatusFilter = 'all' | 'active' | 'inactive'
 
 type CategoryFiltersForm = {
   status: CategoryStatusFilter
 }
 
-export interface CategoriesListProps {
-  t: Translate
-}
-
-export function CategoriesList({ t }: CategoriesListProps) {
+export function CategoriesList() {
   //
+  const t = useStoreT()
   const { setValue: setFilterValue, watch: watchFilters } = useForm<CategoryFiltersForm>({
     defaultValues: { status: 'all' },
   })

@@ -1,12 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
 import { App as AntdApp, ConfigProvider } from 'antd'
 import dayjs from 'dayjs'
+import { normalizeStoreLocale } from '@store/store-i18n'
 import 'dayjs/locale/en'
 import 'dayjs/locale/ru'
 import 'dayjs/locale/uz'
 import 'dayjs/locale/uz-latn'
 import { useUIStore } from '@/app/stores/ui.store'
-import { normalizeLang } from '@/shared/lib/lang'
 import { ANTD_LOCALES } from './theme/antdLocales'
 import { createAntdTheme } from './theme/antdTheme'
 
@@ -14,7 +14,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   //
   const themeMode = useUIStore((state) => state.theme)
   const lang = useUIStore((state) => state.lang)
-  const normalizedLang = normalizeLang(lang)
+  const normalizedLang = normalizeStoreLocale(lang)
   const dayjsLocale = normalizedLang === 'uz-cy'
     ? 'uz'
     : normalizedLang === 'uz-la'

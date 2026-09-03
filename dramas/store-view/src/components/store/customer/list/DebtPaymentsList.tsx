@@ -1,7 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useMemo, useState } from 'react'
 import { DatePicker, Select, Table } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
-import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { DebtPayment, PaymentMethod } from '@store/store-stub'
 import { useDebtPaymentsPage } from '../../sale/hooks/useDebtPaymentsPage'
@@ -9,7 +9,7 @@ import { useCustomersList } from '../hooks/useCustomersList'
 import { createDebtPaymentColumns } from './view/debtPaymentColumns'
 
 interface DebtPaymentsListProps {
-  t: (key: string) => string
+  t: StoreTranslator
   branchId?: string | null
 }
 
@@ -65,7 +65,7 @@ export function DebtPaymentsList({ t, branchId }: DebtPaymentsListProps) {
           allowClear
           placeholder={t('customers.paymentsMethodFilter')}
           value={paymentMethod}
-          options={PAYMENT_METHODS.map((method) => ({ value: method, label: t(`payment.${method}`) || PAYMENT_METHOD_LABELS[method] }))}
+          options={PAYMENT_METHODS.map((method) => ({ value: method, label: t(`payment.${method}`) }))}
           onChange={(value) => { setPaymentMethod(value); resetPage() }}
         />
         <div className="debt-payment-filters__total">

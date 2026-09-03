@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tag } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
@@ -7,7 +8,7 @@ import type { Category } from '@store/store-stub'
 import { CategoryIcon } from './CategoryIcon'
 
 interface CategoryColumnsOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   statusFilter: 'all' | 'active' | 'inactive'
   deleting: boolean

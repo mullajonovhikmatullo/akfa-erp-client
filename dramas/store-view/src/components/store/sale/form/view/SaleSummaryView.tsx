@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type UseFormHandleSubmit, type UseFormSetValue } from 'react-hook-form'
 import { Alert, Button, DatePicker, InputNumber, Select, Tooltip } from 'antd'
 
@@ -8,7 +9,7 @@ import type { CartItem, SaleFormValues } from './types'
 import type { PaymentMethod } from '@store/store-stub'
 
 interface SaleSummaryViewProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<SaleFormValues>
   handleSubmit: UseFormHandleSubmit<SaleFormValues>
   setValue: UseFormSetValue<SaleFormValues>

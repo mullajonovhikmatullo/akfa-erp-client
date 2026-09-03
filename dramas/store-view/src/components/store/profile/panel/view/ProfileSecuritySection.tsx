@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Alert, Button } from 'antd'
 
@@ -7,7 +8,7 @@ import { PasswordStrength } from './PasswordStrength'
 import { ProfileField } from './ProfileField'
 
 interface ProfileSecuritySectionProps {
-  t: (key: string) => string
+  t: StoreTranslator
   pending: boolean
   form: UseFormReturn<PasswordFormValues>
   onSubmit: (values: PasswordFormValues) => void

@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select } from 'antd'
 
 import dayjs, { type Dayjs } from 'dayjs'
+import { useStoreT } from '@store/store-i18n'
 import type { AnalyticsPeriod, AnalyticsQuery, SaleType } from '@store/store-stub'
 import { useSalesList } from '../sale/hooks/useSalesList'
 import { useCustomerDebtReport } from './hooks/useCustomerDebtReport'
@@ -15,7 +16,7 @@ import { DebtTab } from './view/DebtTab'
 import { ExpensesTab } from './view/ExpensesTab'
 import { InventoryTab } from './view/InventoryTab'
 import { SalesTab } from './view/SalesTab'
-import type { DebtDeadlineFilter, DebtScope, DebtSort, TFunc, Tab } from './view/types'
+import type { DebtDeadlineFilter, DebtScope, DebtSort, Tab } from './view/types'
 
 type AnalyticsFiltersForm = {
   period: AnalyticsPeriod
@@ -23,12 +24,12 @@ type AnalyticsFiltersForm = {
 }
 
 export interface AnalyticsWorkspaceProps {
-  t: TFunc
   branchId?: string
 }
 
-export function AnalyticsWorkspace({ t, branchId }: AnalyticsWorkspaceProps) {
+export function AnalyticsWorkspace({ branchId }: AnalyticsWorkspaceProps) {
   //
+  const t = useStoreT()
   const [tab, setTab] = useState<Tab>('dashboard')
   const [debtScope, setDebtScope] = useState<DebtScope>('overdue')
   const [debtDeadlineFilter, setDebtDeadlineFilter] = useState<DebtDeadlineFilter>('all')

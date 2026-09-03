@@ -1,6 +1,6 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tooltip } from 'antd'
 
-import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { getProductPrice } from '@store/store-shared/lib/product-pricing'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -10,7 +10,7 @@ import type { ColumnDef } from '@store/store-shared/ui/data-table'
 import { AuthenticatedProductImage } from '../../images/AuthenticatedProductImage'
 
 type ProductColumnsOptions = {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   canManage: boolean
   deleting: boolean
@@ -20,6 +20,12 @@ type ProductColumnsOptions = {
   onEdit: (product: Product) => void
   onDelete: (id: string) => void
 }
+
+const PRODUCT_PRICE_COLUMN_KEYS = {
+  cost: 'products.colCost',
+  wholesale: 'products.colWholesale',
+  retail: 'products.colRetail',
+} as const
 
 export function createProductColumns({
   t,
@@ -68,7 +74,7 @@ export function createProductColumns({
       dataIndex: 'unit',
       width: 90,
       responsiveHide: true,
-      render: (value: ProductUnit) => <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[value]}</StatusBadge>,
+      render: (value: ProductUnit) => <StatusBadge tone="muted">{t(`units.${value}`)}</StatusBadge>,
     },
     {
       title: t('products.colLowStock'),
@@ -78,11 +84,11 @@ export function createProductColumns({
       render: (_: unknown, product: Product) => {
         //
         const threshold = product.lowStockThreshold
-        return threshold == null ? <span className="u-text-quiet">—</span> : <span className="num u-text-warning u-fw-600" >{threshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[product.unit]}</span>
+        return threshold == null ? <span className="u-text-quiet">—</span> : <span className="num u-text-warning u-fw-600" >{threshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {t(`units.${product.unit}`)}</span>
       },
     },
     ...(['cost', 'wholesale', 'retail'] as const).map((priceType) => ({
-      title: t(`products.col${priceType.charAt(0).toUpperCase()}${priceType.slice(1)}`),
+      title: t(PRODUCT_PRICE_COLUMN_KEYS[priceType]),
       key: priceType,
       width: 150,
       align: 'right' as const,

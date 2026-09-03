@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -11,7 +12,7 @@ import {
 } from '../images/product-image-changes'
 
 interface UseProductImagePersistenceOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   imageFiles: File[]
   imageChanges: ProductImageChanges
   onImageFilesChange: (files: File[]) => void

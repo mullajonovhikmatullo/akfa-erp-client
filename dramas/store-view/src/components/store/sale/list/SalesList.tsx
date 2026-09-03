@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Badge, Button, Select, Tooltip } from 'antd'
 
+import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { SaleListItem, SaleType } from '@store/store-stub'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
@@ -15,15 +16,15 @@ type SalesFiltersForm = {
 }
 
 interface SalesListProps {
-  t: (key: string) => string
   isStoreOwner: boolean
   userBranchId?: string | null
   branchId?: string
   exchangeRate: number
 }
 
-export function SalesList({ t, isStoreOwner, userBranchId, branchId, exchangeRate }: SalesListProps) {
+export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }: SalesListProps) {
   //
+  const t = useStoreT()
   const { control, watch } = useForm<SalesFiltersForm>({
     defaultValues: {
       saleType: undefined,

@@ -1,8 +1,9 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { z } from 'zod'
 
 const UNITS = ['KG', 'PIECE'] as const
 
-export const createProductSchema = (t: (key: string) => string) => {
+export const createProductSchema = (t: StoreTranslator) => {
   //
   const priceField = z
     .number({ error: t('validation.priceInvalidType') })

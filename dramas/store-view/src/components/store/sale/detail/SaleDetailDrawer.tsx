@@ -1,14 +1,14 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Drawer } from 'antd'
-import { PAYMENT_METHOD_LABELS } from '@store/store-shared/core'
 import type { PaymentMethod, SaleListItem } from '@store/store-stub'
 import { useSaleDetail } from '../hooks/useSaleDetail'
 import { useSaleMutation } from '../hooks/useSaleMutation'
 import { SaleDetailView, type PaymentFormValues } from './view/SaleDetailView'
 
 interface SaleDetailDrawerProps {
-  t: (key: string) => string
+  t: StoreTranslator
   sale: SaleListItem | null
   onClose: () => void
 }
@@ -24,9 +24,9 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
   const payAmount = watch('amount') ?? 0
   const paymentOptions = useMemo(
     () =>
-      (Object.keys(PAYMENT_METHOD_LABELS) as PaymentMethod[])
+      (['CASH_UZS', 'CASH_USD', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT'] as PaymentMethod[])
         .filter((method) => method !== 'MIXED')
-        .map((method) => ({ value: method, label: t(`payment.${method}`) || PAYMENT_METHOD_LABELS[method] })),
+        .map((method) => ({ value: method, label: t(`payment.${method}`) })),
     [t],
   )
 

@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tooltip } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
@@ -7,7 +8,7 @@ import type { Customer } from '@store/store-stub'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
 
 type CustomerColumnsOptions = {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   canManage: boolean
   deleting: boolean

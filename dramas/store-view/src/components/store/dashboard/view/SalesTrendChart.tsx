@@ -62,7 +62,7 @@ export function SalesTrendChart({
             />
             <YAxis
               domain={[0, yMax]}
-              tickFormatter={(v) => formatCompactUZS(Number(v)).replace(" so'm", '')}
+              tickFormatter={(v) => formatCompactUZS(Number(v)).replace(' UZS', '')}
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 11, fill: DASH_TICK }}

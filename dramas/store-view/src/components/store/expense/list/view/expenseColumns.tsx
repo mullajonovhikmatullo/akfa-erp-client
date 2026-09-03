@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
@@ -7,7 +8,7 @@ import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Expense } from '@store/store-stub'
 
 interface ExpenseColumnsOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   deleting: boolean
   deletingId?: string

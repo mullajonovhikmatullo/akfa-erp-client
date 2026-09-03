@@ -6,7 +6,6 @@ import { useUIStore } from '@/app/stores/ui.store';
 import { useAuthStore } from '@/entities/user';
 import { AppHeader } from './AppHeader';
 import { AppSidebar } from './AppSidebar';
-import { useT } from '@/shared/lib/i18n';
 import { PastDueAlert, TrialBanner } from './view';
 
 export function DashboardLayout() {
@@ -19,7 +18,6 @@ export function DashboardLayout() {
   const setActiveBranch = useUIStore((s) => s.setActiveBranch);
   const { data: branches = [] } = useBranchesList();
   const location = useLocation();
-  const t = useT();
   const trialEndsAt = user?.store?.status === 'TRIALING'
     ? (user.store.subscription?.trialEndsAt ?? user.store.trialEndsAt)
     : null;
@@ -52,10 +50,10 @@ export function DashboardLayout() {
       <div className="main">
         <AppHeader branches={branches} />
         {trialEndsAt ? (
-          <TrialBanner daysLeft={trialDaysLeft} canManageBilling={user?.role === 'store_owner'} t={t} />
+          <TrialBanner daysLeft={trialDaysLeft} canManageBilling={user?.role === 'store_owner'} />
         ) : null}
         {user?.store?.status === 'PAST_DUE' ? (
-          <PastDueAlert canManageBilling={user?.role === 'store_owner'} t={t} />
+          <PastDueAlert canManageBilling={user?.role === 'store_owner'} />
         ) : null}
         <div className="page">
           <Outlet />

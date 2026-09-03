@@ -1,18 +1,17 @@
 import { Dropdown, Tooltip, type MenuProps } from 'antd'
 
+import { useStoreT, type StoreLocale } from '@store/store-i18n'
 import type { User } from '@store/store-stub'
-import type { Lang } from '@/shared/lib/lang'
 import { UserAvatar } from './UserAvatar'
 
 interface HeaderActionsProps {
   currentLangLabel: string
   exchangeRate: number
   isDarkActive: boolean
-  lang: Lang
+  lang: StoreLocale
   languageMenuItems: MenuProps['items']
   onToggleTheme: () => void
   profileMenuItems: MenuProps['items']
-  t: (key: string) => string
   user: User | null
 }
 
@@ -24,15 +23,16 @@ export function HeaderActions({
   languageMenuItems,
   onToggleTheme,
   profileMenuItems,
-  t,
   user,
 }: HeaderActionsProps) {
   //
+  const t = useStoreT()
+
   return (
     <div className="topbar__actions">
       <span className="tagpill info topbar__exchange topbar-hide-mobile">
         <i className="icons-finance-money icon-size-13" />
-        1 USD = {exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ')} so&apos;m
+        {t('header.exchangeRate', { rate: exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ') })}
       </span>
 
       <Dropdown

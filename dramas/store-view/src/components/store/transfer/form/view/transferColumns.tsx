@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, InputNumber } from 'antd'
 
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
@@ -6,7 +7,7 @@ import { QuantityStepper } from './QuantityStepper'
 import type { TransferCartItem } from './types'
 
 interface TransferColumnsOptions {
-  t: (key: string) => string
+  t: StoreTranslator
   stockByProductId: Map<string, number>
   onChangeQty: (key: string, delta: number) => void
   onUpdateQty: (key: string, value: number | null) => void

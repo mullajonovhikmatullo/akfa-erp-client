@@ -1,6 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import type { LoginResponse } from '@store/store-stub';
 
-export type TFunc = (key: string) => string;
+export type TFunc = StoreTranslator;
 
 export type LoginLanguage = 'uz-cy' | 'uz-la' | 'ru' | 'en';
 

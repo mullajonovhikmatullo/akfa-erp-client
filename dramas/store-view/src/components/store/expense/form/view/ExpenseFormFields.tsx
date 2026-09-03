@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import type { ClipboardEvent, KeyboardEvent } from 'react'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { DatePicker, Form, Input, InputNumber, Segmented, Select } from 'antd'
@@ -8,7 +9,7 @@ import type { ExpenseCategory } from '@store/store-stub'
 import type { ExpenseFormValues } from '../expenseSchema'
 
 interface ExpenseFormFieldsProps {
-  t: (key: string) => string
+  t: StoreTranslator
   control: Control<ExpenseFormValues>
   errors: FieldErrors<ExpenseFormValues>
   currency: ExpenseFormValues['currency']

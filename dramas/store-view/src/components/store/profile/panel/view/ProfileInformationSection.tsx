@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Button, Input } from 'antd'
 
@@ -6,7 +7,7 @@ import type { ProfileFormValues } from '../profileSchemas'
 import { ProfileField } from './ProfileField'
 
 interface ProfileInformationSectionProps {
-  t: (key: string) => string
+  t: StoreTranslator
   username?: string
   editing: boolean
   pending: boolean

@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller } from 'react-hook-form'
 import { Button, Input, Popconfirm, Switch } from 'antd'
 
@@ -8,7 +9,7 @@ import type { CategoryManagerFormControl, CategoryManagerFormErrors } from './ty
 
 interface ExpenseCategoryRowProps {
   category: ExpenseCategory
-  t: (key: string) => string
+  t: StoreTranslator
   control: CategoryManagerFormControl
   errors: CategoryManagerFormErrors
   editName: string

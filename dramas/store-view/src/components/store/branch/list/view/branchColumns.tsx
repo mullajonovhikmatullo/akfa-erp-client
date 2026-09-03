@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tag, Tooltip } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
@@ -5,7 +6,7 @@ import type { ColumnDef } from '@store/store-shared/ui/data-table'
 import type { Branch, User } from '@store/store-stub'
 
 type BranchColumnsOptions = {
-  t: (key: string) => string
+  t: StoreTranslator
   rowIndex: (index: number) => number
   branchAdmins: User[]
   currentUser?: User | null

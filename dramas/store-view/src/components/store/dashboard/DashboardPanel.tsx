@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Alert, Button, DatePicker, Empty } from 'antd';
 
 import dayjs from 'dayjs';
+import { resolveStoreTranslationKey, useStoreT } from '@store/store-i18n';
 import { formatDate } from '@store/store-shared/lib/formatters';
 import { MoneyDisplay } from '@store/store-shared/ui/money-display';
 import { StatusBadge } from '@store/store-shared/ui/status-badge';
@@ -28,10 +29,9 @@ import {
   createTrendData,
   getTodayRange,
 } from './view';
-import type { DashboardFiltersForm, TFunc } from './view';
+import type { DashboardFiltersForm } from './view';
 
 export interface DashboardPanelProps {
-  t: TFunc;
   firstName: string;
   branchId?: string | null;
   onNewSale: () => void;
@@ -42,7 +42,6 @@ export interface DashboardPanelProps {
 }
 
 export function DashboardPanel({
-  t,
   firstName,
   branchId,
   onNewSale,
@@ -52,6 +51,7 @@ export function DashboardPanel({
   onOpenDebtors,
 }: DashboardPanelProps) {
   //
+  const t = useStoreT();
   const branchParam = branchId ? { branchId } : {};
 
   const now = dayjs();
@@ -281,7 +281,7 @@ export function DashboardPanel({
                   key={`${item.branchId}-${item.productId}`}
                   title={item.name}
                   meta={`${item.branchName} · ${t('dashboard.thresholdLabel')}: ${item.threshold}`}
-                  right={<StatusBadge tone="warning">{item.currentStock.toLocaleString('ru-RU')} {t(`units.${item.unit}`)}</StatusBadge>}
+                  right={<StatusBadge tone="warning">{item.currentStock.toLocaleString('ru-RU')} {t(resolveStoreTranslationKey(`units.${item.unit}`, 'units.unknown'))}</StatusBadge>}
                   icon={<i className="icons-warning icon-size-18 tone-warning" />}
                 />
               ))}

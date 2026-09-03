@@ -1,5 +1,5 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Divider, Drawer, Skeleton } from 'antd'
-import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Product } from '@store/store-stub'
 import { ProductImageGallery } from '../images/ProductImageGallery'
@@ -9,7 +9,7 @@ import { PriceBox } from './view/PriceBox'
 import { SectionLabel } from './view/SectionLabel'
 
 interface ProductDetailDrawerProps {
-  t: (key: string) => string
+  t: StoreTranslator
   product: Product | null
   onClose: () => void
 }
@@ -45,10 +45,10 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
             ) : null}
             <div className="u-flex u-flex-wrap u-gap-8 u-mt-8">
               {displayedProduct.category ? <StatusBadge tone="info">{displayedProduct.category.name}</StatusBadge> : null}
-              <StatusBadge tone="muted">{PRODUCT_UNIT_LABELS[displayedProduct.unit]}</StatusBadge>
+              <StatusBadge tone="muted">{t(`units.${displayedProduct.unit}`)}</StatusBadge>
               {displayedProduct.lowStockThreshold != null ? (
                 <StatusBadge tone="warning">
-                  {t('products.drawerLowStockThreshold')}: {displayedProduct.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {PRODUCT_UNIT_LABELS[displayedProduct.unit]}
+                  {t('products.drawerLowStockThreshold')}: {displayedProduct.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {t(`units.${displayedProduct.unit}`)}
                 </StatusBadge>
               ) : null}
               {displayedProduct.isActive ? (
@@ -102,7 +102,7 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
                   >
                     <span className="u-fw-500">{item.branch.name}</span>
                     <span className="num u-fw-700" >
-                      {item.quantity.toLocaleString('ru-RU')} {PRODUCT_UNIT_LABELS[displayedProduct.unit]}
+                      {item.quantity.toLocaleString('ru-RU')} {t(`units.${displayedProduct.unit}`)}
                     </span>
                   </div>
                 ))}

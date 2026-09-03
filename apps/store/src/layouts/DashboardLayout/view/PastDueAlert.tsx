@@ -1,9 +1,12 @@
+import { useStoreT } from '@store/store-i18n'
 import { Link } from 'react-router-dom'
 import { Alert } from 'antd'
 import { ROUTES } from '@/shared/config/routes'
 
-export function PastDueAlert({ canManageBilling, t }: { canManageBilling: boolean; t: (key: string) => string }) {
+export function PastDueAlert({ canManageBilling }: { canManageBilling: boolean }) {
   //
+  const t = useStoreT()
+
   return (
     <Alert
       type="warning"

@@ -5,6 +5,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 const packageNamePattern = /\/node_modules\/(?:\.pnpm\/[^/]+\/node_modules\/)?((?:@[^/]+\/)?[^/]+)/
 const appSrc = fileURLToPath(new URL('./src', import.meta.url))
+const storeI18nEntry = fileURLToPath(new URL('../../dramas/store-i18n/src/index.ts', import.meta.url))
 const storeSharedEntry = fileURLToPath(new URL('../../dramas/store-shared/src/index.ts', import.meta.url))
 const storeSharedCoreEntry = fileURLToPath(new URL('../../dramas/store-shared/src/core/index.ts', import.meta.url))
 const storeSharedRoot = fileURLToPath(new URL('../../dramas/store-shared/src', import.meta.url))
@@ -149,6 +150,7 @@ export default defineConfig({
     preserveSymlinks: false,
     dedupe: ['react', 'react-dom'],
     alias: [
+      { find: /^@store\/store-i18n$/, replacement: storeI18nEntry },
       { find: /^@store\/store-shared$/, replacement: storeSharedEntry },
       { find: /^@store\/store-shared\/core$/, replacement: storeSharedCoreEntry },
       { find: /^@store\/store-shared\/lib\/autofill$/, replacement: `${storeSharedRoot}/lib/autofill.ts` },

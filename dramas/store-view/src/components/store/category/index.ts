@@ -1,5 +1,4 @@
 export { CategoriesList } from './list/CategoriesList'
-export type { CategoriesListProps } from './list/CategoriesList'
 export * from './hooks/categoryKeys'
 export * from './hooks/useCategoriesList'
 export * from './hooks/useCategoriesPage'

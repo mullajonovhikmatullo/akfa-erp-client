@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { Badge, Tooltip } from 'antd'
 
 import clsx from 'clsx'
-import { useT } from '@/shared/lib/i18n'
+import { useStoreT } from '@store/store-i18n'
 import type { NavItemDef } from '../navConfig'
 import { SIDEBAR_ICONS } from './sidebarIcons'
 
@@ -25,10 +25,10 @@ export function SidebarNavItem({
 }: SidebarNavItemProps) {
   //
   const location = useLocation()
-  const t = useT()
+  const t = useStoreT()
   const active = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)
   const iconName = SIDEBAR_ICONS[item.icon]
-  const label = t(`nav.${item.key}`)
+  const label = t(item.labelKey)
   const showBadge = Boolean(badgeCount && badgeCount > 0)
 
   const content = (
@@ -53,7 +53,7 @@ export function SidebarNavItem({
               event.stopPropagation()
               onToggleFavorite(item.key)
             }}
-            aria-label={favorite ? 'Sevimlilardan olib tashlash' : "Sevimlilarga qo'shish"}
+            aria-label={favorite ? t('sidebar.removeFavorite') : t('sidebar.addFavorite')}
           >
             <i className="icons-favourite icon-size-11" />
           </button>

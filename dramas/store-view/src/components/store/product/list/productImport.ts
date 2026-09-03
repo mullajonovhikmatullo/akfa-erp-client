@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { PRODUCT_UNIT_LABELS } from '@store/store-shared/core'
 import { getField, hasMaxTwoDecimals, isUuid, parseExcelNumber } from '@store/store-shared/lib/parse-excel'
 import type { ParsedRow } from '@store/store-shared/ui/excel-import-button'
@@ -14,7 +15,7 @@ export const PRODUCT_FILTER_CURRENCIES: Currency[] = ['UZS', 'USD']
 interface ProductImportParserOptions {
   categories: Category[]
   branchId: string
-  t: (key: string) => string
+  t: StoreTranslator
 }
 
 interface PriceResult {
@@ -45,18 +46,18 @@ function normaliseLookupValue(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ')
 }
 
-function readPrice(raw: Record<string, string>, field: string): PriceResult {
+function readPrice(raw: Record<string, string>, field: string, t: StoreTranslator): PriceResult {
   //
   const rawValue = getField(raw, field)
   const value = parseExcelNumber(rawValue)
   if (rawValue && (value === undefined || !Number.isFinite(value))) {
-    return { hasValue: true, error: `${field} noto'g'ri kiritilgan` }
+    return { hasValue: true, error: t('productImport.priceInvalid', { field }) }
   }
   if (value !== undefined && value < 0) {
-    return { hasValue: true, error: `${field} manfiy bo'lishi mumkin emas` }
+    return { hasValue: true, error: t('productImport.priceNegative', { field }) }
   }
   if (value !== undefined && !hasMaxTwoDecimals(value)) {
-    return { hasValue: true, error: `${field} ko'pi bilan 2 xonali kasr bo'lishi kerak` }
+    return { hasValue: true, error: t('productImport.pricePrecision', { field }) }
   }
   return { value, hasValue: rawValue.length > 0 }
 }
@@ -64,6 +65,7 @@ function readPrice(raw: Record<string, string>, field: string): PriceResult {
 function getPriceValidationError(
   uzsPrices: PriceResult[],
   usdPrices: PriceResult[],
+  t: StoreTranslator,
 ) {
   //
   const firstFieldError = [...uzsPrices, ...usdPrices].find((price) => price.error)?.error
@@ -72,16 +74,16 @@ function getPriceValidationError(
   const uzsPriceCount = uzsPrices.filter((price) => price.hasValue).length
   const usdPriceCount = usdPrices.filter((price) => price.hasValue).length
   if (uzsPriceCount > 0 && uzsPriceCount !== 3) {
-    return "UZS narxlarining 3 tasi ham to'ldirilishi kerak: costPriceUzs, retailPriceUzs, wholesalePriceUzs"
+    return t('productImport.uzsPricesRequired')
   }
   if (usdPriceCount > 0 && usdPriceCount !== 3) {
-    return "USD narxlarining 3 tasi ham to'ldirilishi kerak: costPriceUsd, retailPriceUsd, wholesalePriceUsd"
+    return t('productImport.usdPricesRequired')
   }
   if (uzsPriceCount === 0 && usdPriceCount === 0) {
-    return "Narxlar kiritilishi kerak: 3 ta UZS yoki 3 ta USD narxni to'ldiring"
+    return t('productImport.pricesRequired')
   }
   if (uzsPriceCount === 3 && usdPriceCount === 3) {
-    return 'Faqat bitta valyuta narxlarini kiriting: yoki 3 ta UZS, yoki 3 ta USD'
+    return t('productImport.singleCurrencyOnly')
   }
   return undefined
 }
@@ -91,10 +93,22 @@ function getPriceOrderError(
   cost: number,
   wholesale: number,
   retail: number,
+  t: StoreTranslator,
 ) {
   //
-  if (cost > wholesale) return `costPrice${currency === 'UZS' ? 'Uzs' : 'Usd'} wholesalePrice${currency === 'UZS' ? 'Uzs' : 'Usd'} dan oshmasligi kerak`
-  if (wholesale > retail) return `wholesalePrice${currency === 'UZS' ? 'Uzs' : 'Usd'} retailPrice${currency === 'UZS' ? 'Uzs' : 'Usd'} dan oshmasligi kerak`
+  const suffix = currency === 'UZS' ? 'Uzs' : 'Usd'
+  if (cost > wholesale) {
+    return t('productImport.costAboveWholesale', {
+      costField: `costPrice${suffix}`,
+      wholesaleField: `wholesalePrice${suffix}`,
+    })
+  }
+  if (wholesale > retail) {
+    return t('productImport.wholesaleAboveRetail', {
+      wholesaleField: `wholesalePrice${suffix}`,
+      retailField: `retailPrice${suffix}`,
+    })
+  }
   return undefined
 }
 
@@ -109,8 +123,8 @@ export function createProductImportParser({
   return (raw: Record<string, string>, index: number): ParsedRow<CreateProductPayload> => {
     //
     const name = getField(raw, 'name')
-    if (!name) return { index, raw, error: 'Nomi kiritilishi shart' }
-    if (name.length > 200) return { index, raw, error: 'name 200 belgidan oshmasligi kerak' }
+    if (!name) return { index, raw, error: t('validation.nameRequired') }
+    if (name.length > 200) return { index, raw, error: t('validation.nameMax') }
 
     const unitRaw = getField(raw, 'unit')
     const unit = parseProductImportUnit(unitRaw)
@@ -118,13 +132,13 @@ export function createProductImportParser({
       return {
         index,
         raw,
-        error: `"${unitRaw || '-'}" noto'g'ri o'lchov birligi. To'g'ri qiymatlar: ${unitHint}`,
+        error: t('productImport.unitInvalid', { value: unitRaw || '-', values: unitHint }),
       }
     }
 
     const description = getField(raw, 'description') || undefined
     if (description && description.length > 500) {
-      return { index, raw, error: 'description 500 belgidan oshmasligi kerak' }
+      return { index, raw, error: t('productImport.descriptionMax') }
     }
 
     const sku = getField(raw, 'sku') || undefined
@@ -140,19 +154,19 @@ export function createProductImportParser({
       return {
         index,
         raw,
-        error: `"${categoryName}" kategoriyasi topilmadi. Kategoriyani template ichidagi Values sahifasidan tanlang`,
+        error: t('productImport.categoryNotFound', { name: categoryName }),
       }
     }
 
     const legacyCategoryId = getField(raw, 'categoryId') || undefined
     if (legacyCategoryId && !isUuid(legacyCategoryId)) {
-      return { index, raw, error: "categoryId UUID formatida bo'lishi kerak" }
+      return { index, raw, error: t('productImport.categoryIdInvalid') }
     }
 
     const thresholdRaw = getField(raw, 'lowStockThreshold')
     const lowStockThreshold = parseExcelNumber(thresholdRaw)
     if (thresholdRaw && (lowStockThreshold === undefined || !Number.isFinite(lowStockThreshold))) {
-      return { index, raw, error: "lowStockThreshold noto'g'ri kiritilgan" }
+      return { index, raw, error: t('productImport.thresholdInvalid') }
     }
     const hasInvalidThresholdPrecision =
       lowStockThreshold !== undefined &&
@@ -161,21 +175,21 @@ export function createProductImportParser({
       return {
         index,
         raw,
-        error: "lowStockThreshold manfiy bo'lmasligi va 4 xonagacha kasr bo'lishi kerak",
+        error: t('productImport.thresholdRange'),
       }
     }
 
     const uzsPrices = [
-      readPrice(raw, 'costPriceUzs'),
-      readPrice(raw, 'retailPriceUzs'),
-      readPrice(raw, 'wholesalePriceUzs'),
+      readPrice(raw, 'costPriceUzs', t),
+      readPrice(raw, 'retailPriceUzs', t),
+      readPrice(raw, 'wholesalePriceUzs', t),
     ]
     const usdPrices = [
-      readPrice(raw, 'costPriceUsd'),
-      readPrice(raw, 'retailPriceUsd'),
-      readPrice(raw, 'wholesalePriceUsd'),
+      readPrice(raw, 'costPriceUsd', t),
+      readPrice(raw, 'retailPriceUsd', t),
+      readPrice(raw, 'wholesalePriceUsd', t),
     ]
-    const priceValidationError = getPriceValidationError(uzsPrices, usdPrices)
+    const priceValidationError = getPriceValidationError(uzsPrices, usdPrices, t)
     if (priceValidationError) return { index, raw, error: priceValidationError }
 
     const hasUsdPrices = usdPrices.every((price) => price.hasValue)
@@ -184,8 +198,8 @@ export function createProductImportParser({
       : uzsPrices.map((price) => price.value ?? 0)
     const [costPriceUsd, retailPriceUsd, wholesalePriceUsd] = usdPrices.map((price) => price.value)
     const priceOrderError = hasUsdPrices
-      ? getPriceOrderError('USD', costPriceUsd!, wholesalePriceUsd!, retailPriceUsd!)
-      : getPriceOrderError('UZS', costPriceUzs!, wholesalePriceUzs!, retailPriceUzs!)
+      ? getPriceOrderError('USD', costPriceUsd!, wholesalePriceUsd!, retailPriceUsd!, t)
+      : getPriceOrderError('UZS', costPriceUzs!, wholesalePriceUzs!, retailPriceUzs!, t)
     if (priceOrderError) return { index, raw, error: priceOrderError }
 
     return {

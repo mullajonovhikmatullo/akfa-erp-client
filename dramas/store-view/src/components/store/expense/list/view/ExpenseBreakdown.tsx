@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 
 interface ExpenseBreakdownItem {
@@ -6,7 +7,7 @@ interface ExpenseBreakdownItem {
   total: number
 }
 
-export function ExpenseBreakdown({ items, grandTotal, t }: { items: ExpenseBreakdownItem[]; grandTotal: number; t: (key: string) => string }) {
+export function ExpenseBreakdown({ items, grandTotal, t }: { items: ExpenseBreakdownItem[]; grandTotal: number; t: StoreTranslator }) {
   //
   return (
     <div className="card u-sticky u-top-76" >

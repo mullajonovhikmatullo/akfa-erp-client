@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { TransferFlowApi } from '@store/store-stub'
@@ -6,7 +7,7 @@ import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
 import { transferKeys } from './transferKeys'
 
-type Translate = (key: string) => string
+type Translate = StoreTranslator
 
 export function useTransferMutation(t: Translate) {
   //

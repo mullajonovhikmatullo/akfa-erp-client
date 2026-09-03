@@ -1,3 +1,4 @@
+import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal } from 'antd'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
@@ -5,7 +6,7 @@ import { isValidUzbekMobilePhone, UzbekPhoneInput } from '@store/store-shared'
 import type { Branch, BranchPayload } from '@store/store-stub'
 
 interface BranchFormModalProps {
-  t: (key: string) => string
+  t: StoreTranslator
   open: boolean
   editTarget: Branch | null
   control: Control<BranchPayload>

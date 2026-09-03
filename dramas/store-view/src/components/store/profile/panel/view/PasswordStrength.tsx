@@ -1,6 +1,7 @@
+import type { StoreTranslator } from '@store/store-i18n'
 interface PasswordStrengthProps {
   password: string
-  t: (key: string) => string
+  t: StoreTranslator
 }
 
 export function PasswordStrength({ password, t }: PasswordStrengthProps) {
