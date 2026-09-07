@@ -15,7 +15,7 @@ export function LoginShowcase({ t }: { t: TFunc }) {
       <div className="mavion-login__floating-icon mavion-login__floating-icon--user" aria-hidden="true"><i className="icons-user-circle icon-size-28" /></div>
 
       <div className="mavion-login__hero-card">
-        <MavionBrand inverted />
+        <MavionBrand asset inverted />
         <h2>Mavion ERP</h2>
         <strong>{t('login.showcaseEyebrow')}</strong>
         <p>{t('login.showcaseDescription')}</p>

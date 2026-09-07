@@ -256,22 +256,52 @@
 
 .brand-logo {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
-  gap: 8px;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
-.brand-logo__mark {
+.brand-logo__asset {
+  position: relative;
+  display: block;
+  width: var(--mavion-logo-width);
+  height: var(--mavion-logo-height);
+  overflow: hidden;
   flex: 0 0 auto;
-  filter: drop-shadow(0 4px 8px rgb(4 118 208 / 0.2));
 }
 
-.brand-logo__wordmark {
-  color: #102142;
-  font-size: 1em;
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 1;
+.brand-logo__source {
+  position: absolute;
+  top: var(--mavion-logo-source-top);
+  left: var(--mavion-logo-source-left);
+  display: block;
+  width: var(--mavion-logo-source-width);
+  max-width: none;
+  height: var(--mavion-logo-source-height);
+  filter: invert(1);
+  clip-path: inset(0 0 0 var(--mavion-logo-source-mark-left));
+}
+
+.brand-logo__mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--mavion-logo-mark-width);
+  height: var(--mavion-logo-height);
+  background: var(--primary);
+  filter: blur(0.22px);
+  pointer-events: none;
+  -webkit-mask-image: var(--mavion-logo-source);
+  -webkit-mask-mode: luminance;
+  -webkit-mask-position: var(--mavion-logo-source-left) var(--mavion-logo-source-top);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: var(--mavion-logo-source-width) var(--mavion-logo-source-height);
+  mask-image: var(--mavion-logo-source);
+  mask-mode: luminance;
+  mask-position: var(--mavion-logo-source-left) var(--mavion-logo-source-top);
+  mask-repeat: no-repeat;
+  mask-size: var(--mavion-logo-source-width) var(--mavion-logo-source-height);
 }
 
 .landing-header {
@@ -298,6 +328,8 @@
 
 .landing-header__logo {
   flex: 0 0 auto;
+  min-width: 0;
+  max-width: calc(100vw - 96px);
 }
 
 .landing-nav {
@@ -522,11 +554,6 @@
 .dashboard-window__chrome .brand-logo {
   gap: 5px;
 }
-
-.dashboard-window__chrome .brand-logo__wordmark {
-  font-size: 8px;
-}
-
 .dashboard-window__chrome-meta {
   display: flex;
   align-items: center;

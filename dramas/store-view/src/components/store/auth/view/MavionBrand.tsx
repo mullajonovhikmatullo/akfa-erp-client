@@ -1,10 +1,56 @@
+import type { CSSProperties } from 'react';
+
 type MavionBrandProps = {
   inverted?: boolean;
   compact?: boolean;
+  asset?: boolean;
 };
 
-export function MavionBrand({ inverted = false, compact = false }: MavionBrandProps) {
+const publicAssetBaseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const logoAssetUrl = `${publicAssetBaseUrl}brand/mavion-logo.png`;
+const logoCrop = {
+  height: 199,
+  markWidth: 350,
+  sourceHeight: 941,
+  sourceWidth: 1672,
+  top: 354,
+  left: 321,
+  width: 1033,
+};
+
+export function MavionBrand({ inverted = false, compact = false, asset = false }: MavionBrandProps) {
   //
+  if (asset) {
+    const size = compact ? 26 : 42;
+    const scale = size / logoCrop.height;
+    const logoStyle = {
+      '--mavion-brand-height': `${size}px`,
+      '--mavion-brand-mark-width': `${logoCrop.markWidth * scale}px`,
+      '--mavion-brand-source': `url("${logoAssetUrl}")`,
+      '--mavion-brand-source-height': `${logoCrop.sourceHeight * scale}px`,
+      '--mavion-brand-source-left': `${-logoCrop.left * scale}px`,
+      '--mavion-brand-source-mark-left': `${(logoCrop.left + logoCrop.markWidth) * scale}px`,
+      '--mavion-brand-source-top': `${-logoCrop.top * scale}px`,
+      '--mavion-brand-source-width': `${logoCrop.sourceWidth * scale}px`,
+      '--mavion-brand-width': `${logoCrop.width * scale}px`,
+      '--mavion-brand-mark-color': '#0476d0',
+      '--mavion-brand-wordmark-color': inverted ? '#fff' : '#102142',
+    } as CSSProperties;
+
+    return (
+      <div
+        aria-label="Mavion"
+        className={`mavion-brand mavion-brand--asset${inverted ? ' mavion-brand--inverted' : ''}${compact ? ' mavion-brand--compact' : ''}`}
+        role="img"
+      >
+        <span className="mavion-brand__asset" style={logoStyle}>
+          <span aria-hidden="true" className="mavion-brand__asset-wordmark" />
+          <span aria-hidden="true" className="mavion-brand__asset-mark" />
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className={`mavion-brand${inverted ? ' mavion-brand--inverted' : ''}${compact ? ' mavion-brand--compact' : ''}`}>
       <svg className="mavion-brand__mark" viewBox="0 0 52 38" aria-hidden="true">

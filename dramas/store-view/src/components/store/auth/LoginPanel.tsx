@@ -23,7 +23,7 @@ export function LoginPanel(props: LoginPanelProps) {
       <section className="mavion-login__form-panel">
         <div className="mavion-login__form-content">
           <div className="mavion-login__form-topbar">
-            <MavionBrand compact />
+            <MavionBrand asset compact />
             <Dropdown
               menu={{
                 items: languageMenuItems,

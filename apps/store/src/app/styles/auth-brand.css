@@ -93,6 +93,57 @@
 .mavion-brand--compact{gap:12px}
 .mavion-brand--compact .mavion-brand__mark{width:48px;height:35px}
 .mavion-brand--compact .mavion-brand__name{font-size:34px}
+.mavion-brand--asset{gap:0}
+.mavion-brand--asset .mavion-brand__asset{
+  position:relative;
+  display:block;
+  width:var(--mavion-brand-width);
+  height:var(--mavion-brand-height);
+  overflow:hidden;
+  flex:0 0 auto;
+}
+.mavion-brand--asset .mavion-brand__asset-wordmark{
+  position:absolute;
+  top:var(--mavion-brand-source-top);
+  left:var(--mavion-brand-source-left);
+  display:block;
+  width:var(--mavion-brand-source-width);
+  max-width:none;
+  height:var(--mavion-brand-source-height);
+  background:var(--mavion-brand-wordmark-color);
+  clip-path:inset(0 0 0 var(--mavion-brand-source-mark-left));
+  -webkit-mask-image:var(--mavion-brand-source);
+  -webkit-mask-mode:luminance;
+  -webkit-mask-position:0 0;
+  -webkit-mask-repeat:no-repeat;
+  -webkit-mask-size:var(--mavion-brand-source-width) var(--mavion-brand-source-height);
+  mask-image:var(--mavion-brand-source);
+  mask-mode:luminance;
+  mask-position:0 0;
+  mask-repeat:no-repeat;
+  mask-size:var(--mavion-brand-source-width) var(--mavion-brand-source-height);
+}
+.mavion-brand--asset .mavion-brand__asset-mark{
+  position:absolute;
+  top:0;
+  left:0;
+  display:block;
+  width:var(--mavion-brand-mark-width);
+  height:var(--mavion-brand-height);
+  background:var(--mavion-brand-mark-color);
+  filter:blur(.22px);
+  pointer-events:none;
+  -webkit-mask-image:var(--mavion-brand-source);
+  -webkit-mask-mode:luminance;
+  -webkit-mask-position:var(--mavion-brand-source-left) var(--mavion-brand-source-top);
+  -webkit-mask-repeat:no-repeat;
+  -webkit-mask-size:var(--mavion-brand-source-width) var(--mavion-brand-source-height);
+  mask-image:var(--mavion-brand-source);
+  mask-mode:luminance;
+  mask-position:var(--mavion-brand-source-left) var(--mavion-brand-source-top);
+  mask-repeat:no-repeat;
+  mask-size:var(--mavion-brand-source-width) var(--mavion-brand-source-height);
+}
 .mavion-login__showcase-copy{
   position:relative;
   z-index:2;
@@ -531,5 +582,3 @@ html.dark .mavion-login{color:#091735}
   .mavion-login__form-options{align-items:flex-start;flex-direction:column;gap:13px}
   .mavion-login__socials{grid-template-columns:1fr}
 }
-
-

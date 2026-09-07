@@ -26,7 +26,7 @@ export function Header() {
         <header className={`landing-header${scrolled ? " landing-header--scrolled" : ""}`}>
             <div className="container-page landing-header__inner">
                 <a className="landing-header__logo" href="/" aria-label={site.brand.name}>
-                    <Logo markSize={28}/>
+                    <Logo markSize={22}/>
                 </a>
 
                 <nav className="landing-nav" aria-label={t.navigation.label}>
