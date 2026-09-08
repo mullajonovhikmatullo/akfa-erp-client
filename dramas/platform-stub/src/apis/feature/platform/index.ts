@@ -31,8 +31,9 @@ export const platformTokenStore = createTokenStore({ tokenKey: PLATFORM_TOKEN_KE
 export const platformHttp = createHttpClient({
   tokenKey: PLATFORM_TOKEN_KEY,
   onUnauthorized: () => {
+    //
     platformTokenStore.clear()
-    globalThis.localStorage?.removeItem(PLATFORM_USER_KEY)
+    globalThis.sessionStorage?.removeItem(PLATFORM_USER_KEY)
     if (globalThis.window?.location) {
       const env = (import.meta as ImportMeta & { env?: { BASE_URL?: string } }).env
       const base = (env?.BASE_URL ?? '/').replace(/\/?$/, '/')

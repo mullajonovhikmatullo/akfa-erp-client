@@ -36,12 +36,24 @@ const withAppBasePath = (path: string) => {
 
 export const createTokenStore = ({
   tokenKey = DEFAULT_TOKEN_KEY,
-  storage = globalThis.localStorage,
-}: Pick<HttpClientOptions, 'tokenKey' | 'storage'> = {}): TokenStore => ({
-  get: () => storage?.getItem(tokenKey) ?? null,
-  set: (token: string) => storage?.setItem(tokenKey, token),
-  clear: () => storage?.removeItem(tokenKey),
-})
+  storage = globalThis.sessionStorage,
+}: Pick<HttpClientOptions, 'tokenKey' | 'storage'> = {}): TokenStore => {
+  //
+  const notify = () => globalThis.window?.dispatchEvent(new Event('store-session-changed'))
+  return {
+    get: () => storage?.getItem(tokenKey) ?? null,
+    set: (token: string) => {
+      //
+      storage?.setItem(tokenKey, token)
+      notify()
+    },
+    clear: () => {
+      //
+      storage?.removeItem(tokenKey)
+      notify()
+    },
+  }
+}
 
 export const createHttpClient = ({
   baseURL = resolveEnvBaseUrl() ?? '/api',
@@ -51,7 +63,8 @@ export const createHttpClient = ({
 }: HttpClientOptions = {}): AxiosInstance => {
   //
   const tokenStore = createTokenStore(tokenOptions)
-  const storage = tokenOptions.storage ?? globalThis.localStorage
+  const storage = tokenOptions.storage ?? globalThis.sessionStorage
+  const requestTokens = new WeakMap<object, string | null>()
   const client = axios.create({
     baseURL,
     timeout,
@@ -61,16 +74,26 @@ export const createHttpClient = ({
   client.interceptors.request.use((config) => {
     //
     const token = tokenStore.get()
+    requestTokens.set(config, token)
     if (token) config.headers.Authorization = `Bearer ${token}`
+    else config.headers.delete('Authorization')
     return config
   })
 
   client.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      //
+      if (requestTokens.get(response.config) !== tokenStore.get()) throw new axios.CanceledError('Session changed')
+      return response
+    },
     (error) => {
       //
       const url = error?.config?.url ?? ''
       const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/me')
+
+      if (error?.config && requestTokens.has(error.config) && requestTokens.get(error.config) !== tokenStore.get()) {
+        return Promise.reject(new axios.CanceledError('Session changed'))
+      }
 
       if (error?.response?.status === 401 && !isAuthEndpoint) {
         if (onUnauthorized) {

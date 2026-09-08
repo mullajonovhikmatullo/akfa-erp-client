@@ -17,10 +17,11 @@ export class PlatformAuthError extends Error {
   }
 }
 
-export const readPlatformToken = () => localStorage.getItem(PLATFORM_TOKEN_KEY);
+export const readPlatformToken = () => sessionStorage.getItem(PLATFORM_TOKEN_KEY);
 
 export const readPlatformUser = (): PlatformUser | null => {
-  const rawUser = localStorage.getItem(PLATFORM_USER_KEY);
+  //
+  const rawUser = sessionStorage.getItem(PLATFORM_USER_KEY);
   if (!rawUser) return null;
 
   try {
@@ -31,20 +32,21 @@ export const readPlatformUser = (): PlatformUser | null => {
 };
 
 export const savePlatformSession = ({ accessToken, user }: PlatformLoginResponse) => {
-  localStorage.setItem(PLATFORM_TOKEN_KEY, accessToken);
-  localStorage.setItem(PLATFORM_USER_KEY, JSON.stringify(user));
+  sessionStorage.setItem(PLATFORM_TOKEN_KEY, accessToken);
+  sessionStorage.setItem(PLATFORM_USER_KEY, JSON.stringify(user));
 };
 
 export const savePlatformUser = (user: PlatformUser) => {
-  localStorage.setItem(PLATFORM_USER_KEY, JSON.stringify(user));
+  sessionStorage.setItem(PLATFORM_USER_KEY, JSON.stringify(user));
 };
 
 export const clearPlatformSession = () => {
-  localStorage.removeItem(PLATFORM_TOKEN_KEY);
-  localStorage.removeItem(PLATFORM_USER_KEY);
+  sessionStorage.removeItem(PLATFORM_TOKEN_KEY);
+  sessionStorage.removeItem(PLATFORM_USER_KEY);
 };
 
 export const loginPlatformOwner = async (username: string, password: string): Promise<PlatformLoginResponse> => {
+  //
   const result = await PlatformFlowApi.login({ username, password });
 
   if (!isPlatformOwner(result.user)) {

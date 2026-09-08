@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
 import type { Branch } from '@store/store-stub'
-import { queryClient } from '@/app/providers/query/queryClient'
 import { useUIStore } from '@/app/stores/ui.store'
 import { useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
@@ -47,10 +46,8 @@ export function AppHeader({ branches }: AppHeaderProps) {
     toggleSidebar()
   }
 
-  async function handleLogout() {
+  function handleLogout() {
     //
-    await queryClient.cancelQueries()
-    queryClient.clear()
     logout()
     navigate(ROUTES.LOGIN)
   }

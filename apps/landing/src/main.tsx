@@ -6,9 +6,10 @@ import '../../../shared-public/assets/scss/utils/_icons.scss';
 import './styles.css';
 
 const hasStoredStoreSession = () => {
+  //
   try {
-    const accessToken = localStorage.getItem('store_access_token');
-    const persistedAuth = localStorage.getItem('store-auth');
+    const accessToken = sessionStorage.getItem('store_access_token');
+    const persistedAuth = sessionStorage.getItem('store-auth');
 
     if (!accessToken || !persistedAuth) return false;
 

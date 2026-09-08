@@ -19,6 +19,7 @@ export interface Branch {
 
 export interface User {
   id: string
+  storeId: string
   name: string
   username: string
   role: UserRole

@@ -8,7 +8,7 @@ import { useCustomersList } from '../../customer/hooks/useCustomersList'
 import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
 import { useProductsList } from '../../product/hooks/useProductsList'
 import { useSaleMutation } from '../hooks/useSaleMutation'
-import { clearSaleDraft, readSaleDraft, writeSaleDraft } from './saleDraft'
+import { clearSaleDraft, getSaleDraftScope, readSaleDraft, writeSaleDraft } from './saleDraft'
 import type { CartItem, SaleFormValues } from './view/types'
 
 interface UseNewSaleFormOptions {
@@ -56,6 +56,7 @@ function createCartKey(productId: string) {
 
 export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: UseNewSaleFormOptions) {
   //
+  const [draftScope] = useState(getSaleDraftScope)
   const branchFilter = userBranchId ?? undefined
   const effectiveExchangeRate = exchangeRate > 0 ? exchangeRate : 1
   const { data: products = [], isLoading: productsLoading } = useProductsList({ isActive: true })
@@ -225,14 +226,14 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     //
     if (!branchFilter) return
     if (formBranchId && formBranchId !== branchFilter) {
-      clearSaleDraft(branchFilter)
+      clearSaleDraft(branchFilter, draftScope)
       reset(emptySaleFormValues(branchFilter))
       setPaidAmountError(false)
       setProductSelectKey((current) => current + 1)
       return
     }
     if (!formBranchId) setValue('branchId', branchFilter)
-  }, [branchFilter, formBranchId, reset, setValue])
+  }, [branchFilter, draftScope, formBranchId, reset, setValue])
 
   useEffect(() => {
     //
@@ -266,8 +267,8 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
       paidAmount,
       debtDueDateIso,
       cart: cartDraft.map((item) => ({ key: item.key, productId: item.productId, quantity: item.quantity })),
-    })
-  }, [cartDraft, customerId, debtDueDateIso, formBranchId, paidAmount, paymentMethod, saleType])
+    }, draftScope)
+  }, [cartDraft, customerId, debtDueDateIso, draftScope, formBranchId, paidAmount, paymentMethod, saleType])
 
   function submitSale(values: SaleFormValues) {
     //
@@ -290,7 +291,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
       {
         onSuccess: () => {
           //
-          clearSaleDraft(branchFilter)
+          clearSaleDraft(branchFilter, draftScope)
           reset(emptySaleFormValues(branchFilter))
           setPaidAmountError(false)
           setProductSelectKey((current) => current + 1)

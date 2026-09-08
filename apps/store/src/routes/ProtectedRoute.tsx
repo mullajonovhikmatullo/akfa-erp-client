@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { queryClient } from '@/app/providers/query/queryClient';
 import { useAuthStore, useSessionDetail } from '@/entities/user';
 import { tokenStore } from '@/shared/api/client';
 import { ROUTES } from '@/shared/config/routes';
@@ -12,7 +11,8 @@ export function ProtectedRoute() {
   const setUser = useAuthStore((s) => s.setUser);
   const logout = useAuthStore((s) => s.logout);
   const location = useLocation();
-  const hasToken = Boolean(tokenStore.get());
+  const sessionToken = tokenStore.get();
+  const hasToken = Boolean(sessionToken);
   const shouldVerify = isHydrated && Boolean(user) && hasToken;
   const verification = useSessionDetail(user?.id, shouldVerify);
 
@@ -22,14 +22,8 @@ export function ProtectedRoute() {
 
   useEffect(() => {
     //
-    if (shouldVerify && verification.isError) {
-      void queryClient.cancelQueries().finally(() => {
-        //
-        queryClient.clear();
-        logout();
-      });
-    }
-  }, [logout, shouldVerify, verification.isError]);
+    if (shouldVerify && verification.isError) logout(sessionToken);
+  }, [logout, sessionToken, shouldVerify, verification.isError]);
 
   if (!isHydrated) return null;
 

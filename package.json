@@ -5,6 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@11.15.1",
   "scripts": {
+    "test": "node scripts/session-isolation.test.mjs",
     "package:store": "PATH=$PWD/tools:$PATH pnpm -F @store/store",
     "package:landing": "PATH=$PWD/tools:$PATH pnpm -F @store/landing",
     "package:platform": "PATH=$PWD/tools:$PATH pnpm -F @store/platform",

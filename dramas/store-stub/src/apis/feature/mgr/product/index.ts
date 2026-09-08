@@ -155,19 +155,16 @@ const deleteProductImage = ({ productId, imageId }: { productId: string; imageId
     .delete<ApiResponse<Raw[]>>(`/products/${productId}/images/${imageId}`)
     .then((response) => response.data.data.map(parseProductImage))
 
-const normalizeProductImageUrl = (url: string) =>
-  url.startsWith('/api/') ? url.replace(/^\/api/, '') : url
-
 const downloadProductImage = async (url: string) => {
-  const normalizedUrl = normalizeProductImageUrl(url)
-
-  if (/^https?:\/\//i.test(normalizedUrl)) {
-    const response = await fetch(normalizedUrl)
-    if (!response.ok) throw new Error(`Product image request failed: ${response.status}`)
-    return response.blob()
+  //
+  const origin = window.location.origin
+  const apiUrl = new URL(http.defaults.baseURL ?? '/api', origin)
+  const imageUrl = new URL(url, origin)
+  if ((imageUrl.origin !== apiUrl.origin && imageUrl.origin !== origin)
+      || !/^\/(?:api\/)?uploads\/organizations\//.test(imageUrl.pathname)) {
+    throw new Error('Invalid product image URL')
   }
-
-  return http.get<Blob>(normalizedUrl, { responseType: 'blob' }).then((response) => response.data)
+  return http.get<Blob>(imageUrl.pathname.replace(/^\/api(?=\/)/, ''), { responseType: 'blob' }).then((response) => response.data)
 }
 
 const findProductInventory = (productId: string) =>

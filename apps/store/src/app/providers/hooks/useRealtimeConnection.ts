@@ -9,6 +9,7 @@ import { ROUTES } from '@/shared/config/routes'
 import { withAppBasePath } from '@/shared/lib/app-path'
 import { useStoreT } from '@store/store-i18n'
 import { connectSocket, getSocket, type TransferChangedPayload } from '@/shared/realtime/socket'
+import { tokenStore } from '@/shared/api/client'
 
 export function useRealtimeConnection() {
   //
@@ -22,6 +23,7 @@ export function useRealtimeConnection() {
     //
     const socket = getSocket()
     let checkingSession = false
+    let active = true
 
     if (!user) {
       socket.disconnect()
@@ -30,6 +32,7 @@ export function useRealtimeConnection() {
 
     const handleTransferChanged = (payload: TransferChangedPayload) => {
       //
+      if (!active || payload.storeId !== user.storeId) return
       queryClient.invalidateQueries({ queryKey: transferKeys.all })
       queryClient.refetchQueries({ queryKey: transferKeys.all, type: 'active' })
       queryClient.invalidateQueries({ queryKey: inventoryKeys.all })
@@ -46,19 +49,21 @@ export function useRealtimeConnection() {
       //
       if (reason !== 'io server disconnect' || checkingSession) return
       checkingSession = true
+      const sessionToken = tokenStore.get()
 
       void queryClient.fetchQuery({ ...sessionDetailQueryOptions(user.id), staleTime: 0 })
         .then((currentUser) => {
           //
+          if (!active || tokenStore.get() !== sessionToken) return
           setUser(currentUser)
           connectSocket()
         })
-        .catch(() => queryClient.cancelQueries().finally(() => {
+        .catch(() => {
           //
-          queryClient.clear()
-          logout()
+          if (!active || tokenStore.get() !== sessionToken) return
+          logout(sessionToken)
           globalThis.window?.location.assign(withAppBasePath(`${ROUTES.LOGIN}?reason=expired`))
-        }))
+        })
         .finally(() => {
           checkingSession = false
         })
@@ -66,12 +71,17 @@ export function useRealtimeConnection() {
 
     socket.on('transfer:changed', handleTransferChanged)
     socket.on('disconnect', handleDisconnect)
+    const handleTokenChanged = () => { connectSocket() }
+    window.addEventListener('store-session-changed', handleTokenChanged)
     connectSocket()
 
     return () => {
       //
+      active = false
       socket.off('transfer:changed', handleTransferChanged)
       socket.off('disconnect', handleDisconnect)
+      window.removeEventListener('store-session-changed', handleTokenChanged)
+      socket.disconnect()
     }
   }, [logout, queryClient, setUser, t, user])
 }

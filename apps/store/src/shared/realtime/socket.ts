@@ -3,6 +3,7 @@ import type { TransferStatus } from '@store/store-stub';
 import { BASE_URL, tokenStore } from '@/shared/api/client';
 
 export type TransferChangedPayload = {
+  storeId: string;
   transferId: string;
   status: TransferStatus;
   fromBranchId: string;
@@ -10,13 +11,14 @@ export type TransferChangedPayload = {
 };
 
 let socket: Socket | null = null;
+let socketToken: string | null = null;
 
 export function getSocket(): Socket {
   //
   if (!socket) {
-    const apiBasePath = BASE_URL.replace(/\/$/, '');
-    socket = io({
-      path: `${apiBasePath}/socket.io`,
+    const apiUrl = new URL(BASE_URL, window.location.origin);
+    socket = io(apiUrl.origin, {
+      path: `${apiUrl.pathname.replace(/\/$/, '')}/socket.io`,
       autoConnect: false,
       transports: ['websocket', 'polling'],
     });
@@ -28,7 +30,11 @@ export function getSocket(): Socket {
 export function connectSocket(): Socket {
   //
   const instance = getSocket();
-  instance.auth = { token: tokenStore.get() };
+  const token = tokenStore.get();
+  if (socketToken !== token) instance.disconnect();
+  socketToken = token;
+  instance.auth = { token };
+  if (!token) return instance;
   if (!instance.connected) instance.connect();
   return instance;
 }
