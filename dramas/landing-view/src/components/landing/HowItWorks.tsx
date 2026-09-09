@@ -29,8 +29,8 @@ export function HowItWorks() {
                                 </div>
                                 {index < section.steps.length - 1 ? (
                                     <span className="step-card__arrow" aria-hidden="true">
-                    <i className="icons-arrow-right icon-size-27"/>
-                  </span>
+                                        <i className="icons-chevron-right icon-size-27"/>
+                                    </span>
                                 ) : null}
                             </li>
                         );

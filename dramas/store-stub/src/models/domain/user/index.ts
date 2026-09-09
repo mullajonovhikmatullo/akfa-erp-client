@@ -10,6 +10,19 @@ export interface LoginResponse {
   accessToken: string
 }
 
+export interface GoogleSignInConfig {
+  clientId: string | null
+}
+
+export interface GoogleLoginPayload {
+  credential: string
+  account?: LoginPayload
+}
+
+export type GoogleLoginResponse =
+  | { status: 'authenticated'; session: LoginResponse }
+  | { status: 'link_required'; email: string }
+
 export type CreateAdminPayload = CreateAdminRequest
 
 export type UpdateAdminPayload = UpdateAdminRequest

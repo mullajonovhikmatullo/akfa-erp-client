@@ -290,18 +290,16 @@
   width: var(--mavion-logo-mark-width);
   height: var(--mavion-logo-height);
   background: var(--primary);
-  filter: blur(0.22px);
   pointer-events: none;
-  -webkit-mask-image: var(--mavion-logo-source);
-  -webkit-mask-mode: luminance;
-  -webkit-mask-position: var(--mavion-logo-source-left) var(--mavion-logo-source-top);
+  -webkit-mask-image: var(--mavion-logo-mark-source);
+  -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: var(--mavion-logo-source-width) var(--mavion-logo-source-height);
-  mask-image: var(--mavion-logo-source);
-  mask-mode: luminance;
-  mask-position: var(--mavion-logo-source-left) var(--mavion-logo-source-top);
+  -webkit-mask-size: 100% 100%;
+  mask-image: var(--mavion-logo-mark-source);
+  mask-mode: alpha;
+  mask-position: center;
   mask-repeat: no-repeat;
-  mask-size: var(--mavion-logo-source-width) var(--mavion-logo-source-height);
+  mask-size: 100% 100%;
 }
 
 .landing-header {
@@ -1354,19 +1352,55 @@
   font-weight: 650;
 }
 
-.faq-item button svg {
+.faq-item__icon {
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
   color: #667792;
-  transition: transform 160ms ease;
+  transform: rotate(0deg);
+  transform-origin: center;
+  transition: transform 360ms cubic-bezier(.22, 1, .36, 1), color 160ms ease;
 }
 
-.faq-item.is-open button svg {
-  transform: rotate(180deg);
+.faq-item button:hover .faq-item__icon,
+.faq-item button:focus-visible .faq-item__icon {
+  color: var(--primary);
+}
+
+.faq-item button:focus-visible {
+  outline: 3px solid rgb(4 118 208 / 0.18);
+  outline-offset: -3px;
 }
 
 .faq-item__answer {
-  padding: 0 46px 14px 16px;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  opacity: 0;
+  transition: grid-template-rows 360ms cubic-bezier(.22, 1, .36, 1), opacity 220ms ease;
+}
+
+.faq-item__answer > p {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 48px 0 16px;
   color: #738198;
+  line-height: 1.7;
+  transition: padding 360ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.faq-item.is-open .faq-item__icon {
+  transform: rotate(180deg);
+}
+
+.faq-item__answer.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.faq-item__answer.is-open > p {
+  padding-top: 3px;
+  padding-bottom: 16px;
 }
 
 .final-cta-section {
@@ -2153,7 +2187,7 @@
 .feature-card>p,
 .step-card p,
 .pricing-section .section-heading p,
-.faq-item>p,
+.faq-item__answer > p,
 .final-cta p,
 .landing-footer__brand>p{
   color:#74839d;
@@ -2339,22 +2373,6 @@
   .faq-item button span{font-size:15px}
   .faq-item__answer{font-size:15px}
   .final-cta p{font-size:14px}
-}
-
-/* FAQ answer has one predictable animation path instead of competing overrides. */
-.faq-item__answer {
-  max-height: 0;
-  overflow: hidden;
-  padding-block: 0;
-  opacity: 0;
-  transition: max-height 260ms ease, opacity 220ms ease, padding 260ms ease;
-}
-
-.faq-item__answer.is-open {
-  max-height: 320px;
-  padding-top: 2px;
-  padding-bottom: 12px;
-  opacity: 1;
 }
 
 /* Language switcher */

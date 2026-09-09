@@ -8,6 +8,7 @@ type MavionBrandProps = {
 
 const publicAssetBaseUrl = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const logoAssetUrl = `${publicAssetBaseUrl}brand/mavion-logo.png`;
+const logoMarkUrl = `${publicAssetBaseUrl}brand/mavion-mark.svg`;
 const logoCrop = {
   height: 199,
   markWidth: 350,
@@ -25,6 +26,7 @@ export function MavionBrand({ inverted = false, compact = false, asset = false }
     const scale = size / logoCrop.height;
     const logoStyle = {
       '--mavion-brand-height': `${size}px`,
+      '--mavion-brand-mark-source': `url("${logoMarkUrl}")`,
       '--mavion-brand-mark-width': `${logoCrop.markWidth * scale}px`,
       '--mavion-brand-source': `url("${logoAssetUrl}")`,
       '--mavion-brand-source-height': `${logoCrop.sourceHeight * scale}px`,

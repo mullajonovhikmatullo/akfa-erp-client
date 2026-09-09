@@ -3,15 +3,19 @@ import { Controller } from 'react-hook-form';
 import { Alert } from 'antd';
 
 import { useLoginForm } from '../useLoginForm';
+import { GoogleSignIn } from '../GoogleSignIn';
 import { readRememberedUsername, rememberedUsernameKey } from './login-utils';
 import type { LoginFormProps } from './types';
 
-export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }: LoginFormProps) {
+export function LoginForm({ t, language, sessionExpired, externalError, onAuthenticated }: LoginFormProps) {
   //
   const rememberedUsername = readRememberedUsername();
   const [rememberMe, setRememberMe] = useState(Boolean(rememberedUsername));
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const { form, onSubmit, isLoading, clearCredentialErrors } = useLoginForm({
+  const {
+    form, onSubmit, isLoading, clearCredentialErrors,
+    googleLinkEmail, cancelGoogleLink, handleGoogleCredential, isGooglePending,
+  } = useLoginForm({
     t,
     onAuthenticated,
     initialUsername: rememberedUsername,
@@ -28,6 +32,7 @@ export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }:
 
   const hasRootError = Boolean(errors.root);
   const isCredentialError = errors.root?.type === 'credentials';
+  const isFormSubmitting = isLoading && (!isGooglePending || Boolean(googleLinkEmail));
 
   return (
     <form className="mavion-login__form" onSubmit={onSubmit} noValidate>
@@ -39,6 +44,14 @@ export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }:
       )}
       {hasRootError && (
         <Alert icon={<i className="icons-warning icon-size-18" />} type="error" title={errors.root!.message} showIcon />
+      )}
+
+      {googleLinkEmail && (
+        <div className="mavion-google-link" role="status">
+          <strong>{googleLinkEmail}</strong>
+          <p>{t('login.googleLinkDescription')}</p>
+          <button type="button" onClick={cancelGoogleLink} disabled={isLoading}>{t('login.googleLinkCancel')}</button>
+        </div>
       )}
 
       <Controller
@@ -127,31 +140,21 @@ export function LoginForm({ t, sessionExpired, externalError, onAuthenticated }:
       </div>
 
       <button className="mavion-login__submit" type="submit" disabled={isLoading}>
-        <span>{isLoading ? t('login.signingIn') : t('login.signIn')}</span>
-        <i className="icons-arrow-right icon-size-20" aria-hidden="true" />
+        <span>{t(isFormSubmitting ? 'login.signingIn' : googleLinkEmail ? 'login.googleLinkSubmit' : 'login.signIn')}</span>
+        {isFormSubmitting ? <i className="icons-reload mavion-login__submit-spinner" aria-hidden="true" /> : (
+          <svg className="mavion-login__submit-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3.75 10h11.5m-5-5 5 5-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"
+                  strokeWidth="1.75"/>
+          </svg>
+        )}
       </button>
 
-      <div className="mavion-login__divider">
-        <span>{t('login.or')}</span>
-      </div>
-
-      <div className="mavion-login__socials" aria-label={t('login.otherSignInMethods')}>
-        <button type="button" className="mavion-login__social-button" aria-disabled="true">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.06H12v3.9h5.38a4.6 4.6 0 0 1-2 3.02v2.53h3.24c1.9-1.75 2.98-4.32 2.98-7.39Z" />
-            <path fill="#34A853" d="M12 22c2.7 0 4.98-.9 6.63-2.38l-3.24-2.53c-.9.6-2.05.96-3.39.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.61A10 10 0 0 0 12 22Z" />
-            <path fill="#FBBC05" d="M6.39 13.92A6.02 6.02 0 0 1 6.08 12c0-.67.11-1.32.31-1.92V7.47H3.04A10 10 0 0 0 2 12c0 1.61.38 3.14 1.04 4.53l3.35-2.61Z" />
-            <path fill="#EA4335" d="M12 5.95c1.47 0 2.78.5 3.82 1.5l2.88-2.88A9.66 9.66 0 0 0 12 2a10 10 0 0 0-8.96 5.47l3.35 2.61C7.18 7.71 9.39 5.95 12 5.95Z" />
-          </svg>
-          {t('login.googleSignIn')}
-        </button>
-        <button type="button" className="mavion-login__social-button" aria-disabled="true">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#229ED9" d="M21.84 4.59a1.54 1.54 0 0 0-1.72-.24L3.2 10.88c-1.16.45-1.14 1.1-.21 1.38l4.34 1.36 1.67 5.1c.2.56.1.78.68.78.45 0 .65-.2.9-.45l2.08-2.02 4.33 3.2c.8.44 1.37.21 1.57-.74l2.85-13.43c.29-1.17-.45-1.7-1.57-1.47ZM8.01 13.31l9.78-6.17c.49-.3.94-.14.57.19l-8.08 7.29-.31 3.36-1.96-4.67Z" />
-          </svg>
-          {t('login.telegramSignIn')}
-        </button>
-      </div>
+      {!googleLinkEmail && (
+        <>
+          <div className="mavion-login__divider"><span>{t('login.or')}</span></div>
+          <GoogleSignIn t={t} language={language} disabled={isLoading} pending={isGooglePending} onCredential={handleGoogleCredential} />
+        </>
+      )}
     </form>
   );
 }

@@ -8,6 +8,7 @@ type LogoProps = {
 
 const publicAssetBaseUrl = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const logoAssetUrl = `${publicAssetBaseUrl}brand/mavion-logo.png`;
+const logoMarkUrl = `${publicAssetBaseUrl}brand/mavion-mark.svg`;
 const logoCrop = {
     height: 199,
     markWidth: 350,
@@ -30,8 +31,8 @@ export function Logo({className = "", markSize = 28}: LogoProps) {
             role="img"
             style={{
                 "--mavion-logo-height": `${size}px`,
+                "--mavion-logo-mark-source": `url("${logoMarkUrl}")`,
                 "--mavion-logo-mark-width": `${logoCrop.markWidth * scale}px`,
-                "--mavion-logo-source": `url("${logoAssetUrl}")`,
                 "--mavion-logo-source-height": `${logoCrop.sourceHeight * scale}px`,
                 "--mavion-logo-source-left": `${-logoCrop.left * scale}px`,
                 "--mavion-logo-source-mark-left": `${(logoCrop.left + logoCrop.markWidth) * scale}px`,

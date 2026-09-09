@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { LoginResponse } from '@store/store-stub'
@@ -23,10 +23,30 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   })
+  const [googleLink, setGoogleLink] = useState<{ email: string; credential: string } | null>(null)
 
-  const { login } = useAuthMutation({
+  const { login, loginWithGoogle } = useAuthMutation({
     t,
     onAuthenticated,
+    onGoogleLinkRequired: (email, credential) => setGoogleLink({ email, credential }),
+    onGoogleError: (error, payload) => {
+      //
+      const response = (error as { response?: { status?: number; data?: { message?: string } } }).response
+      const invalidGoogleCredential = response?.data?.message === 'Invalid Google credential'
+      if (response?.status === 401 && payload.account && !invalidGoogleCredential) {
+        form.setError('root', { type: 'credentials', message: t('login.errorCredentials') })
+        form.setError('username', { type: 'credentials', message: '' })
+        form.setError('password', { type: 'credentials', message: '' })
+        return
+      }
+      if (response?.status === 401) setGoogleLink(null)
+      const message = response?.status === 409 ? t('login.googleLinkConflict')
+        : response?.status === 403 || response?.status === 423 ? t('login.errorDisabled')
+        : response?.status === 429 ? t('login.errorRateLimit')
+        : response?.status === 401 ? t('login.googleExpired')
+        : t('login.googleError')
+      form.setError('root', { type: 'google', message })
+    },
     onError: (error: unknown) => {
       //
       const httpError = error as { isAxiosError?: boolean; code?: string; response?: { status?: number } }
@@ -88,13 +108,35 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
       })
     },
   })
-  const { mutate, isPending } = login
+  const isPending = login.isPending || loginWithGoogle.isPending
+  const mutateGoogle = loginWithGoogle.mutate
+
+  useEffect(() => {
+    //
+    if (googleLink && !isPending) form.setFocus('username')
+  }, [googleLink, form, isPending])
+
+  const handleGoogleCredential = useCallback((credential: string) => {
+    //
+    if (isPending) return
+    form.clearErrors()
+    setGoogleLink(null)
+    mutateGoogle({ credential })
+  }, [form, isPending, mutateGoogle])
+
+  const cancelGoogleLink = () => {
+    //
+    setGoogleLink(null)
+    form.clearErrors()
+  }
 
   const onSubmit = form.handleSubmit((values) => {
     //
+    if (isPending) return
     form.clearErrors('root')
     onBeforeSubmit?.(values)
-    mutate(values)
+    if (googleLink) loginWithGoogle.mutate({ credential: googleLink.credential, account: values })
+    else login.mutate(values)
   })
 
   const clearCredentialErrors = () => {
@@ -111,5 +153,9 @@ export function useLoginForm({ t, onAuthenticated, initialUsername = '', onBefor
     onSubmit,
     isLoading: isPending,
     clearCredentialErrors,
+    googleLinkEmail: googleLink?.email ?? null,
+    cancelGoogleLink,
+    handleGoogleCredential,
+    isGooglePending: loginWithGoogle.isPending,
   }
 }

@@ -89,7 +89,7 @@ export const createHttpClient = ({
     (error) => {
       //
       const url = error?.config?.url ?? ''
-      const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/me')
+      const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/me') || url.includes('/auth/google')
 
       if (error?.config && requestTokens.has(error.config) && requestTokens.get(error.config) !== tokenStore.get()) {
         return Promise.reject(new axios.CanceledError('Session changed'))

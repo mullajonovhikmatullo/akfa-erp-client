@@ -131,18 +131,16 @@
   width:var(--mavion-brand-mark-width);
   height:var(--mavion-brand-height);
   background:var(--mavion-brand-mark-color);
-  filter:blur(.22px);
   pointer-events:none;
-  -webkit-mask-image:var(--mavion-brand-source);
-  -webkit-mask-mode:luminance;
-  -webkit-mask-position:var(--mavion-brand-source-left) var(--mavion-brand-source-top);
+  -webkit-mask-image:var(--mavion-brand-mark-source);
+  -webkit-mask-position:center;
   -webkit-mask-repeat:no-repeat;
-  -webkit-mask-size:var(--mavion-brand-source-width) var(--mavion-brand-source-height);
-  mask-image:var(--mavion-brand-source);
-  mask-mode:luminance;
-  mask-position:var(--mavion-brand-source-left) var(--mavion-brand-source-top);
+  -webkit-mask-size:100% 100%;
+  mask-image:var(--mavion-brand-mark-source);
+  mask-mode:alpha;
+  mask-position:center;
   mask-repeat:no-repeat;
-  mask-size:var(--mavion-brand-source-width) var(--mavion-brand-source-height);
+  mask-size:100% 100%;
 }
 .mavion-login__showcase-copy{
   position:relative;
@@ -479,7 +477,7 @@
   height:51px;
   align-items:center;
   justify-content:center;
-  gap:14px;
+  gap:10px;
   margin-top:7px;
   border:0;
   border-radius:12px;
@@ -498,6 +496,16 @@
 .mavion-login__submit:active:not(:disabled){transform:translateY(1px)}
 .mavion-login__submit:focus-visible{outline:4px solid rgba(4,118,208,.2);outline-offset:3px}
 .mavion-login__submit:disabled{cursor:not-allowed;opacity:.66}
+.mavion-login__submit-icon,
+.mavion-login__submit-spinner{
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  color:rgba(255,255,255,.96);
+}
+.mavion-login__submit-icon{transition:transform 180ms cubic-bezier(.22,1,.36,1)}
+.mavion-login__submit:hover:not(:disabled) .mavion-login__submit-icon{transform:translateX(2px)}
+.mavion-login__submit-spinner{animation:icon-spin 800ms linear infinite}
 .mavion-login__divider{
   display:grid;
   grid-template-columns:1fr auto 1fr;
@@ -546,6 +554,37 @@
 }
 .mavion-login__social-button:active{transform:translateY(0)}
 .mavion-login__social-button:focus-visible{outline:3px solid rgba(4,118,208,.2);outline-offset:2px}
+.mavion-google-signin{display:grid;gap:10px;min-width:0;width:100%}
+.mavion-google-signin__control{position:relative;min-width:0;width:100%;min-height:40px}
+.mavion-google-signin__control.is-disabled{pointer-events:none;opacity:.6}
+.mavion-google-signin__button{display:flex;justify-content:center;min-height:40px;width:100%}
+.mavion-google-signin__placeholder{
+  position:absolute;
+  inset:0;
+  display:flex;
+  width:100%;
+  min-height:40px;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding:0 16px;
+  border:1px solid #dadce0;
+  border-radius:4px;
+  background:#fff;
+  color:#3c4043;
+  font-size:14px;
+  font-weight:500;
+  cursor:not-allowed;
+}
+.mavion-google-signin__placeholder svg{width:20px;height:20px;flex:0 0 20px}
+.mavion-google-signin__status{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin:0;color:#697a93;font-size:12px;line-height:1.5;text-align:center}
+.mavion-google-signin__status .mavion-login__submit-spinner{width:14px;height:14px;flex-basis:14px;color:var(--mavion-blue)}
+.mavion-google-signin__status button,.mavion-google-link button{padding:2px 0;border:0;background:none;color:var(--mavion-blue);font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.mavion-google-link{padding:14px;border:1px solid #d8e6f6;border-radius:10px;background:#f4f8ff;color:#415879;font-size:13px;line-height:1.6}
+.mavion-google-link strong{display:block;overflow-wrap:anywhere;color:#172c4c;font-weight:650}
+.mavion-google-link p{margin:6px 0}
+.mavion-google-link button:disabled{opacity:.55;cursor:not-allowed}
+.mavion-google-signin__status button:focus-visible,.mavion-google-link button:focus-visible{outline:3px solid rgba(4,118,208,.2);outline-offset:3px;border-radius:3px}
 html.dark .mavion-login{color:#091735}
 
 @media (max-width:1360px){

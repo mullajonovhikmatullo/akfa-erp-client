@@ -7,6 +7,9 @@ import type {
   CompleteAccountSetupPayload,
   CreateAdminPayload,
   ExchangeHandoffPayload,
+  GoogleLoginPayload,
+  GoogleLoginResponse,
+  GoogleSignInConfig,
   LoginPayload,
   LoginResponse,
   UpdateAdminPayload,
@@ -43,6 +46,12 @@ const parseUser = (r: { data: unknown }) => {
 
 const login = (payload: LoginPayload) =>
   http.post<ApiResponse<LoginResponse>>('/auth/login', payload).then((r) => r.data.data)
+
+const loginWithGoogle = (payload: GoogleLoginPayload) =>
+  http.post<ApiResponse<GoogleLoginResponse>>('/auth/google', payload).then((r) => r.data.data)
+
+const findGoogleSignInConfig = () =>
+  http.get<ApiResponse<GoogleSignInConfig>>('/auth/google/config').then((r) => r.data.data)
 
 const exchangeHandoff = (payload: ExchangeHandoffPayload) =>
   http.post<ApiResponse<LoginResponse>>('/auth/handoff/exchange', payload).then((r) => r.data.data)
@@ -98,6 +107,10 @@ export const UserSeekApi = {
   findUsers,
   findAdminsPage,
   fetch: {
+    findGoogleSignInConfig: () => ({
+      queryKey: ['auth', 'google', 'config'] as const,
+      queryFn: findGoogleSignInConfig,
+    }),
     findUsers: () => ({
       queryKey: ['users', 'findUsers'] as const,
       queryFn: findUsers,
@@ -111,6 +124,7 @@ export const UserSeekApi = {
 
 export const UserFlowApi = {
   login,
+  loginWithGoogle,
   exchangeHandoff,
   completeAccountSetup,
   me,

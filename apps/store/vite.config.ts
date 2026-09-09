@@ -177,6 +177,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    headers: { 'Cross-Origin-Opener-Policy': 'same-origin-allow-popups' },
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -184,5 +185,8 @@ export default defineConfig({
         ws: true,
       },
     },
+  },
+  preview: {
+    headers: { 'Cross-Origin-Opener-Policy': 'same-origin-allow-popups' },
   },
 })

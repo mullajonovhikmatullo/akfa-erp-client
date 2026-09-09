@@ -91,6 +91,22 @@ test('independent browser storage keeps request identity separate', async () => 
   assert.equal((await clients[1].get('/auth/me')).data, 'Bearer B')
 })
 
+test('a rejected Google credential cannot clear an existing session', async () => {
+  //
+  const { createHttpClient } = await loadSource('dramas/store-shared/src/api/http.ts')
+  const state = storage()
+  state.setItem('store_access_token', 'existing-session')
+  let unauthorized = false
+  const client = createHttpClient({ storage: state, onUnauthorized: () => { unauthorized = true } })
+  client.defaults.adapter = async (config) => {
+    //
+    throw { config, response: { status: 401 } }
+  }
+  await assert.rejects(client.post('/auth/google', { credential: 'invalid' }))
+  assert.equal(state.getItem('store_access_token'), 'existing-session')
+  assert.equal(unauthorized, false)
+})
+
 test('default token persistence is tab-local and ignores legacy shared credentials', async () => {
   //
   globalThis.localStorage = storage()
