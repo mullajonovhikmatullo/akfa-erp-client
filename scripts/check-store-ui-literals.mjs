@@ -71,7 +71,7 @@ const VISIBLE_PROPERTIES = new Set([
   'unitLabel',
 ])
 
-const TECHNICAL_TEXT = /^(?:©?\s*MAVION|Mavion(?: ERP)?|v\d+(?:\.\d+)* · Mavion|Excel|SKU|UZS|USD|KG|ID|PNG|JPG|JPEG|WEBP|PDF|XLSX?|Ўз|O'z|Рус|Eng|x|v?\d+(?:\.\d+)*|[-A-Z0-9_.:/+$]+)$/
+const TECHNICAL_TEXT = /^(?:©?\s*MAVION|Mavion(?: ERP)?|v\d+(?:\.\d+)* · Mavion|Excel|SKU|UZS|USD|KG|ID|PNG|JPG|JPEG|WEBP|PDF|XLSX?|Ўз|O'z|Рус|Eng|continue_with|x|v?\d+(?:\.\d+)*|[-A-Z0-9_.:/+$]+)$/
 
 function walk(directory) {
   //
