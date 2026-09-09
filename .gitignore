@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+vercel-dist
 .pnpm-store
 .turbo
 *.local

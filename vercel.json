@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm run build:vercel",
+  "outputDirectory": "vercel-dist",
+  "rewrites": [
+    { "source": "/store", "destination": "/store/index.html" },
+    { "source": "/store/(.*)", "destination": "/store/index.html" },
+    { "source": "/platform", "destination": "/platform/index.html" },
+    { "source": "/platform/(.*)", "destination": "/platform/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

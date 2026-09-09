@@ -8,7 +8,7 @@ export const createOwnerSetupUrl = (setupCode: string) => {
     throw new Error('VITE_STORE_LOGIN_URL faqat http yoki https bo‘lishi kerak');
   }
   if (url.pathname === '/' || url.pathname === '') {
-    url.pathname = '/store/auth/login';
+    url.pathname = import.meta.env.BASE_URL === '/' ? '/auth/login' : '/store/auth/login';
   }
   url.username = '';
   url.password = '';

@@ -17,6 +17,7 @@
     "start:landing": "PATH=$PWD/tools:$PATH pnpm package:landing start",
     "start:platform": "PATH=$PWD/tools:$PATH pnpm package:platform start",
     "build": "PATH=$PWD/tools:$PATH turbo run build",
+    "build:vercel": "node scripts/build-vercel.mjs",
     "build:store": "PATH=$PWD/tools:$PATH pnpm --filter @store/store build",
     "build:landing": "PATH=$PWD/tools:$PATH pnpm --filter @store/landing build",
     "build:platform": "PATH=$PWD/tools:$PATH pnpm --filter @store/platform build",

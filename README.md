@@ -27,6 +27,21 @@ pnpm --filter @store/landing build
 pnpm --filter @store/platform build
 ```
 
+## Vercel deployment
+
+Use one Vercel project for the repository with root directory `.`. The checked-in
+`vercel.json` uses `pnpm run build:vercel` and publishes `vercel-dist`:
+
+- `/` — landing
+- `/store` — store application
+- `/platform` — platform application
+
+Set `VITE_API_URL` to the Render API URL ending in `/api`, for example
+`https://your-server.onrender.com/api`. Set `VITE_STORE_LOGIN_URL` to
+`/store/auth/login` for this single-project layout. Add the Vercel production,
+preview, and custom-domain origins that should call the API to the server's
+`ALLOWED_ORIGINS` value.
+
 Copy the values from `.env.example` into the local environment configuration. The
 landing and platform apps pass only single-use codes to the store app through URL
 fragments; access tokens are never transferred between origins.
