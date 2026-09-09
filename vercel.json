@@ -3,6 +3,7 @@
   "buildCommand": "pnpm run build:vercel",
   "outputDirectory": "vercel-dist",
   "rewrites": [
+    { "source": "/api/:path*", "destination": "https://akfa-erp-server.onrender.com/api/:path*" },
     { "source": "/store", "destination": "/store/index.html" },
     { "source": "/store/(.*)", "destination": "/store/index.html" },
     { "source": "/platform", "destination": "/platform/index.html" },
