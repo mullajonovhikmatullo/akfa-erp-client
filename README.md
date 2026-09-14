@@ -27,6 +27,10 @@ pnpm --filter @store/landing build
 pnpm --filter @store/platform build
 ```
 
+The local store app is available at `http://127.0.0.1:5173/store`. Development
+and preview serve that canonical URL directly without adding a trailing slash.
+Store page URLs include this base path, such as `/store/auth/login`.
+
 ## Vercel deployment
 
 Use one Vercel project for the repository with root directory `.`. The checked-in

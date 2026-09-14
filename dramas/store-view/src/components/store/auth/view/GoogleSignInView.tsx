@@ -9,10 +9,11 @@ interface GoogleSignInViewProps {
   pending: boolean
   unavailable: boolean
   failed: boolean
+  retrying: boolean
   onRetry: () => void
 }
 
-export function GoogleSignInView({ t, buttonRef, ready, disabled, pending, unavailable, failed, onRetry }: GoogleSignInViewProps) {
+export function GoogleSignInView({ t, buttonRef, ready, disabled, pending, unavailable, failed, retrying, onRetry }: GoogleSignInViewProps) {
   //
   const loading = !ready && !unavailable && !failed
   return (
@@ -35,7 +36,7 @@ export function GoogleSignInView({ t, buttonRef, ready, disabled, pending, unava
         <p className="mavion-google-signin__status" role="status">
           {(loading || pending) && <i className="icons-reload mavion-login__submit-spinner" aria-hidden="true" />}
           <span>{t(pending ? 'login.googleVerifying' : loading ? 'login.googleLoading' : unavailable ? 'login.googleUnavailable' : 'login.googleLoadError')}</span>
-          {failed && <button type="button" onClick={onRetry} disabled={disabled}>{t('login.retryLink')}</button>}
+          {(failed || unavailable) && <button type="button" onClick={onRetry} disabled={disabled || retrying}>{t('login.retryLink')}</button>}
         </p>
       )}
     </div>

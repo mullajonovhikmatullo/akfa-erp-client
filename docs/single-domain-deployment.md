@@ -3,7 +3,7 @@
 Recommended public paths for one domain:
 
 - `/` - landing page
-- `/store/` - store owner and store admin app
+- `/store` - store owner and store admin app
 - `/platform/` - platform owner app
 - `/api/` - backend API reverse proxy
 
@@ -67,6 +67,10 @@ server {
   location /store/ {
     alias /var/www/store-management/store/;
     try_files $uri $uri/ /store/index.html;
+  }
+
+  location = /store {
+    try_files /store/index.html =404;
   }
 
   location /platform/ {

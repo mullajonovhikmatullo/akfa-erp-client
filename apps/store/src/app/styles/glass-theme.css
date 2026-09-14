@@ -539,58 +539,78 @@ html.dark .app-shell .ant-btn-primary.ant-btn-disabled{
 .app-shell .ant-segmented,
 .ant-modal-root .ant-segmented{
   padding:3px;
-  border:1px solid #bfd3e5;
-  border-radius:10px;
-  background:linear-gradient(180deg,rgba(233,242,249,.92),rgba(220,235,246,.78));
-  box-shadow:inset 0 1px rgba(255,255,255,.82),0 5px 14px -12px rgba(23,71,119,.34);
+  border:1px solid rgba(111,158,194,.24);
+  border-radius:999px;
+  background:rgba(231,241,248,.52);
+  box-shadow:inset 0 1px rgba(255,255,255,.68),0 8px 22px -20px rgba(23,71,119,.44);
+  -webkit-backdrop-filter:blur(14px) saturate(1.08);
+  backdrop-filter:blur(14px) saturate(1.08);
 }
 .app-shell .ant-segmented-item,
 .ant-modal-root .ant-segmented-item{
   position:relative;
   z-index:1;
-  border:1px solid transparent;
-  border-radius:7px;
+  min-height:30px;
+  border:0;
+  border-radius:999px;
   color:var(--ink-3);
-  font-weight:620;
+  font-weight:600;
+  font-synthesis:none;
   transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease;
+}
+.app-shell .ant-segmented-item-label,
+.ant-modal-root .ant-segmented-item-label{
+  min-height:28px;
+  padding-inline:14px;
+  line-height:28px;
+}
+.app-shell .ant-segmented-sm .ant-segmented-item,
+.ant-modal-root .ant-segmented-sm .ant-segmented-item{
+  min-height:26px;
+}
+.app-shell .ant-segmented-sm .ant-segmented-item-label,
+.ant-modal-root .ant-segmented-sm .ant-segmented-item-label{
+  min-height:24px;
+  padding-inline:10px;
+  line-height:24px;
 }
 .app-shell .ant-segmented-item:not(.ant-segmented-item-selected):hover,
 .ant-modal-root .ant-segmented-item:not(.ant-segmented-item-selected):hover{
-  background:rgba(255,255,255,.56);
-  color:#1d6b9f;
+  background:rgba(255,255,255,.42);
+  color:var(--ink-2);
 }
 .app-shell .ant-segmented-thumb,
 .ant-modal-root .ant-segmented-thumb,
 .app-shell .ant-segmented-item-selected,
 .ant-modal-root .ant-segmented-item-selected{
-  border:1px solid #8fc5e9 !important;
-  border-radius:7px;
-  background:linear-gradient(180deg,#ffffff 0%,#e8f5ff 100%) !important;
-  color:#075b98 !important;
-  font-weight:720;
-  box-shadow:inset 0 1px rgba(255,255,255,.94),0 5px 12px -9px rgba(4,118,208,.62) !important;
+  border:0 !important;
+  border-radius:999px;
+  background:rgba(255,255,255,.8) !important;
+  color:var(--primary) !important;
+  font-weight:600;
+  box-shadow:inset 0 1px rgba(255,255,255,.92),0 5px 14px -10px rgba(4,98,166,.52) !important;
 }
 html.dark .app-shell .ant-segmented,
 html.dark .ant-modal-root .ant-segmented{
-  border-color:rgba(112,157,194,.18);
-  background:rgba(8,21,38,.48);
-  box-shadow:inset 0 1px rgba(151,205,239,.045);
+  border-color:rgba(126,174,210,.16);
+  background:rgba(8,20,36,.3);
+  box-shadow:inset 0 1px rgba(181,219,244,.04),0 10px 24px -20px rgba(0,0,0,.82);
 }
 html.dark .app-shell .ant-segmented-item:not(.ant-segmented-item-selected),
 html.dark .ant-modal-root .ant-segmented-item:not(.ant-segmented-item-selected){color:#91a4ba}
 html.dark .app-shell .ant-segmented-item:not(.ant-segmented-item-selected):hover,
 html.dark .ant-modal-root .ant-segmented-item:not(.ant-segmented-item-selected):hover{
-  background:rgba(76,124,161,.1);
-  color:#c2d3e2;
+  background:rgba(92,148,187,.08);
+  color:#c5d6e5;
 }
 html.dark .app-shell .ant-segmented-thumb,
 html.dark .ant-modal-root .ant-segmented-thumb,
 html.dark .app-shell .ant-segmented-item-selected,
 html.dark .ant-modal-root .ant-segmented-item-selected{
-  border-color:rgba(78,157,205,.34) !important;
-  background:linear-gradient(180deg,rgba(34,72,103,.9),rgba(25,57,86,.92)) !important;
-  color:#8fd5fb !important;
-  box-shadow:inset 0 1px rgba(180,222,248,.1),0 6px 16px -12px rgba(0,0,0,.8) !important;
+  border:0 !important;
+  background:rgba(61,123,166,.2) !important;
+  color:#9bdcff !important;
+  box-shadow:inset 0 1px rgba(190,225,247,.1),0 5px 16px -12px rgba(14,115,184,.72) !important;
 }
 html.dark .ant-modal-root .ant-radio-button-wrapper{
   border-color:rgba(112,157,194,.18) !important;

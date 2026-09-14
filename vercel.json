@@ -2,6 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm run build:vercel",
   "outputDirectory": "vercel-dist",
+  "headers": [
+    {
+      "source": "/store",
+      "headers": [{ "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }]
+    },
+    {
+      "source": "/store/:path*",
+      "headers": [{ "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }]
+    }
+  ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "https://akfa-erp-server.onrender.com/api/:path*" },
     { "source": "/store", "destination": "/store/index.html" },

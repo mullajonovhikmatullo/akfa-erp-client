@@ -1,6 +1,19 @@
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Alert, Button, DatePicker, Empty } from 'antd';
+import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/csr/ArrowClockwise';
+import { ArrowLineDownIcon } from '@phosphor-icons/react/dist/csr/ArrowLineDown';
+import { ArrowsLeftRightIcon } from '@phosphor-icons/react/dist/csr/ArrowsLeftRight';
+import { ChartLineUpIcon } from '@phosphor-icons/react/dist/csr/ChartLineUp';
+import { CoinsIcon } from '@phosphor-icons/react/dist/csr/Coins';
+import { MoneyIcon } from '@phosphor-icons/react/dist/csr/Money';
+import { PackageIcon } from '@phosphor-icons/react/dist/csr/Package';
+import { PlusIcon } from '@phosphor-icons/react/dist/csr/Plus';
+import { ReceiptIcon } from '@phosphor-icons/react/dist/csr/Receipt';
+import { UserCircleIcon } from '@phosphor-icons/react/dist/csr/UserCircle';
+import { UsersThreeIcon } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { WalletIcon } from '@phosphor-icons/react/dist/csr/Wallet';
+import { WarningCircleIcon } from '@phosphor-icons/react/dist/csr/WarningCircle';
 
 import dayjs from 'dayjs';
 import { resolveStoreTranslationKey, useStoreT } from '@store/store-i18n';
@@ -120,16 +133,16 @@ export function DashboardPanel({
           </div>
         </div>
         <div className="u-flex u-flex-wrap u-gap-10">
-          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={onNewSale}>
+          <Button type="primary" icon={<PlusIcon size={16} weight="regular" aria-hidden="true" />} onClick={onNewSale}>
             {t('dashboard.newSale')}
           </Button>
-          <Button icon={<i className="icons-import-export icon-size-13" />} onClick={onStockIn}>
+          <Button icon={<ArrowLineDownIcon size={16} weight="regular" aria-hidden="true" />} onClick={onStockIn}>
             {t('dashboard.stockIn')}
           </Button>
-          <Button icon={<i className="icons-chart_line icon-size-13" />} onClick={onOpenAnalytics}>
+          <Button icon={<ChartLineUpIcon size={16} weight="regular" aria-hidden="true" />} onClick={onOpenAnalytics}>
             {t('dashboard.openAnalytics')}
           </Button>
-          <Button icon={<i className={['icons-reload icon-size-13', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={refetchAll}>
+          <Button icon={<ArrowClockwiseIcon size={16} weight="regular" className={isFetching ? 'ph-icon-spin' : undefined} aria-hidden="true" />} onClick={refetchAll}>
             {t('common.refresh')}
           </Button>
         </div>
@@ -187,7 +200,7 @@ export function DashboardPanel({
       ) : isDashboardUnavailable ? (
         <div className="card u-items-start u-flex u-flex-col u-gap-12 u-p-18" >
           <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('dashboard.loadErrorTitle')} />
-          <Button type="primary" icon={<i className="icons-reload icon-size-18" />} onClick={refetchAll}>
+          <Button type="primary" icon={<ArrowClockwiseIcon size={20} weight="regular" aria-hidden="true" />} onClick={refetchAll}>
             {t('common.refresh')}
           </Button>
         </div>
@@ -195,28 +208,28 @@ export function DashboardPanel({
         <div className="u-flex u-flex-col u-gap-12">
           <div className="u-grid u-gap-12 u-grid-cols-fit-220">
             <MetricCard
-              icon={<i className="icons-payments icon-size-28" />}
+              icon={<ChartLineUpIcon size={24} weight="regular" aria-hidden="true" />}
               label={t('dashboard.periodSales')}
               value={<MoneyDisplay amount={periodDashboard.data?.sales.totalRevenue ?? 0} currency="UZS" />}
               sub={`${periodDashboard.data?.sales.saleCount ?? 0} ${t('dashboard.kpiTodaySalesSuffix')}`}
               tone="primary"
             />
             <MetricCard
-              icon={<i className="icons-payments icon-size-28" />}
+              icon={<MoneyIcon size={24} weight="regular" aria-hidden="true" />}
               label={t('dashboard.periodPaid')}
               value={<MoneyDisplay amount={periodDashboard.data?.sales.paidAmount ?? 0} currency="UZS" />}
               sub={t('dashboard.paidCashflow')}
               tone="success"
             />
             <MetricCard
-              icon={<i className="icons-file icon-size-28" />}
+              icon={<ReceiptIcon size={24} weight="regular" aria-hidden="true" />}
               label={t('dashboard.periodDebt')}
               value={<MoneyDisplay amount={periodDashboard.data?.sales.outstandingDebt ?? 0} currency="UZS" />}
               sub={t('dashboard.unpaidSales')}
               tone="danger"
             />
             <MetricCard
-              icon={<i className="icons-empty-wallet icon-size-28" />}
+              icon={<WalletIcon size={24} weight="regular" aria-hidden="true" />}
               label={t('dashboard.periodExpenses')}
               value={<MoneyDisplay amount={periodDashboard.data?.expenses.total ?? 0} currency="UZS" />}
               sub={t('dashboard.cashOut')}
@@ -282,7 +295,7 @@ export function DashboardPanel({
                   title={item.name}
                   meta={`${item.branchName} · ${t('dashboard.thresholdLabel')}: ${item.threshold}`}
                   right={<StatusBadge tone="warning">{item.currentStock.toLocaleString('ru-RU')} {t(resolveStoreTranslationKey(`units.${item.unit}`, 'units.unknown'))}</StatusBadge>}
-                  icon={<i className="icons-warning icon-size-18 tone-warning" />}
+                  icon={<WarningCircleIcon size={20} weight="regular" className="tone-warning" aria-hidden="true" />}
                 />
               ))}
             </ListPanel>
@@ -302,7 +315,7 @@ export function DashboardPanel({
                   title={customer.fullName}
                   meta={customer.branch.name}
                   right={<MoneyDisplay amount={customer.balance} currency="UZS" compact />}
-                  icon={<i className="icons-user-circle icon-size-18 tone-danger" />}
+                  icon={<UserCircleIcon size={20} weight="regular" className="tone-danger" aria-hidden="true" />}
                 />
               ))}
             </ListPanel>
@@ -313,10 +326,10 @@ export function DashboardPanel({
                 <span className="meta">{t('dashboard.currentData')}</span>
               </div>
               <div className="u-flex u-flex-col u-gap-8">
-                <SnapshotTile icon={<i className="icons-unit icon-size-18" />} label={t('dashboard.lowStockShort')} value={periodDashboard.data?.inventory.lowStockCount ?? 0} tone={(periodDashboard.data?.inventory.lowStockCount ?? 0) > 0 ? 'warning' : 'success'} />
-                <SnapshotTile icon={<i className="icons-transfer icon-size-18" />} label={t('dashboard.pendingTransfers')} value={periodDashboard.data?.transfers.pendingCount ?? 0} tone={(periodDashboard.data?.transfers.pendingCount ?? 0) > 0 ? 'warning' : 'success'} />
-                <SnapshotTile icon={<i className="icons-finance-money icon-size-18" />} label={t('dashboard.stockValue')} value={<MoneyDisplay amount={periodDashboard.data?.inventory.stockValueUzs ?? 0} currency="UZS" compact />} tone="muted" />
-                <SnapshotTile icon={<i className="icons-file icon-size-18" />} label={t('dashboard.debtorCount')} value={debt.data?.summary.debtorCount ?? 0} tone={(debt.data?.summary.debtorCount ?? 0) > 0 ? 'danger' : 'success'} />
+                <SnapshotTile icon={<PackageIcon size={20} weight="regular" aria-hidden="true" />} label={t('dashboard.lowStockShort')} value={periodDashboard.data?.inventory.lowStockCount ?? 0} tone={(periodDashboard.data?.inventory.lowStockCount ?? 0) > 0 ? 'warning' : 'success'} />
+                <SnapshotTile icon={<ArrowsLeftRightIcon size={20} weight="regular" aria-hidden="true" />} label={t('dashboard.pendingTransfers')} value={periodDashboard.data?.transfers.pendingCount ?? 0} tone={(periodDashboard.data?.transfers.pendingCount ?? 0) > 0 ? 'warning' : 'success'} />
+                <SnapshotTile icon={<CoinsIcon size={20} weight="regular" aria-hidden="true" />} label={t('dashboard.stockValue')} value={<MoneyDisplay amount={periodDashboard.data?.inventory.stockValueUzs ?? 0} currency="UZS" compact />} tone="muted" />
+                <SnapshotTile icon={<UsersThreeIcon size={20} weight="regular" aria-hidden="true" />} label={t('dashboard.debtorCount')} value={debt.data?.summary.debtorCount ?? 0} tone={(debt.data?.summary.debtorCount ?? 0) > 0 ? 'danger' : 'success'} />
               </div>
             </div>
           </div>

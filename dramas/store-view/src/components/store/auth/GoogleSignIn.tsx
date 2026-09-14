@@ -24,7 +24,7 @@ export function GoogleSignIn({ t, language, disabled, pending, onCredential }: G
   const failed = config.isError || identity.failed
   const retry = () => {
     //
-    if (config.isError) void config.refetch()
+    if (config.isError || unavailable) void config.refetch()
     else identity.retry()
   }
 
@@ -37,6 +37,7 @@ export function GoogleSignIn({ t, language, disabled, pending, onCredential }: G
       pending={pending}
       unavailable={unavailable}
       failed={failed}
+      retrying={config.isFetching}
       onRetry={retry}
     />
   )

@@ -7,28 +7,19 @@
 
 .sb-brand>.mavion-brand{
   min-width:0;
-  gap:9px;
+  gap:0;
   overflow:hidden;
 }
-.sb-brand>.mavion-brand .mavion-brand__mark{
-  width:34px;
-  height:25px;
-  flex:0 0 auto;
+@media(min-width:768px){
+  .sb-root--collapsed .sb-brand>.mavion-brand .mavion-brand__asset{
+    width:var(--mavion-brand-mark-width);
+  }
+  .sb-root--collapsed .sb-brand>.mavion-brand .mavion-brand__asset-wordmark{
+    display:none;
+  }
 }
-.sb-brand>.mavion-brand .mavion-brand__name{
-  color:#102142;
-  font-size:18px;
-  font-weight:800;
-  letter-spacing:-.045em;
-}
-.sb-root--collapsed .sb-brand>.mavion-brand{
-  gap:0;
-}
-.sb-root--collapsed .sb-brand>.mavion-brand .mavion-brand__name{
-  display:none;
-}
-html.dark .sb-brand>.mavion-brand .mavion-brand__name{
-  color:#f1f5f9;
+html.dark .sb-brand>.mavion-brand .mavion-brand__asset-wordmark{
+  background:#f1f5f9;
 }
 .mavion-login__form-content{
   width:min(540px,100%);

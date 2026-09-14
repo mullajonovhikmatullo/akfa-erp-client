@@ -296,7 +296,7 @@ $password-strength-colors: (
 .password-strength__check--passed { color: #16a34a; }
 
 .dashboard-small-stat { font-size: 18px; font-weight: 800; }
-.dashboard-metric-icon { font-size: 18px; }
+.dashboard-metric-icon { display: inline-flex; flex-shrink: 0; }
 .dashboard-snapshot-tile,
 .dashboard-legend-row,
 .dashboard-trend-value-tile,

@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import clsx from 'clsx'
+import { CaretLeftIcon } from '@phosphor-icons/react/dist/csr/CaretLeft'
+import { CaretRightIcon } from '@phosphor-icons/react/dist/csr/CaretRight'
 import { useTransfersList } from '@store/store-view/transfer'
 import { MavionBrand } from '@store/store-view/auth'
 import { useAuthStore } from '@/entities/user'
@@ -58,14 +60,14 @@ export function AppSidebar({ collapsed, mobileOpen }: AppSidebarProps) {
       )}
     >
       <div className="sb-brand">
-        <MavionBrand compact />
+        <MavionBrand asset compact />
         <button
           className="sidebar-toggle sb-brand__toggle"
           onClick={toggleSidebar}
           type="button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {collapsed ? <i className="icons-chevron-right icon-size-16" /> : <i className="icons-chevron-left icon-size-16" />}
+          {collapsed ? <CaretRightIcon size={16} weight="regular" aria-hidden="true" /> : <CaretLeftIcon size={16} weight="regular" aria-hidden="true" />}
         </button>
       </div>
 

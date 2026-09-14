@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { STORE_NAMESPACES, STORE_TRANSLATIONS, type StoreTranslationKey } from './catalogs/resources'
-import type { StoreTranslator, StoreTranslationValues } from './translator'
+import { interpolateStoreTranslation, type StoreTranslator, type StoreTranslationValues } from './translator'
 
 function splitTranslationKey(key: StoreTranslationKey) {
   //
@@ -30,13 +30,13 @@ export function useStoreT(): StoreTranslator {
 
       const { namespace, key } = splitTranslationKey(qualifiedKey)
       const translated = t(key, { ...values, ns: namespace })
-      if (translated !== key) return translated
+      if (translated !== key) return interpolateStoreTranslation(translated, values)
 
       if (locale && locale in STORE_TRANSLATIONS) {
         const localized = STORE_TRANSLATIONS[locale as keyof typeof STORE_TRANSLATIONS][qualifiedKey]
-        if (localized) return localized
+        if (localized) return interpolateStoreTranslation(localized, values)
       }
-      return STORE_TRANSLATIONS['uz-cy'][qualifiedKey]
+      return interpolateStoreTranslation(STORE_TRANSLATIONS['uz-cy'][qualifiedKey], values)
     },
     [i18n.resolvedLanguage, t],
   )

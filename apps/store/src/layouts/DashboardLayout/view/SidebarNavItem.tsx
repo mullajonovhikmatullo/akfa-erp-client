@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { Badge, Tooltip } from 'antd'
+import { StarIcon } from '@phosphor-icons/react/dist/csr/Star'
 
 import clsx from 'clsx'
 import { useStoreT } from '@store/store-i18n'
@@ -27,14 +28,14 @@ export function SidebarNavItem({
   const location = useLocation()
   const t = useStoreT()
   const active = item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path)
-  const iconName = SIDEBAR_ICONS[item.icon]
+  const Icon = SIDEBAR_ICONS[item.icon]
   const label = t(item.labelKey)
   const showBadge = Boolean(badgeCount && badgeCount > 0)
 
   const content = (
     <NavLink to={item.path} className={clsx('sb-item', active && 'sb-item--active')} onClick={onClick}>
-      <span className="sb-item__icon">
-        {iconName ? <i className={`icons-${iconName} icon-size-18`} /> : null}
+      <span className="sb-item__icon" aria-hidden="true">
+        {Icon ? <Icon size={19} weight="regular" /> : null}
       </span>
       {collapsed && showBadge ? (
         <Badge count={badgeCount} overflowCount={200} className="sb-item__badge sb-item__badge--collapsed" />
@@ -55,7 +56,7 @@ export function SidebarNavItem({
             }}
             aria-label={favorite ? t('sidebar.removeFavorite') : t('sidebar.addFavorite')}
           >
-            <i className="icons-favourite icon-size-11" />
+            <StarIcon size={14} weight={favorite ? 'fill' : 'regular'} aria-hidden="true" />
           </button>
         </>
       ) : null}
