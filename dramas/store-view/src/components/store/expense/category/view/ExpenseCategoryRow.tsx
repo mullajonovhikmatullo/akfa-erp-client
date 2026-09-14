@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller } from 'react-hook-form'
 import { Button, Input, Popconfirm, Switch } from 'antd'
@@ -66,12 +67,12 @@ export function ExpenseCategoryRow({
           <Button
             size="small"
             type="primary"
-            icon={<i className="icons-check icon-size-16" />}
+            icon={<StoreIcon name="check" size={16} />}
             onClick={() => onSubmitEdit(category.id)}
             loading={updatePending}
             disabled={!editName.trim()}
           />
-          <Button size="small" icon={<i className="icons-close icon-size-16" />} onClick={onCancelEdit} />
+          <Button size="small" icon={<StoreIcon name="close" size={16} />} onClick={onCancelEdit} />
         </>
       ) : (
         <>
@@ -90,7 +91,7 @@ export function ExpenseCategoryRow({
             loading={updatePending}
             onChange={(checked) => onToggleActive(category.id, checked)}
           />
-          <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-16" />} onClick={() => onStartEdit(category)} />
+          <Button size="small" type="text" icon={<StoreIcon name="pen-line" size={16} />} onClick={() => onStartEdit(category)} />
           <Popconfirm
             title={t('categoryDrawer.popconfirmTitle')}
             description={
@@ -103,7 +104,7 @@ export function ExpenseCategoryRow({
             okButtonProps={{ danger: true, disabled: category._count.expenses > 0, loading: deletePending }}
             onConfirm={() => onDelete(category.id)}
           >
-            <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-16" />} loading={deletePending} />
+            <Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} loading={deletePending} />
           </Popconfirm>
         </>
       )}

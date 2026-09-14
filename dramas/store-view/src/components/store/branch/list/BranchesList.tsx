@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Alert, Button, Tooltip } from 'antd'
@@ -205,7 +206,7 @@ export function BranchesList({ currentUser, isStoreOwner = false }: BranchesList
                   className="branch-limit-upgrade-button"
                   type="primary"
                   size="small"
-                  icon={<i className="icons-redirect icon-size-15" />}
+                  icon={<StoreIcon name="redirect" size={16} />}
                   onClick={() => navigate('/billing')}
                 >
                   {t('branches.upgradePlan')}
@@ -218,7 +219,7 @@ export function BranchesList({ currentUser, isStoreOwner = false }: BranchesList
         <div className="u-flex u-gap-8">
           <Button
             type="primary"
-            icon={<i className="icons-plus icon-size-13" />}
+            icon={<StoreIcon name="plus" size={16} />}
             onClick={openCreate}
             disabled={branchLimitReached}
           >
@@ -226,7 +227,7 @@ export function BranchesList({ currentUser, isStoreOwner = false }: BranchesList
           </Button>
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
+              icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />}
               onClick={() => refetch()}
             />
           </Tooltip>

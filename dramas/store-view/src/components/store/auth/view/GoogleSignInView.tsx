@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { RefObject } from 'react'
 import type { TFunc } from './types'
 
@@ -34,7 +35,7 @@ export function GoogleSignInView({ t, buttonRef, ready, disabled, pending, unava
       </div>
       {(loading || pending || unavailable || failed) && (
         <p className="mavion-google-signin__status" role="status">
-          {(loading || pending) && <i className="icons-reload mavion-login__submit-spinner" aria-hidden="true" />}
+          {(loading || pending) && <StoreIcon name="reload" size={16} className="mavion-login__submit-spinner" />}
           <span>{t(pending ? 'login.googleVerifying' : loading ? 'login.googleLoading' : unavailable ? 'login.googleUnavailable' : 'login.googleLoadError')}</span>
           {(failed || unavailable) && <button type="button" onClick={onRetry} disabled={disabled || retrying}>{t('login.retryLink')}</button>}
         </p>

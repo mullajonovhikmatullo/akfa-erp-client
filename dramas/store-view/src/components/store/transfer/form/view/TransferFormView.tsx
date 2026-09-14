@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Alert, Empty, Input, Select, Table } from 'antd'
@@ -92,7 +93,7 @@ export function TransferFormView({
           placeholder={t('transferModal.placeholderSearch')}
           className="u-w-full"
           loading={productSelectLoading}
-          suffixIcon={productSelectLoading ? undefined : <i className="icons-plus icon-size-16" />}
+          suffixIcon={productSelectLoading ? undefined : <StoreIcon name="plus" size={16} />}
           disabled={!sourceBranchId}
           notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
           options={transferableProducts

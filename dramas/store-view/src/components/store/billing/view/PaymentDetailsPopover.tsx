@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Button, Popover } from 'antd'
 
 import type { TenantPayment } from '@store/store-stub'
@@ -38,7 +39,7 @@ export function PaymentDetailsPopover({ payment, t }: { payment: TenantPayment; 
         shape="circle"
         className="billing-payment-details-button"
         aria-label={payment.status === 'REJECTED' ? t('billing.rejectionReason') : t('billing.paymentDetails')}
-        icon={<i className="icons-info icon-size-18" />}
+        icon={<StoreIcon name="info" size={18} />}
       />
     </Popover>
   )

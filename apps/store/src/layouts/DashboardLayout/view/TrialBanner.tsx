@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useStoreT } from '@store/store-i18n'
 import { Link } from 'react-router-dom'
 
@@ -14,7 +15,7 @@ export function TrialBanner({ daysLeft, canManageBilling }: TrialBannerProps) {
 
   return (
     <div className={`trial-banner${daysLeft <= 3 ? ' trial-banner--urgent' : ''}`} role="status">
-      <div className="trial-banner__pulse"><i className="icons-overdue-time icon-size-22" /></div>
+      <div className="trial-banner__pulse"><StoreIcon name="overdue-time" size={22} /></div>
       <div className="trial-banner__copy">
         <strong>{t('trial.active')}</strong>
         <span>{t('trial.description')}</span>

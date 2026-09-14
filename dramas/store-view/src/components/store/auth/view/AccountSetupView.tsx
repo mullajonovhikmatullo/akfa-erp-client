@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Alert, Button, Form, Input } from 'antd'
 
 import type { TFunc } from './types'
@@ -43,7 +44,7 @@ export function AccountSetupView({
         <p className="lead">{t('login.setupLead')}</p>
         {error ? (
           <Alert
-            icon={<i className="icons-warning icon-size-18" />}
+            icon={<StoreIcon name="warning" size={18} />}
             type="error"
             message={error}
             showIcon
@@ -54,7 +55,7 @@ export function AccountSetupView({
           <Form.Item label={t('login.newPassword')} required>
             <Input.Password
               size="large"
-              prefix={<i className="icons-lock icon-size-18 u-text-quiet" />}
+              prefix={<StoreIcon name="lock" size={18} className="u-text-quiet" />}
               value={newPassword}
               onChange={(event) => onNewPasswordChange(event.target.value)}
               autoComplete="new-password"
@@ -65,7 +66,7 @@ export function AccountSetupView({
           <Form.Item label={t('login.confirmPassword')} required>
             <Input.Password
               size="large"
-              prefix={<i className="icons-lock icon-size-18 u-text-quiet" />}
+              prefix={<StoreIcon name="lock" size={18} className="u-text-quiet" />}
               value={confirmPassword}
               onChange={(event) => onConfirmPasswordChange(event.target.value)}
               autoComplete="new-password"

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Divider, Form, InputNumber, Select, Skeleton, Tag } from 'antd'
@@ -123,7 +124,7 @@ export function CustomerDetailView({
                         <MoneyDisplay amount={sale.debtAmountUzs} currency="UZS" />
                       </div>
                       {!isPaying ? (
-                        <Button size="small" type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => onStartPayment(sale)}>
+                        <Button size="small" type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={() => onStartPayment(sale)}>
                           {t('sales.drawerAddPayment')}
                         </Button>
                       ) : null}

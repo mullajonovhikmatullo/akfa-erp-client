@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useNavigate } from 'react-router-dom'
 
 import type { Branch } from '@store/store-stub'
@@ -67,7 +68,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
     <header className="topbar">
       <div className="topbar__inner">
         <button className="sidebar-toggle topbar-sidebar-toggle" onClick={toggleNavigation} type="button">
-          {sidebarCollapsed ? <i className="icons-chevron-right icon-size-20" /> : <i className="icons-chevron-left icon-size-20" />}
+          {sidebarCollapsed ? <StoreIcon name="chevron-right" size={18} /> : <StoreIcon name="chevron-left" size={18} />}
         </button>
 
         <div className="topbar__page-context">

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Input, Select } from 'antd'
 
 import type { InventoryTranslate, QuantityFilter } from './types'
@@ -38,7 +39,7 @@ export function InventoryFilters({
         <Input
           allowClear
           value={search}
-          prefix={<i className="icons-search icon-size-15" />}
+          prefix={<StoreIcon name="search" size={16} />}
           placeholder={t('inventory.searchPlaceholder')}
           onChange={(event) => onSearchChange(event.target.value)}
         />

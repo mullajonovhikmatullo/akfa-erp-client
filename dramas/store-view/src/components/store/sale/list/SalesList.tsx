@@ -1,6 +1,8 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Badge, Button, Select, Tooltip } from 'antd'
+import { PlusIcon } from '@phosphor-icons/react/dist/csr/Plus'
 
 import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
@@ -79,7 +81,7 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
           className={tab === 'new' ? 'is-active' : undefined}
           onClick={() => setTab('new')}
         >
-          <i className="icons-plus icon-size-14" />
+          <PlusIcon size={14} weight="regular" aria-hidden="true" />
           {t('dashboard.newSale')}
         </button>
         <button
@@ -142,7 +144,7 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
               )}
             />
             <Tooltip title={t('common.refresh')}>
-              <Button icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => refetch()} />
+              <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
             </Tooltip>
             <span className="u-text-muted u-fs-12-5 u-ml-auto">
               <strong>{total}</strong> {t('common.resultsSuffix')}

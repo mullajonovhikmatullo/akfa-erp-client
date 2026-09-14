@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
@@ -131,7 +132,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
         {activeTab === 'customers' && <div className="u-flex u-gap-8">
           {canManage && (
             <>
-              <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setEditCustomer(null)}>
+              <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={() => setEditCustomer(null)}>
                 {t('customers.newCustomer')}
               </Button>
               <ExcelImportButton<CreateCustomerPayload>
@@ -160,7 +161,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
             </>
           )}
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => refetch()} />
+            <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
           </Tooltip>
         </div>}
       </div>
@@ -198,7 +199,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
             control={control}
             render={({ field }) => (
               <Input
-                prefix={<i className="icons-search icon-size-18" />}
+                prefix={<StoreIcon name="search" size={16} />}
                 placeholder={t('customers.searchPlaceholder')}
                 value={field.value}
                 onChange={(event) => {

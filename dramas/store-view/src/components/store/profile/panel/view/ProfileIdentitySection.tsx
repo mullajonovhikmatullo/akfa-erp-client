@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import type { ChangeEventHandler, RefObject } from 'react'
 import { Button, Image, Popconfirm } from 'antd'
@@ -58,7 +59,7 @@ export function ProfileIdentitySection({
           disabled={photoBusy}
           onClick={() => photoInputRef.current?.click()}
         >
-          <i className="icons-pen-line icon-size-17" />
+          <StoreIcon name="pen-line" size={16} />
         </button>
       </div>
 
@@ -75,7 +76,7 @@ export function ProfileIdentitySection({
             onChange={onPhotoSelected}
           />
           <Button
-            icon={<i className="icons-upload icon-size-17" />}
+            icon={<StoreIcon name="upload" size={16} />}
             loading={photoProcessing || updatePhotoPending}
             disabled={deletePhotoPending}
             onClick={() => photoInputRef.current?.click()}
@@ -92,7 +93,7 @@ export function ProfileIdentitySection({
             >
               <Button
                 danger
-                icon={<i className="icons-trash icon-size-17" />}
+                icon={<StoreIcon name="trash" size={16} />}
                 disabled={photoProcessing || updatePhotoPending}
               >
                 {t('profile.photoRemove')}

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Divider, Form, InputNumber, Select, Skeleton } from 'antd'
@@ -119,7 +120,7 @@ export function SaleDetailView({
                 <Button onClick={onCancelPayment}>{t('sales.drawerCancelShort')}</Button>
               </div>
             ) : (
-              <Button icon={<i className="icons-plus icon-size-13" />} onClick={onOpenPayForm}>
+              <Button icon={<StoreIcon name="plus" size={16} />} onClick={onOpenPayForm}>
                 {t('sales.drawerAddPayment')}
               </Button>
             )}

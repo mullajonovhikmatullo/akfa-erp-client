@@ -83,6 +83,10 @@
       "types": "./dist/@types/ui/StatusBadge/StatusBadge.d.ts",
       "import": "./dist/ui/status-badge.js"
     },
+    "./ui/store-icon": {
+      "types": "./dist/@types/ui/StoreIcon/StoreIcon.d.ts",
+      "import": "./dist/ui/store-icon.js"
+    },
     "./ui/uzbek-phone-input": {
       "types": "./dist/@types/ui/UzbekPhoneInput/UzbekPhoneInput.d.ts",
       "import": "./dist/ui/uzbek-phone-input.js"

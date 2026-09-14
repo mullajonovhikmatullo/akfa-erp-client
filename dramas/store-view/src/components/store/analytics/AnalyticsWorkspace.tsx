@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select } from 'antd'
@@ -95,7 +96,7 @@ export function AnalyticsWorkspace({ branchId }: AnalyticsWorkspaceProps) {
             render={({ field }) => <DatePicker.RangePicker value={field.value} onChange={(value) => field.onChange(value ? [value[0], value[1]] : [null, null])} format="DD.MM.YYYY" presets={[{ label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] }, { label: t('analytics.lastMonth'), value: [dayjs().subtract(1, 'month').startOf('month'), dayjs().subtract(1, 'month').endOf('month')] }, { label: t('analytics.last7Days'), value: [dayjs().subtract(7, 'day'), dayjs()] }, { label: t('analytics.last30Days'), value: [dayjs().subtract(30, 'day'), dayjs()] }]} />}
           />
           <Controller name="period" control={control} render={({ field }) => <Select value={field.value} onChange={field.onChange} options={periodOptions} className="u-w-120" />} />
-          <Button icon={<i className={['icons-reload icon-size-18', anyFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={refetchAll} />
+          <Button icon={<StoreIcon name="reload" size={16} className={anyFetching ? 'ph-icon-spin' : undefined} />} onClick={refetchAll} />
         </div>
       </div>
       <div className="analytics-tabs" role="tablist" aria-label={t('analytics.title')}>

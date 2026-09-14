@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Empty, Select, Table } from 'antd'
@@ -79,7 +80,7 @@ export function StockInFormView({
           placeholder={t('stockIn.placeholderSearch')}
           className="u-w-full"
           loading={productsLoading}
-          suffixIcon={productsLoading ? undefined : <i className="icons-plus icon-size-16" />}
+          suffixIcon={productsLoading ? undefined : <StoreIcon name="plus" size={16} />}
           notFoundContent={productsLoading ? <SelectLoadingContent /> : undefined}
           options={products
             .filter((product) => product.isActive && !selectedProductIds.has(product.id))

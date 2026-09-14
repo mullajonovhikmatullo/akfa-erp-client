@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type UseFormHandleSubmit, type UseFormSetValue } from 'react-hook-form'
 import { Alert, Button, DatePicker, InputNumber, Select, Tooltip } from 'antd'
@@ -85,7 +86,7 @@ export function SaleSummaryView({
               )}
             />
             <Tooltip title={t('newSale.markFullPaidTooltip')}>
-              <Button icon={<i className="icons-circle-check icon-size-18" />} disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount} onClick={() => { setValue('paidAmount', fullPaidAmount, { shouldDirty: true }); onPaidAmountChange(fullPaidAmount) }}>{t('newSale.markFullPaid')}</Button>
+              <Button icon={<StoreIcon name="circle-check" size={18} />} disabled={fullPaidAmount <= 0 || paidAmount === fullPaidAmount} onClick={() => { setValue('paidAmount', fullPaidAmount, { shouldDirty: true }); onPaidAmountChange(fullPaidAmount) }}>{t('newSale.markFullPaid')}</Button>
             </Tooltip>
           </div>
           {paidAmountError ? <div role="alert" className="u-text-danger u-fs-12 u-mt-6">{t('newSale.paidAmountMaxError')}</div> : null}
@@ -94,7 +95,7 @@ export function SaleSummaryView({
         {needsCustomer ? <div><Label>{t('newSale.debtDeadlineOptional')}</Label><Controller name="debtDueDateIso" control={control} render={({ field }) => <DatePicker value={field.value ? dayjs(field.value) : null} onChange={(value) => field.onChange(value ? value.toISOString() : undefined)} className="u-w-full" format="DD.MM.YYYY" placeholder={t('newSale.debtDeadlinePlaceholder')} disabledDate={(current) => Boolean(current && current < dayjs().startOf('day'))} allowClear />} /></div> : null}
       </div>
       {needsCustomer && !customerId ? <Alert type="warning" showIcon message={t('newSale.debtNeedsCustomer')} className="u-mt-12" /> : null}
-      <Button type="primary" size="large" block icon={<i className="icons-check icon-size-18" />} loading={isPending} disabled={!canSubmit} className="u-mt-16" onClick={handleSubmit(onSubmit)}>{t('newSale.confirmSale')}</Button>
+      <Button type="primary" size="large" block icon={<StoreIcon name="check" size={16} />} loading={isPending} disabled={!canSubmit} className="u-mt-16" onClick={handleSubmit(onSubmit)}>{t('newSale.confirmSale')}</Button>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Modal, Slider } from 'antd'
 
@@ -46,7 +47,7 @@ export function ProfilePhotoEditorModal({
           {photoUrl ? (
             <img src={photoUrl} alt="" className={`profile-photo-transform-r${rotation}-z${Math.round(zoom * 100)}`} />
           ) : (
-            <i className="icons-image icon-size-42" />
+            <StoreIcon name="image" size={42} />
           )}
           <div className="profile-photo-editor__ring" aria-hidden />
         </div>
@@ -55,7 +56,7 @@ export function ProfilePhotoEditorModal({
             <span>{t('profile.photoZoom')}</span>
             <Slider min={1} max={2.5} step={0.05} value={zoom} onChange={onZoomChange} />
           </div>
-          <Button icon={<i className="icons-reload icon-size-17" />} onClick={onRotate}>
+          <Button icon={<StoreIcon name="reload" size={16} />} onClick={onRotate}>
             {t('profile.photoRotate')}
           </Button>
         </div>

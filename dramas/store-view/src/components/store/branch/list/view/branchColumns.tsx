@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tag, Tooltip } from 'antd'
 
@@ -57,7 +58,7 @@ export function createBranchColumns({
         return (
           <div className="u-items-center u-flex u-gap-8">
             <span className={`branch-icon${isMain ? ' branch-icon--main' : ''}`}>
-              <i className="icons-building icon-size-16" />
+              <StoreIcon name="building" size={16} />
             </span>
             <div>
               <div className="u-items-center u-flex u-gap-6">
@@ -111,9 +112,9 @@ export function createBranchColumns({
       render: (_: unknown, branch: Branch) => (
         <div className="u-flex u-gap-4">
           <Tooltip title={t('branches.assignTooltip')}>
-            <Button size="small" type="text" icon={<i className="icons-user-add icon-size-13" />} onClick={(event) => { event.stopPropagation(); onAssign(branch) }} />
+            <Button size="small" type="text" icon={<StoreIcon name="user-add" size={16} />} onClick={(event) => { event.stopPropagation(); onAssign(branch) }} />
           </Tooltip>
-          <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-18" />} onClick={(event) => { event.stopPropagation(); onEdit(branch) }} />
+          <Button size="small" type="text" icon={<StoreIcon name="pen-line" size={16} />} onClick={(event) => { event.stopPropagation(); onEdit(branch) }} />
           <Popconfirm
             title={t('common.deleteTitle')}
             description={t('branches.deleteDesc')}
@@ -123,7 +124,7 @@ export function createBranchColumns({
             onConfirm={(event) => { event?.stopPropagation(); onDelete(branch.id) }}
             onPopupClick={(event) => event.stopPropagation()}
           >
-            <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} loading={deleting && deletingId === branch.id} onClick={(event) => event.stopPropagation()} />
+            <Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} loading={deleting && deletingId === branch.id} onClick={(event) => event.stopPropagation()} />
           </Popconfirm>
         </div>
       ),

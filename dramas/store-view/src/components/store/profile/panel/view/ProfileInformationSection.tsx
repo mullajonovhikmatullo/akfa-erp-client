@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Button, Input } from 'antd'
@@ -32,14 +33,14 @@ export function ProfileInformationSection({
     <section className="profile-section" aria-labelledby="profile-basic-title">
       <div className="profile-section__head">
         <div className="profile-section__icon profile-section__icon--identity">
-          <i className="icons-user-circle icon-size-20" />
+          <StoreIcon name="user-circle" size={20} />
         </div>
         <div className="profile-section__heading">
           <h2 id="profile-basic-title">{t('profile.basicInfo')}</h2>
           <span>@{username}</span>
         </div>
         {!editing ? (
-          <Button icon={<i className="icons-pen-line icon-size-16" />} onClick={onEdit}>
+          <Button icon={<StoreIcon name="pen-line" size={16} />} onClick={onEdit}>
             {t('profile.edit')}
           </Button>
         ) : null}
@@ -86,12 +87,12 @@ export function ProfileInformationSection({
             <Button
               type="primary"
               htmlType="submit"
-              icon={<i className="icons-check icon-size-18" />}
+              icon={<StoreIcon name="check" size={16} />}
               loading={pending}
             >
               {t('profile.save')}
             </Button>
-            <Button icon={<i className="icons-close icon-size-18" />} onClick={onCancel} disabled={pending}>
+            <Button icon={<StoreIcon name="close" size={16} />} onClick={onCancel} disabled={pending}>
               {t('profile.cancel')}
             </Button>
           </div>

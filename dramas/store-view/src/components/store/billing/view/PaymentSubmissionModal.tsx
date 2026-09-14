@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Button, Form, Input, Modal, Space, Upload } from 'antd'
 import type { FormInstance, UploadFile } from 'antd'
 
@@ -62,7 +63,7 @@ export function PaymentSubmissionModal({
             <div className="billing-receipt-preview">
               <div className="billing-receipt-preview__header">
                 <span title={preview.fileName}>{preview.fileName}</span>
-                <Button type="text" danger htmlType="button" icon={<i className="icons-close icon-size-16" />} onClick={onClearReceipt}>
+                <Button type="text" danger htmlType="button" icon={<StoreIcon name="close" size={16} />} onClick={onClearReceipt}>
                   {t('common.cancel')}
                 </Button>
               </div>
@@ -90,7 +91,7 @@ export function PaymentSubmissionModal({
               }}
               onChange={({ fileList }) => onFilesChange(fileList)}
             >
-              <i className="icons-file-upload icon-size-30" />
+              <StoreIcon name="file-upload" size={30} />
               <p>{t('billing.receiptDrop')}</p>
               <span>{t('billing.receiptHint')}</span>
             </Upload.Dragger>
@@ -105,7 +106,7 @@ export function PaymentSubmissionModal({
           />
         </Form.Item>
         <Space className="billing-security-note" size={8}>
-          <i className="icons-circle-check icon-size-18" />
+          <StoreIcon name="circle-check" size={18} />
           <span>{t('billing.securityNote')}</span>
         </Space>
       </Form>

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Alert, Select, Skeleton, Table } from 'antd'
 
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -65,7 +66,7 @@ export function DebtTab({
       {data.overdue.overdueCount > 0 ? <Alert type="warning" showIcon message={`${data.overdue.overdueCount} ${t('analytics.alertOverdueSuffix')}`} /> : null}
       <div className="card u-overflow-hidden u-p-0" >
         <div className="u-items-center u-border-b-default u-flex u-flex-wrap u-gap-12 u-justify-between u-p-14-16">
-          <div className="u-items-center u-flex u-fs-13 u-fw-700 u-gap-8"><i className="icons-warning icon-size-18 u-text-warning" />{tableTitle}</div>
+          <div className="u-items-center u-flex u-fs-13 u-fw-700 u-gap-8"><StoreIcon name="warning" size={18} className="u-text-warning" />{tableTitle}</div>
           <span className="u-text-muted u-fs-12-5"><strong>{debtTotal}</strong> {t('common.resultsSuffix')}</span>
         </div>
         <div className="analytics-debt-filters">

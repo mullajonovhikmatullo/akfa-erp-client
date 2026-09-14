@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { ProductImage } from '@store/store-stub'
@@ -51,7 +52,7 @@ export function ProductImageGallery({
           />
         ) : (
           <div className="u-text-center">
-            <i className="icons-image icon-size-36" />
+            <StoreIcon name="image" size={36} />
             <div className="u-fs-12 u-mt-5">{t('productImages.empty')}</div>
           </div>
         )}
@@ -59,7 +60,7 @@ export function ProductImageGallery({
           <div
             className="u-items-center u-bg-overlay u-rounded-5 u-text-white u-flex u-fs-10-5 u-fw-700 u-gap-4 u-left-8 u-p-4-7 u-absolute u-top-8"
           >
-            <i className="icons-favourite icon-size-11" />
+            <StoreIcon name="favourite" size={14} />
             {t('productImages.primary')}
           </div>
         ) : null}
@@ -84,7 +85,7 @@ export function ProductImageGallery({
                 aria-hidden
                 className="u-aspect-square u-bg-surface-1 u-rounded-6 u-border-dashed u-text-quiet u-grid u-min-w-0 u-place-center"
               >
-                <i className="icons-image icon-size-20" />
+                <StoreIcon name="image" size={20} />
               </div>
             )
           }

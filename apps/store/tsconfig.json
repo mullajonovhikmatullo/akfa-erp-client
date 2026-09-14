@@ -21,6 +21,7 @@
       "@store/store-shared/ui/money-display": ["../../dramas/store-shared/src/ui/MoneyDisplay/MoneyDisplay.tsx"],
       "@store/store-shared/ui/select-loading-content": ["../../dramas/store-shared/src/ui/SelectLoadingContent/SelectLoadingContent.tsx"],
       "@store/store-shared/ui/status-badge": ["../../dramas/store-shared/src/ui/StatusBadge/StatusBadge.tsx"],
+      "@store/store-shared/ui/store-icon": ["../../dramas/store-shared/src/ui/StoreIcon/StoreIcon.tsx"],
       "@store/store-stub": ["../../dramas/store-stub/src/index.ts"],
       "@store/store-view": ["../../dramas/store-view/src/index.ts"],
       "@store/store-view/*": ["../../dramas/store-view/src/components/store/*/index.ts"]

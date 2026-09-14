@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tag } from 'antd'
 
@@ -77,7 +78,7 @@ export function createAdminColumns({ t, rowIndex, branches, deleting, deletingId
           <Button
             size="small"
             type="text"
-            icon={<i className="icons-pen-line icon-size-18" />}
+            icon={<StoreIcon name="pen-line" size={16} />}
             onClick={(event) => {
               //
               event.stopPropagation()
@@ -101,7 +102,7 @@ export function createAdminColumns({ t, rowIndex, branches, deleting, deletingId
               size="small"
               type="text"
               danger
-              icon={<i className="icons-trash icon-size-18" />}
+              icon={<StoreIcon name="trash" size={16} />}
               loading={deleting && deletingId === user.id}
               onClick={(event) => event.stopPropagation()}
             />

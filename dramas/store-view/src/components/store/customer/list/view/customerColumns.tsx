@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tooltip } from 'antd'
 
@@ -112,11 +113,11 @@ export function createCustomerColumns({
       render: (_: unknown, customer: Customer) => (
         <div className="u-flex u-gap-4">
           <Tooltip title={t('common.view')}>
-            <Button size="small" type="text" icon={<i className="icons-eye icon-size-18" />} onClick={(event) => { event.stopPropagation(); onView(customer) }} />
+            <Button size="small" type="text" icon={<StoreIcon name="eye" size={16} />} onClick={(event) => { event.stopPropagation(); onView(customer) }} />
           </Tooltip>
           {canManage ? (
             <>
-              <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-18" />} onClick={(event) => { event.stopPropagation(); onEdit(customer) }} />
+              <Button size="small" type="text" icon={<StoreIcon name="pen-line" size={16} />} onClick={(event) => { event.stopPropagation(); onEdit(customer) }} />
               <Popconfirm
                 title={t('common.deleteTitle')}
                 description={`"${customer.fullName}" ${t('customers.deactivateDesc')}`}
@@ -126,7 +127,7 @@ export function createCustomerColumns({
                 onConfirm={(event) => { event?.stopPropagation(); onDelete(customer.id) }}
                 onPopupClick={(event) => event.stopPropagation()}
               >
-                <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} loading={deleting && deletingId === customer.id} onClick={(event) => event.stopPropagation()} />
+                <Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} loading={deleting && deletingId === customer.id} onClick={(event) => event.stopPropagation()} />
               </Popconfirm>
             </>
           ) : null}

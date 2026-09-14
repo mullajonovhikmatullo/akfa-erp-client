@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm } from 'antd'
 
@@ -98,7 +99,7 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
             size="small"
             type="text"
             danger
-            icon={<i className="icons-trash icon-size-18" />}
+            icon={<StoreIcon name="trash" size={16} />}
             loading={deleting && deletingId === expense.id}
             onClick={(event) => event.stopPropagation()}
           />

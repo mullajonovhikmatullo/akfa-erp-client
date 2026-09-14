@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { InputNumber, Radio } from 'antd'
@@ -169,7 +170,7 @@ export function SettingsPanel({
                       selected={selectedTheme === 'light'}
                       title={t('settings.themeLight')}
                       description={t('settings.themeLightDescription')}
-                      icon={<i className="icons-sun icon-size-18" />}
+                      icon={<StoreIcon name="sun" size={18} />}
                       onSelect={selectTheme}
                     />
                     <ThemeChoice
@@ -177,7 +178,7 @@ export function SettingsPanel({
                       selected={selectedTheme === 'dark'}
                       title={t('settings.themeDark')}
                       description={t('settings.themeDarkDescription')}
-                      icon={<i className="icons-moon icon-size-18" />}
+                      icon={<StoreIcon name="moon" size={18} />}
                       onSelect={selectTheme}
                     />
                   </div>

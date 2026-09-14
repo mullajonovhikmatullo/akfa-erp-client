@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm } from 'antd'
 
@@ -58,7 +59,7 @@ export function createTransferColumns({
       render: (_: unknown, transfer: Transfer) => (
         <div className="u-items-center u-flex u-gap-8">
           <StatusBadge tone="info">{transfer.fromBranch.name}</StatusBadge>
-          <i className="icons-arrow-right icon-size-14 u-text-quiet" />
+          <StoreIcon name="arrow-right" size={16} className="u-text-quiet" />
           <StatusBadge tone="muted">{transfer.toBranch.name}</StatusBadge>
         </div>
       ),
@@ -126,7 +127,7 @@ export function createTransferColumns({
               <Button
                 size="small"
                 type="text"
-                icon={<i className="icons-circle-check icon-size-18 u-text-success" />}
+                icon={<StoreIcon name="circle-check" size={18} className="u-text-success" />}
                 onClick={(event) => {
                   //
                   event.stopPropagation()
@@ -148,7 +149,7 @@ export function createTransferColumns({
                 }}
                 onPopupClick={(event) => event.stopPropagation()}
               >
-                <Button size="small" type="text" danger icon={<i className="icons-close-circle icon-size-18" />} onClick={(event) => event.stopPropagation()} />
+                <Button size="small" type="text" danger icon={<StoreIcon name="close-circle" size={18} />} onClick={(event) => event.stopPropagation()} />
               </Popconfirm>
             ) : null}
           </div>

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useMemo, useState } from 'react'
 import { Button, Popconfirm, Progress, Tooltip, Upload } from 'antd'
 
@@ -143,7 +144,7 @@ export function ProductImageManager({
           </div>
           {isPrimary ? (
             <div className="u-items-center u-text-warning u-flex u-fs-10-5 u-fw-700 u-gap-3">
-              <i className="icons-favourite icon-size-11" />
+              <StoreIcon name="favourite" size={14} />
               {t('productImages.primary')}
             </div>
           ) : (
@@ -162,7 +163,7 @@ export function ProductImageManager({
                 type="text"
                 size="small"
                 aria-label={t('productImages.moveLeft')}
-                icon={<i className="icons-arrow-left icon-size-14" />}
+                icon={<StoreIcon name="arrow-left" size={16} />}
                 disabled={uploading || index === 0}
                 onClick={() => handleMove(index, -1)}
               />
@@ -172,7 +173,7 @@ export function ProductImageManager({
                 type="text"
                 size="small"
                 aria-label={t('productImages.moveRight')}
-                icon={<i className="icons-arrow-right icon-size-14" />}
+                icon={<StoreIcon name="arrow-right" size={16} />}
                 disabled={uploading || index === visibleImages.length - 1}
                 onClick={() => handleMove(index, 1)}
               />
@@ -193,7 +194,7 @@ export function ProductImageManager({
                   type="text"
                   size="small"
                   aria-label={t('productImages.replace')}
-                  icon={<i className="icons-reload icon-size-14" />}
+                  icon={<StoreIcon name="reload" size={16} />}
                   disabled={uploading}
                 />
               </Tooltip>
@@ -211,7 +212,7 @@ export function ProductImageManager({
                   size="small"
                   danger
                   aria-label={t('productImages.delete')}
-                  icon={<i className="icons-trash icon-size-14" />}
+                  icon={<StoreIcon name="trash" size={16} />}
                   disabled={uploading}
                 />
               </Tooltip>

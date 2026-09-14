@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Skeleton, Table } from 'antd'
 
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -25,7 +26,7 @@ export function InventoryTab({ data, loading, t }: { data?: InventoryReportData;
       </div>
       <div className="analytics-inventory-details">
         <div className="card u-overflow-hidden u-p-0" >
-          <div className="u-items-center u-border-b-default u-flex u-gap-8 u-p-12-16"><i className="icons-warning icon-size-18 u-text-warning" /><span className="u-fs-13 u-fw-700">{t('analytics.lowStockItems')} ({data.lowStock.length})</span></div>
+          <div className="u-items-center u-border-b-default u-flex u-gap-8 u-p-12-16"><StoreIcon name="warning" size={18} className="u-text-warning" /><span className="u-fs-13 u-fw-700">{t('analytics.lowStockItems')} ({data.lowStock.length})</span></div>
           {data.lowStock.length === 0 ? <div className="u-text-muted u-fs-13 u-p-16">{t('analytics.allSufficient')}</div> : <Table size="small" pagination={false} rowKey={(row) => `${row.productId}-${row.branchId}`} dataSource={data.lowStock} columns={createLowStockColumns(t)} />}
         </div>
         <div className="card analytics-inventory-movements">

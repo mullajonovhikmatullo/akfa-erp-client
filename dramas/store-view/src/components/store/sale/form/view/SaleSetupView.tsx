@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Button, Radio, Select } from 'antd'
@@ -71,7 +72,7 @@ export function SaleSetupView({
               />
             )}
           />
-          <Button icon={<i className="icons-plus icon-size-13" />} onClick={onCreateCustomer}>
+          <Button icon={<StoreIcon name="plus" size={16} />} onClick={onCreateCustomer}>
             {t('customers.newCustomer')}
           </Button>
         </div>

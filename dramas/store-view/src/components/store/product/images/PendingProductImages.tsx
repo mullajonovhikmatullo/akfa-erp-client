@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Button, Tooltip, Upload } from 'antd'
 
@@ -114,7 +115,7 @@ export function PendingProductImages({
           }}
           className="u-bg-surface-2 u-mt-10 u-p-4-8"
         >
-          <i className="icons-upload icon-size-24 u-text-primary" />
+          <StoreIcon name="upload" size={24} className="u-text-primary" />
           <div className="u-fs-13 u-fw-600 u-mt-5">{t('productImages.add')}</div>
           <div className="u-text-muted u-fs-11-5 u-mt-2">{t('productImages.hint')}</div>
         </Upload.Dragger>
@@ -157,7 +158,7 @@ function EmptyProductImageSlot() {
       <div
         className="u-aspect-square u-bg-surface-2 u-grid u-place-center u-w-full"
       >
-        <i className="icons-image icon-size-28" />
+        <StoreIcon name="image" size={28} />
       </div>
       <div className="u-h-72" />
     </div>
@@ -199,7 +200,7 @@ function PendingImageTile({
         {previewUrl ? (
           <img src={previewUrl} alt={file.name} className="u-h-full u-object-contain u-w-full" />
         ) : (
-          <i className="icons-image icon-size-30" />
+          <StoreIcon name="image" size={30} />
         )}
       </div>
       <div className="u-box-border u-h-72 u-p-6">
@@ -209,7 +210,7 @@ function PendingImageTile({
         <div className="u-min-h-16">
           {isPrimary ? (
             <div className="u-items-center u-text-warning u-flex u-fs-10-5 u-fw-600 u-gap-3 u-mt-3">
-              <i className="icons-favourite icon-size-11" />
+              <StoreIcon name="favourite" size={14} />
               {t('productImages.primary')}
             </div>
           ) : null}
@@ -220,7 +221,7 @@ function PendingImageTile({
               type="text"
               size="small"
               aria-label={t('productImages.moveLeft')}
-              icon={<i className="icons-arrow-left icon-size-15" />}
+              icon={<StoreIcon name="arrow-left" size={16} />}
               disabled={disabled || index === 0}
               onClick={() => onMove(index, -1)}
             />
@@ -230,7 +231,7 @@ function PendingImageTile({
               type="text"
               size="small"
               aria-label={t('productImages.moveRight')}
-              icon={<i className="icons-arrow-right icon-size-15" />}
+              icon={<StoreIcon name="arrow-right" size={16} />}
               disabled={disabled || index === total - 1}
               onClick={() => onMove(index, 1)}
             />
@@ -241,7 +242,7 @@ function PendingImageTile({
               size="small"
               danger
               aria-label={t('productImages.delete')}
-              icon={<i className="icons-trash icon-size-15" />}
+              icon={<StoreIcon name="trash" size={16} />}
               disabled={disabled}
               onClick={onDelete}
             />

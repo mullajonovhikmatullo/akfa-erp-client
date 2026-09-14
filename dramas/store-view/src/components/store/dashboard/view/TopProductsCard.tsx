@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Empty, Segmented, Skeleton } from 'antd';
+import { Empty, Skeleton } from 'antd';
+import { ChartBarHorizontalIcon } from '@phosphor-icons/react/dist/csr/ChartBarHorizontal';
+import { CoinsIcon } from '@phosphor-icons/react/dist/csr/Coins';
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { resolveStoreTranslationKey } from '@store/store-i18n';
 import { formatCompactUZS } from '@store/store-shared/lib/formatters';
@@ -25,19 +27,30 @@ export function TopProductsCard({ t, query, periodMeta }: { t: TFunc; query: Ana
 
   return (
     <div className="card">
-      <div className="card-head">
-        <h3>{t('dashboard.topProducts')}</h3>
-        <div className="dashboard-top-products__controls">
-          <Segmented
-            size="small"
-            value={sortBy}
-            onChange={(value) => setSortBy(value as 'revenue' | 'quantity')}
-            options={[
-              { value: 'quantity', label: t('dashboard.sortByQuantity') },
-              { value: 'revenue', label: t('dashboard.sortByRevenue') },
-            ]}
-          />
+      <div className="card-head dashboard-top-products__head">
+        <div className="dashboard-top-products__title">
+          <h3>{t('dashboard.topProducts')}</h3>
           <span className="meta">{periodMeta}</span>
+        </div>
+        <div className="dashboard-top-products__tabs" role="group" aria-label={t('dashboard.topProducts')}>
+          <button
+            type="button"
+            aria-pressed={sortBy === 'quantity'}
+            className={sortBy === 'quantity' ? 'is-active' : undefined}
+            onClick={() => setSortBy('quantity')}
+          >
+            <ChartBarHorizontalIcon size={14} weight="regular" aria-hidden="true" />
+            <span>{t('dashboard.sortByQuantity')}</span>
+          </button>
+          <button
+            type="button"
+            aria-pressed={sortBy === 'revenue'}
+            className={sortBy === 'revenue' ? 'is-active' : undefined}
+            onClick={() => setSortBy('revenue')}
+          >
+            <CoinsIcon size={14} weight="regular" aria-hidden="true" />
+            <span>{t('dashboard.sortByRevenue')}</span>
+          </button>
         </div>
       </div>
 

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { Alert } from 'antd';
@@ -37,13 +38,13 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
   return (
     <form className="mavion-login__form" onSubmit={onSubmit} noValidate>
       {sessionExpired && !hasRootError && (
-        <Alert icon={<i className="icons-clock icon-size-18" />} type="warning" title={t('login.sessionExpired')} showIcon />
+        <Alert icon={<StoreIcon name="clock" size={18} />} type="warning" title={t('login.sessionExpired')} showIcon />
       )}
       {externalError && !hasRootError && (
-        <Alert icon={<i className="icons-warning icon-size-18" />} type="error" title={externalError} showIcon />
+        <Alert icon={<StoreIcon name="warning" size={18} />} type="error" title={externalError} showIcon />
       )}
       {hasRootError && (
-        <Alert icon={<i className="icons-warning icon-size-18" />} type="error" title={errors.root!.message} showIcon />
+        <Alert icon={<StoreIcon name="warning" size={18} />} type="error" title={errors.root!.message} showIcon />
       )}
 
       {googleLinkEmail && (
@@ -61,7 +62,7 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
           <div className={`mavion-field${errors.username || isCredentialError ? ' mavion-field--error' : ''}`}>
             <label className="mavion-field__label" htmlFor="mavion-login-username">{t('login.usernameLabel')}</label>
             <span className="mavion-field__control">
-              <i className="icons-user-circle icon-size-21" aria-hidden="true" />
+              <StoreIcon name="user-circle" size={21} />
               <input
                 {...field}
                 id="mavion-login-username"
@@ -93,7 +94,7 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
           <div className={`mavion-field${errors.password || isCredentialError ? ' mavion-field--error' : ''}`}>
             <label className="mavion-field__label" htmlFor="mavion-login-password">{t('login.passwordLabel')}</label>
             <span className="mavion-field__control">
-              <i className="icons-lock icon-size-21" aria-hidden="true" />
+              <StoreIcon name="lock" size={18} />
               <input
                 {...field}
                 id="mavion-login-password"
@@ -116,7 +117,7 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
                 aria-pressed={passwordVisible}
                 onClick={() => setPasswordVisible((visible) => !visible)}
               >
-                {passwordVisible ? <i className="icons-hide icon-size-20" /> : <i className="icons-eye icon-size-20" />}
+                {passwordVisible ? <StoreIcon name="hide" size={18} /> : <StoreIcon name="eye" size={18} />}
               </button>
             </span>
             {errors.password?.message && (
@@ -141,7 +142,7 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
 
       <button className="mavion-login__submit" type="submit" disabled={isLoading}>
         <span>{t(isFormSubmitting ? 'login.signingIn' : googleLinkEmail ? 'login.googleLinkSubmit' : 'login.signIn')}</span>
-        {isFormSubmitting ? <i className="icons-reload mavion-login__submit-spinner" aria-hidden="true" /> : (
+        {isFormSubmitting ? <StoreIcon name="reload" size={16} className="mavion-login__submit-spinner" /> : (
           <svg className="mavion-login__submit-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M3.75 10h11.5m-5-5 5 5-5 5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"
                   strokeWidth="1.75"/>

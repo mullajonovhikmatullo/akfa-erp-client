@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useStoreT } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
 import { Select } from 'antd'
@@ -46,7 +47,7 @@ export function HeaderBranchControl({
             onBranchChange(value)
           }}
           className="topbar__branch-select topbar-hide-mobile"
-          suffixIcon={<i className="icons-location-pin icon-size-16" />}
+          suffixIcon={<StoreIcon name="location-pin" size={16} />}
           options={[
             { value: '__all__', label: t('header.allBranches') },
             ...branches.map((branch) => ({ value: branch.id, label: branch.name })),

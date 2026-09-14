@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Button, Tooltip } from 'antd'
 
 import type { BillingTranslate } from './types'
@@ -29,7 +30,7 @@ export function BillingPageHeader({
       <div className="billing-page__actions">
         <Button
           type="primary"
-          icon={<i className="icons-payments icon-size-18" />}
+          icon={<StoreIcon name="payments" size={18} />}
           disabled={!hasPlan || hasPendingPayment}
           onClick={onPay}
         >
@@ -38,7 +39,7 @@ export function BillingPageHeader({
         <Tooltip title={t('common.refresh')}>
           <Button
             aria-label={t('common.refresh')}
-            icon={<i className={['icons-reload icon-size-18', fetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
+            icon={<StoreIcon name="reload" size={16} className={fetching ? 'ph-icon-spin' : undefined} />}
             onClick={onRefresh}
           />
         </Tooltip>

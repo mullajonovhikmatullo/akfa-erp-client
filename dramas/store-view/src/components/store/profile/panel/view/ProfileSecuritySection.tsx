@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Alert, Button } from 'antd'
@@ -25,7 +26,7 @@ export function ProfileSecuritySection({
     <section className="profile-section" aria-labelledby="profile-security-title">
       <div className="profile-section__head">
         <div className="profile-section__icon profile-section__icon--security">
-          <i className="icons-lock icon-size-19" />
+          <StoreIcon name="lock" size={18} />
         </div>
         <div className="profile-section__heading">
           <h2 id="profile-security-title">{t('profile.changePassword')}</h2>
@@ -35,7 +36,7 @@ export function ProfileSecuritySection({
 
       <Alert
         type="info"
-        icon={<i className="icons-user_check icon-size-18" />}
+        icon={<StoreIcon name="user_check" size={18} />}
         showIcon
         message={t('profile.passwordHint')}
         className="profile-security-alert"
@@ -107,7 +108,7 @@ export function ProfileSecuritySection({
             <Button
               type="primary"
               htmlType="submit"
-              icon={<i className="icons-lock icon-size-18" />}
+              icon={<StoreIcon name="lock" size={18} />}
               loading={pending}
             >
               {t('profile.changePasswordBtn')}

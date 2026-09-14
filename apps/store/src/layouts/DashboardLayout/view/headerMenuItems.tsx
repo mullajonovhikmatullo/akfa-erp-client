@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { MenuProps } from 'antd'
 
 import type { StoreLocale, StoreTranslator } from '@store/store-i18n'
@@ -55,19 +56,19 @@ export function createHeaderMenuItems({
     { type: 'divider' },
     {
       key: 'profile',
-      icon: <i className="icons-user-circle icon-size-18" />,
+      icon: <StoreIcon name="user-circle" size={18} />,
       label: t('header.profile'),
       onClick: onOpenProfile,
     },
     {
       key: 'settings',
-      icon: <i className="icons-settings icon-size-18" />,
+      icon: <StoreIcon name="settings" size={18} />,
       label: t('header.settings'),
       onClick: onOpenSettings,
     },
     {
       key: 'logout',
-      icon: <i className="icons-logout icon-size-18" />,
+      icon: <StoreIcon name="logout" size={18} />,
       label: <span className="u-text-danger">{t('header.logout')}</span>,
       onClick: onLogout,
     },

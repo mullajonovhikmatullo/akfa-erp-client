@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal, Select } from 'antd'
@@ -43,7 +44,7 @@ export function AdminFormModal({
     <Modal
       title={
         <div className="u-items-center u-flex u-gap-8">
-          <i className="icons-user-switch icon-size-18" />
+          <StoreIcon name="user-switch" size={18} />
           {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('admins.modalCreate')}
         </div>
       }
@@ -107,7 +108,7 @@ export function AdminFormModal({
                   {...field}
                   {...blockAutofill('store-admin-new-password')}
                   placeholder={t('pwd.minLen')}
-                  prefix={<i className="icons-lock icon-size-18 u-text-muted" />}
+                  prefix={<StoreIcon name="lock" size={18} className="u-text-muted" />}
                 />
               )}
             />

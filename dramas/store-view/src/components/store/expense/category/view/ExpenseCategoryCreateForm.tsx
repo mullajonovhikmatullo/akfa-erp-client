@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller } from 'react-hook-form'
 import { Button, Input } from 'antd'
@@ -47,7 +48,7 @@ export function ExpenseCategoryCreateForm({
       />
       <Button
         type="primary"
-        icon={<i className="icons-plus icon-size-13" />}
+        icon={<StoreIcon name="plus" size={16} />}
         loading={pending}
         disabled={!name.trim()}
         onClick={onSubmit}

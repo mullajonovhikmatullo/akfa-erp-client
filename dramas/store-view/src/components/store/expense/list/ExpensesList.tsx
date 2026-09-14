@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
@@ -105,11 +106,11 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
           </div>
         </div>
         <div className="u-items-center u-flex u-flex-wrap u-gap-8">
-          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={() => setCreating(true)}>
             {t('expenses.newExpense')}
           </Button>
           {isStoreOwner ? (
-            <Button icon={<i className="icons-tag icon-size-13" />} onClick={() => setManagingCategories(true)}>
+            <Button icon={<StoreIcon name="tag" size={16} />} onClick={() => setManagingCategories(true)}>
               {t('nav.categories')}
             </Button>
           ) : null}
@@ -136,7 +137,7 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
           />
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<i className={['icons-reload icon-size-18', isFetching || isSummaryFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
+              icon={<StoreIcon name="reload" size={16} className={isFetching || isSummaryFetching ? 'ph-icon-spin' : undefined} />}
               onClick={() => {
                 //
                 refetch()

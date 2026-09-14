@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Button, Tooltip } from 'antd'
@@ -120,12 +121,12 @@ export function AdminsList() {
           </div>
         </div>
         <div className="u-flex u-gap-8">
-          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={openCreate}>
+          <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={openCreate}>
             {t('admins.newAdmin')}
           </Button>
           <Tooltip title={t('common.refresh')}>
             <Button
-              icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />}
+              icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />}
               onClick={() => refetch()}
             />
           </Tooltip>

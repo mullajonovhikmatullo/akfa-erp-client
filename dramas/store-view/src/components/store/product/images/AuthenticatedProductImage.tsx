@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 
 import { useProductImageObjectUrl } from '../hooks/useProductImageObjectUrl'
 import { ProductImageSkeleton } from './ProductImageSkeleton'
@@ -43,7 +44,7 @@ export function AuthenticatedProductImage({
       ) : visible && url && !failed ? (
         <ProductImageSkeleton borderRadius={borderRadius} />
       ) : (
-        <i className="icons-image product-image-frame__placeholder" aria-hidden />
+        <StoreIcon name="image" size={16} className="product-image-frame__placeholder" />
       )}
     </div>
   )

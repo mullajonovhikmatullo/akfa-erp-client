@@ -23,6 +23,7 @@
       "@store/store-shared/ui/money-display": ["../../store-shared/src/ui/MoneyDisplay/MoneyDisplay.tsx"],
       "@store/store-shared/ui/select-loading-content": ["../../store-shared/src/ui/SelectLoadingContent/SelectLoadingContent.tsx"],
       "@store/store-shared/ui/status-badge": ["../../store-shared/src/ui/StatusBadge/StatusBadge.tsx"],
+      "@store/store-shared/ui/store-icon": ["../../store-shared/src/ui/StoreIcon/StoreIcon.tsx"],
       "@store/store-stub": ["../../store-stub/src/index.ts"]
     }
   },

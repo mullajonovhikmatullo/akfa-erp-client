@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tooltip } from 'antd'
 
@@ -62,7 +63,7 @@ export function createProductColumns({
           <div className="u-min-w-0">
             <div className="u-items-center u-flex u-gap-8 u-min-w-0">
               <span className="u-fw-600 u-min-w-0 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap">{product.name}</span>
-              {isNewProduct(product) ? <StatusBadge tone="warning"><i className="icons-import-export icon-size-12" />{t('products.newBadge')}</StatusBadge> : null}
+              {isNewProduct(product) ? <StatusBadge tone="warning"><StoreIcon name="import-export" size={12} />{t('products.newBadge')}</StatusBadge> : null}
             </div>
             {product.category ? <div className="u-text-muted u-fs-11-5">{product.category.name}</div> : null}
           </div>
@@ -122,11 +123,11 @@ export function createProductColumns({
       render: (_: unknown, product: Product) => (
         <div className="u-flex u-gap-4">
           <Tooltip title={t('common.view')}>
-            <Button size="small" type="text" icon={<i className="icons-eye icon-size-18" />} onClick={(event) => { event.stopPropagation(); onView(product) }} />
+            <Button size="small" type="text" icon={<StoreIcon name="eye" size={16} />} onClick={(event) => { event.stopPropagation(); onView(product) }} />
           </Tooltip>
           {canManage ? (
             <>
-              <Button size="small" type="text" icon={<i className="icons-pen-line icon-size-18" />} onClick={(event) => { event.stopPropagation(); onEdit(product) }} />
+              <Button size="small" type="text" icon={<StoreIcon name="pen-line" size={16} />} onClick={(event) => { event.stopPropagation(); onEdit(product) }} />
               <Popconfirm
                 title={t('common.deleteTitle')}
                 description={`"${product.name}" ${t('products.deleteDesc')}`}
@@ -136,7 +137,7 @@ export function createProductColumns({
                 onConfirm={(event) => { event?.stopPropagation(); onDelete(product.id) }}
                 onPopupClick={(event) => event.stopPropagation()}
               >
-                <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} loading={deleting && deletingId === product.id} onClick={(event) => event.stopPropagation()} />
+                <Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} loading={deleting && deletingId === product.id} onClick={(event) => event.stopPropagation()} />
               </Popconfirm>
             </>
           ) : null}

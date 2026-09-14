@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Alert, Button, Spin } from 'antd'
 
 import type { TFunc } from './types'
@@ -22,7 +23,7 @@ export function HandoffTransitionView({ pending, error, t, onRetry }: HandoffTra
         ) : (
           <>
             <Alert
-              icon={<i className="icons-warning icon-size-18" />}
+              icon={<StoreIcon name="warning" size={18} />}
               type="warning"
               message={error}
               showIcon

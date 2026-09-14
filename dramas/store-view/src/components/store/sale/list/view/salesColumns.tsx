@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Tooltip } from 'antd';
 
@@ -125,7 +126,7 @@ export function createSalesColumns({ t, rowIndex, onView }: SalesColumnsOptions)
             size="small"
             type="text"
             aria-label={t('common.view')}
-            icon={<i className="icons-eye icon-size-18" />}
+            icon={<StoreIcon name="eye" size={16} />}
             onClick={(event) => {
               //
               event.stopPropagation();

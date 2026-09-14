@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, Input, Modal, Switch } from 'antd'
@@ -37,7 +38,7 @@ export function CategoryFormModal({
     <Modal
       title={
         <div className="u-items-center u-flex u-gap-8">
-          <i className="icons-tag icon-size-18" />
+          <StoreIcon name="tag" size={16} />
           {editTarget ? `${t('common.edit')} — ${editTarget.name}` : t('categories.modalCreate')}
         </div>
       }

@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
@@ -72,11 +73,11 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
           <div className="sub">{t('purchases.receiptsSubtitle')}</div>
         </div>
         <div className="purchase-page-actions">
-          <Button type="primary" icon={<i className="icons-plus icon-size-13" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={() => setCreating(true)}>
             {t('purchases.newPurchase')}
           </Button>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<i className={['icons-reload icon-size-18', receiptsQuery.isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => void receiptsQuery.refetch()} />
+            <Button icon={<StoreIcon name="reload" size={16} className={receiptsQuery.isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => void receiptsQuery.refetch()} />
           </Tooltip>
         </div>
       </div>

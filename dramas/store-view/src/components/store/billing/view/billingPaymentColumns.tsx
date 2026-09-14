@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Button, Tag, Tooltip, type TableColumnsType } from 'antd'
 
 import type { PaymentStatus, TenantPayment } from '@store/store-stub'
@@ -81,7 +82,7 @@ export function createBillingPaymentColumns({
             type="text"
             shape="circle"
             aria-label={t('common.view')}
-            icon={<i className="icons-eye icon-size-18" />}
+            icon={<StoreIcon name="eye" size={16} />}
             loading={openingReceiptId === payment.receiptMedia.id}
             onClick={() => onOpenReceipt(payment)}
           />
@@ -97,4 +98,3 @@ export function createBillingPaymentColumns({
     },
   ]
 }
-

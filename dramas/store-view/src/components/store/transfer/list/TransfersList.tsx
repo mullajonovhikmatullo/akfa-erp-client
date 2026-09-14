@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Alert, Button, Modal, Select, Table, Tooltip } from 'antd'
@@ -80,11 +81,11 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
           </div>
         </div>
         <div className="u-flex u-gap-8">
-          <Button type="primary" icon={<i className="icons-transfer icon-size-13" />} onClick={() => setCreating(true)}>
+          <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={() => setCreating(true)}>
             {t('transfers.newTransfer')}
           </Button>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<i className={['icons-reload icon-size-18', isFetching ? 'ph-icon-spin' : undefined].filter(Boolean).join(' ')} />} onClick={() => refetch()} />
+            <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
           </Tooltip>
         </div>
       </div>

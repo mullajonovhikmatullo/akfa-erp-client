@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button, InputNumber } from 'antd'
 
@@ -80,7 +81,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
       key: 'del',
       width: 32,
       render: (_: unknown, item: StockInCartItem) => (
-        <Button size="small" type="text" danger icon={<i className="icons-trash icon-size-18" />} onClick={() => onRemoveItem(item._key)} />
+        <Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} onClick={() => onRemoveItem(item._key)} />
       ),
     },
   ]

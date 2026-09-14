@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Dropdown } from 'antd';
 
 import { LoginForm, LoginShowcase, MavionBrand, languageOptions } from './view';
@@ -13,7 +14,7 @@ export function LoginPanel(props: LoginPanelProps) {
     label: (
       <span className="mavion-login__language-option">
         {option.label}
-        {option.value === props.language && <i className="icons-check icon-size-14" aria-hidden="true" />}
+        {option.value === props.language && <StoreIcon name="check" size={16} />}
       </span>
     ),
   }));
@@ -41,9 +42,9 @@ export function LoginPanel(props: LoginPanelProps) {
                 type="button"
                 aria-label={`${props.t('login.languageLabel')}: ${currentLanguage.label}`}
               >
-                <i className="icons-globe icon-size-17" aria-hidden="true" />
+                <StoreIcon name="globe" size={16} />
                 <span>{currentLanguage.label}</span>
-                <i className="icons-arrow-down icon-size-13 mavion-login__language-caret" aria-hidden="true" />
+                <StoreIcon name="arrow-down" size={14} className="mavion-login__language-caret" />
               </button>
             </Dropdown>
           </div>

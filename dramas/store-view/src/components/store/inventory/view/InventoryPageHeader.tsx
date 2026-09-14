@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Button } from 'antd'
 
 import type { InventoryTranslate } from './types'
@@ -18,7 +19,7 @@ export function InventoryPageHeader({
         <h1>{t('inventory.title')}</h1>
         <div className="sub">{t('inventory.subtitle')}</div>
       </div>
-      <Button icon={<i className="icons-reload icon-size-13" />} loading={refreshing} onClick={onRefresh}>
+      <Button icon={<StoreIcon name="reload" size={16} />} loading={refreshing} onClick={onRefresh}>
         {t('common.refresh')}
       </Button>
     </div>

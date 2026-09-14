@@ -41,6 +41,7 @@ export default defineConfig({
         'ui/money-display': entry('./src/ui/MoneyDisplay/MoneyDisplay.tsx'),
         'ui/select-loading-content': entry('./src/ui/SelectLoadingContent/SelectLoadingContent.tsx'),
         'ui/status-badge': entry('./src/ui/StatusBadge/StatusBadge.tsx'),
+        'ui/store-icon': entry('./src/ui/StoreIcon/StoreIcon.tsx'),
         'ui/uzbek-phone-input': entry('./src/ui/UzbekPhoneInput/UzbekPhoneInput.tsx'),
       },
       formats: ['es'],

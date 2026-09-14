@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Button, Tag } from 'antd'
 
 import type { PublicBillingPlan } from '@store/store-stub'
@@ -25,11 +26,11 @@ export function BillingPlanCard({ plan, current, upgrade, upgradeHref, t }: Bill
       <div className="billing-plan-card__head">
         <span className="billing-plan-card__icon">
           {current ? (
-            <i className="icons-tariff icon-size-20" />
+            <StoreIcon name="tariff" size={20} />
           ) : upgrade ? (
-            <i className="icons-favourite icon-size-20" />
+            <StoreIcon name="favourite" size={20} />
           ) : (
-            <i className="icons-payments icon-size-20" />
+            <StoreIcon name="payments" size={20} />
           )}
         </span>
         <div>
@@ -51,7 +52,7 @@ export function BillingPlanCard({ plan, current, upgrade, upgradeHref, t }: Bill
       <ul className="billing-plan-card__features">
         {getPlanFeatures(plan, t).map((feature) => (
           <li key={feature}>
-            <i className="icons-circle-check icon-size-16" />
+            <StoreIcon name="circle-check" size={18} />
             <span>{feature}</span>
           </li>
         ))}
