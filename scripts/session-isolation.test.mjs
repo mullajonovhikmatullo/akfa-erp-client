@@ -107,6 +107,48 @@ test('a rejected Google credential cannot clear an existing session', async () =
   assert.equal(unauthorized, false)
 })
 
+test('session verification only invalidates authentication on HTTP 401', async () => {
+  //
+  const { isSessionInvalidError } = await loadSource('apps/store/src/entities/user/lib/isSessionInvalidError.ts')
+  assert.equal(isSessionInvalidError({ isAxiosError: true, response: { status: 401 } }), true)
+  assert.equal(isSessionInvalidError({ isAxiosError: true, response: { status: 403 } }), false)
+  assert.equal(isSessionInvalidError({ isAxiosError: true, response: { status: 500 } }), false)
+  assert.equal(isSessionInvalidError({ isAxiosError: true, code: 'ERR_NETWORK' }), false)
+  assert.equal(isSessionInvalidError(new Error('timeout')), false)
+  assert.equal(isSessionInvalidError(null), false)
+})
+
+test('protected routes stay mounted when session verification fails transiently', async () => {
+  //
+  const require = createRequire(new URL('apps/store/package.json', root))
+  const React = require('react')
+  const { renderToString } = require('react-dom/server')
+  const { MemoryRouter, Routes, Route } = require('react-router-dom')
+  const authState = {
+    user: { id: 'owner-A', storeId: 'store-A' },
+    isHydrated: true,
+    setUser: () => {},
+    logout: () => assert.fail('transient errors must not log out'),
+  }
+  globalThis.protectedRouteTest = {
+    authState,
+    token: 'token-A',
+    verification: { data: undefined, error: { response: { status: 500 } }, isPending: false },
+  }
+  try {
+    const { ProtectedRoute } = await loadSource('apps/store/src/routes/ProtectedRoute.tsx', {
+      "import { isSessionInvalidError, useAuthStore, useSessionDetail } from '@/entities/user';": "const useAuthStore = (select) => select(globalThis.protectedRouteTest.authState); const useSessionDetail = () => globalThis.protectedRouteTest.verification; const isSessionInvalidError = (error) => error?.response?.status === 401;",
+      "import { tokenStore } from '@/shared/api/client';": "const tokenStore = { get: () => globalThis.protectedRouteTest.token };",
+      "import { ROUTES } from '@/shared/config/routes';": "const ROUTES = { DASHBOARD: '/dashboard', PROFILE: '/profile', LOGIN: '/auth/login' };",
+    })
+    const protectedRoutes = React.createElement(Route, { element: React.createElement(ProtectedRoute) },
+      React.createElement(Route, { path: '/dashboard', element: React.createElement('span', null, 'protected-dashboard') }))
+    const result = renderToString(React.createElement(MemoryRouter, { initialEntries: ['/dashboard'] },
+      React.createElement(Routes, null, protectedRoutes)))
+    assert.match(result, /protected-dashboard/)
+  } finally { delete globalThis.protectedRouteTest }
+})
+
 test('default token persistence is tab-local and ignores legacy shared credentials', async () => {
   //
   globalThis.localStorage = storage()

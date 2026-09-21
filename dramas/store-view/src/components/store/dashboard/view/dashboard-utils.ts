@@ -47,6 +47,7 @@ interface TrendDataOptions {
 
 function getTrendKey(date: dayjs.Dayjs, chartPeriod: NonNullable<AnalyticsQuery['period']>) {
   //
+  if (chartPeriod === 'hour') return date.format('YYYY-MM-DD-HH');
   if (chartPeriod === 'month') return date.format('YYYY-MM');
   if (chartPeriod === 'week') return date.startOf('week').format('YYYY-MM-DD');
   return date.format('YYYY-MM-DD');
@@ -54,6 +55,7 @@ function getTrendKey(date: dayjs.Dayjs, chartPeriod: NonNullable<AnalyticsQuery[
 
 function getTrendLabel(date: dayjs.Dayjs, chartPeriod: NonNullable<AnalyticsQuery['period']>) {
   //
+  if (chartPeriod === 'hour') return date.format('HH:00');
   if (chartPeriod === 'month') return date.format('MMM YYYY');
   return date.format('DD MMM');
 }
@@ -67,18 +69,8 @@ export function createTrendData({
 }: TrendDataOptions): TrendDatum[] {
   //
   const buckets: TrendDatum[] = [];
-  let cursor =
-    chartPeriod === 'month'
-      ? rangeStart.startOf('month')
-      : chartPeriod === 'week'
-        ? rangeStart.startOf('week')
-        : rangeStart.startOf('day');
-  const endCursor =
-    chartPeriod === 'month'
-      ? rangeEnd.startOf('month')
-      : chartPeriod === 'week'
-        ? rangeEnd.startOf('week')
-        : rangeEnd.startOf('day');
+  let cursor = rangeStart.startOf(chartPeriod);
+  const endCursor = rangeEnd.startOf(chartPeriod);
 
   while (cursor.isBefore(endCursor) || cursor.isSame(endCursor)) {
     buckets.push({

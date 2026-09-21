@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuthStore, useSessionDetail } from '@/entities/user';
+import { isSessionInvalidError, useAuthStore, useSessionDetail } from '@/entities/user';
 import { tokenStore } from '@/shared/api/client';
 import { ROUTES } from '@/shared/config/routes';
 
@@ -15,6 +15,7 @@ export function ProtectedRoute() {
   const hasToken = Boolean(sessionToken);
   const shouldVerify = isHydrated && Boolean(user) && hasToken;
   const verification = useSessionDetail(user?.id, shouldVerify);
+  const sessionInvalid = isSessionInvalidError(verification.error);
 
   useEffect(() => {
     if (verification.data) setUser(verification.data);
@@ -22,12 +23,12 @@ export function ProtectedRoute() {
 
   useEffect(() => {
     //
-    if (shouldVerify && verification.isError) logout(sessionToken);
-  }, [logout, sessionToken, shouldVerify, verification.isError]);
+    if (shouldVerify && sessionInvalid) logout(sessionToken);
+  }, [logout, sessionInvalid, sessionToken, shouldVerify]);
 
   if (!isHydrated) return null;
 
-  if (!user || !hasToken || verification.isError) {
+  if (!user || !hasToken || sessionInvalid) {
     const noFromPaths = ['/', ROUTES.DASHBOARD, ROUTES.PROFILE];
     const from = noFromPaths.includes(location.pathname) ? '' : `?from=${encodeURIComponent(location.pathname)}`;
     return <Navigate to={`${ROUTES.LOGIN}${from}`} replace />;

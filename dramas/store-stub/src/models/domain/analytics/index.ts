@@ -1,6 +1,7 @@
 import type { PaymentMethod, SaleType, StockMovementType } from '@store/store-shared'
+import type { AnalyticsPeriod as BackendAnalyticsPeriod } from '../../../contracts/backend.generated'
 
-export type AnalyticsPeriod = 'day' | 'week' | 'month'
+export type AnalyticsPeriod = BackendAnalyticsPeriod
 
 export interface AnalyticsQuery {
   branchId?: string

@@ -75,7 +75,8 @@ export function DashboardPanel({
   const rangeStart = dateRange[0]?.startOf('day') ?? now.startOf('day');
   const rangeEnd = dateRange[1]?.endOf('day') ?? now.endOf('day');
   const rangeDays = Math.max(1, rangeEnd.diff(rangeStart, 'day') + 1);
-  const chartPeriod: AnalyticsQuery['period'] = rangeDays > 180 ? 'month' : rangeDays > 45 ? 'week' : 'day';
+  const chartPeriod: AnalyticsQuery['period'] =
+    rangeDays === 1 ? 'hour' : rangeDays > 180 ? 'month' : rangeDays > 45 ? 'week' : 'day';
   const periodMeta = `${formatDate(rangeStart.format('YYYY-MM-DD'))} - ${formatDate(rangeEnd.format('YYYY-MM-DD'))}`;
   const isTodayRange = rangeStart.isSame(now, 'day') && rangeEnd.isSame(now, 'day');
 

@@ -34,7 +34,7 @@ export interface AdminResponse {
   "updatedAt"?: string
 }
 
-export type AnalyticsPeriod = "day" | "week" | "month"
+export type AnalyticsPeriod = "hour" | "day" | "week" | "month"
 
 export interface CategoryResponse {
   "id"?: string

@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { analyticsKeys } from '@store/store-view/analytics'
 import { inventoryKeys } from '@store/store-view/inventory'
 import { transferKeys } from '@store/store-view/transfer'
-import { sessionDetailQueryOptions, useAuthStore } from '@/entities/user'
+import { isSessionInvalidError, sessionDetailQueryOptions, useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
 import { withAppBasePath } from '@/shared/lib/app-path'
 import { useStoreT } from '@store/store-i18n'
@@ -58,9 +58,13 @@ export function useRealtimeConnection() {
           setUser(currentUser)
           connectSocket()
         })
-        .catch(() => {
+        .catch((error) => {
           //
           if (!active || tokenStore.get() !== sessionToken) return
+          if (!isSessionInvalidError(error)) {
+            connectSocket()
+            return
+          }
           logout(sessionToken)
           globalThis.window?.location.assign(withAppBasePath(`${ROUTES.LOGIN}?reason=expired`))
         })

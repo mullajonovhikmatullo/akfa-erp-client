@@ -26,6 +26,7 @@ export function SalesTrendChart({
   const yMax = maxValue > 0 ? maxValue * 1.18 : 1;
   const isSinglePoint = data.length <= 1;
   const chartType = isSinglePoint ? 'linear' : 'monotone';
+  const xAxisInterval = Math.max(0, Math.ceil(data.length / 8) - 1);
   const dotProps = isSinglePoint
     ? { r: 5, strokeWidth: 2, fill: DASH_DOT_FILL }
     : data.length <= 7
@@ -57,7 +58,7 @@ export function SalesTrendChart({
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 11, fill: DASH_TICK }}
-              interval={0}
+              interval={xAxisInterval}
               padding={{ left: isSinglePoint ? 62 : 8, right: isSinglePoint ? 62 : 8 }}
             />
             <YAxis
