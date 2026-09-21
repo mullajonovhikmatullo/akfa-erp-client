@@ -175,6 +175,7 @@ export default defineConfig(({ mode }) => {
         replacement: `${storeSharedRoot}/ui/SelectLoadingContent/SelectLoadingContent.tsx`,
       },
       { find: /^@store\/store-shared\/ui\/status-badge$/, replacement: `${storeSharedRoot}/ui/StatusBadge/StatusBadge.tsx` },
+      { find: /^@store\/store-shared\/ui\/store-icon$/, replacement: `${storeSharedRoot}/ui/StoreIcon/StoreIcon.tsx` },
       { find: /^@store\/store-stub$/, replacement: storeStubEntry },
       { find: /^@store\/store-view$/, replacement: storeViewEntry },
       { find: /^@store\/store-view\/([^/]+)$/, replacement: `${storeViewRoot}/$1/index.ts` },

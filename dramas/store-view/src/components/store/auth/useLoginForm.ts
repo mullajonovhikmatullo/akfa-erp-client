@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { LoginResponse } from '@store/store-stub'
 import { createLoginSchema, type LoginFormValues } from './loginSchema'
-import { useAuthMutation } from './hooks/useAuthMutation'
-import type { TFunc } from './view/types'
+import { useAuthMutation } from './hooks'
+import type { TFunc } from './view'
 
 interface UseLoginFormOptions {
   t: TFunc
