@@ -2,9 +2,9 @@ name: Frontend CI and Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [release]
   pull_request:
-    branches: [main]
+    branches: [main, release]
   workflow_dispatch:
 
 concurrency:
@@ -34,7 +34,7 @@ jobs:
 
   image:
     needs: test-build
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/release' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +48,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}
+            ghcr.io/${{ github.repository }}/frontend:release
             ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
 
   deploy:
@@ -59,6 +59,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
       - name: Deploy on server
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
         run: |
-          ssh -p "${{ secrets.DEPLOY_SSH_PORT }}" -o StrictHostKeyChecking=accept-new "${{ secrets.DEPLOY_SSH_USER }}@${{ secrets.DEPLOY_SSH_HOST }}" \
-            "cd /srv/erp-pos/app && ./deploy/deploy.sh"
+          echo "$GHCR_TOKEN" | ssh -p "${{ secrets.DEPLOY_SSH_PORT }}" -o StrictHostKeyChecking=accept-new \
+            "${{ secrets.DEPLOY_SSH_USER }}@${{ secrets.DEPLOY_SSH_HOST }}" \
+            "docker login ghcr.io -u '${{ github.actor }}' --password-stdin >/dev/null \
+              && cd /srv/erp-pos/app \
+              && ./deploy/deploy.sh frontend '$IMAGE'"
