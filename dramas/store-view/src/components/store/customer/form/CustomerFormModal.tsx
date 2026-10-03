@@ -55,16 +55,17 @@ export function CustomerFormModal({
   const targetBranchId = isStoreOwner ? formBranchId : branchId ?? undefined
   const phoneCheck = useCustomerPhoneCheck(phone, targetBranchId, !isEdit && open && isValidUzbekMobilePhone(phone))
   const { linkCustomerBranch } = useCustomerMutation(t)
-  const existingCustomer = phoneCheck.data?.customer ?? null
+  const phoneMatch = phoneCheck.data
+  const existingCustomer = phoneMatch?.customer ?? null
 
   function useExistingCustomer() {
     //
-    if (!existingCustomer) return
-    if (phoneCheck.data?.linkedToBranch) {
-      onCreated?.(existingCustomer)
+    if (phoneMatch?.linkedToBranch) {
+      onCreated?.(phoneMatch.customer)
       onClose()
       return
     }
+    if (!existingCustomer) return
     linkCustomerBranch.mutate(
       { customerId: existingCustomer.id, branchId: targetBranchId },
       {
@@ -109,7 +110,7 @@ export function CustomerFormModal({
             branches={branches}
             branchesLoading={branchesLoading}
             existingCustomer={existingCustomer}
-            linkedToBranch={Boolean(phoneCheck.data?.linkedToBranch)}
+            linkedToBranch={Boolean(phoneMatch?.linkedToBranch)}
             linkingCustomer={linkCustomerBranch.isPending}
             onUseExistingCustomer={useExistingCustomer}
           />

@@ -18,8 +18,9 @@ export interface CustomerDetail extends Customer {
   recentSales: RecentSale[]
 }
 
-export interface CustomerPhoneCheckResult {
-  customer: Customer | null
-  linkedToBranch: boolean
-  normalizedPhone: string | null
-}
+export type CustomerPhoneMatch = Pick<Customer, 'id' | 'fullName' | 'phone' | 'branch'>
+
+export type CustomerPhoneCheckResult =
+  | { customer: null; linkedToBranch: false; normalizedPhone: string | null }
+  | { customer: Customer; linkedToBranch: true; normalizedPhone: string | null }
+  | { customer: CustomerPhoneMatch; linkedToBranch: false; normalizedPhone: string | null }

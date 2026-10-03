@@ -4,7 +4,7 @@ import { Alert, Button, Form, Input, InputNumber, Radio, Select, Switch } from '
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import { UzbekPhoneInput } from '@store/store-shared'
-import type { Branch, Customer } from '@store/store-stub'
+import type { Branch, CustomerPhoneMatch } from '@store/store-stub'
 import type { CustomerFormValues } from '../customerSchema'
 
 interface CustomerFormFieldsProps {
@@ -15,7 +15,7 @@ interface CustomerFormFieldsProps {
   isStoreOwner: boolean
   branches: Branch[]
   branchesLoading?: boolean
-  existingCustomer: Customer | null
+  existingCustomer: CustomerPhoneMatch | null
   linkedToBranch: boolean
   linkingCustomer: boolean
   onUseExistingCustomer: () => void

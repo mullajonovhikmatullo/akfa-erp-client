@@ -5,6 +5,7 @@ import type {
   CustomerDetail,
   CustomerFilters,
   CustomerPhoneCheckResult,
+  CustomerPhoneMatch,
   RecentSale,
   UpdateCustomerPayload,
 } from '../../../../models/domain/customer'
@@ -13,6 +14,12 @@ const parseCustomer = (raw: Record<string, unknown>): Customer => ({
   ...(raw as unknown as Customer),
   balance: Number(raw.balance),
 })
+
+const parsePhoneMatch = (raw: Record<string, unknown>): CustomerPhoneMatch => {
+  //
+  const { id, fullName, phone, branch } = raw as unknown as CustomerPhoneMatch
+  return { id, fullName, phone, branch }
+}
 
 const parseDetail = (raw: Record<string, unknown>): CustomerDetail => ({
   ...parseCustomer(raw),
@@ -38,9 +45,13 @@ const updateCustomer = ({ id, payload }: { id: string; payload: UpdateCustomerPa
 const deleteCustomer = (id: string) => http.delete(`/customers/${id}`)
 
 const checkCustomerPhone = (phone: string, branchId?: string): Promise<CustomerPhoneCheckResult> =>
-  http.get('/customers/check-phone', { params: { phone, branchId } }).then((response) => {
-    const data = response.data.data as CustomerPhoneCheckResult & { customer: Record<string, unknown> | null }
-    return { ...data, customer: data.customer ? parseCustomer(data.customer) : null }
+  http.get('/customers/check-phone', { params: { phone, branchId } }).then((response): CustomerPhoneCheckResult => {
+    //
+    const data = response.data.data as { customer: Record<string, unknown> | null; linkedToBranch: boolean; normalizedPhone: string | null }
+    const { normalizedPhone } = data
+    if (!data.customer) return { customer: null, linkedToBranch: false, normalizedPhone }
+    if (data.linkedToBranch) return { customer: parseCustomer(data.customer), linkedToBranch: true, normalizedPhone }
+    return { customer: parsePhoneMatch(data.customer), linkedToBranch: false, normalizedPhone }
   })
 
 const linkCustomerBranch = (id: string, branchId?: string) =>
