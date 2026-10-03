@@ -31,7 +31,7 @@ export function createInventoryColumns({ t, rowIndex }: InventoryColumnsOptions)
             width={42}
             height={42}
           />
-          <div><strong>{row.name}</strong><small>{row.sku || '—'}</small></div>
+          <div className="inventory-product-cell__text"><strong>{row.name}</strong><small>{row.sku || '—'}</small></div>
         </div>
       ),
     },
