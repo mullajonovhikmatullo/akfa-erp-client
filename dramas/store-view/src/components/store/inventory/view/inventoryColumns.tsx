@@ -1,22 +1,25 @@
 import { Tag, type TableColumnsType } from 'antd'
 import { AuthenticatedProductImage } from '../../product/images/AuthenticatedProductImage'
-import type { ProductUnit } from '@store/store-stub'
+import type { ProductUnit, StockLevel } from '@store/store-stub'
 import { formatInventoryQuantity } from '../lib/inventory-rows'
-import type { InventoryTranslate, StockRow } from './types'
+import type { InventoryTranslate } from './types'
 
 interface InventoryColumnsOptions {
   t: InventoryTranslate
-  stockedProductIds: ReadonlySet<string>
-  stockStatusAvailable: boolean
+  rowIndex: (index: number) => number
 }
 
-export function createInventoryColumns({
-  t,
-  stockedProductIds,
-  stockStatusAvailable,
-}: InventoryColumnsOptions): TableColumnsType<StockRow> {
+export function createInventoryColumns({ t, rowIndex }: InventoryColumnsOptions): TableColumnsType<StockLevel> {
   //
   return [
+    {
+      title: '#',
+      key: '_idx',
+      width: 56,
+      render: (_value, _row, index) => (
+        <span className="u-text-quiet u-fs-11 u-numeric-tabular">{rowIndex(index)}</span>
+      ),
+    },
     {
       title: t('inventory.product'),
       key: 'product',
@@ -37,8 +40,8 @@ export function createInventoryColumns({
       key: 'branches',
       width: 150,
       render: (_value, row) => (
-        <div className="inventory-branches-cell" title={[...row.branches].join(', ')}>
-          {[...row.branches].map((branchName) => <Tag key={branchName}>{branchName}</Tag>)}
+        <div className="inventory-branches-cell" title={row.branches.map((branch) => branch.name).join(', ')}>
+          {row.branches.map((branch) => <Tag key={branch.id}>{branch.name}</Tag>)}
         </div>
       ),
     },
@@ -55,10 +58,8 @@ export function createInventoryColumns({
       key: 'quantity',
       width: 190,
       align: 'right',
-      sorter: (left, right) => left.quantity - right.quantity,
       render: (quantity: number, row) => {
         //
-        const notStockedYet = stockStatusAvailable && !stockedProductIds.has(row.productId)
         const isLowStock =
           quantity > 0 && row.lowStockThreshold != null && quantity <= row.lowStockThreshold
 
@@ -68,8 +69,8 @@ export function createInventoryColumns({
               {formatInventoryQuantity(quantity)} <small>{t(`units.${row.unit}`)}</small>
             </strong>
             {quantity <= 0 ? (
-              <Tag color={notStockedYet ? 'blue' : 'red'}>
-                {t(notStockedYet ? 'inventory.statusNotStocked' : 'inventory.statusOut')}
+              <Tag color={row.everStocked ? 'red' : 'blue'}>
+                {t(row.everStocked ? 'inventory.statusOut' : 'inventory.statusNotStocked')}
               </Tag>
             ) : null}
             {isLowStock ? <Tag color="orange">{t('inventory.statusLow')}</Tag> : null}
@@ -79,4 +80,3 @@ export function createInventoryColumns({
     },
   ]
 }
-

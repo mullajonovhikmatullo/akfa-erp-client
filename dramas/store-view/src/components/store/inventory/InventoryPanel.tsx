@@ -1,16 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStoreT } from '@store/store-i18n'
-import { useProductsList } from '../product/hooks/useProductsList'
-import { useInventoryList } from './hooks/useInventoryList'
+import type { StockLevelQuantityFilter } from '@store/store-stub'
+import { usePagination } from '../shared/hooks/usePagination'
 import { useStockBatchSummary } from './hooks/useStockBatchSummary'
-import { useStockBatchesList } from './hooks/useStockBatchesList'
-import { calculateInventoryTotals, createInventoryRows, filterInventoryRows } from './lib/inventory-rows'
+import { useStockLevelsPage } from './hooks/useStockLevelsPage'
 import {
   InventoryFilters,
   InventoryPageHeader,
   InventorySummary,
   InventoryTable,
-  type QuantityFilter,
 } from './view'
 
 export interface InventoryPanelProps {
@@ -21,42 +19,59 @@ export function InventoryPanel({ branchId }: InventoryPanelProps) {
   //
   const t = useStoreT()
   const [search, setSearch] = useState('')
-  const [quantityFilter, setQuantityFilter] = useState<QuantityFilter>('all')
+  const [quantityFilter, setQuantityFilter] = useState<StockLevelQuantityFilter>('all')
+  const { page, pageSize, changePage, goToPage, resetPage, rowIndex } = usePagination()
 
-  const { data: products = [] } = useProductsList()
-  const inventoryQuery = useInventoryList(branchId ? { branchId } : undefined)
-  const stockBatchesQuery = useStockBatchesList(branchId ? { branchId } : undefined)
+  const stockLevelsQuery = useStockLevelsPage({
+    page,
+    pageSize,
+    branchId: branchId ?? undefined,
+    search: search.trim() || undefined,
+    quantity: quantityFilter,
+  })
   const { data: stockSummary } = useStockBatchSummary({ branchId: branchId ?? undefined })
 
-  const productImagesById = useMemo(
-    () => new Map(products.map((product) => [product.id, product.primaryThumbnailUrl ?? product.primaryImageUrl ?? null])),
-    [products],
-  )
-  const rows = useMemo(
-    () => createInventoryRows(inventoryQuery.data ?? [], productImagesById),
-    [inventoryQuery.data, productImagesById],
-  )
-  const filteredRows = useMemo(
-    () => filterInventoryRows(rows, search, quantityFilter),
-    [quantityFilter, rows, search],
-  )
-  const totals = useMemo(() => calculateInventoryTotals(rows), [rows])
-  const stockedProductIds = useMemo(
-    () => new Set((stockBatchesQuery.data ?? []).map((batch) => batch.product.id)),
-    [stockBatchesQuery.data],
-  )
-  const stockStatusAvailable = stockBatchesQuery.data !== undefined && !stockBatchesQuery.isError
+  const rows = stockLevelsQuery.data?.items ?? []
+  const total = stockLevelsQuery.data?.total ?? 0
+  const summary = stockLevelsQuery.data?.summary
+  const lastPage = Math.max(1, Math.ceil(total / pageSize))
+
+  const previousBranchId = useRef(branchId)
+  useEffect(() => {
+    //
+    if (previousBranchId.current === branchId) return
+    previousBranchId.current = branchId
+    resetPage()
+  }, [branchId, resetPage])
+
+  useEffect(() => {
+    //
+    if (stockLevelsQuery.isPlaceholderData || !stockLevelsQuery.data) return
+    if (page > lastPage) goToPage(lastPage)
+  }, [goToPage, lastPage, page, stockLevelsQuery.data, stockLevelsQuery.isPlaceholderData])
+
+  function changeSearch(value: string) {
+    //
+    setSearch(value)
+    resetPage()
+  }
+
+  function changeQuantityFilter(value: StockLevelQuantityFilter) {
+    //
+    setQuantityFilter(value)
+    resetPage()
+  }
 
   return (
     <section className="inventory-page">
       <InventoryPageHeader
         t={t}
-        refreshing={inventoryQuery.isFetching}
-        onRefresh={() => void inventoryQuery.refetch()}
+        refreshing={stockLevelsQuery.isFetching}
+        onRefresh={() => void stockLevelsQuery.refetch()}
       />
       <InventorySummary
-        productCount={rows.length}
-        totals={totals}
+        productCount={summary?.productCount ?? 0}
+        totals={summary?.totals ?? { PIECE: 0, KG: 0 }}
         stockValue={stockSummary?.totalRemainingValueUzs ?? 0}
         t={t}
       />
@@ -65,14 +80,17 @@ export function InventoryPanel({ branchId }: InventoryPanelProps) {
           search={search}
           quantityFilter={quantityFilter}
           t={t}
-          onSearchChange={setSearch}
-          onQuantityFilterChange={setQuantityFilter}
+          onSearchChange={changeSearch}
+          onQuantityFilterChange={changeQuantityFilter}
         />
         <InventoryTable
-          rows={filteredRows}
-          loading={inventoryQuery.isLoading}
-          stockedProductIds={stockedProductIds}
-          stockStatusAvailable={stockStatusAvailable}
+          rows={rows}
+          loading={stockLevelsQuery.isLoading}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          rowIndex={rowIndex}
+          onPageChange={changePage}
           t={t}
         />
       </div>

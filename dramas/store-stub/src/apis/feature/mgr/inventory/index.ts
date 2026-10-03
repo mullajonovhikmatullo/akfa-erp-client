@@ -12,6 +12,8 @@ import type {
   ReceiptPageQuery,
   StockBatch,
   StockInPayload,
+  StockLevelPage,
+  StockLevelPageQuery,
 } from '../../../../models/domain/inventory'
 
 type Raw = Record<string, unknown>
@@ -61,6 +63,9 @@ const findStockBatchSummary = (params?: Pick<BatchFilters, 'branchId'>): Promise
     }
   })
 
+const findStockLevelsPage = (params: StockLevelPageQuery) =>
+  http.get('/inventory/stock', { params }).then((response) => response.data.data as StockLevelPage)
+
 const findStockBatchesPage = (params: BatchPageQuery): Promise<BatchPage> =>
   http.get('/inventory/batches', { params }).then((response) => {
     //
@@ -109,6 +114,7 @@ export const InventorySeekApi = {
   findStockBatches,
   findStockBatchSummary,
   findStockBatchesPage,
+  findStockLevelsPage,
   findReceiptsPage,
   findReceiptItemsPage,
   fetch: {
@@ -127,6 +133,10 @@ export const InventorySeekApi = {
     findStockBatchesPage: (params: BatchPageQuery) => ({
       queryKey: ['inventory', 'batches', 'paginated', params.page, params.pageSize, params] as const,
       queryFn: () => findStockBatchesPage(params),
+    }),
+    findStockLevelsPage: (params: StockLevelPageQuery) => ({
+      queryKey: ['inventory', 'stock', 'paginated', params] as const,
+      queryFn: () => findStockLevelsPage(params),
     }),
     findReceiptsPage: (params: ReceiptPageQuery) => ({
       queryKey: ['inventory', 'receipts', 'paginated', params] as const,

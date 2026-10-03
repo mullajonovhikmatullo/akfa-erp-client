@@ -1,10 +1,11 @@
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { formatInventoryQuantity } from '../lib/inventory-rows'
-import type { InventoryTotals, InventoryTranslate } from './types'
+import type { StockLevelPage } from '@store/store-stub'
+import type { InventoryTranslate } from './types'
 
 interface InventorySummaryProps {
   productCount: number
-  totals: InventoryTotals
+  totals: StockLevelPage['summary']['totals']
   stockValue: number
   t: InventoryTranslate
 }

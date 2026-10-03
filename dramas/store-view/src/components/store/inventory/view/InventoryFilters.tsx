@@ -1,14 +1,15 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Input, Select } from 'antd'
 
-import type { InventoryTranslate, QuantityFilter } from './types'
+import type { StockLevelQuantityFilter } from '@store/store-stub'
+import type { InventoryTranslate } from './types'
 
 interface InventoryFiltersProps {
   search: string
-  quantityFilter: QuantityFilter
+  quantityFilter: StockLevelQuantityFilter
   t: InventoryTranslate
   onSearchChange: (value: string) => void
-  onQuantityFilterChange: (value: QuantityFilter) => void
+  onQuantityFilterChange: (value: StockLevelQuantityFilter) => void
 }
 
 export function InventoryFilters({
@@ -26,7 +27,7 @@ export function InventoryFilters({
         <span>{t('inventory.currentStockHint')}</span>
       </div>
       <div className="inventory-panel__filters">
-        <Select<QuantityFilter>
+        <Select<StockLevelQuantityFilter>
           value={quantityFilter}
           onChange={onQuantityFilterChange}
           options={[

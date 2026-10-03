@@ -1,4 +1,4 @@
-import type { InventoryRecord, StockBatch } from '@store/store-shared'
+import type { InventoryRecord, ProductUnit, StockBatch } from '@store/store-shared'
 import type { StockInRequest } from '../../../contracts/backend.generated'
 
 export type { InventoryRecord, StockBatch }
@@ -67,4 +67,39 @@ export type ReceiptPageQuery = Pick<BatchFilters, 'branchId' | 'from' | 'to'> & 
 export type BatchPageQuery = BatchFilters & {
   page: number
   pageSize: number
+}
+
+export type StockLevelQuantityFilter = 'all' | 'out' | 'low' | 'available'
+
+export interface StockLevelFilters {
+  branchId?: string
+  search?: string
+  quantity?: StockLevelQuantityFilter
+}
+
+export type StockLevelPageQuery = StockLevelFilters & {
+  page: number
+  pageSize: number
+}
+
+export interface StockLevel {
+  productId: string
+  name: string
+  sku: string | null
+  unit: ProductUnit
+  quantity: number
+  lowStockThreshold: number | null
+  updatedAt: string
+  branches: { id: string; name: string }[]
+  everStocked: boolean
+  primaryThumbnailUrl: string | null
+}
+
+export interface StockLevelPage {
+  items: StockLevel[]
+  total: number
+  summary: {
+    productCount: number
+    totals: Record<ProductUnit, number>
+  }
 }
