@@ -57,10 +57,21 @@ export function createTransferColumns({
       title: t('transfers.colRoute'),
       key: 'route',
       render: (_: unknown, transfer: Transfer) => (
-        <div className="u-items-center u-flex u-gap-8">
-          <StatusBadge tone="info">{transfer.fromBranch.name}</StatusBadge>
-          <StoreIcon name="arrow-right" size={16} className="u-text-quiet" />
-          <StatusBadge tone="muted">{transfer.toBranch.name}</StatusBadge>
+        <div className="u-flex u-flex-col u-gap-4 u-min-w-0">
+          <div className="u-items-center u-flex u-gap-8">
+            <StatusBadge tone="info">{transfer.fromBranch.name}</StatusBadge>
+            <StoreIcon name="arrow-right" size={16} className="u-text-quiet" />
+            <StatusBadge tone="muted">{transfer.toBranch.name}</StatusBadge>
+          </div>
+          {transfer.note ? (
+            <div
+              className="u-items-center u-flex u-gap-4 u-max-w-320 u-text-muted u-fs-12"
+              title={`${t('transfers.noteLabel')}: ${transfer.note}`}
+            >
+              <StoreIcon name="pen-line" size={13} className="u-text-quiet" />
+              <span className="u-overflow-hidden u-text-ellipsis u-whitespace-nowrap">{transfer.note}</span>
+            </div>
+          ) : null}
         </div>
       ),
     },
@@ -260,7 +271,9 @@ export function ExpandedTransferRow({ transfer, t }: { transfer: Transfer; t: St
         ]}
       />
       {transfer.note ? (
-        <div className="u-text-muted u-fs-13 u-font-italic u-mt-8">&quot;{transfer.note}&quot;</div>
+        <div className="u-fs-13 u-mt-8">
+          <span className="u-text-muted">{t('transfers.noteLabel')}:</span> {transfer.note}
+        </div>
       ) : null}
       {transfer.completedBy ? (
         <div className="u-text-muted u-fs-12 u-mt-4">

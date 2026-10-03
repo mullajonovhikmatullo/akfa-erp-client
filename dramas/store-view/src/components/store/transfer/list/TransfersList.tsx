@@ -158,6 +158,9 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
               <InfoRow label={t('transfers.confirmReceiptRoute')} value={`${confirmingTransfer.fromBranch.name} → ${confirmingTransfer.toBranch.name}`} />
               <InfoRow label={t('transfers.confirmReceiptItems')} value={`${confirmingTransfer.items.length} ${t('transfers.itemTypeSuffix')}`} />
               <InfoRow label={t('transfers.colTotal')} value={<MoneyDisplay amount={confirmingTotal} currency="UZS" />} />
+              {confirmingTransfer.note ? (
+                <InfoRow label={t('transfers.noteLabel')} value={confirmingTransfer.note} />
+              ) : null}
             </div>
             <Table<Transfer['items'][number]>
               size="small"

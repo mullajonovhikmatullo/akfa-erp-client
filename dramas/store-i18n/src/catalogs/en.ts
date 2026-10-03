@@ -808,6 +808,7 @@ export const enTranslations = {
   'transfers.colQty': 'Quantity',
   'transfers.colTotal': 'Total',
   'transfers.completedByLabel': 'Completed by',
+  'transfers.noteLabel': 'Note',
   'transferModal.title': 'New Transfer',
   'transferModal.submitBtn': 'Create Transfer',
   'transferModal.labelFrom': 'From',

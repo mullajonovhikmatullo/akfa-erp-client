@@ -807,6 +807,7 @@ export const ruTranslations = {
   'transfers.colQty': 'Количество',
   'transfers.colTotal': 'Итого',
   'transfers.completedByLabel': 'Завершил',
+  'transfers.noteLabel': 'Комментарий',
   'transferModal.title': 'Новый перевод',
   'transferModal.submitBtn': 'Создать перевод',
   'transferModal.labelFrom': 'Откуда',

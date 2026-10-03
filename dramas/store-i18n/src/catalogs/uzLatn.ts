@@ -809,6 +809,7 @@ export const uzLatnTranslations = {
   'transfers.colQty': 'Miqdor',
   'transfers.colTotal': 'Jami',
   'transfers.completedByLabel': 'Yakunlagan',
+  'transfers.noteLabel': 'Izoh',
   'transferModal.title': 'Yangi transfer',
   'transferModal.submitBtn': 'Transfer yaratish',
   'transferModal.labelFrom': 'Qaerdan',

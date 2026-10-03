@@ -803,6 +803,7 @@ export const uzCyTranslations = {
   'transfers.colQty': 'Миқдор',
   'transfers.colTotal': 'Жами',
   'transfers.completedByLabel': 'Якунлаган',
+  'transfers.noteLabel': 'Изоҳ',
   'transferModal.title': 'Янги трансфер',
   'transferModal.submitBtn': 'Трансфер яратиш',
   'transferModal.labelFrom': 'Қаердан',
