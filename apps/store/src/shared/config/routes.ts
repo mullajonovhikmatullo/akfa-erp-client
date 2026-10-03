@@ -3,6 +3,7 @@ export const ROUTES = {
   DASHBOARD: '/',
   PRODUCTS: '/products',
   CUSTOMERS: '/customers',
+  CUSTOMER_DETAIL: '/customers/:customerId',
   SALES: '/sales',
   PURCHASES: '/purchases',
   INVENTORY: '/inventory',

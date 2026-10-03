@@ -6,6 +6,10 @@ import type {
   CustomerFilters,
   CustomerPhoneCheckResult,
   CustomerPhoneMatch,
+  CustomerProductsPage,
+  CustomerProductsPageQuery,
+  CustomerScopeQuery,
+  CustomerSummary,
   RecentSale,
   UpdateCustomerPayload,
 } from '../../../../models/domain/customer'
@@ -54,12 +58,20 @@ const checkCustomerPhone = (phone: string, branchId?: string): Promise<CustomerP
     return { customer: parsePhoneMatch(data.customer), linkedToBranch: false, normalizedPhone }
   })
 
+const findCustomerSummary = (id: string, params?: CustomerScopeQuery) =>
+  http.get(`/customers/${id}/summary`, { params }).then((response) => response.data.data as CustomerSummary)
+
+const findCustomerProductsPage = (id: string, params: CustomerProductsPageQuery) =>
+  http.get(`/customers/${id}/products`, { params }).then((response) => response.data.data as CustomerProductsPage)
+
 const linkCustomerBranch = (id: string, branchId?: string) =>
   http.post(`/customers/${id}/branches`, { branchId }).then((response) => parseCustomer(response.data.data))
 
 export const CustomerSeekApi = {
   findCustomers,
   findCustomer,
+  findCustomerSummary,
+  findCustomerProductsPage,
   fetch: {
     findCustomers: (params?: CustomerFilters) => ({
       queryKey: ['customers', 'findCustomers', params] as const,
@@ -68,6 +80,14 @@ export const CustomerSeekApi = {
     findCustomer: (id: string) => ({
       queryKey: ['customers', 'findCustomer', id] as const,
       queryFn: () => findCustomer(id),
+    }),
+    findCustomerSummary: (id: string, params?: CustomerScopeQuery) => ({
+      queryKey: ['customers', 'findCustomerSummary', id, params] as const,
+      queryFn: () => findCustomerSummary(id, params),
+    }),
+    findCustomerProductsPage: (id: string, params: CustomerProductsPageQuery) => ({
+      queryKey: ['customers', 'findCustomerProductsPage', id, params] as const,
+      queryFn: () => findCustomerProductsPage(id, params),
     }),
     checkCustomerPhone: (phone: string, branchId?: string) => ({
       queryKey: ['customers', 'checkPhone', phone, branchId] as const,

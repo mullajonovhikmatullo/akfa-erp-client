@@ -10,7 +10,6 @@ import { ExcelImportButton } from '@store/store-shared/ui/excel-import-button'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { CreateCustomerPayload, Customer } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
-import { CustomerDetailDrawer } from '../detail/CustomerDetailDrawer'
 import { CustomerFormModal } from '../form/CustomerFormModal'
 import { useCustomerMutation } from '../hooks/useCustomerMutation'
 import { useCustomersList } from '../hooks/useCustomersList'
@@ -30,9 +29,10 @@ interface CustomersListProps {
   canManage: boolean
   isStoreOwner: boolean
   branchId?: string | null
+  onOpenCustomer: (customer: Customer) => void
 }
 
-export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersListProps) {
+export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustomer }: CustomersListProps) {
   //
   const t = useStoreT()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -45,7 +45,6 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
   })
   const filters = watch()
 
-  const [drawerCustomer, setDrawerCustomer] = useState<Customer | null>(null)
   const [editCustomer, setEditCustomer] = useState<Customer | null | undefined>(undefined)
 
   const {
@@ -113,7 +112,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
     canManage,
     deleting: deleteMutation.isPending,
     deletingId: deleteMutation.variables,
-    onView: setDrawerCustomer,
+    onView: onOpenCustomer,
     onEdit: setEditCustomer,
     onDelete: (id) => deleteMutation.mutate(id),
   })
@@ -253,7 +252,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
             pageSizeOptions: ['10', '25', '50'],
           }}
           onRow={(customer) => ({
-            onClick: () => setDrawerCustomer(customer),
+            onClick: () => onOpenCustomer(customer),
             className: 'clickable-row',
           })}
           emptyText={t('customers.empty')}
@@ -270,8 +269,6 @@ export function CustomersList({ canManage, isStoreOwner, branchId }: CustomersLi
         branches={branches}
         branchesLoading={branchesLoading}
       />
-
-      <CustomerDetailDrawer t={t} customer={drawerCustomer} onClose={() => setDrawerCustomer(null)} />
       </> : <DebtPaymentsList t={t} branchId={branchId} />}
     </>
   )

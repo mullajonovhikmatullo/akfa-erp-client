@@ -11,6 +11,9 @@ export const ProductsPage = lazy(() =>
 export const CustomersPage = lazy(() =>
   import('@/pages/customers/CustomersPage').then((m) => ({ default: m.CustomersPage })),
 );
+export const CustomerDetailPage = lazy(() =>
+  import('@/pages/customers/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })),
+);
 
 export const SalesPage = lazy(() =>
   import('@/pages/sales/SalesPage').then((m) => ({ default: m.SalesPage })),

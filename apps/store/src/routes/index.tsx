@@ -10,6 +10,7 @@ import {
   DashboardPage,
   ProductsPage,
   CustomersPage,
+  CustomerDetailPage,
   SalesPage,
   PurchasesPage,
   ExpensesPage,
@@ -51,6 +52,7 @@ export function AppRouter() {
               <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
               <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
               <Route path={ROUTES.CUSTOMERS} element={<CustomersPage />} />
+              <Route path={ROUTES.CUSTOMER_DETAIL} element={<CustomerDetailPage />} />
               <Route path={ROUTES.SALES} element={<SalesPage />} />
               <Route path={ROUTES.PURCHASES} element={<PurchasesPage />} />
               <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
