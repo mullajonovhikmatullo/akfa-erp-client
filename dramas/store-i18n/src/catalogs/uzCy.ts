@@ -808,6 +808,8 @@ export const uzCyTranslations = {
   'transfers.cancelTitle': 'Бекор қилинсинми?',
   'transfers.cancelDesc': 'Трансфер бекор қилинади, омбор ўзгармайди.',
   'transfers.cancelOk': 'Ҳа, бекор қил',
+  'transfers.detailTitle': 'Трансфер тафсилотлари',
+  'transfers.cancelTransfer': 'Трансферни бекор қилиш',
   'transfers.cancelTooltip': 'Бекор қилиш',
   'transfers.subtitleSuffix': 'та трансфер',
   'transfers.newTransfer': 'Янги трансфер',
