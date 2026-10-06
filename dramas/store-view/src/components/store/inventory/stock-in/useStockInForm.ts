@@ -1,12 +1,13 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { useEffect, useMemo } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { getProductPrice, getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
+import { getProductPrice } from '@store/store-shared/lib/product-pricing'
 import type { Branch } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { useProductsList } from '../../product/hooks/useProductsList'
 import { useInventoryMutation } from '../hooks/useInventoryMutation'
 import type { StockInCartItem, StockInFormValues } from './view/types'
+import { costPriceUzs, hasValidPrices } from './view/stockInPrices'
 
 interface UseStockInFormOptions {
   t: StoreTranslator
@@ -50,12 +51,12 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
   const selectedProductIds = useMemo(() => new Set(cart.map((item) => item.productId)), [cart])
   const totalCost = useMemo(
-    () => cart.reduce((sum, item) => sum + Math.max(item.quantity, 0) * item.costPriceUzs, 0),
-    [cart],
+    () => cart.reduce((sum, item) => sum + Math.max(item.quantity, 0) * costPriceUzs(item, effectiveExchangeRate), 0),
+    [cart, effectiveExchangeRate],
   )
   const canSubmit =
     cart.length > 0 &&
-    cart.every((item) => item.quantity >= MIN_QTY) &&
+    cart.every((item) => item.quantity >= MIN_QTY && hasValidPrices(item)) &&
     (isStoreOwner ? Boolean(branchId) : Boolean(userBranchId))
 
   useEffect(() => {
@@ -68,14 +69,22 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
     //
     const product = products.find((item) => item.id === productId)
     if (!product || selectedProductIds.has(productId)) return
-    const costPrice = getProductPrice(product, 'cost')
+    const retailPrice = getProductPrice(product, 'retail')
+    const currency = retailPrice.currency
+    const priceIn = (kind: 'cost' | 'wholesale') => {
+      //
+      const price = getProductPrice(product, kind)
+      return price.currency === currency ? price.amount : 0
+    }
     append({
       _key: `${productId}-${Date.now()}`,
       productId,
       product,
       quantity: MIN_QTY,
-      costPriceUzs: getProductPriceUzs(product, 'cost', effectiveExchangeRate),
-      costPriceUsd: costPrice.currency === 'USD' ? costPrice.amount : undefined,
+      currency,
+      costPrice: priceIn('cost'),
+      wholesalePrice: priceIn('wholesale'),
+      retailPrice: retailPrice.amount,
     })
   }
 
@@ -111,8 +120,10 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
         branchId: isStoreOwner ? values.branchId : undefined,
         productId: item.productId,
         quantity: Math.max(item.quantity, MIN_QTY),
-        costPriceUzs: item.costPriceUzs,
-        costPriceUsd: item.costPriceUsd,
+        costPriceUzs: costPriceUzs(item, effectiveExchangeRate),
+        ...(item.currency === 'USD'
+          ? { costPriceUsd: item.costPrice, wholesalePriceUsd: item.wholesalePrice, retailPriceUsd: item.retailPrice }
+          : { wholesalePriceUzs: item.wholesalePrice, retailPriceUzs: item.retailPrice }),
       })),
       {
         onSuccess: () => {

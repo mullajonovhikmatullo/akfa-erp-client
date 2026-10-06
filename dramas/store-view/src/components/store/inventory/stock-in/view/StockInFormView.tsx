@@ -112,10 +112,11 @@ export function StockInFormView({
             pagination={false}
             rowKey="_key"
             dataSource={cart}
-            scroll={{ x: 860 }}
+            scroll={{ x: 1200 }}
             columns={createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem, onRemoveItem })}
           />
           <div className="u-items-center u-flex u-fs-13 u-gap-8 u-justify-end u-pr-32">
+            <span className="u-text-muted u-fs-11 u-flex-auto">{t('stockIn.pricesHint')}</span>
             <span className="u-text-muted u-mr-8">{t('stockIn.totalCostLabel')}</span>
             <span className="num u-inline-block u-fw-700 u-max-w-180 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
               <MoneyDisplay amount={totalCost} currency="UZS" compact />

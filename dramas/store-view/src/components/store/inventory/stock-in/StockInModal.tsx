@@ -22,7 +22,7 @@ export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exc
       title={t('stockIn.title')}
       open={open}
       onClose={onClose}
-      width={920}
+      width={1180}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={stockInForm.isPending}>
           {t('common.cancel')}

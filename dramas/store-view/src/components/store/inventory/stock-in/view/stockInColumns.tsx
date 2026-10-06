@@ -1,10 +1,12 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
-import { Button, InputNumber } from 'antd'
+import { Button } from 'antd'
 
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
+import { PriceInput } from './PriceInput'
 import { QuantityStepper } from './QuantityStepper'
+import { getPriceError } from './stockInPrices'
 import type { StockInCartItem } from './types'
 
 interface StockInColumnsOptions {
@@ -50,19 +52,37 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
       ),
     },
     {
-      title: t('stockIn.colCost'),
+      title: t('products.colCost'),
       key: 'cost',
       width: 170,
       render: (_: unknown, item: StockInCartItem) => (
-        <InputNumber<number>
-          value={item.costPriceUzs}
-          onChange={(value) => onUpdateItem(item._key, { costPriceUzs: value ?? 0, costPriceUsd: undefined })}
-          min={0}
-          step={1000}
-          className="u-w-full"
-          formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-          parser={(value) => Number(value?.replace(/\s/g, ''))}
+        <PriceInput
+          item={item}
+          field="costPrice"
+          error={getPriceError(item) === 'costExceedsWholesale' ? t('validation.costExceedsWholesale') : null}
+          onUpdateItem={onUpdateItem}
         />
+      ),
+    },
+    {
+      title: t('products.colWholesale'),
+      key: 'wholesale',
+      width: 170,
+      render: (_: unknown, item: StockInCartItem) => (
+        <PriceInput
+          item={item}
+          field="wholesalePrice"
+          error={getPriceError(item) === 'wholesaleExceedsRetail' ? t('validation.wholesaleExceedsRetail') : null}
+          onUpdateItem={onUpdateItem}
+        />
+      ),
+    },
+    {
+      title: t('products.colRetail'),
+      key: 'retail',
+      width: 170,
+      render: (_: unknown, item: StockInCartItem) => (
+        <PriceInput item={item} field="retailPrice" error={null} onUpdateItem={onUpdateItem} />
       ),
     },
     {
@@ -72,7 +92,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
       align: 'right' as const,
       render: (_: unknown, item: StockInCartItem) => (
         <span className="num u-inline-block u-fs-13 u-fw-700 u-max-w-140 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
-          <MoneyDisplay amount={Math.max(item.quantity, 0) * item.costPriceUzs} currency="UZS" compact />
+          <MoneyDisplay amount={Math.max(item.quantity, 0) * item.costPrice} currency={item.currency} compact />
         </span>
       ),
     },
