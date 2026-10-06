@@ -1,12 +1,12 @@
-import { useNavigate } from 'react-router-dom'
 import { PurchasesList } from '@store/store-view/purchase'
 import { useUIStore } from '@/app/stores/ui.store'
 import { ROUTES } from '@/shared/config/routes'
 import { useBranchScope } from '@/shared/hooks/useBranchScope'
+import { useOpenFromList } from '@/shared/hooks/useListReturn'
 
 export function PurchasesPage() {
   //
-  const navigate = useNavigate()
+  const openFromList = useOpenFromList()
   const { isStoreOwner, userBranchId, activeBranchId } = useBranchScope()
   const exchangeRate = useUIStore((state) => state.exchangeRate)
 
@@ -16,7 +16,7 @@ export function PurchasesPage() {
       userBranchId={userBranchId}
       activeBranchId={activeBranchId}
       exchangeRate={exchangeRate}
-      onOpenReceipt={(receiptId) => navigate(ROUTES.PURCHASE_DETAIL.replace(':receiptId', receiptId))}
+      onOpenReceipt={(receiptId) => openFromList(ROUTES.PURCHASE_DETAIL.replace(':receiptId', receiptId))}
     />
   )
 }

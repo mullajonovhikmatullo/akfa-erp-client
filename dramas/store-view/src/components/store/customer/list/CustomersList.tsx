@@ -1,5 +1,5 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Input, Select, Tooltip } from 'antd'
@@ -12,6 +12,7 @@ import type { CreateCustomerPayload, Customer } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { CustomerFormModal } from '../form/CustomerFormModal'
 import { useCustomerMutation } from '../hooks/useCustomerMutation'
+import { usePagination } from '../../shared/hooks/usePagination'
 import { useCustomersList } from '../hooks/useCustomersList'
 import { DebtPaymentsList } from './DebtPaymentsList'
 import { createCustomerImportParser } from './customerImport'
@@ -39,12 +40,13 @@ export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustome
   const activeTab = searchParams.get('tab') === 'payments' ? 'payments' : 'customers'
   const { control, watch } = useForm<CustomerFiltersForm>({
     defaultValues: {
-      search: '',
+      search: searchParams.get('q') ?? '',
       balance: getInitialBalanceFilter(searchParams.get('balance')),
     },
   })
   const filters = watch()
 
+  const { page, pageSize, changePage, resetPage, rowIndex } = usePagination()
   const [editCustomer, setEditCustomer] = useState<Customer | null | undefined>(undefined)
 
   const {
@@ -52,11 +54,6 @@ export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustome
     isLoading,
     isFetching,
     refetch,
-    page,
-    pageSize,
-    onPageChange,
-    resetPage,
-    rowIndex,
   } = useCustomersList({
     search: filters.search || undefined,
     branchId: branchId ?? undefined,
@@ -93,6 +90,18 @@ export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustome
     setSearchParams(next, { replace: true })
   }
 
+  const syncSearchParam = (value: string) => {
+    //
+    setSearchParams((current) => {
+      //
+      const next = new URLSearchParams(current)
+      if (value.trim()) next.set('q', value)
+      else next.delete('q')
+      next.delete('page')
+      return next
+    }, { replace: true })
+  }
+
   const setActiveTab = (tab: 'customers' | 'payments') => {
     //
     const next = new URLSearchParams(searchParams)
@@ -102,7 +111,11 @@ export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustome
     resetPage()
   }
 
+  const previousBranchId = useRef(branchId)
   useEffect(() => {
+    //
+    if (previousBranchId.current === branchId) return
+    previousBranchId.current = branchId
     resetPage()
   }, [branchId, resetPage])
 
@@ -204,7 +217,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustome
                 onChange={(event) => {
                   //
                   field.onChange(event.target.value)
-                  resetPage()
+                  syncSearchParam(event.target.value)
                 }}
                 allowClear
                 className="u-max-w-320"
@@ -246,7 +259,7 @@ export function CustomersList({ canManage, isStoreOwner, branchId, onOpenCustome
           pagination={{
             current: page,
             pageSize,
-            onChange: onPageChange,
+            onChange: changePage,
             showSizeChanger: true,
             showTotal: (total) => `${total} ${t('common.countSuffix')}`,
             pageSizeOptions: ['10', '25', '50'],
