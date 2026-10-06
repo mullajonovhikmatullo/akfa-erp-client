@@ -7,7 +7,7 @@ import { usePagination } from '../../shared/hooks/usePagination'
 import { ArrowPager } from '../../shared/view/ArrowPager'
 import { useExpenseCategoriesPage } from '../hooks/useExpenseCategoriesPage'
 import { useExpenseMutation } from '../hooks/useExpenseMutation'
-import { ExpenseCategoryCreateForm, ExpenseCategoryRow, type CategoryManagerFormValues } from './view'
+import { ExpenseCategoryCreateForm, ExpenseCategoryRow, type CategoryCreateFormValues, type CategoryEditFormValues } from './view'
 
 const CATEGORY_PAGE_SIZE = 8
 
@@ -27,14 +27,10 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
   const { createExpenseCategory: createCat, updateExpenseCategory: updateCat, deleteExpenseCategory: deleteCat } = useExpenseMutation(t)
 
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { control, handleSubmit, resetField, setValue, getValues, watch, formState: { errors } } = useForm<CategoryManagerFormValues>({
-    defaultValues: {
-      newName: '',
-      editName: '',
-    },
-  })
-  const newName = watch('newName') ?? ''
-  const editName = watch('editName') ?? ''
+  const createForm = useForm<CategoryCreateFormValues>({ defaultValues: { newName: '' } })
+  const editForm = useForm<CategoryEditFormValues>({ defaultValues: { editName: '' } })
+  const newName = createForm.watch('newName') ?? ''
+  const editName = editForm.watch('editName') ?? ''
 
   useEffect(() => {
     //
@@ -48,20 +44,20 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
     onClose()
   }
 
-  const submitCreate = (values: CategoryManagerFormValues) => {
+  const submitCreate = (values: CategoryCreateFormValues) => {
     //
     const name = values.newName.trim()
     if (!name) return
-    createCat.mutate({ name }, { onSuccess: () => resetField('newName') })
+    createCat.mutate({ name }, { onSuccess: () => createForm.reset({ newName: '' }) })
   }
 
   const startEdit = (category: ExpenseCategory) => {
     //
     setEditingId(category.id)
-    setValue('editName', category.name)
+    editForm.reset({ editName: category.name })
   }
 
-  const saveEdit = (id: string, rawName = getValues('editName')) => {
+  const saveEdit = (id: string, rawName = editForm.getValues('editName')) => {
     //
     const name = rawName.trim()
     if (!name) return
@@ -69,18 +65,18 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
   }
 
   const submitEdit = (id: string) => {
-    handleSubmit((values) => saveEdit(id, values.editName))()
+    editForm.handleSubmit((values) => saveEdit(id, values.editName))()
   }
 
   return (
     <Drawer rootClassName="ant-drawer-root" title={t('categoryDrawer.title')} open={open} onClose={close} width={440} closable={{ placement: 'end' }} destroyOnHidden>
       <ExpenseCategoryCreateForm
         t={t}
-        control={control}
-        errors={errors}
+        control={createForm.control}
+        errors={createForm.formState.errors}
         name={newName}
         pending={createCat.isPending}
-        onSubmit={handleSubmit(submitCreate)}
+        onSubmit={createForm.handleSubmit(submitCreate)}
       />
 
       {categoriesQuery.isLoading ? (
@@ -94,8 +90,8 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
               key={category.id}
               category={category}
               t={t}
-              control={control}
-              errors={errors}
+              control={editForm.control}
+              errors={editForm.formState.errors}
               editName={editName}
               editing={editingId === category.id}
               updatePending={updateCat.isPending}
@@ -105,7 +101,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
               onCancelEdit={() => {
                 //
                 setEditingId(null)
-                resetField('editName')
+                editForm.reset({ editName: '' })
               }}
               onToggleActive={(id, isActive) => updateCat.mutate({ id, payload: { isActive } })}
               onDelete={(id) => deleteCat.mutate(id)}

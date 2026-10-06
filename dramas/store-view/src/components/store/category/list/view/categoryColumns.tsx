@@ -1,10 +1,9 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
-import { Button, Popconfirm, Tag } from 'antd'
+import { Button, Popconfirm, Switch, Tooltip } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
-import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Category } from '@store/store-stub'
 import { CategoryIcon } from './CategoryIcon'
 
@@ -14,11 +13,13 @@ interface CategoryColumnsOptions {
   statusFilter: 'all' | 'active' | 'inactive'
   deleting: boolean
   deletingId?: string
+  togglingId?: string
+  onToggleActive: (category: Category, isActive: boolean) => void
   onEdit: (category: Category) => void
   onDelete: (id: string) => void
 }
 
-export function createCategoryColumns({ t, rowIndex, statusFilter, deleting, deletingId, onEdit, onDelete }: CategoryColumnsOptions): ColumnDef<Category>[] {
+export function createCategoryColumns({ t, rowIndex, statusFilter, deleting, deletingId, togglingId, onToggleActive, onEdit, onDelete }: CategoryColumnsOptions): ColumnDef<Category>[] {
   //
   return [
     {
@@ -45,16 +46,25 @@ export function createCategoryColumns({ t, rowIndex, statusFilter, deleting, del
     {
       title: t('common.status'),
       key: 'isActive',
-      width: 110,
-      responsiveHide: true,
+      width: 130,
       filters: [
         { text: t('common.active'), value: 'active' },
         { text: t('common.inactive'), value: 'inactive' },
       ],
       filterMultiple: false,
       filteredValue: statusFilter === 'all' ? null : [statusFilter],
-      render: (_: unknown, category: Category) =>
-        category.isActive ? <StatusBadge tone="success">{t('common.active')}</StatusBadge> : <Tag color="default">{t('common.inactive')}</Tag>,
+      render: (_: unknown, category: Category) => (
+        <Tooltip title={category.isActive ? t('common.active') : t('common.inactive')}>
+          <Switch
+            size="small"
+            checked={category.isActive}
+            loading={togglingId === category.id}
+            aria-label={t('common.status')}
+            onClick={(_checked, event) => event.stopPropagation()}
+            onChange={(checked) => onToggleActive(category, checked)}
+          />
+        </Tooltip>
+      ),
     },
     {
       title: t('common.added'),

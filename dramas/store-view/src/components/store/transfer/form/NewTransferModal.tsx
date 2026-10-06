@@ -1,6 +1,7 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
+import { ProductPickerModal } from '../../product/picker/ProductPickerModal'
 import { useNewTransferForm } from './useNewTransferForm'
 import { TransferFormView } from './view/TransferFormView'
 
@@ -22,7 +23,7 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
       title={t('transferModal.title')}
       open={open}
       onClose={onClose}
-      width={920}
+      width={1000}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={transferForm.isPending}>
           {t('common.cancel')}
@@ -52,10 +53,24 @@ export function NewTransferModal({ t, open, onClose, isStoreOwner, userBranchId,
         insufficientStockItems={transferForm.insufficientStockItems}
         totalCost={transferForm.totalCost}
         onAddProduct={transferForm.addProduct}
+        onOpenPicker={() => transferForm.setPickerOpen(true)}
+        selectedCartKeys={transferForm.selectedCartKeys}
+        onSelectCartKeys={transferForm.setSelectedCartKeys}
+        onRemoveSelected={transferForm.removeSelectedItems}
         onChangeQty={transferForm.changeQty}
         onUpdateQty={transferForm.updateQty}
         onUpdateItem={transferForm.updateItem}
         onRemoveItem={transferForm.removeItem}
+      />
+      <ProductPickerModal
+        t={t}
+        open={transferForm.pickerOpen}
+        products={transferForm.transferableProducts}
+        addedProductIds={new Set(transferForm.cart.map((item) => item.productId))}
+        stockByProductId={transferForm.stockByProductId}
+        requireStock
+        onClose={() => transferForm.setPickerOpen(false)}
+        onConfirm={transferForm.addProducts}
       />
     </AppModal>
   )

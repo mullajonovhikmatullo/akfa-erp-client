@@ -20,7 +20,7 @@ export type SaleFormValues = {
   cart: { key: string; productId: string; quantity: number }[]
 }
 
-export const CART_GRID_COLUMNS = 'minmax(170px, 1fr) minmax(188px, 220px) minmax(90px, 120px) minmax(126px, 150px) minmax(150px, 178px) 28px'
+export const CART_GRID_COLUMNS = '20px minmax(120px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(96px, 128px) minmax(108px, 148px) 28px'
 
 export interface SaleCartViewProps {
   t: StoreTranslator
@@ -31,6 +31,10 @@ export interface SaleCartViewProps {
   selectedProductIds: Set<string>
   stockByProductId: Map<string, number>
   addToCart: (productId: string) => void
+  onOpenPicker: () => void
+  selectedCartKeys: string[]
+  onSelectCartKeys: (keys: string[]) => void
+  onRemoveSelected: () => void
   cart: CartItem[]
   saleType: SaleType
   unitPrice: (product: Product) => number

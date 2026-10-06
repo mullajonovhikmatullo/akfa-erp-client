@@ -184,7 +184,7 @@
   'grid-cols-4': 'repeat(4, 1fr)',
   'grid-cols-avatar-content-actions': '28px 1fr auto',
   'grid-cols-content-280': '1fr 280px',
-  'grid-cols-content-340': '1fr 340px',
+  'grid-cols-content-340': 'minmax(0, 1fr) 340px',
   'grid-cols-content-auto': '1fr auto',
   'grid-cols-fill-180': 'repeat(auto-fill, minmax(180px, 1fr))',
   'grid-cols-fit-135': 'repeat(auto-fit, minmax(135px, 1fr))',
@@ -196,7 +196,7 @@
   'grid-cols-fit-280': 'repeat(auto-fit, minmax(280px, 1fr))',
   'grid-cols-quantity-actions': '30px minmax(86px, 1fr) 30px 38px',
   'grid-cols-quantity-actions-wide': '30px minmax(96px, 1fr) 30px 38px',
-  'grid-cols-quantity-wide': '30px minmax(86px, 1fr) 30px minmax(38px, auto)',
+  'grid-cols-quantity-wide': '30px minmax(52px, 1fr) 30px minmax(34px, auto)',
 ));
 
 @include utility-classes('height', (

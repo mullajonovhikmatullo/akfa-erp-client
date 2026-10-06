@@ -1,6 +1,7 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { Button } from 'antd'
 import { AppModal } from '@store/store-shared/ui/app-modal'
+import { ProductPickerModal } from '../../product/picker/ProductPickerModal'
 import { useStockInForm } from './useStockInForm'
 import { StockInFormView } from './view/StockInFormView'
 
@@ -50,10 +51,22 @@ export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exc
         cart={stockInForm.cart}
         totalCost={stockInForm.totalCost}
         onAddProduct={stockInForm.addProduct}
+        onOpenPicker={() => stockInForm.setPickerOpen(true)}
+        selectedCartKeys={stockInForm.selectedCartKeys}
+        onSelectCartKeys={stockInForm.setSelectedCartKeys}
+        onRemoveSelected={stockInForm.removeSelectedItems}
         onChangeQty={stockInForm.changeQty}
         onUpdateQty={stockInForm.updateQty}
         onUpdateItem={stockInForm.updateItem}
         onRemoveItem={stockInForm.removeItem}
+      />
+      <ProductPickerModal
+        t={t}
+        open={stockInForm.pickerOpen}
+        products={stockInForm.products}
+        addedProductIds={stockInForm.selectedProductIds}
+        onClose={() => stockInForm.setPickerOpen(false)}
+        onConfirm={stockInForm.addProducts}
       />
     </AppModal>
   )

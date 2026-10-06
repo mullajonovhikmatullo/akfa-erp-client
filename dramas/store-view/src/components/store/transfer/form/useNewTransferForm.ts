@@ -1,8 +1,8 @@
 import type { StoreTranslator } from '@store/store-i18n'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
-import type { Branch } from '@store/store-stub'
+import type { Branch, Product } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { useInventoryList } from '../../inventory/hooks/useInventoryList'
 import { useProductsList } from '../../product/hooks/useProductsList'
@@ -55,6 +55,8 @@ export function useNewTransferForm({
     },
   })
   const { append, update, remove, replace } = useFieldArray({ control, name: 'cart', keyName: 'fieldId' })
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [selectedCartKeys, setSelectedCartKeys] = useState<string[]>([])
   const fromBranchId = watch('fromBranchId')
   const toBranchId = watch('toBranchId')
   const cart = watch('cart') ?? []
@@ -106,6 +108,7 @@ export function useNewTransferForm({
       setValue('fromBranchId', sourceBranchId)
       setValue('toBranchId', undefined)
       replace([])
+      setSelectedCartKeys([])
     }
   }, [fromBranchId, open, replace, setValue, sourceBranchId])
 
@@ -113,18 +116,42 @@ export function useNewTransferForm({
     if (sourceBranchId && toBranchId === sourceBranchId) setValue('toBranchId', undefined)
   }, [setValue, sourceBranchId, toBranchId])
 
-  function addProduct(productId: string) {
+  function buildCartItem(product: Product): TransferCartItem {
     //
-    const product = transferableProducts.find((item) => item.id === productId)
-    const stock = stockByProductId.get(productId) ?? 0
-    if (!product || stock <= 0 || cart.some((item) => item.productId === productId)) return
-    append({
-      _key: `${productId}-${Date.now()}`,
-      productId,
+    const stock = stockByProductId.get(product.id) ?? 0
+    return {
+      _key: `${product.id}-${Date.now()}`,
+      productId: product.id,
       product,
       quantity: Math.min(MIN_QTY, stock),
       unitCostUzs: getProductPriceUzs(product, 'wholesale', effectiveExchangeRate),
-    })
+    }
+  }
+
+  function canAdd(product: Product) {
+    //
+    const stock = stockByProductId.get(product.id) ?? 0
+    return stock > 0 && !cart.some((item) => item.productId === product.id)
+  }
+
+  function addProduct(productId: string) {
+    //
+    const product = transferableProducts.find((item) => item.id === productId)
+    if (product && canAdd(product)) append(buildCartItem(product))
+  }
+
+  function addProducts(productIds: string[]) {
+    //
+    const ids = new Set(productIds)
+    const items = transferableProducts.filter((product) => ids.has(product.id) && canAdd(product)).map(buildCartItem)
+    if (items.length > 0) append(items)
+  }
+
+  function removeSelectedItems() {
+    //
+    const keys = new Set(selectedCartKeys)
+    remove(cart.flatMap((item, index) => (keys.has(item._key) ? [index] : [])))
+    setSelectedCartKeys([])
   }
 
   function updateItem(key: string, patch: Partial<TransferCartItem>) {
@@ -151,6 +178,7 @@ export function useNewTransferForm({
     //
     const index = cart.findIndex((item) => item._key === key)
     if (index >= 0) remove(index)
+    setSelectedCartKeys((current) => current.filter((selected) => selected !== key))
   }
 
   function submitTransfer(values: TransferFormValues) {
@@ -171,6 +199,7 @@ export function useNewTransferForm({
         onSuccess: () => {
           //
           reset({ fromBranchId: sourceBranchId, toBranchId: undefined, note: '', cart: [] })
+          setSelectedCartKeys([])
           onClose()
         },
       },
@@ -190,6 +219,12 @@ export function useNewTransferForm({
     transferableProducts,
     productSelectLoading: Boolean(sourceBranchId) && (productsLoading || inventoryLoading),
     addProduct,
+    addProducts,
+    pickerOpen,
+    setPickerOpen,
+    selectedCartKeys,
+    setSelectedCartKeys,
+    removeSelectedItems,
     updateItem,
     changeQty,
     updateQty,

@@ -6,13 +6,13 @@ import { Button, Input, Popconfirm, Switch } from 'antd'
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { ExpenseCategory } from '@store/store-stub'
-import type { CategoryManagerFormControl, CategoryManagerFormErrors } from './types'
+import type { CategoryEditFormControl, CategoryEditFormErrors } from './types'
 
 interface ExpenseCategoryRowProps {
   category: ExpenseCategory
   t: StoreTranslator
-  control: CategoryManagerFormControl
-  errors: CategoryManagerFormErrors
+  control: CategoryEditFormControl
+  errors: CategoryEditFormErrors
   editName: string
   editing: boolean
   updatePending: boolean
