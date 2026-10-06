@@ -1,5 +1,6 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button, Select, Tooltip } from 'antd'
 
 import { useStoreT } from '@store/store-i18n'
@@ -23,7 +24,9 @@ const STATUSES: TransferStatus[] = ['PENDING', 'COMPLETED', 'CANCELLED']
 export function TransfersList({ isStoreOwner, userBranchId, branchId, exchangeRate, onOpenTransfer }: TransfersListProps) {
   //
   const t = useStoreT()
-  const [status, setStatus] = useState<TransferStatus>()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const statusParam = searchParams.get('status')
+  const status = STATUSES.find((value) => value === statusParam)
   const [creating, setCreating] = useState(false)
   const { page, pageSize, changePage, goToPage, resetPage, rowIndex } = usePagination()
 
@@ -49,8 +52,14 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, exchangeRa
 
   function changeStatus(value?: TransferStatus) {
     //
-    setStatus(value)
-    resetPage()
+    setSearchParams((current) => {
+      //
+      const next = new URLSearchParams(current)
+      if (value) next.set('status', value)
+      else next.delete('status')
+      next.delete('page')
+      return next
+    }, { replace: true })
   }
 
   return (
