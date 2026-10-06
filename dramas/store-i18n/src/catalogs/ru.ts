@@ -812,6 +812,8 @@ export const ruTranslations = {
   'transfers.cancelTitle': 'Отменить?',
   'transfers.cancelDesc': 'Перевод будет отменён, склад не изменится.',
   'transfers.cancelOk': 'Да, отменить',
+  'transfers.detailTitle': 'Детали перемещения',
+  'transfers.cancelTransfer': 'Отменить перемещение',
   'transfers.cancelTooltip': 'Отменить',
   'transfers.subtitleSuffix': 'переводов',
   'transfers.newTransfer': 'Новый перевод',

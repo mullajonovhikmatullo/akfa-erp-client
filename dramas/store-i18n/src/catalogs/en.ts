@@ -813,6 +813,8 @@ export const enTranslations = {
   'transfers.cancelTitle': 'Cancel Transfer?',
   'transfers.cancelDesc': 'Transfer will be cancelled, stock unchanged.',
   'transfers.cancelOk': 'Yes, Cancel',
+  'transfers.detailTitle': 'Transfer details',
+  'transfers.cancelTransfer': 'Cancel transfer',
   'transfers.cancelTooltip': 'Cancel',
   'transfers.subtitleSuffix': 'transfers',
   'transfers.newTransfer': 'New Transfer',

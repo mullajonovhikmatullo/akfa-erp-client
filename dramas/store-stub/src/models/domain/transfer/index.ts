@@ -11,4 +11,20 @@ export interface TransferFilters {
   limit?: number
 }
 
+export type TransferSummary = Omit<Transfer, 'items' | 'updatedAt' | 'completedBy'> & {
+  itemCount: number
+  totalCostUzs: number
+}
+
+export interface TransferPageQuery extends Omit<TransferFilters, 'limit'> {
+  page: number
+  pageSize: number
+}
+
+export interface TransferPage {
+  items: TransferSummary[]
+  total: number
+  pendingCount: number
+}
+
 export type CreateTransferPayload = CreateTransferRequest

@@ -12,8 +12,8 @@ import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { StockInModal } from '../../inventory/stock-in/StockInModal'
 import { useStockBatchSummary } from '../../inventory/hooks/useStockBatchSummary'
 import { useStockReceiptsPage } from '../../inventory/hooks/useStockReceiptsPage'
+import { ReceiptDetailDrawer } from '../detail/ReceiptDetailDrawer'
 import { PurchaseKpiBox } from './view/PurchaseKpiBox'
-import { ReceiptItemsFolder } from './view/ReceiptItemsFolder'
 import { createReceiptColumns } from './view/receiptColumns'
 
 type PurchaseFiltersForm = {
@@ -36,6 +36,7 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
   })
   const filters = watch()
   const [creating, setCreating] = useState(false)
+  const [openReceipt, setOpenReceipt] = useState<StockReceipt | null>(null)
   const dateRange = filters.dateRange
   const headerBranchId = isStoreOwner && activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
   const scopedBranchId = isStoreOwner ? (headerBranchId ?? filters.branchId) : (userBranchId ?? undefined)
@@ -130,11 +131,10 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
           dataSource={receipts}
           columns={receiptColumns}
           loading={receiptsQuery.isLoading}
-          expandable={{
-            expandRowByClick: true,
-            expandedRowRender: (receipt) => <ReceiptItemsFolder receipt={receipt} t={t} />,
-            rowExpandable: (receipt) => receipt.productCount > 0,
-          }}
+          onRow={(receipt) => ({
+            onClick: () => setOpenReceipt(receipt),
+            className: 'clickable-row',
+          })}
           pagination={{
             current: page,
             pageSize,
@@ -148,6 +148,7 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
         />
       </div>
 
+      <ReceiptDetailDrawer t={t} receipt={openReceipt} supplierNote={supplierNote} onClose={() => setOpenReceipt(null)} />
       <StockInModal t={t} isStoreOwner={isStoreOwner} userBranchId={scopedBranchId} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
     </>
   )
