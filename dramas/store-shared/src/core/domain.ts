@@ -69,6 +69,10 @@ export interface StockBatch {
   remainingQty: number
   costPriceUzs: number
   costPriceUsd: number | null
+  wholesalePriceUzs?: number | null
+  retailPriceUzs?: number | null
+  wholesalePriceUsd?: number | null
+  retailPriceUsd?: number | null
   supplierNote: string | null
   receivedAt: string
   createdAt: string

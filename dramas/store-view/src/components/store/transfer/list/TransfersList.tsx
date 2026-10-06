@@ -1,21 +1,15 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { Alert, Button, Modal, Select, Table, Tooltip } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Select, Tooltip } from 'antd'
 
 import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
-import { MoneyDisplay } from '@store/store-shared/ui/money-display'
-import type { Transfer, TransferStatus } from '@store/store-stub'
+import type { TransferStatus, TransferSummary } from '@store/store-stub'
+import { usePagination } from '../../shared/hooks/usePagination'
+import { TransferDetailDrawer } from '../detail/TransferDetailDrawer'
 import { NewTransferModal } from '../form/NewTransferModal'
-import { useTransferMutation } from '../hooks/useTransferMutation'
-import { useTransfersList } from '../hooks/useTransfersList'
-import { InfoRow } from './view/InfoRow'
-import { ExpandedTransferRow, createTransferColumns, createTransferConfirmColumns } from './view/transferColumns'
-
-type TransferFiltersForm = {
-  status?: TransferStatus
-}
+import { useTransfersPage } from '../hooks/useTransfersPage'
+import { createTransferColumns, transferStatusLabel } from './view/transferColumns'
 
 interface TransfersListProps {
   isStoreOwner: boolean
@@ -25,51 +19,41 @@ interface TransfersListProps {
   exchangeRate: number
 }
 
+const STATUSES: TransferStatus[] = ['PENDING', 'COMPLETED', 'CANCELLED']
+
 export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, exchangeRate }: TransfersListProps) {
   //
   const t = useStoreT()
-  const rowIndex = (index: number) => index + 1
-  const { control, watch } = useForm<TransferFiltersForm>({
-    defaultValues: { status: undefined },
-  })
-  const filters = watch()
+  const [status, setStatus] = useState<TransferStatus>()
   const [creating, setCreating] = useState(false)
-  const [confirmingTransfer, setConfirmingTransfer] = useState<Transfer | null>(null)
+  const [openTransferId, setOpenTransferId] = useState<string | null>(null)
+  const { page, pageSize, changePage, goToPage, resetPage, rowIndex } = usePagination()
 
-  const { data: transfers = [], isLoading, isFetching, refetch } = useTransfersList({
-    branchId,
-    status: filters.status,
-    limit: 100,
-  })
+  const transfersQuery = useTransfersPage({ branchId, status, page, pageSize })
+  const transfers = transfersQuery.data?.items ?? []
+  const total = transfersQuery.data?.total ?? 0
+  const pendingCount = transfersQuery.data?.pendingCount ?? 0
+  const lastPage = Math.max(1, Math.ceil(total / pageSize))
 
-  const { completeTransfer, cancelTransfer } = useTransferMutation(t)
+  const previousBranchId = useRef(branchId)
+  useEffect(() => {
+    //
+    if (previousBranchId.current === branchId) return
+    previousBranchId.current = branchId
+    resetPage()
+  }, [branchId, resetPage])
 
-  const pendingCount = transfers.filter((transfer) => transfer.status === 'PENDING').length
-  const confirmingTotal = confirmingTransfer?.items.reduce((sum, item) => sum + item.totalCostUzs, 0) ?? 0
+  useEffect(() => {
+    //
+    if (transfersQuery.isPlaceholderData || !transfersQuery.data) return
+    if (page > lastPage) goToPage(lastPage)
+  }, [goToPage, lastPage, page, transfersQuery.data, transfersQuery.isPlaceholderData])
 
-  const statusOptions: { value: TransferStatus; label: string }[] = [
-    { value: 'PENDING', label: t('transfers.statusPendingLabel') },
-    { value: 'COMPLETED', label: t('transfers.statusCompleted') },
-    { value: 'CANCELLED', label: t('transfers.statusCancelled') },
-  ]
-
-  const statusLabel: Record<TransferStatus, string> = {
-    PENDING: t('transfers.statusPendingLabel'),
-    COMPLETED: t('transfers.statusCompleted'),
-    CANCELLED: t('transfers.statusCancelled'),
+  function changeStatus(value?: TransferStatus) {
+    //
+    setStatus(value)
+    resetPage()
   }
-
-  const columns = createTransferColumns({
-    t,
-    rowIndex,
-    statusLabel,
-    isStoreOwner,
-    userBranchId,
-    userId,
-    cancelPending: cancelTransfer.isPending,
-    onComplete: setConfirmingTransfer,
-    onCancel: (id) => cancelTransfer.mutate(id),
-  })
 
   return (
     <>
@@ -77,7 +61,7 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
         <div>
           <h1>{t('nav.transfers')}</h1>
           <div className="sub">
-            {transfers.length} {t('transfers.subtitleSuffix')} · {pendingCount} {t('transfers.statusPending')}
+            {total} {t('transfers.subtitleSuffix')} · {pendingCount} {t('transfers.statusPending')}
           </div>
         </div>
         <div className="u-flex u-gap-8">
@@ -85,48 +69,59 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
             {t('transfers.newTransfer')}
           </Button>
           <Tooltip title={t('common.refresh')}>
-            <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+            <Button
+              icon={<StoreIcon name="reload" size={16} className={transfersQuery.isFetching ? 'ph-icon-spin' : undefined} />}
+              onClick={() => void transfersQuery.refetch()}
+            />
           </Tooltip>
         </div>
       </div>
 
-      <div className="card u-overflow-hidden u-p-0" >
+      <div className="card u-overflow-hidden u-p-0">
         <div className="u-items-center u-border-b-default u-flex u-gap-10 u-p-14-16">
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onChange={(value) => {
-                  field.onChange(value)
-                }}
-                allowClear
-                placeholder={t('transfers.filterAll')}
-                className="u-min-w-180"
-                options={statusOptions}
-              />
-            )}
+          <Select
+            value={status}
+            onChange={changeStatus}
+            allowClear
+            placeholder={t('transfers.filterAll')}
+            className="u-min-w-180"
+            options={STATUSES.map((value) => ({ value, label: transferStatusLabel(t, value) }))}
           />
           <span className="u-text-muted u-fs-12-5 u-ml-auto">
-            <strong>{transfers.length}</strong> {t('common.resultsSuffix')}
+            <strong>{total}</strong> {t('common.resultsSuffix')}
           </span>
         </div>
 
-        <DataTable<Transfer>
+        <DataTable<TransferSummary>
           rowKey="id"
           dataSource={transfers}
-          columns={columns}
-          loading={isLoading}
-          pagination={false}
-          expandable={{
-            expandedRowRender: (transfer) => <ExpandedTransferRow transfer={transfer} t={t} />,
-            rowExpandable: () => true,
+          columns={createTransferColumns({ t, rowIndex })}
+          loading={transfersQuery.isLoading}
+          onRow={(transfer) => ({
+            onClick: () => setOpenTransferId(transfer.id),
+            className: 'clickable-row',
+          })}
+          pagination={{
+            current: page,
+            pageSize,
+            total,
+            onChange: changePage,
+            showSizeChanger: true,
+            showTotal: (count) => `${count} ${t('common.countSuffix')}`,
+            pageSizeOptions: ['10', '25', '50'],
           }}
           emptyText={t('transfers.empty')}
         />
       </div>
 
+      <TransferDetailDrawer
+        t={t}
+        transferId={openTransferId}
+        isStoreOwner={isStoreOwner}
+        userBranchId={userBranchId}
+        userId={userId}
+        onClose={() => setOpenTransferId(null)}
+      />
       <NewTransferModal
         t={t}
         isStoreOwner={isStoreOwner}
@@ -135,44 +130,6 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
         open={creating}
         onClose={() => setCreating(false)}
       />
-      <Modal
-        open={Boolean(confirmingTransfer)}
-        width={760}
-        title={t('transfers.confirmReceiptTitle')}
-        okText={t('transfers.confirmReceiptOk')}
-        cancelText={t('transfers.confirmReceiptCancel')}
-        okButtonProps={{ loading: completeTransfer.isPending }}
-        onCancel={() => setConfirmingTransfer(null)}
-        onOk={() => {
-          //
-          if (!confirmingTransfer) return
-          completeTransfer.mutate(confirmingTransfer.id, {
-            onSuccess: () => setConfirmingTransfer(null),
-          })
-        }}
-      >
-        {confirmingTransfer ? (
-          <div className="u-flex u-flex-col u-gap-12">
-            <Alert type="warning" showIcon message={t('transfers.confirmReceiptWarning')} description={t('transfers.confirmReceiptDesc')} />
-            <div className="u-grid u-fs-13 u-gap-8">
-              <InfoRow label={t('transfers.confirmReceiptRoute')} value={`${confirmingTransfer.fromBranch.name} → ${confirmingTransfer.toBranch.name}`} />
-              <InfoRow label={t('transfers.confirmReceiptItems')} value={`${confirmingTransfer.items.length} ${t('transfers.itemTypeSuffix')}`} />
-              <InfoRow label={t('transfers.colTotal')} value={<MoneyDisplay amount={confirmingTotal} currency="UZS" />} />
-              {confirmingTransfer.note ? (
-                <InfoRow label={t('transfers.noteLabel')} value={confirmingTransfer.note} />
-              ) : null}
-            </div>
-            <Table<Transfer['items'][number]>
-              size="small"
-              pagination={false}
-              scroll={{ x: 650 }}
-              rowKey="id"
-              dataSource={confirmingTransfer.items}
-              columns={createTransferConfirmColumns(t)}
-            />
-          </div>
-        ) : null}
-      </Modal>
     </>
   )
 }

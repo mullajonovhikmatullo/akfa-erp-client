@@ -24,6 +24,10 @@ const parseBatch = (raw: Raw): StockBatch => ({
   remainingQty: Number(raw.remainingQty),
   costPriceUzs: Number(raw.costPriceUzs),
   costPriceUsd: raw.costPriceUsd != null ? Number(raw.costPriceUsd) : null,
+  wholesalePriceUzs: raw.wholesalePriceUzs != null ? Number(raw.wholesalePriceUzs) : null,
+  retailPriceUzs: raw.retailPriceUzs != null ? Number(raw.retailPriceUzs) : null,
+  wholesalePriceUsd: raw.wholesalePriceUsd != null ? Number(raw.wholesalePriceUsd) : null,
+  retailPriceUsd: raw.retailPriceUsd != null ? Number(raw.retailPriceUsd) : null,
   product: {
     ...(raw.product as { id: string; name: string; sku: string | null; unit: ProductUnit }),
   },

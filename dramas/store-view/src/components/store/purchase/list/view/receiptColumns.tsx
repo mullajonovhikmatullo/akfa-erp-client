@@ -1,3 +1,4 @@
+import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Tag } from 'antd'
 import { formatDateTime } from '@store/store-shared/lib/formatters'
@@ -79,7 +80,21 @@ export function createReceiptColumns({
       responsiveHide: true,
       render: (_value, receipt) => <span className="purchase-created-by">{receipt.createdBy.fullName}</span>,
     },
+     {
+      title: '',
+      key: 'open',
+      width: 44,
+      align: 'center',
+      render: () => <StoreIcon name="chevron-right" size={16} className="u-text-quiet" />,
+    },
   ]
+}
+
+function LotPrice({ usd, uzs }: { usd?: number | null; uzs?: number | null }) {
+  //
+  if (usd != null && usd > 0) return <MoneyDisplay amount={usd} currency="USD" />
+  if (uzs != null) return <MoneyDisplay amount={uzs} currency="UZS" />
+  return <span className="purchase-empty-value">—</span>
 }
 
 export function createReceiptItemColumns(t: StoreTranslator, page: number, pageSize: number): ColumnDef<StockBatch>[] {
@@ -99,28 +114,44 @@ export function createReceiptItemColumns(t: StoreTranslator, page: number, pageS
     {
       title: t('purchases.colQty'),
       dataIndex: 'initialQty',
-      width: 130,
+      width: 110,
       align: 'right',
       render: (quantity: number, batch) => <strong className="num">{quantity.toLocaleString('ru-RU')} {t(`units.${batch.product.unit}`)}</strong>,
     },
     {
       title: t('purchases.colRemaining'),
       dataIndex: 'remainingQty',
-      width: 140,
+      width: 110,
       align: 'right',
       render: (quantity: number, batch) => <strong className={`num ${quantity > 0 ? 'tone-success' : 'tone-quiet'}`}>{quantity.toLocaleString('ru-RU')} {t(`units.${batch.product.unit}`)}</strong>,
     },
     {
       title: t('purchases.colCost'),
       dataIndex: 'costPriceUzs',
-      width: 155,
+      width: 130,
       align: 'right',
       render: (amount: number) => <MoneyDisplay amount={amount} currency="UZS" />,
     },
     {
+      title: t('products.colWholesale'),
+      key: 'wholesale',
+      width: 120,
+      align: 'right',
+      responsiveHide: true,
+      render: (_value, batch) => <LotPrice usd={batch.wholesalePriceUsd} uzs={batch.wholesalePriceUzs} />,
+    },
+    {
+      title: t('products.colRetail'),
+      key: 'retail',
+      width: 120,
+      align: 'right',
+      responsiveHide: true,
+      render: (_value, batch) => <LotPrice usd={batch.retailPriceUsd} uzs={batch.retailPriceUzs} />,
+    },
+    {
       title: t('purchases.colTotalCost'),
       key: 'total',
-      width: 170,
+      width: 140,
       align: 'right',
       render: (_value, batch) => <strong><MoneyDisplay amount={batch.initialQty * batch.costPriceUzs} currency="UZS" /></strong>,
     },

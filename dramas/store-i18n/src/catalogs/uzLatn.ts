@@ -814,6 +814,8 @@ export const uzLatnTranslations = {
   'transfers.cancelTitle': 'Bekor qilinsinmi?',
   'transfers.cancelDesc': "Transfer bekor qilinadi, ombor o'zgarmaydi.",
   'transfers.cancelOk': 'Ha, bekor qil',
+  'transfers.detailTitle': 'Transfer tafsilotlari',
+  'transfers.cancelTransfer': 'Transferni bekor qilish',
   'transfers.cancelTooltip': 'Bekor qilish',
   'transfers.subtitleSuffix': 'ta transfer',
   'transfers.newTransfer': 'Yangi transfer',
