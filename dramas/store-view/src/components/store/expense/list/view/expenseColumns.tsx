@@ -1,6 +1,6 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
-import { Button, Popconfirm } from 'antd'
+import { Button, Popconfirm, Tooltip } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
@@ -14,9 +14,10 @@ interface ExpenseColumnsOptions {
   deleting: boolean
   deletingId?: string
   onDelete: (id: string) => void
+  onViewDescription: (expense: Expense) => void
 }
 
-export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDelete }: ExpenseColumnsOptions): ColumnDef<Expense>[] {
+export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDelete, onViewDescription }: ExpenseColumnsOptions): ColumnDef<Expense>[] {
   //
   return [
     {
@@ -48,8 +49,27 @@ export function createExpenseColumns({ t, rowIndex, deleting, deletingId, onDele
     },
     {
       title: t('expenses.colNote'),
-      dataIndex: 'description',
-      render: (value: string | null) => value ? <span className="u-text-secondary u-fs-13">{value}</span> : <span className="u-text-quiet">-</span>,
+      key: 'description',
+      width: 80,
+      align: 'center',
+      render: (_: unknown, expense: Expense) =>
+        expense.description ? (
+          <Tooltip title={t('expenses.viewNote')}>
+            <Button
+              size="small"
+              type="text"
+              aria-label={t('expenses.viewNote')}
+              icon={<StoreIcon name="eye" size={16} />}
+              onClick={(event) => {
+                //
+                event.stopPropagation()
+                onViewDescription(expense)
+              }}
+            />
+          </Tooltip>
+        ) : (
+          <span className="u-text-quiet">-</span>
+        ),
     },
     {
       title: t('expenses.colAmount'),

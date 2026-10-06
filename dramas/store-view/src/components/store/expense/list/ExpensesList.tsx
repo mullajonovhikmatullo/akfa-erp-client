@@ -1,5 +1,5 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
 
@@ -11,9 +11,11 @@ import { ExpenseFormModal } from '../form/ExpenseFormModal'
 import { useExpenseCategoriesList } from '../hooks/useExpenseCategoriesList'
 import { useExpenseCategorySummary } from '../hooks/useExpenseCategorySummary'
 import { useExpenseMutation } from '../hooks/useExpenseMutation'
-import { useExpensesList } from '../hooks/useExpensesList'
+import { useExpensesPage } from '../hooks/useExpensesPage'
+import { usePagination } from '../../shared/hooks/usePagination'
 import { getExpenseMetrics } from '../lib/expenseMetrics'
 import { ExpenseBreakdown } from './view/ExpenseBreakdown'
+import { ExpenseDescriptionModal } from './view/ExpenseDescriptionModal'
 import { ExpenseKpiCards } from './view/ExpenseKpiCards'
 import { createExpenseColumns } from './view/expenseColumns'
 import { DataTable } from '@store/store-shared/ui/data-table'
@@ -34,7 +36,7 @@ interface ExpensesListProps {
 export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesListProps) {
   //
   const t = useStoreT()
-  const rowIndex = (index: number) => index + 1
+  const { page, pageSize, changePage, goToPage, resetPage, rowIndex } = usePagination()
   const { control, watch } = useForm<ExpenseFiltersForm>({
     defaultValues: {
       categoryId: undefined,
@@ -45,23 +47,39 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
 
   const [creating, setCreating] = useState(false)
   const [managingCategories, setManagingCategories] = useState(false)
+  const [viewingExpense, setViewingExpense] = useState<Expense | null>(null)
   const dateRange = filters.dateRange
   const dateFilters = {
     from: dateRange[0]?.startOf('day').toISOString(),
     to: dateRange[1]?.endOf('day').toISOString(),
   }
 
-  const {
-    data: expenses = [],
-    isLoading,
-    isFetching,
-    refetch,
-  } = useExpensesList({
+  const expensesQuery = useExpensesPage({
     branchId,
     categoryId: filters.categoryId,
     ...dateFilters,
-    limit: 200,
+    page,
+    pageSize,
   })
+  const { isLoading, isFetching, refetch } = expensesQuery
+  const expenses = useMemo(() => expensesQuery.data?.items ?? [], [expensesQuery.data])
+  const total = expensesQuery.data?.total ?? 0
+  const lastPage = Math.max(1, Math.ceil(total / pageSize))
+  const filterKey = [branchId, filters.categoryId, dateFilters.from, dateFilters.to].join('|')
+  const previousFilterKey = useRef(filterKey)
+
+  useEffect(() => {
+    //
+    if (previousFilterKey.current === filterKey) return
+    previousFilterKey.current = filterKey
+    resetPage()
+  }, [filterKey, resetPage])
+
+  useEffect(() => {
+    //
+    if (expensesQuery.isPlaceholderData || !expensesQuery.data) return
+    if (page > lastPage) goToPage(lastPage)
+  }, [expensesQuery.data, expensesQuery.isPlaceholderData, goToPage, lastPage, page])
   const {
     data: categorySummary,
     isFetching: isSummaryFetching,
@@ -94,6 +112,7 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
     deleting: deleteExpense.isPending,
     deletingId: deleteExpense.variables,
     onDelete: (id) => deleteExpense.mutate(id),
+    onViewDescription: setViewingExpense,
   })
 
   return (
@@ -102,7 +121,7 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
         <div>
           <h1>{t('nav.expenses')}</h1>
           <div className="sub">
-            {expenses.length} {t('expenses.subtitleRecords')} · {categories.length} {t('expenses.subtitleCategories')}
+            {total} {t('expenses.subtitleRecords')} · {categories.length} {t('expenses.subtitleCategories')}
           </div>
         </div>
         <div className="u-items-center u-flex u-flex-wrap u-gap-8">
@@ -172,7 +191,7 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
               )}
             />
             <span className="u-text-muted u-fs-12-5 u-ml-auto">
-              <strong>{expenses.length}</strong> {t('common.resultsSuffix')}
+              <strong>{total}</strong> {t('common.resultsSuffix')}
             </span>
           </div>
 
@@ -180,8 +199,14 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
             rowKey="id"
             dataSource={expenses}
             columns={columns}
-            loading={isLoading}
-            pagination={false}
+            loading={isLoading || (isFetching && expensesQuery.isPlaceholderData)}
+            pagination={{
+              current: page,
+              pageSize,
+              total,
+              onChange: changePage,
+              showTotal: (count: number) => `${count} ${t('common.countSuffix')}`,
+            }}
             emptyText={t('expenses.empty')}
           />
         </div>
@@ -189,6 +214,7 @@ export function ExpensesList({ isStoreOwner, branchId, exchangeRate }: ExpensesL
         <ExpenseBreakdown items={byCategory} grandTotal={grandTotal} t={t} />
       </div>
 
+      <ExpenseDescriptionModal t={t} expense={viewingExpense} onClose={() => setViewingExpense(null)} />
       <ExpenseFormModal t={t} exchangeRate={exchangeRate} branchId={branchId} open={creating} onClose={() => setCreating(false)} />
       <CategoryManagerDrawer t={t} open={managingCategories} onClose={() => setManagingCategories(false)} />
     </>
