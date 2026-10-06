@@ -1,13 +1,11 @@
-import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
-import { Button, Empty, Select, Table, Tooltip } from 'antd'
+import { Empty, Select, Table } from 'antd'
 
-import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Branch, Product } from '@store/store-stub'
-import { CartBulkBar } from '../../../shared/view/CartBulkBar'
+import { ProductChecklistSelect } from '../../../product/checklist/ProductChecklistSelect'
 import { Label } from './Label'
 import { createStockInColumns } from './stockInColumns'
 import type { StockInCartItem, StockInFormValues } from './types'
@@ -24,10 +22,7 @@ interface StockInFormViewProps {
   cart: StockInCartItem[]
   totalCost: number
   onAddProduct: (productId: string) => void
-  onOpenPicker: () => void
-  selectedCartKeys: string[]
-  onSelectCartKeys: (keys: string[]) => void
-  onRemoveSelected: () => void
+  onRemoveProduct: (productId: string) => void
   onChangeQty: (key: string, delta: number) => void
   onUpdateQty: (key: string, value: number | null) => void
   onUpdateItem: (key: string, patch: Partial<StockInCartItem>) => void
@@ -46,10 +41,7 @@ export function StockInFormView({
   cart,
   totalCost,
   onAddProduct,
-  onOpenPicker,
-  selectedCartKeys,
-  onSelectCartKeys,
-  onRemoveSelected,
+  onRemoveProduct,
   onChangeQty,
   onUpdateQty,
   onUpdateItem,
@@ -81,60 +73,26 @@ export function StockInFormView({
 
       <div>
         <Label>{t('stockIn.labelAddProduct')}</Label>
-        <div className="u-flex u-gap-8">
-          <Select
-            showSearch
-            optionFilterProp="searchText"
-            onChange={onAddProduct}
-            value={null}
-            placeholder={t('stockIn.placeholderSearch')}
-            className="u-flex-1 u-min-w-0"
-            loading={productsLoading}
-            suffixIcon={productsLoading ? undefined : <StoreIcon name="plus" size={16} />}
-            notFoundContent={productsLoading ? <SelectLoadingContent /> : undefined}
-            options={products
-              .filter((product) => product.isActive && !selectedProductIds.has(product.id))
-              .map((product) => ({
-                value: product.id,
-                searchText: [product.sku, product.name].filter(Boolean).join(' '),
-                label: (
-                  <div className="u-items-center u-flex u-gap-8 u-min-w-0">
-                    {product.sku ? (
-                      <span className="num u-text-muted u-inline-block u-shrink-0 u-fs-11 u-max-w-88 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
-                        {product.sku}
-                      </span>
-                    ) : null}
-                    <span className="u-flex-auto u-fw-600 u-min-w-0">
-                      <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
-                    </span>
-                  </div>
-                ),
-              }))}
-          />
-          <Tooltip title={t('productPicker.openHint')}>
-            <Button icon={<StoreIcon name="circle-check" size={16} />} onClick={onOpenPicker}>
-              {t('productPicker.openButton')}
-            </Button>
-          </Tooltip>
-        </div>
+        <ProductChecklistSelect
+          t={t}
+          products={products.filter((product) => product.isActive)}
+          selectedIds={[...selectedProductIds]}
+          placeholder={t('stockIn.placeholderSearch')}
+          loading={productsLoading}
+          onAdd={onAddProduct}
+          onRemove={onRemoveProduct}
+        />
       </div>
 
       {cart.length === 0 ? (
         <Empty description={t('stockIn.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} className="u-p-16-0" />
       ) : (
         <>
-          <CartBulkBar
-            t={t}
-            count={selectedCartKeys.length}
-            onClearSelection={() => onSelectCartKeys([])}
-            onRemove={onRemoveSelected}
-          />
           <Table<StockInCartItem>
             size="small"
             pagination={false}
             rowKey="_key"
             dataSource={cart}
-            rowSelection={{ selectedRowKeys: selectedCartKeys, onChange: (keys) => onSelectCartKeys(keys as string[]), columnWidth: 36 }}
             scroll={{ x: 1060 }}
             columns={createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem, onRemoveItem })}
           />
