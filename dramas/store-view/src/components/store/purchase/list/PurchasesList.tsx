@@ -12,7 +12,6 @@ import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { StockInModal } from '../../inventory/stock-in/StockInModal'
 import { useStockBatchSummary } from '../../inventory/hooks/useStockBatchSummary'
 import { useStockReceiptsPage } from '../../inventory/hooks/useStockReceiptsPage'
-import { ReceiptDetailDrawer } from '../detail/ReceiptDetailDrawer'
 import { PurchaseKpiBox } from './view/PurchaseKpiBox'
 import { createReceiptColumns } from './view/receiptColumns'
 
@@ -26,9 +25,10 @@ interface PurchasesListProps {
   userBranchId?: string | null
   activeBranchId?: string
   exchangeRate: number
+  onOpenReceipt: (receiptId: string) => void
 }
 
-export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exchangeRate }: PurchasesListProps) {
+export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exchangeRate, onOpenReceipt }: PurchasesListProps) {
   //
   const t = useStoreT()
   const { control, watch, setValue } = useForm<PurchaseFiltersForm>({
@@ -36,7 +36,6 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
   })
   const filters = watch()
   const [creating, setCreating] = useState(false)
-  const [openReceipt, setOpenReceipt] = useState<StockReceipt | null>(null)
   const dateRange = filters.dateRange
   const headerBranchId = isStoreOwner && activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
   const scopedBranchId = isStoreOwner ? (headerBranchId ?? filters.branchId) : (userBranchId ?? undefined)
@@ -132,7 +131,7 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
           columns={receiptColumns}
           loading={receiptsQuery.isLoading}
           onRow={(receipt) => ({
-            onClick: () => setOpenReceipt(receipt),
+            onClick: () => onOpenReceipt(receipt.id),
             className: 'clickable-row',
           })}
           pagination={{
@@ -148,7 +147,6 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
         />
       </div>
 
-      <ReceiptDetailDrawer t={t} receipt={openReceipt} supplierNote={supplierNote} onClose={() => setOpenReceipt(null)} />
       <StockInModal t={t} isStoreOwner={isStoreOwner} userBranchId={scopedBranchId} exchangeRate={exchangeRate} open={creating} onClose={() => setCreating(false)} />
     </>
   )
