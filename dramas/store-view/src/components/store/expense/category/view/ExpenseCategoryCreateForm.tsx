@@ -4,12 +4,12 @@ import { Controller } from 'react-hook-form'
 import { Button, Input } from 'antd'
 
 import { blockAutofill } from '@store/store-shared/lib/autofill'
-import type { CategoryManagerFormControl, CategoryManagerFormErrors } from './types'
+import type { CategoryCreateFormControl, CategoryCreateFormErrors } from './types'
 
 interface ExpenseCategoryCreateFormProps {
   t: StoreTranslator
-  control: CategoryManagerFormControl
-  errors: CategoryManagerFormErrors
+  control: CategoryCreateFormControl
+  errors: CategoryCreateFormErrors
   name: string
   pending: boolean
   onSubmit: () => void

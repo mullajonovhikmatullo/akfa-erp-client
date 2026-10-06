@@ -1,11 +1,13 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Badge, Button, Select, Tooltip } from 'antd'
+import { Button, DatePicker, Select, Tooltip } from 'antd'
 import { PlusIcon } from '@phosphor-icons/react/dist/csr/Plus'
 
+import dayjs, { type Dayjs } from 'dayjs'
 import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
+import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { SaleListItem, SaleType } from '@store/store-stub'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
 import { NewSaleForm } from '../form/NewSaleForm'
@@ -15,6 +17,7 @@ import { createSalesColumns } from './view/salesColumns'
 type SalesFiltersForm = {
   saleType?: SaleType
   hasDebt?: string
+  day: Dayjs | null
 }
 
 interface SalesListProps {
@@ -27,10 +30,11 @@ interface SalesListProps {
 export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }: SalesListProps) {
   //
   const t = useStoreT()
-  const { control, watch } = useForm<SalesFiltersForm>({
+  const { control, watch, setValue } = useForm<SalesFiltersForm>({
     defaultValues: {
       saleType: undefined,
       hasDebt: undefined,
+      day: null,
     },
   })
   const filters = watch()
@@ -42,6 +46,8 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
     branchId,
     saleType: filters.saleType,
     hasDebt: hasDebtFilter,
+    from: filters.day?.startOf('day').toISOString(),
+    to: filters.day?.endOf('day').toISOString(),
   })
 
   useEffect(() => {
@@ -91,9 +97,7 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
           className={tab === 'history' ? 'is-active' : undefined}
           onClick={() => setTab('history')}
         >
-          <Badge count={totalWithDebt} size="small" offset={[8, 0]}>
-            <span>{t('sales.historyBtn')} ({total})</span>
-          </Badge>
+          {t('sales.historyBtn')}
         </button>
       </div>
 
@@ -143,12 +147,51 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
                 />
               )}
             />
+            <Controller
+              name="day"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  value={field.value}
+                  onChange={(value) => {
+                    //
+                    field.onChange(value)
+                    resetPage()
+                  }}
+                  format="DD.MM.YYYY"
+                  placeholder={t('sales.filterDay')}
+                  disabledDate={(date) => date.isAfter(dayjs(), 'day')}
+                  presets={[
+                    { label: t('common.today'), value: dayjs() },
+                    { label: t('common.yesterday'), value: dayjs().subtract(1, 'day') },
+                  ]}
+                  className="u-min-w-160"
+                />
+              )}
+            />
             <Tooltip title={t('common.refresh')}>
               <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
             </Tooltip>
-            <span className="u-text-muted u-fs-12-5 u-ml-auto">
-              <strong>{total}</strong> {t('common.resultsSuffix')}
-            </span>
+            <div className="sales-history-stats">
+              {totalWithDebt > 0 && filters.hasDebt !== 'true' ? (
+                <button
+                  type="button"
+                  className="sales-history-stats__debt"
+                  onClick={() => {
+                    //
+                    setValue('hasDebt', 'true')
+                    resetPage()
+                  }}
+                >
+                  <StatusBadge tone="danger" dot>
+                    {t('sales.hasDebt')}: <span className="num">{totalWithDebt.toLocaleString('ru-RU')}</span>
+                  </StatusBadge>
+                </button>
+              ) : null}
+              <span className="u-text-muted u-fs-12-5">
+                <strong className="num">{total.toLocaleString('ru-RU')}</strong> {t('common.resultsSuffix')}
+              </span>
+            </div>
           </div>
 
           <DataTable<SaleListItem>

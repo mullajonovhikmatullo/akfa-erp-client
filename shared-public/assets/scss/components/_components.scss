@@ -127,7 +127,7 @@ $background-tones: (
 .sale-price-cell--strong { font-weight: 700; }
 .sale-cart-grid {
   display: grid;
-  grid-template-columns: minmax(170px, 1fr) minmax(188px, 220px) minmax(90px, 120px) minmax(126px, 150px) minmax(150px, 178px) 28px;
+  grid-template-columns: 20px minmax(120px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(96px, 128px) minmax(108px, 148px) 28px;
   gap: 8px;
 }
 .sale-cart-grid--header {
@@ -450,4 +450,77 @@ $dashboard-colors: (
   line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.product-picker__filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.product-picker__category { min-width: 200px; }
+.product-picker__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.product-picker__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-3);
+  font-size: 12.5px;
+
+  strong { color: var(--ink); }
+}
+.product-picker__row--disabled td { opacity: .55; }
+
+.cart-bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  font-size: 12.5px;
+}
+
+@media (max-width: 575px) {
+  .product-picker__filters { flex-direction: column; }
+  .product-picker__footer { flex-direction: column; align-items: stretch; }
+}
+
+.sale-cart-grid--row.is-selected { background: color-mix(in srgb, var(--primary) 5%, transparent); }
+.cart-bulk-bar + .sale-cart-grid--header,
+.cart-bulk-bar + .ant-table-wrapper { margin-top: 8px; }
+.sale-cart-grid--header { align-items: end; line-height: 1.25; }
+
+.excel-dropzone__icon {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(22, 163, 74, .22);
+  border-radius: 14px;
+  background: rgba(22, 163, 74, .08);
+  color: #16a34a;
+}
+html.dark .excel-dropzone__icon {
+  border-color: rgba(74, 222, 128, .24);
+  background: rgba(74, 222, 128, .1);
+  color: #4ade80;
+}
+.sale-cart-name {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }

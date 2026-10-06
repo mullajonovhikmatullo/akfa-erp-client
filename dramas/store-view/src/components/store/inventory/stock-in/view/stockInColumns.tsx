@@ -23,7 +23,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('stockIn.colProduct'),
       key: 'product',
-      width: 270,
+      width: 220,
       render: (_: unknown, item: StockInCartItem) => (
         <div className="u-max-w-270 u-min-w-0">
           <div className="u-fs-13 u-fw-600 u-lh-tight">
@@ -40,7 +40,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('stockIn.colQty'),
       key: 'qty',
-      width: 220,
+      width: 200,
       render: (_: unknown, item: StockInCartItem) => (
         <QuantityStepper
           value={item.quantity}
@@ -54,7 +54,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('products.colCost'),
       key: 'cost',
-      width: 170,
+      width: 150,
       render: (_: unknown, item: StockInCartItem) => (
         <PriceInput
           item={item}
@@ -67,7 +67,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('products.colWholesale'),
       key: 'wholesale',
-      width: 170,
+      width: 150,
       render: (_: unknown, item: StockInCartItem) => (
         <PriceInput
           item={item}
@@ -80,7 +80,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('products.colRetail'),
       key: 'retail',
-      width: 170,
+      width: 150,
       render: (_: unknown, item: StockInCartItem) => (
         <PriceInput item={item} field="retailPrice" error={null} onUpdateItem={onUpdateItem} />
       ),
@@ -88,7 +88,7 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('stockIn.colTotal'),
       key: 'total',
-      width: 150,
+      width: 130,
       align: 'right' as const,
       render: (_: unknown, item: StockInCartItem) => (
         <span className="num u-inline-block u-fs-13 u-fw-700 u-max-w-140 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >

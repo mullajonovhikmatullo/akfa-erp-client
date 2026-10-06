@@ -15,9 +15,11 @@ import { ClockIcon } from '@phosphor-icons/react/dist/csr/Clock'
 import { ClockCountdownIcon } from '@phosphor-icons/react/dist/csr/ClockCountdown'
 import { CoinsIcon } from '@phosphor-icons/react/dist/csr/Coins'
 import { CreditCardIcon } from '@phosphor-icons/react/dist/csr/CreditCard'
+import { DownloadSimpleIcon } from '@phosphor-icons/react/dist/csr/DownloadSimple'
 import { EyeIcon } from '@phosphor-icons/react/dist/csr/Eye'
 import { EyeSlashIcon } from '@phosphor-icons/react/dist/csr/EyeSlash'
 import { FileArrowUpIcon } from '@phosphor-icons/react/dist/csr/FileArrowUp'
+import { FileXlsIcon } from '@phosphor-icons/react/dist/csr/FileXls'
 import { GearSixIcon } from '@phosphor-icons/react/dist/csr/GearSix'
 import { GlobeIcon } from '@phosphor-icons/react/dist/csr/Globe'
 import { ImageIcon } from '@phosphor-icons/react/dist/csr/Image'
@@ -57,9 +59,11 @@ const STORE_ICONS = {
   clock: ClockIcon,
   close: XIcon,
   'close-circle': XCircleIcon,
+  download: DownloadSimpleIcon,
   eye: EyeIcon,
   favourite: StarIcon,
   'file-upload': FileArrowUpIcon,
+  'file-xls': FileXlsIcon,
   'finance-money': CoinsIcon,
   globe: GlobeIcon,
   hide: EyeSlashIcon,

@@ -665,7 +665,8 @@ html.dark .dashboard-top-products__tabs button.is-active{
 
 .app-shell .ant-tag { font-size: 10.5px; line-height: 18px; padding-inline: 6px; }
 .app-shell .ant-space { gap: 8px !important; }
-.app-shell .ant-table-wrapper > .ant-pagination {
+.app-shell .ant-table-wrapper > .ant-pagination,
+.app-shell .ant-table-wrapper .ant-table-pagination {
   margin: 12px 14px 14px !important;
 }
 .app-shell .ant-table-wrapper .ant-btn-sm { height: 26px; padding-inline: 7px; }

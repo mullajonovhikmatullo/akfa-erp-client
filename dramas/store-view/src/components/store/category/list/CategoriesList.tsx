@@ -46,7 +46,6 @@ export function CategoriesList() {
     defaultValues: {
       name: '',
       description: '',
-      isActive: true,
     },
   })
   const [editTarget, setEditTarget] = useState<Category | null>(null)
@@ -56,7 +55,7 @@ export function CategoriesList() {
   function openCreate() {
     //
     setEditTarget(null)
-    resetCategoryForm({ name: '', description: '', isActive: true })
+    resetCategoryForm({ name: '', description: '' })
     setModalOpen(true)
   }
 
@@ -66,7 +65,6 @@ export function CategoriesList() {
     resetCategoryForm({
       name: category.name,
       description: category.description ?? '',
-      isActive: category.isActive,
     })
     setModalOpen(true)
   }
@@ -77,7 +75,6 @@ export function CategoriesList() {
       const payload: UpdateCategoryPayload = {
         name: values.name,
         description: values.description || undefined,
-        isActive: values.isActive,
       }
       updateMutation.mutate(
         { id: editTarget.id, payload },
@@ -124,6 +121,15 @@ export function CategoriesList() {
     statusFilter,
     deleting: deleteMutation.isPending,
     deletingId: deleteMutation.variables,
+    togglingId: updateMutation.isPending ? updateMutation.variables?.id : undefined,
+    onToggleActive: (category, isActive) =>
+      updateMutation.mutate(
+        { id: category.id, payload: { isActive } },
+        {
+          onSuccess: () => toast.success(t('categories.updateSuccess')),
+          onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'categories.updateError')),
+        },
+      ),
     onEdit: openEdit,
     onDelete: (id) =>
       deleteMutation.mutate(id, {
