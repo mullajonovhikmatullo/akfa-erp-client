@@ -8,6 +8,76 @@
       }
     },
     "schemas": {
+      "GoogleSignInConfig": {
+        "type": "object",
+        "required": [
+          "clientId"
+        ],
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GoogleLoginPayload": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "credential"
+        ],
+        "properties": {
+          "credential": {
+            "type": "string",
+            "minLength": 100,
+            "maxLength": 8192
+          },
+          "account": {
+            "$ref": "#/components/schemas/PlatformLoginPayload"
+          }
+        }
+      },
+      "GoogleLoginResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "session"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "authenticated"
+                ]
+              },
+              "session": {
+                "$ref": "#/components/schemas/LoginResponse"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "email"
+            ],
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "link_required"
+                ]
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          }
+        ]
+      },
       "StoreStatus": {
         "type": "string",
         "enum": [
@@ -1798,7 +1868,26 @@
           },
           "costPriceUsd": {
             "type": "number",
-            "example": 14.5
+            "example": 14.5,
+            "description": "Send for a USD-priced product; its sale prices must then be in USD too"
+          },
+          "wholesalePriceUzs": {
+            "type": "number",
+            "example": 210000,
+            "description": "Optional, sent together with retailPriceUzs; updates the product's prices"
+          },
+          "retailPriceUzs": {
+            "type": "number",
+            "example": 240000,
+            "description": "Optional, sent together with wholesalePriceUzs; updates the product's prices"
+          },
+          "wholesalePriceUsd": {
+            "type": "number",
+            "example": 16.5
+          },
+          "retailPriceUsd": {
+            "type": "number",
+            "example": 19
           },
           "supplierNote": {
             "type": "string",
@@ -2343,6 +2432,7 @@
           },
           "items": {
             "type": "array",
+            "maxItems": 200,
             "items": {
               "$ref": "#/components/schemas/SaleItemRequest"
             }
@@ -2485,6 +2575,7 @@
           "items": {
             "type": "array",
             "minItems": 1,
+            "maxItems": 200,
             "items": {
               "$ref": "#/components/schemas/TransferItem"
             }
@@ -2509,6 +2600,104 @@
     }
   ],
   "paths": {
+    "/auth/google/config": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get the public Google sign-in client configuration",
+        "responses": {
+          "200": {
+            "description": "Google client ID, or null when sign-in is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GoogleSignInConfig"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Sign in using a Google ID token or link an existing account with its password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated session or a request to confirm the existing Mavion account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GoogleLoginResult"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid Google token or account credentials"
+          },
+          "403": {
+            "description": "Account or store access is restricted"
+          },
+          "409": {
+            "description": "Account is already linked or changed concurrently"
+          },
+          "422": {
+            "description": "Invalid request payload"
+          },
+          "429": {
+            "description": "Sign-in rate limit exceeded"
+          },
+          "503": {
+            "description": "Google sign-in is unavailable"
+          }
+        }
+      }
+    },
     "/auth/login": {
       "post": {
         "tags": [
@@ -2935,7 +3124,32 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -3024,7 +3238,32 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          }
+        ]
       }
     },
     "/platform/plans/{id}": {
@@ -3679,7 +3918,32 @@
               }
             }
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          }
+        ]
       }
     },
     "/admins": {
@@ -3749,6 +4013,51 @@
             "name": "isActive",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "When provided, selects the existing paginated response format.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
             }
           }
         ],
@@ -4204,7 +4513,11 @@
                 "properties": {
                   "base64Photo": {
                     "type": "string",
-                    "description": "JPEG, PNG or WebP data URL, maximum 5 MB decoded"
+                    "description": "Client-optimized clear JPEG, PNG or WebP data URL, maximum 5 MB decoded"
+                  },
+                  "thumbnailPhoto": {
+                    "type": "string",
+                    "description": "Client-optimized square thumbnail data URL, maximum 1 MB decoded"
                   }
                 }
               }
@@ -4281,7 +4594,54 @@
           "200": {
             "description": "List of branches"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "When provided, selects the existing paginated response format.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          }
+        ]
       }
     },
     "/branches/{id}": {
@@ -4412,11 +4772,134 @@
               "type": "boolean"
             },
             "description": "Filter customers with outstanding debt"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Customer list"
+          }
+        }
+      }
+    },
+    "/customers/{id}/summary": {
+      "get": {
+        "summary": "Purchase, debt and payment totals for one customer, plus the last 12 months",
+        "tags": [
+          "Customers"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store managers only; branch staff are always limited to their branch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer summary; balance is the branch share when a branch is in scope"
+          },
+          "403": {
+            "description": "Customer is not linked to the caller's branch"
+          },
+          "404": {
+            "description": "Customer not found"
+          }
+        }
+      }
+    },
+    "/customers/{id}/products": {
+      "get": {
+        "summary": "Products this customer bought, grouped by product (paginated)",
+        "tags": [
+          "Customers"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ items, total }, ordered by total spent"
           }
         }
       }
@@ -4573,6 +5056,29 @@
               "type": "boolean"
             },
             "description": "Include inactive categories (STORE_OWNER use)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
           }
         ],
         "responses": {
@@ -4940,7 +5446,71 @@
           "422": {
             "description": "Validation error"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Reuse the same key and input for retries. Different input conflicts (409). Replays return the existing resource's current fields.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            }
+          }
+        ]
+      }
+    },
+    "/inventory/stock-in/batch": {
+      "post": {
+        "tags": [
+          "Inventory"
+        ],
+        "summary": "Receive a bounded group of stock batches in one receipt",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 100,
+                "items": {
+                  "$ref": "#/components/schemas/StockInRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Receipt batches created atomically"
+          },
+          "409": {
+            "description": "Stock or idempotency conflict"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Reuse the same key and input for retries. Different input conflicts (409). Replays return the existing resource's current fields.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            }
+          }
+        ]
       }
     },
     "/inventory/adjustment": {
@@ -4974,7 +5544,21 @@
           "422": {
             "description": "Validation error"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Reuse the same key and input for retries. Different input conflicts (409). Replays return the existing resource's current fields.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            }
+          }
+        ]
       }
     },
     "/inventory": {
@@ -5021,6 +5605,29 @@
               "type": "boolean"
             },
             "description": "Filter products at or below their lowStockThreshold"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
           }
         ],
         "responses": {
@@ -5036,6 +5643,77 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/inventory/stock": {
+      "get": {
+        "summary": "Paginated stock levels grouped by product (branch-scoped for branch staff)",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Store managers only — omit to sum every branch"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Matches product name or SKU"
+          },
+          {
+            "in": "query",
+            "name": "quantity",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "out",
+                "low",
+                "available"
+              ],
+              "default": "all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ items, total, summary: { productCount, totals: { PIECE, KG } } }; summary ignores search and quantity filters"
           }
         }
       }
@@ -5058,6 +5736,29 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
             }
           }
         ],
@@ -5208,6 +5909,51 @@
               "format": "date-time"
             },
             "description": "Filter by receivedAt until this timestamp"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "When provided, selects the existing paginated response format.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            }
           }
         ],
         "responses": {
@@ -5336,6 +6082,51 @@
             "name": "isActive",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "When provided, selects the existing paginated response format.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
             }
           }
         ],
@@ -5532,6 +6323,51 @@
             "name": "isActive",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum records in the legacy array response; use offset to read subsequent windows.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "When provided, selects the existing paginated response format.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
             }
           }
         ],
@@ -5901,7 +6737,21 @@
           "422": {
             "description": "Validation error"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Reuse the same key and input for retries. Different input conflicts (409). Replays return the existing resource's current fields.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            }
+          }
+        ]
       },
       "get": {
         "summary": "List sales with filters (branch-scoped for ADMIN)",
@@ -5976,6 +6826,28 @@
               "type": "integer",
               "default": 50,
               "maximum": 200
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "When provided, selects the existing paginated response format.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
             }
           }
         ],
@@ -6117,6 +6989,18 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Reuse the same key and input for retries. Different input conflicts (409). Replays return the existing resource's current fields.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            }
           }
         ],
         "requestBody": {
@@ -6242,7 +7126,21 @@
           "422": {
             "description": "Validation error"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Reuse the same key and input for retries. Different input conflicts (409). Replays return the existing resource's current fields.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9._:-]+$"
+            }
+          }
+        ]
       },
       "get": {
         "summary": "List transfers (branch-scoped for ADMIN)",

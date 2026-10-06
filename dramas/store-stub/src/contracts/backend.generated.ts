@@ -262,6 +262,10 @@ export interface StockInRequest {
   "quantity": number
   "costPriceUzs": number
   "costPriceUsd"?: number
+  "wholesalePriceUzs"?: number
+  "retailPriceUzs"?: number
+  "wholesalePriceUsd"?: number
+  "retailPriceUsd"?: number
   "supplierNote"?: string
 }
 
