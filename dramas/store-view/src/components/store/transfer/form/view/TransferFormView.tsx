@@ -1,13 +1,14 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
-import { Alert, Empty, Input, Select, Table } from 'antd'
+import { Alert, Button, Empty, Input, Select, Table, Tooltip } from 'antd'
 
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Branch, Product } from '@store/store-stub'
+import { CartBulkBar } from '../../../shared/view/CartBulkBar'
 import { Label } from './Label'
 import { createTransferColumns } from './transferColumns'
 import type { TransferCartItem, TransferFormValues } from './types'
@@ -26,6 +27,10 @@ interface TransferFormViewProps {
   insufficientStockItems: TransferCartItem[]
   totalCost: number
   onAddProduct: (productId: string) => void
+  onOpenPicker: () => void
+  selectedCartKeys: string[]
+  onSelectCartKeys: (keys: string[]) => void
+  onRemoveSelected: () => void
   onChangeQty: (key: string, delta: number) => void
   onUpdateQty: (key: string, value: number | null) => void
   onUpdateItem: (key: string, patch: Partial<TransferCartItem>) => void
@@ -46,6 +51,10 @@ export function TransferFormView({
   insufficientStockItems,
   totalCost,
   onAddProduct,
+  onOpenPicker,
+  selectedCartKeys,
+  onSelectCartKeys,
+  onRemoveSelected,
   onChangeQty,
   onUpdateQty,
   onUpdateItem,
@@ -85,43 +94,50 @@ export function TransferFormView({
 
       <div>
         <Label>{t('transferModal.labelAddProduct')}</Label>
-        <Select
-          showSearch
-          optionFilterProp="searchText"
-          onChange={onAddProduct}
-          value={null}
-          placeholder={t('transferModal.placeholderSearch')}
-          className="u-w-full"
-          loading={productSelectLoading}
-          suffixIcon={productSelectLoading ? undefined : <StoreIcon name="plus" size={16} />}
-          disabled={!sourceBranchId}
-          notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
-          options={transferableProducts
-            .filter((product) => !selectedProductIds.has(product.id))
-            .map((product) => {
-              //
-              const stock = stockByProductId.get(product.id) ?? 0
-              return {
-                value: product.id,
-                searchText: [product.sku, product.name].filter(Boolean).join(' '),
-                label: (
-                  <div className="u-items-center u-flex u-gap-8 u-min-w-0">
-                    {product.sku ? (
-                      <span className="num u-text-muted u-inline-block u-shrink-0 u-fs-11 u-max-w-88 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
-                        {product.sku}
+        <div className="u-flex u-gap-8">
+          <Select
+            showSearch
+            optionFilterProp="searchText"
+            onChange={onAddProduct}
+            value={null}
+            placeholder={t('transferModal.placeholderSearch')}
+            className="u-flex-1 u-min-w-0"
+            loading={productSelectLoading}
+            suffixIcon={productSelectLoading ? undefined : <StoreIcon name="plus" size={16} />}
+            disabled={!sourceBranchId}
+            notFoundContent={productSelectLoading ? <SelectLoadingContent /> : undefined}
+            options={transferableProducts
+              .filter((product) => !selectedProductIds.has(product.id))
+              .map((product) => {
+                //
+                const stock = stockByProductId.get(product.id) ?? 0
+                return {
+                  value: product.id,
+                  searchText: [product.sku, product.name].filter(Boolean).join(' '),
+                  label: (
+                    <div className="u-items-center u-flex u-gap-8 u-min-w-0">
+                      {product.sku ? (
+                        <span className="num u-text-muted u-inline-block u-shrink-0 u-fs-11 u-max-w-88 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
+                          {product.sku}
+                        </span>
+                      ) : null}
+                      <span className="u-flex-auto u-fw-600 u-min-w-0">
+                        <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
                       </span>
-                    ) : null}
-                    <span className="u-flex-auto u-fw-600 u-min-w-0">
-                      <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
-                    </span>
-                    <span className="u-text-muted u-shrink-0 u-fs-12">
-                      {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${product.unit}`)}
-                    </span>
-                  </div>
-                ),
-              }
-            })}
-        />
+                      <span className="u-text-muted u-shrink-0 u-fs-12">
+                        {t('newSale.availableStock')}: {stock.toLocaleString('ru-RU')} {t(`units.${product.unit}`)}
+                      </span>
+                    </div>
+                  ),
+                }
+              })}
+          />
+          <Tooltip title={t('productPicker.openHint')}>
+            <Button icon={<StoreIcon name="circle-check" size={16} />} disabled={!sourceBranchId} onClick={onOpenPicker}>
+              {t('productPicker.openButton')}
+            </Button>
+          </Tooltip>
+        </div>
       </div>
 
       {cart.length === 0 ? (
@@ -148,12 +164,19 @@ export function TransferFormView({
               )}
             />
           ) : null}
+          <CartBulkBar
+            t={t}
+            count={selectedCartKeys.length}
+            onClearSelection={() => onSelectCartKeys([])}
+            onRemove={onRemoveSelected}
+          />
           <Table<TransferCartItem>
             size="small"
             pagination={false}
             rowKey="_key"
             dataSource={cart}
-            scroll={{ x: 970 }}
+            rowSelection={{ selectedRowKeys: selectedCartKeys, onChange: (keys) => onSelectCartKeys(keys as string[]), columnWidth: 36 }}
+            scroll={{ x: 940 }}
             columns={createTransferColumns({
               t,
               stockByProductId,

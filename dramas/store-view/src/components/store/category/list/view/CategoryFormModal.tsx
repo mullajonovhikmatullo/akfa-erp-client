@@ -1,7 +1,7 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
-import { Form, Input, Modal, Switch } from 'antd'
+import { Form, Input, Modal } from 'antd'
 
 import { blockAutofill } from '@store/store-shared/lib/autofill'
 import type { Category } from '@store/store-stub'
@@ -9,7 +9,6 @@ import type { Category } from '@store/store-stub'
 export type CategoryFormValues = {
   name: string
   description?: string
-  isActive?: boolean
 }
 
 interface CategoryFormModalProps {
@@ -93,23 +92,6 @@ export function CategoryFormModal({
             )}
           />
         </Form.Item>
-
-        {editTarget ? (
-          <Form.Item label={t('common.status')}>
-            <Controller
-              name="isActive"
-              control={control}
-              render={({ field }) => (
-                <Switch
-                  checked={field.value ?? true}
-                  onChange={field.onChange}
-                  checkedChildren={t('common.active')}
-                  unCheckedChildren={t('common.inactive')}
-                />
-              )}
-            />
-          </Form.Item>
-        ) : null}
       </Form>
     </Modal>
   )

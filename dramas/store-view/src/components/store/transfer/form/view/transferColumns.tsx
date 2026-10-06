@@ -22,7 +22,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
     {
       title: t('transferModal.colProduct'),
       key: 'product',
-      width: 270,
+      width: 240,
       render: (_: unknown, item: TransferCartItem) => (
         <div className="u-max-w-270 u-min-w-0">
           <div className="u-fs-13 u-fw-600 u-lh-tight">
@@ -42,7 +42,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
     {
       title: t('transferModal.colQty'),
       key: 'qty',
-      width: 240,
+      width: 200,
       render: (_: unknown, item: TransferCartItem) => {
         //
         const stock = stockByProductId.get(item.productId) ?? 0
@@ -61,7 +61,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
     {
       title: t('newSale.colRemainingStock'),
       key: 'stock',
-      width: 140,
+      width: 120,
       align: 'right' as const,
       render: (_: unknown, item: TransferCartItem) => {
         //
@@ -78,7 +78,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
     {
       title: t('transferModal.colCost'),
       key: 'cost',
-      width: 170,
+      width: 160,
       render: (_: unknown, item: TransferCartItem) => (
         <InputNumber<number>
           value={item.unitCostUzs}
@@ -94,7 +94,7 @@ export function createTransferColumns({ t, stockByProductId, onChangeQty, onUpda
     {
       title: t('transferModal.colTotal'),
       key: 'total',
-      width: 200,
+      width: 150,
       align: 'right' as const,
       render: (_: unknown, item: TransferCartItem) => (
         <span className="num u-inline-block u-fs-13 u-fw-700 u-whitespace-nowrap" >

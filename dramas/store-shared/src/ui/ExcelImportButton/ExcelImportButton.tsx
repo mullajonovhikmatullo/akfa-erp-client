@@ -1,3 +1,4 @@
+import { StoreIcon } from '../StoreIcon/StoreIcon'
 import type { StoreTranslator } from '@store/store-i18n'
 import { useState } from 'react'
 import { Alert, Button, Modal, Progress, Table, Tag, Tooltip, Upload } from 'antd'
@@ -138,10 +139,10 @@ export function ExcelImportButton<T>({
       render: (_: unknown, row: ParsedRow<T>) =>
         row.error ? (
           <Tooltip title={row.error}>
-            <i className="icons-close-circle icon-size-18 u-text-danger" />
+            <StoreIcon name="close-circle" size={18} weight="fill" className="u-text-danger" />
           </Tooltip>
         ) : (
-          <i className="icons-circle-check icon-size-18 u-text-success" />
+          <StoreIcon name="circle-check" size={18} weight="fill" className="u-text-success" />
         ),
     },
   ]
@@ -167,7 +168,7 @@ export function ExcelImportButton<T>({
   ]
 
   const importTrigger = (
-    <Button icon={<i className="icons-upload icon-size-18" />} disabled={disabled} onClick={() => setPhase('setup')}>
+    <Button icon={<StoreIcon name="file-xls" size={16} />} disabled={disabled} onClick={() => setPhase('setup')}>
       {t('excel.importButton')}
     </Button>
   )
@@ -194,7 +195,7 @@ export function ExcelImportButton<T>({
             ? [<Button key="cancel" onClick={handleClose}>{t('common.cancel')}</Button>]
             : phase === 'preview'
               ? [
-                  <Button key="tpl" icon={<i className="icons-download icon-size-18" />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
+                  <Button key="tpl" icon={<StoreIcon name="download" size={16} />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
                     {t('excel.downloadTemplate')}
                   </Button>,
                   <Button key="back" onClick={() => setPhase('setup')}>{t('common.back')}</Button>,
@@ -216,7 +217,7 @@ export function ExcelImportButton<T>({
                 <div className="u-fs-13 u-fw-600">{t('excel.templateTitle')}</div>
                 <div className="u-text-muted u-fs-12 u-mt-2">{t('excel.templateDesc')}</div>
               </div>
-              <Button icon={<i className="icons-download icon-size-18" />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
+              <Button icon={<StoreIcon name="download" size={16} />} onClick={() => downloadTemplate(templateHeaders, templateExamples, templateFileName, hints)}>
                 {t('excel.downloadTemplate')}
               </Button>
             </div>
@@ -231,9 +232,9 @@ export function ExcelImportButton<T>({
                 return false
               }}
             >
-              <p className="ant-upload-drag-icon">
-                <i className="icons-file-excel icon-size-48" />
-              </p>
+              <div className="excel-dropzone__icon">
+                <StoreIcon name="file-xls" size={30} weight="duotone" />
+              </div>
               <p className="ant-upload-text">{t('excel.dropzoneTitle')}</p>
               <p className="ant-upload-hint">{t('excel.dropzoneHint')}</p>
             </Upload.Dragger>

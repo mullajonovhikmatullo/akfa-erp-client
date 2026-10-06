@@ -355,6 +355,21 @@
 .app-shell { grid-template-columns: 240px 1fr; }
 .app-shell--collapsed { grid-template-columns: 64px 1fr; }
 
+@media (min-width: 768px) {
+  .sb-root {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    z-index: 100;
+  }
+  .app-shell > .main {
+    grid-column: 2;
+    min-width: 0;
+  }
+}
+
 
 @media (max-width: 767px) {
   .sb-root {
