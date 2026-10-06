@@ -1,6 +1,6 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { useEffect, useMemo, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
 
 import dayjs, { type Dayjs } from 'dayjs'
@@ -12,12 +12,19 @@ import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { StockInModal } from '../../inventory/stock-in/StockInModal'
 import { useStockBatchSummary } from '../../inventory/hooks/useStockBatchSummary'
 import { useStockReceiptsPage } from '../../inventory/hooks/useStockReceiptsPage'
+import { usePagination } from '../../shared/hooks/usePagination'
 import { PurchaseKpiBox } from './view/PurchaseKpiBox'
 import { createReceiptColumns } from './view/receiptColumns'
 
-type PurchaseFiltersForm = {
-  branchId?: string
-  dateRange: [Dayjs | null, Dayjs | null]
+type PurchaseFilterKey = 'branch' | 'from' | 'to'
+
+const DAY_FORMAT = 'YYYY-MM-DD'
+
+function parseDay(value: string | null) {
+  //
+  if (!value) return null
+  const day = dayjs(value)
+  return day.isValid() ? day : null
 }
 
 interface PurchasesListProps {
@@ -31,27 +38,50 @@ interface PurchasesListProps {
 export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exchangeRate, onOpenReceipt }: PurchasesListProps) {
   //
   const t = useStoreT()
-  const { control, watch, setValue } = useForm<PurchaseFiltersForm>({
-    defaultValues: { branchId: undefined, dateRange: [null, null] },
-  })
-  const filters = watch()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { page, pageSize, changePage, goToPage, rowIndex } = usePagination()
   const [creating, setCreating] = useState(false)
-  const dateRange = filters.dateRange
+  const filterBranchId = searchParams.get('branch') ?? undefined
+  const dateRange: [Dayjs | null, Dayjs | null] = [parseDay(searchParams.get('from')), parseDay(searchParams.get('to'))]
   const headerBranchId = isStoreOwner && activeBranchId && activeBranchId !== '__all__' ? activeBranchId : undefined
-  const scopedBranchId = isStoreOwner ? (headerBranchId ?? filters.branchId) : (userBranchId ?? undefined)
+  const scopedBranchId = isStoreOwner ? (headerBranchId ?? filterBranchId) : (userBranchId ?? undefined)
 
   const receiptsQuery = useStockReceiptsPage({
     branchId: scopedBranchId,
     from: dateRange[0]?.startOf('day').toISOString(),
     to: dateRange[1]?.endOf('day').toISOString(),
+    page,
+    pageSize,
   })
-  const { page, pageSize, onPageChange, resetPage, rowIndex } = receiptsQuery
+  const lastPage = Math.max(1, Math.ceil((receiptsQuery.data?.total ?? 0) / pageSize))
+
+  const setFilters = useCallback((values: Partial<Record<PurchaseFilterKey, string | null>>) => {
+    //
+    setSearchParams((current) => {
+      //
+      const next = new URLSearchParams(current)
+      Object.entries(values).forEach(([key, value]) => {
+        if (value) next.set(key, value)
+        else next.delete(key)
+      })
+      next.delete('page')
+      return next
+    }, { replace: true })
+  }, [setSearchParams])
+
+  const previousActiveBranchId = useRef(activeBranchId)
+  useEffect(() => {
+    //
+    if (previousActiveBranchId.current === activeBranchId) return
+    previousActiveBranchId.current = activeBranchId
+    setFilters({ branch: null })
+  }, [activeBranchId, setFilters])
 
   useEffect(() => {
     //
-    setValue('branchId', undefined)
-    resetPage()
-  }, [activeBranchId, resetPage, setValue])
+    if (receiptsQuery.isPlaceholderData || !receiptsQuery.data) return
+    if (page > lastPage) goToPage(lastPage)
+  }, [goToPage, lastPage, page, receiptsQuery.data, receiptsQuery.isPlaceholderData])
 
   const { data: summary } = useStockBatchSummary({ branchId: scopedBranchId })
   const { data: branches = [] } = useBranchesList()
@@ -91,36 +121,24 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
       <div className="card purchase-receipts-card">
         <div className="purchase-filters">
           {isStoreOwner && !headerBranchId ? (
-            <Controller
-              name="branchId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  allowClear
-                  placeholder={t('header.allBranches')}
-                  options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                  onChange={(value) => { field.onChange(value); resetPage() }}
-                />
-              )}
+            <Select
+              value={filterBranchId}
+              allowClear
+              placeholder={t('header.allBranches')}
+              options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+              onChange={(value) => setFilters({ branch: value ?? null })}
             />
           ) : null}
-          <Controller
-            name="dateRange"
-            control={control}
-            render={({ field }) => (
-              <DatePicker.RangePicker
-                value={field.value}
-                onChange={(values) => { field.onChange(values ?? [null, null]); resetPage() }}
-                allowClear
-                format="DD.MM.YYYY"
-                placeholder={[t('common.startDate'), t('common.endDate')]}
-                presets={[
-                  { label: t('common.today'), value: [dayjs(), dayjs()] },
-                  { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
-                ]}
-              />
-            )}
+          <DatePicker.RangePicker
+            value={dateRange}
+            onChange={(values) => setFilters({ from: values?.[0]?.format(DAY_FORMAT) ?? null, to: values?.[1]?.format(DAY_FORMAT) ?? null })}
+            allowClear
+            format="DD.MM.YYYY"
+            placeholder={[t('common.startDate'), t('common.endDate')]}
+            presets={[
+              { label: t('common.today'), value: [dayjs(), dayjs()] },
+              { label: t('common.thisMonth'), value: [dayjs().startOf('month'), dayjs()] },
+            ]}
           />
           <span className="purchase-results"><strong>{total}</strong> {t('purchases.receiptsCount')}</span>
         </div>
@@ -138,7 +156,7 @@ export function PurchasesList({ isStoreOwner, userBranchId, activeBranchId, exch
             current: page,
             pageSize,
             total,
-            onChange: onPageChange,
+            onChange: changePage,
             showSizeChanger: true,
             showTotal: (count) => `${count} ${t('purchases.receiptsCount')}`,
             pageSizeOptions: ['10', '25', '50'],
