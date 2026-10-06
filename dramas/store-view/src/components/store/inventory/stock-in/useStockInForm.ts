@@ -1,5 +1,5 @@
 import type { StoreTranslator } from '@store/store-i18n'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { getProductPrice } from '@store/store-shared/lib/product-pricing'
 import type { Branch, Product } from '@store/store-stub'
@@ -46,8 +46,6 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
     },
   })
   const { append, update, remove } = useFieldArray({ control, name: 'cart', keyName: 'fieldId' })
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [selectedCartKeys, setSelectedCartKeys] = useState<string[]>([])
   const branchId = watch('branchId')
   const cart = watch('cart') ?? []
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
@@ -95,19 +93,10 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
     append(buildCartItem(product))
   }
 
-  function addProducts(productIds: string[]) {
+  function removeProduct(productId: string) {
     //
-    const ids = new Set(productIds)
-    const items = products.filter((product) => ids.has(product.id) && !selectedProductIds.has(product.id)).map(buildCartItem)
-    if (items.length > 0) append(items)
-  }
-
-  function removeSelectedItems() {
-    //
-    const keys = new Set(selectedCartKeys)
-    const indexes = cart.flatMap((item, index) => (keys.has(item._key) ? [index] : []))
-    remove(indexes)
-    setSelectedCartKeys([])
+    const item = cart.find((entry) => entry.productId === productId)
+    if (item) removeItem(item._key)
   }
 
   function updateItem(key: string, patch: Partial<StockInCartItem>) {
@@ -133,7 +122,6 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
     //
     const index = cart.findIndex((item) => item._key === key)
     if (index >= 0) remove(index)
-    setSelectedCartKeys((current) => current.filter((selected) => selected !== key))
   }
 
   function submitStockIn(values: StockInFormValues) {
@@ -152,7 +140,6 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
         onSuccess: () => {
           //
           reset({ branchId: isStoreOwner ? defaultBranchId : (userBranchId ?? undefined), cart: [] })
-          setSelectedCartKeys([])
           onClose()
         },
       },
@@ -172,12 +159,7 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
     totalCost,
     canSubmit,
     addProduct,
-    addProducts,
-    pickerOpen,
-    setPickerOpen,
-    selectedCartKeys,
-    setSelectedCartKeys,
-    removeSelectedItems,
+    removeProduct,
     updateItem,
     updateQty,
     changeQty,

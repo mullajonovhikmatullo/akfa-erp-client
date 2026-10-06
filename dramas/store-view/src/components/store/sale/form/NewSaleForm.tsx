@@ -1,6 +1,5 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { CustomerFormModal } from '../../customer/form/CustomerFormModal'
-import { ProductPickerModal } from '../../product/picker/ProductPickerModal'
 import { useNewSaleForm } from './useNewSaleForm'
 import { SaleCartView } from './view/SaleCartView'
 import { SaleSetupView } from './view/SaleSetupView'
@@ -33,17 +32,12 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
           />
           <SaleCartView
             t={t}
-            control={saleForm.control}
-            productSelectKey={saleForm.productSelectKey}
             productSelectLoading={saleForm.productSelectLoading}
             sellableProducts={saleForm.sellableProducts}
             selectedProductIds={saleForm.selectedProductIds}
             stockByProductId={saleForm.stockByProductId}
             addToCart={saleForm.addToCart}
-            onOpenPicker={() => saleForm.setPickerOpen(true)}
-            selectedCartKeys={saleForm.selectedCartKeys}
-            onSelectCartKeys={saleForm.setSelectedCartKeys}
-            onRemoveSelected={saleForm.removeSelectedItems}
+            removeProduct={saleForm.removeProduct}
             cart={saleForm.cart}
             saleType={saleForm.saleType}
             unitPrice={saleForm.unitPrice}
@@ -75,16 +69,6 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
         />
       </div>
 
-      <ProductPickerModal
-        t={t}
-        open={saleForm.pickerOpen}
-        products={saleForm.sellableProducts}
-        addedProductIds={saleForm.selectedProductIds}
-        stockByProductId={saleForm.stockByProductId}
-        requireStock
-        onClose={() => saleForm.setPickerOpen(false)}
-        onConfirm={saleForm.addProductsToCart}
-      />
       <CustomerFormModal
         t={t}
         open={saleForm.creatingCustomer}

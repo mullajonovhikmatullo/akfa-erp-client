@@ -1,5 +1,5 @@
 import type { StoreTranslator } from '@store/store-i18n'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { getProductPriceUzs } from '@store/store-shared/lib/product-pricing'
 import type { Branch, Product } from '@store/store-stub'
@@ -55,8 +55,6 @@ export function useNewTransferForm({
     },
   })
   const { append, update, remove, replace } = useFieldArray({ control, name: 'cart', keyName: 'fieldId' })
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [selectedCartKeys, setSelectedCartKeys] = useState<string[]>([])
   const fromBranchId = watch('fromBranchId')
   const toBranchId = watch('toBranchId')
   const cart = watch('cart') ?? []
@@ -108,7 +106,6 @@ export function useNewTransferForm({
       setValue('fromBranchId', sourceBranchId)
       setValue('toBranchId', undefined)
       replace([])
-      setSelectedCartKeys([])
     }
   }, [fromBranchId, open, replace, setValue, sourceBranchId])
 
@@ -140,18 +137,10 @@ export function useNewTransferForm({
     if (product && canAdd(product)) append(buildCartItem(product))
   }
 
-  function addProducts(productIds: string[]) {
+  function removeProduct(productId: string) {
     //
-    const ids = new Set(productIds)
-    const items = transferableProducts.filter((product) => ids.has(product.id) && canAdd(product)).map(buildCartItem)
-    if (items.length > 0) append(items)
-  }
-
-  function removeSelectedItems() {
-    //
-    const keys = new Set(selectedCartKeys)
-    remove(cart.flatMap((item, index) => (keys.has(item._key) ? [index] : [])))
-    setSelectedCartKeys([])
+    const item = cart.find((entry) => entry.productId === productId)
+    if (item) removeItem(item._key)
   }
 
   function updateItem(key: string, patch: Partial<TransferCartItem>) {
@@ -178,7 +167,6 @@ export function useNewTransferForm({
     //
     const index = cart.findIndex((item) => item._key === key)
     if (index >= 0) remove(index)
-    setSelectedCartKeys((current) => current.filter((selected) => selected !== key))
   }
 
   function submitTransfer(values: TransferFormValues) {
@@ -199,7 +187,6 @@ export function useNewTransferForm({
         onSuccess: () => {
           //
           reset({ fromBranchId: sourceBranchId, toBranchId: undefined, note: '', cart: [] })
-          setSelectedCartKeys([])
           onClose()
         },
       },
@@ -219,12 +206,7 @@ export function useNewTransferForm({
     transferableProducts,
     productSelectLoading: Boolean(sourceBranchId) && (productsLoading || inventoryLoading),
     addProduct,
-    addProducts,
-    pickerOpen,
-    setPickerOpen,
-    selectedCartKeys,
-    setSelectedCartKeys,
-    removeSelectedItems,
+    removeProduct,
     updateItem,
     changeQty,
     updateQty,
