@@ -1,4 +1,4 @@
-export * from './detail/TransferDetailDrawer'
+export * from './detail/TransferDetailPanel'
 export * from './form/NewTransferModal'
 export * from './hooks/transferKeys'
 export * from './hooks/useTransferDetail'

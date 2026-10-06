@@ -6,7 +6,6 @@ import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import type { TransferStatus, TransferSummary } from '@store/store-stub'
 import { usePagination } from '../../shared/hooks/usePagination'
-import { TransferDetailDrawer } from '../detail/TransferDetailDrawer'
 import { NewTransferModal } from '../form/NewTransferModal'
 import { useTransfersPage } from '../hooks/useTransfersPage'
 import { createTransferColumns, transferStatusLabel } from './view/transferColumns'
@@ -15,18 +14,17 @@ interface TransfersListProps {
   isStoreOwner: boolean
   userBranchId?: string | null
   branchId?: string
-  userId?: string | null
   exchangeRate: number
+  onOpenTransfer: (transferId: string) => void
 }
 
 const STATUSES: TransferStatus[] = ['PENDING', 'COMPLETED', 'CANCELLED']
 
-export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, exchangeRate }: TransfersListProps) {
+export function TransfersList({ isStoreOwner, userBranchId, branchId, exchangeRate, onOpenTransfer }: TransfersListProps) {
   //
   const t = useStoreT()
   const [status, setStatus] = useState<TransferStatus>()
   const [creating, setCreating] = useState(false)
-  const [openTransferId, setOpenTransferId] = useState<string | null>(null)
   const { page, pageSize, changePage, goToPage, resetPage, rowIndex } = usePagination()
 
   const transfersQuery = useTransfersPage({ branchId, status, page, pageSize })
@@ -98,7 +96,7 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
           columns={createTransferColumns({ t, rowIndex })}
           loading={transfersQuery.isLoading}
           onRow={(transfer) => ({
-            onClick: () => setOpenTransferId(transfer.id),
+            onClick: () => onOpenTransfer(transfer.id),
             className: 'clickable-row',
           })}
           pagination={{
@@ -114,14 +112,6 @@ export function TransfersList({ isStoreOwner, userBranchId, branchId, userId, ex
         />
       </div>
 
-      <TransferDetailDrawer
-        t={t}
-        transferId={openTransferId}
-        isStoreOwner={isStoreOwner}
-        userBranchId={userBranchId}
-        userId={userId}
-        onClose={() => setOpenTransferId(null)}
-      />
       <NewTransferModal
         t={t}
         isStoreOwner={isStoreOwner}
