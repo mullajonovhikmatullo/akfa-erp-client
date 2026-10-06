@@ -89,8 +89,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
   const cartDraft = useWatch({ control, name: 'cart' }) ?? []
   const [paidAmountError, setPaidAmountError] = useState(false)
   const [productSelectKey, setProductSelectKey] = useState(0)
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const [selectedCartKeys, setSelectedCartKeys] = useState<string[]>([])
   const [creatingCustomer, setCreatingCustomer] = useState(false)
   const [optimisticCustomer, setOptimisticCustomer] = useState<Customer | null>(null)
 
@@ -173,23 +171,10 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     setProductSelectKey((key) => key + 1)
   }
 
-  function addProductsToCart(productIds: string[]) {
+  function removeProduct(productId: string) {
     //
-    const inCart = new Set(cartDraft.map((item) => item.productId))
-    const items = productIds.flatMap((productId) => {
-      //
-      const stock = stockByProductId.get(productId) ?? 0
-      if (stock <= 0 || inCart.has(productId) || !sellableProducts.some((product) => product.id === productId)) return []
-      return [{ key: createCartKey(productId), productId, quantity: Math.min(1, stock) }]
-    })
-    if (items.length > 0) append(items)
-  }
-
-  function removeSelectedItems() {
-    //
-    const keys = new Set(selectedCartKeys)
-    remove(cartDraft.flatMap((item, index) => (keys.has(item.key) ? [index] : [])))
-    setSelectedCartKeys([])
+    const item = cartDraft.find((entry) => entry.productId === productId)
+    if (item) removeItem(item.key)
   }
 
   function updateQty(key: string, quantity: number | null) {
@@ -215,7 +200,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     //
     const index = cartDraft.findIndex((item) => item.key === key)
     if (index >= 0) remove(index)
-    setSelectedCartKeys((current) => current.filter((selected) => selected !== key))
     setValue('selectedProductId', undefined)
     setProductSelectKey((current) => current + 1)
   }
@@ -250,7 +234,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     if (formBranchId && formBranchId !== branchFilter) {
       clearSaleDraft(branchFilter, draftScope)
       reset(emptySaleFormValues(branchFilter))
-      setSelectedCartKeys([])
       setPaidAmountError(false)
       setProductSelectKey((current) => current + 1)
       return
@@ -316,7 +299,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
           //
           clearSaleDraft(branchFilter, draftScope)
           reset(emptySaleFormValues(branchFilter))
-          setSelectedCartKeys([])
           setPaidAmountError(false)
           setProductSelectKey((current) => current + 1)
           onSuccess?.()
@@ -357,12 +339,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     selectedProductIds,
     stockByProductId,
     addToCart,
-    addProductsToCart,
-    pickerOpen,
-    setPickerOpen,
-    selectedCartKeys,
-    setSelectedCartKeys,
-    removeSelectedItems,
+    removeProduct,
     cart,
     saleType,
     unitPrice,
