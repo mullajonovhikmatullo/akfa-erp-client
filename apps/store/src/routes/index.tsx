@@ -11,6 +11,8 @@ import {
   ProductsPage,
   CustomersPage,
   CustomerDetailPage,
+  PurchaseDetailPage,
+  TransferDetailPage,
   SalesPage,
   PurchasesPage,
   ExpensesPage,
@@ -55,9 +57,11 @@ export function AppRouter() {
               <Route path={ROUTES.CUSTOMER_DETAIL} element={<CustomerDetailPage />} />
               <Route path={ROUTES.SALES} element={<SalesPage />} />
               <Route path={ROUTES.PURCHASES} element={<PurchasesPage />} />
+              <Route path={ROUTES.PURCHASE_DETAIL} element={<PurchaseDetailPage />} />
               <Route path={ROUTES.INVENTORY} element={<InventoryPage />} />
               <Route path={ROUTES.EXPENSES} element={<ExpensesPage />} />
               <Route path={ROUTES.TRANSFERS} element={<TransfersPage />} />
+              <Route path={ROUTES.TRANSFER_DETAIL} element={<TransferDetailPage />} />
               <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
               <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
 

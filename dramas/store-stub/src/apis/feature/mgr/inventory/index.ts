@@ -13,6 +13,7 @@ import type {
   StockBatch,
   StockInPayload,
   StockLevelPage,
+  StockReceipt,
   StockLevelPageQuery,
 } from '../../../../models/domain/inventory'
 
@@ -91,21 +92,23 @@ const findStockBatchesPage = (params: BatchPageQuery): Promise<BatchPage> =>
     }
   })
 
+const parseReceipt = (item: Raw): StockReceipt => ({
+  ...(item as unknown as StockReceipt),
+  productCount: Number(item.productCount),
+  pieceQuantity: Number(item.pieceQuantity),
+  kgQuantity: Number(item.kgQuantity),
+  totalCostUzs: Number(item.totalCostUzs),
+  remainingValueUzs: Number(item.remainingValueUzs),
+})
+
 const findReceiptsPage = (params: ReceiptPageQuery): Promise<ReceiptPage> =>
   http.get('/inventory/receipts', { params }).then((response) => {
-    const body = response.data.data as { items: Array<Record<string, unknown>>; total: number }
-    return {
-      total: Number(body.total),
-      items: body.items.map((item) => ({
-        ...(item as unknown as ReceiptPage['items'][number]),
-        productCount: Number(item.productCount),
-        pieceQuantity: Number(item.pieceQuantity),
-        kgQuantity: Number(item.kgQuantity),
-        totalCostUzs: Number(item.totalCostUzs),
-        remainingValueUzs: Number(item.remainingValueUzs),
-      })),
-    }
+    const body = response.data.data as { items: Raw[]; total: number }
+    return { total: Number(body.total), items: body.items.map(parseReceipt) }
   })
+
+const findReceipt = (receiptId: string) =>
+  http.get(`/inventory/receipts/${receiptId}`).then((response) => parseReceipt(response.data.data))
 
 const findReceiptItemsPage = (receiptId: string, page: number, pageSize: number): Promise<ReceiptItemsPage> =>
   http.get(`/inventory/receipts/${receiptId}/items`, { params: { page, pageSize } }).then((response) => {
@@ -120,6 +123,7 @@ export const InventorySeekApi = {
   findStockBatchesPage,
   findStockLevelsPage,
   findReceiptsPage,
+  findReceipt,
   findReceiptItemsPage,
   fetch: {
     findInventoryRecords: (params?: InventoryFilters) => ({
@@ -145,6 +149,10 @@ export const InventorySeekApi = {
     findReceiptsPage: (params: ReceiptPageQuery) => ({
       queryKey: ['inventory', 'receipts', 'paginated', params] as const,
       queryFn: () => findReceiptsPage(params),
+    }),
+    findReceipt: (receiptId: string) => ({
+      queryKey: ['inventory', 'receipts', receiptId, 'detail'] as const,
+      queryFn: () => findReceipt(receiptId),
     }),
     findReceiptItemsPage: (receiptId: string, page: number, pageSize: number) => ({
       queryKey: ['inventory', 'receipts', receiptId, 'items', page, pageSize] as const,

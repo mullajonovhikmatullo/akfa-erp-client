@@ -23,6 +23,10 @@ export const PurchasesPage = lazy(() =>
   import('@/pages/purchases/PurchasesPage').then((m) => ({ default: m.PurchasesPage })),
 );
 
+export const PurchaseDetailPage = lazy(() =>
+  import('@/pages/purchases/PurchaseDetailPage').then((m) => ({ default: m.PurchaseDetailPage })),
+);
+
 export const InventoryPage = lazy(() =>
   import('@/pages/inventory/InventoryPage').then((m) => ({ default: m.InventoryPage })),
 );
@@ -37,6 +41,10 @@ export const BillingPage = lazy(() =>
 
 export const TransfersPage = lazy(() =>
   import('@/pages/transfers/TransfersPage').then((m) => ({ default: m.TransfersPage })),
+);
+
+export const TransferDetailPage = lazy(() =>
+  import('@/pages/transfers/TransferDetailPage').then((m) => ({ default: m.TransferDetailPage })),
 );
 
 export const AnalyticsPage = lazy(() =>

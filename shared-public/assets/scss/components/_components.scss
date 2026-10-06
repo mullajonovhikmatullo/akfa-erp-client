@@ -513,3 +513,36 @@ html.dark .excel-dropzone__icon {
   letter-spacing: -.01em;
 }
 .detail-hero__total .num { font-size: inherit; font-weight: inherit; }
+
+.detail-page {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 14px;
+}
+.detail-page-head__back { margin: 0 0 8px -7px; color: var(--ink-3); }
+.detail-page-head__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.detail-page-head h1 {
+  margin: 0 0 4px;
+  font-size: var(--app-heading-size, 21px);
+  line-height: 1.15;
+  letter-spacing: -.015em;
+}
+.detail-page-head__meta { color: var(--ink-3); font-size: 12.5px; }
+.detail-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+
+  h2 { margin: 4px 0 0; font-size: 16px; }
+  p { margin: 0 0 8px; color: var(--ink-3); }
+}
