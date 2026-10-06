@@ -1,5 +1,5 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select } from 'antd'
 
@@ -7,10 +7,12 @@ import dayjs, { type Dayjs } from 'dayjs'
 import { useStoreT } from '@store/store-i18n'
 import type { AnalyticsPeriod, AnalyticsQuery, SaleType } from '@store/store-stub'
 import { useSalesList } from '../sale/hooks/useSalesList'
+import { usePagination } from '../shared/hooks/usePagination'
 import { useCustomerDebtReport } from './hooks/useCustomerDebtReport'
 import { useDashboardReport } from './hooks/useDashboardReport'
 import { useExpenseReport } from './hooks/useExpenseReport'
 import { useInventoryReport } from './hooks/useInventoryReport'
+import { useLowStockPage } from './hooks/useLowStockPage'
 import { useSalesReport } from './hooks/useSalesReport'
 import { DashboardTab } from './view/DashboardTab'
 import { DebtTab } from './view/DebtTab'
@@ -46,8 +48,29 @@ export function AnalyticsWorkspace({ branchId }: AnalyticsWorkspaceProps) {
   const salesReport = useSalesReport(query)
   const expenseReport = useExpenseReport(query)
   const inventoryReport = useInventoryReport(query)
+  const lowStockPagination = usePagination(10, 'lowStock')
+  const lowStock = useLowStockPage(
+    { branchId, page: lowStockPagination.page, pageSize: lowStockPagination.pageSize },
+    { enabled: tab === 'inventory' },
+  )
+  const lowStockLastPage = Math.max(1, Math.ceil((lowStock.data?.total ?? 0) / lowStockPagination.pageSize))
+  const { page: lowStockPage, goToPage: goToLowStockPage, resetPage: resetLowStockPage } = lowStockPagination
   const customerDebt = useCustomerDebtReport(query)
   const debtSales = useSalesList({ branchId: query.branchId, from: query.from, to: query.to, hasDebt: true, overdue: debtScope === 'overdue' ? true : undefined, customerId: debtCustomerId, saleType: debtSaleType })
+
+  const previousBranchId = useRef(branchId)
+  useEffect(() => {
+    //
+    if (previousBranchId.current === branchId) return
+    previousBranchId.current = branchId
+    resetLowStockPage()
+  }, [branchId, resetLowStockPage])
+
+  useEffect(() => {
+    //
+    if (lowStock.isPlaceholderData || !lowStock.data) return
+    if (lowStockPage > lowStockLastPage) goToLowStockPage(lowStockLastPage)
+  }, [goToLowStockPage, lowStock.data, lowStock.isPlaceholderData, lowStockLastPage, lowStockPage])
 
   const handleDebtScopeChange = (value: DebtScope) => {
     //
@@ -67,11 +90,12 @@ export function AnalyticsWorkspace({ branchId }: AnalyticsWorkspaceProps) {
     salesReport.refetch()
     expenseReport.refetch()
     inventoryReport.refetch()
+    if (tab === 'inventory') lowStock.refetch()
     customerDebt.refetch()
     debtSales.refetch()
   }
 
-  const anyFetching = dashboard.isFetching || salesReport.isFetching || expenseReport.isFetching || inventoryReport.isFetching || customerDebt.isFetching || debtSales.isFetching
+  const anyFetching = dashboard.isFetching || salesReport.isFetching || expenseReport.isFetching || inventoryReport.isFetching || lowStock.isFetching || customerDebt.isFetching || debtSales.isFetching
   const periodOptions = [
     { value: 'day' as const, label: t('analytics.periodDay') },
     { value: 'week' as const, label: t('analytics.periodWeek') },
@@ -105,7 +129,17 @@ export function AnalyticsWorkspace({ branchId }: AnalyticsWorkspaceProps) {
       {tab === 'dashboard' ? <DashboardTab data={dashboard.data} loading={dashboard.isLoading} t={t} /> : null}
       {tab === 'sales' ? <SalesTab data={salesReport.data} loading={salesReport.isLoading} t={t} /> : null}
       {tab === 'expenses' ? <ExpensesTab data={expenseReport.data} loading={expenseReport.isLoading} t={t} /> : null}
-      {tab === 'inventory' ? <InventoryTab data={inventoryReport.data} loading={inventoryReport.isLoading} t={t} /> : null}
+      {tab === 'inventory' ? <InventoryTab
+          data={inventoryReport.data}
+          loading={inventoryReport.isLoading}
+          lowStock={lowStock.data}
+          lowStockLoading={lowStock.isLoading}
+          lowStockFetching={lowStock.isFetching}
+          lowStockPage={lowStockPage}
+          lowStockPageSize={lowStockPagination.pageSize}
+          onLowStockPageChange={goToLowStockPage}
+          t={t}
+        /> : null}
       {tab === 'debt' ? <DebtTab data={customerDebt.data} loading={customerDebt.isLoading} t={t} debtSales={debtSales.data} debtLoading={debtSales.isLoading} debtFetching={debtSales.isFetching} debtScope={debtScope} debtDeadlineFilter={debtDeadlineFilter} debtSort={debtSort} debtCustomerId={debtCustomerId} debtSaleType={debtSaleType} onDebtScopeChange={handleDebtScopeChange} onDebtDeadlineChange={handleDebtDeadlineChange} onDebtSortChange={setDebtSort} onDebtCustomerChange={setDebtCustomerId} onDebtSaleTypeChange={setDebtSaleType} /> : null}
     </>
   )

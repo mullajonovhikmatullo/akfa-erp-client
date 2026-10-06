@@ -15,6 +15,27 @@ export interface ExpenseFilters {
   limit?: number
 }
 
+export interface ExpensePageQuery extends Omit<ExpenseFilters, 'limit'> {
+  page: number
+  pageSize: number
+}
+
+export interface ExpensePage {
+  items: Expense[]
+  total: number
+}
+
+export interface ExpenseCategoryPageQuery {
+  includeInactive?: boolean
+  page: number
+  pageSize: number
+}
+
+export interface ExpenseCategoryPage {
+  items: ExpenseCategory[]
+  total: number
+}
+
 export interface ExpenseCategorySummaryItem {
   categoryId: string
   categoryName: string

@@ -4,8 +4,12 @@ import type {
   CreateExpensePayload,
   Expense,
   ExpenseCategory,
+  ExpenseCategoryPage,
+  ExpenseCategoryPageQuery,
   ExpenseCategorySummaryData,
   ExpenseFilters,
+  ExpensePage,
+  ExpensePageQuery,
   UpdateExpenseCategoryPayload,
 } from '../../../../models/domain/expense'
 
@@ -22,6 +26,13 @@ const parseExpense = (raw: Raw): Expense => ({
 const findExpenses = (params?: ExpenseFilters) =>
   http.get('/expenses', { params }).then((response) => (response.data.data as Raw[]).map(parseExpense))
 
+const findExpensesPage = (params: ExpensePageQuery) =>
+  http.get('/expenses', { params }).then((response) => {
+    //
+    const body = response.data.data as { items: Raw[]; total: number }
+    return { items: body.items.map(parseExpense), total: body.total } satisfies ExpensePage
+  })
+
 const findExpense = (id: string) => http.get(`/expenses/${id}`).then((response) => parseExpense(response.data.data))
 
 const createExpense = (payload: CreateExpensePayload) => http.post('/expenses', payload).then((response) => parseExpense(response.data.data))
@@ -36,6 +47,11 @@ const findExpenseCategories = (includeInactive?: boolean) =>
     .get('/expenses/categories', { params: includeInactive ? { includeInactive: true } : undefined })
     .then((response) => response.data.data as ExpenseCategory[])
 
+const findExpenseCategoriesPage = ({ includeInactive, ...params }: ExpenseCategoryPageQuery) =>
+  http
+    .get('/expenses/categories', { params: { ...params, ...(includeInactive ? { includeInactive: true } : {}) } })
+    .then((response) => response.data.data as ExpenseCategoryPage)
+
 const createExpenseCategory = (payload: CreateExpenseCategoryPayload) =>
   http.post('/expenses/categories', payload).then((response) => response.data.data as ExpenseCategory)
 
@@ -46,13 +62,23 @@ const deleteExpenseCategory = (id: string) => http.delete(`/expenses/categories/
 
 export const ExpenseSeekApi = {
   findExpenses,
+  findExpensesPage,
   findExpense,
   findExpenseCategorySummary,
   findExpenseCategories,
+  findExpenseCategoriesPage,
   fetch: {
     findExpenses: (params?: ExpenseFilters) => ({
       queryKey: ['expenses', 'findExpenses', params] as const,
       queryFn: () => findExpenses(params),
+    }),
+    findExpensesPage: (params: ExpensePageQuery) => ({
+      queryKey: ['expenses', 'findExpensesPage', params] as const,
+      queryFn: () => findExpensesPage(params),
+    }),
+    findExpenseCategoriesPage: (params: ExpenseCategoryPageQuery) => ({
+      queryKey: ['expenses', 'categories', 'paginated', params] as const,
+      queryFn: () => findExpenseCategoriesPage(params),
     }),
     findExpenseCategories: (includeInactive?: boolean) => ({
       queryKey: ['expenses', 'categories', includeInactive] as const,

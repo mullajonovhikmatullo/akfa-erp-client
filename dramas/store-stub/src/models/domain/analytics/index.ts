@@ -44,6 +44,28 @@ export interface SalesReportData {
   }[]
 }
 
+export interface LowStockItem {
+  productId: string
+  name: string
+  sku: string | null
+  unit: string
+  currentStock: number
+  threshold: number
+  branchId: string
+  branchName: string
+}
+
+export interface LowStockPageQuery {
+  branchId?: string
+  page: number
+  pageSize: number
+}
+
+export interface LowStockPage {
+  items: LowStockItem[]
+  total: number
+}
+
 export interface InventoryReportData {
   period: { from: string; to: string }
   stockByBranch: {
@@ -53,16 +75,7 @@ export interface InventoryReportData {
     stockValueUzs: number
     totalQuantity: number
   }[]
-  lowStock: {
-    productId: string
-    name: string
-    sku: string | null
-    unit: string
-    currentStock: number
-    threshold: number
-    branchId: string
-    branchName: string
-  }[]
+  lowStock: LowStockItem[]
   movementSummary: { type: StockMovementType; totalQuantity: number; count: number }[]
 }
 

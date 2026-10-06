@@ -5,6 +5,8 @@ import type {
   DashboardData,
   ExpenseReportData,
   InventoryReportData,
+  LowStockPage,
+  LowStockPageQuery,
   SalesReportData,
 } from '../../../../models/domain/analytics'
 
@@ -17,6 +19,9 @@ const salesReport = (params?: AnalyticsQuery) =>
 const inventoryReport = (params?: AnalyticsQuery) =>
   http.get('/analytics/inventory', { params }).then((response) => response.data.data as InventoryReportData)
 
+const findLowStockPage = (params: LowStockPageQuery) =>
+  http.get('/analytics/inventory/low-stock', { params }).then((response) => response.data.data as LowStockPage)
+
 const expenseReport = (params?: AnalyticsQuery) =>
   http.get('/analytics/expenses', { params }).then((response) => response.data.data as ExpenseReportData)
 
@@ -27,6 +32,7 @@ export const AnalyticsSeekApi = {
   dashboard,
   salesReport,
   inventoryReport,
+  findLowStockPage,
   expenseReport,
   customerDebt,
   fetch: {
@@ -41,6 +47,10 @@ export const AnalyticsSeekApi = {
     inventoryReport: (params?: AnalyticsQuery) => ({
       queryKey: ['analytics', 'inventory', params] as const,
       queryFn: () => inventoryReport(params),
+    }),
+    findLowStockPage: (params: LowStockPageQuery) => ({
+      queryKey: ['analytics', 'inventory', 'lowStock', 'paginated', params] as const,
+      queryFn: () => findLowStockPage(params),
     }),
     expenseReport: (params?: AnalyticsQuery) => ({
       queryKey: ['analytics', 'expenses', params] as const,
