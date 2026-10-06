@@ -3,7 +3,7 @@ import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
-import type { SaleListItem } from '@store/store-stub'
+import type { LowStockItem, SaleListItem } from '@store/store-stub'
 
 export function createTopProductColumns(t: StoreTranslator): ColumnDef<{
   productId: string
@@ -21,16 +21,7 @@ export function createTopProductColumns(t: StoreTranslator): ColumnDef<{
   ]
 }
 
-export function createLowStockColumns(t: StoreTranslator): ColumnDef<{
-  productId: string
-  name: string
-  sku: string | null
-  unit: string
-  currentStock: number
-  threshold: number
-  branchId: string
-  branchName: string
-}>[] {
+export function createLowStockColumns(t: StoreTranslator): ColumnDef<LowStockItem>[] {
   //
   return [
     { title: t('analytics.colProduct'), key: 'name', render: (_, row) => <div><div className="u-fw-500">{row.name}</div><div className="u-text-muted u-fs-11">{row.branchName}</div></div> },

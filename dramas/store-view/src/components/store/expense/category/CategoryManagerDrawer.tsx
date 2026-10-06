@@ -1,11 +1,15 @@
 import type { StoreTranslator } from '@store/store-i18n'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Drawer, Empty, Skeleton } from 'antd'
 import type { ExpenseCategory } from '@store/store-stub'
-import { useExpenseCategoriesList } from '../hooks/useExpenseCategoriesList'
+import { usePagination } from '../../shared/hooks/usePagination'
+import { ArrowPager } from '../../shared/view/ArrowPager'
+import { useExpenseCategoriesPage } from '../hooks/useExpenseCategoriesPage'
 import { useExpenseMutation } from '../hooks/useExpenseMutation'
 import { ExpenseCategoryCreateForm, ExpenseCategoryRow, type CategoryManagerFormValues } from './view'
+
+const CATEGORY_PAGE_SIZE = 8
 
 interface CategoryManagerDrawerProps {
   t: StoreTranslator
@@ -15,7 +19,11 @@ interface CategoryManagerDrawerProps {
 
 export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawerProps) {
   //
-  const { data: categories = [], isLoading } = useExpenseCategoriesList(true)
+  const { page, pageSize, goToPage, resetPage } = usePagination(CATEGORY_PAGE_SIZE, 'categories')
+  const categoriesQuery = useExpenseCategoriesPage({ includeInactive: true, page, pageSize }, { enabled: open })
+  const categories = categoriesQuery.data?.items ?? []
+  const total = categoriesQuery.data?.total ?? 0
+  const lastPage = Math.max(1, Math.ceil(total / pageSize))
   const { createExpenseCategory: createCat, updateExpenseCategory: updateCat, deleteExpenseCategory: deleteCat } = useExpenseMutation(t)
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -27,6 +35,18 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
   })
   const newName = watch('newName') ?? ''
   const editName = watch('editName') ?? ''
+
+  useEffect(() => {
+    //
+    if (categoriesQuery.isPlaceholderData || !categoriesQuery.data) return
+    if (page > lastPage) goToPage(lastPage)
+  }, [categoriesQuery.data, categoriesQuery.isPlaceholderData, goToPage, lastPage, page])
+
+  const close = () => {
+    //
+    resetPage()
+    onClose()
+  }
 
   const submitCreate = (values: CategoryManagerFormValues) => {
     //
@@ -53,7 +73,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
   }
 
   return (
-    <Drawer rootClassName="ant-drawer-root" title={t('categoryDrawer.title')} open={open} onClose={onClose} width={440} closable={{ placement: 'end' }} destroyOnHidden>
+    <Drawer rootClassName="ant-drawer-root" title={t('categoryDrawer.title')} open={open} onClose={close} width={440} closable={{ placement: 'end' }} destroyOnHidden>
       <ExpenseCategoryCreateForm
         t={t}
         control={control}
@@ -63,7 +83,7 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
         onSubmit={handleSubmit(submitCreate)}
       />
 
-      {isLoading ? (
+      {categoriesQuery.isLoading ? (
         <Skeleton active paragraph={{ rows: 4 }} />
       ) : categories.length === 0 ? (
         <Empty description={t('categoryDrawer.emptyCategories')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
@@ -93,6 +113,8 @@ export function CategoryManagerDrawer({ t, open, onClose }: CategoryManagerDrawe
           ))}
         </div>
       )}
+
+      <ArrowPager t={t} page={page} pageSize={pageSize} total={total} loading={categoriesQuery.isFetching} onChange={goToPage} />
     </Drawer>
   )
 }
