@@ -33,7 +33,6 @@ export function SaleCartView({
           selectedIds={[...selectedProductIds]}
           placeholder={t('newSale.productSearchPlaceholder')}
           loading={productSelectLoading}
-          renderLeading={(product) => <AuthenticatedProductImage url={product.primaryThumbnailUrl ?? product.primaryImageUrl} alt={product.name} width={34} height={34} />}
           renderTrailing={(product) => (
             <span className="u-text-muted u-shrink-0 u-fs-12">
               {t('newSale.availableStock')}: {(stockByProductId.get(product.id) ?? 0).toLocaleString('ru-RU')} {t(`units.${product.unit}`)}

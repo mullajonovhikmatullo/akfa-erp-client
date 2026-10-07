@@ -6,6 +6,7 @@ import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { EllipsisText } from '@store/store-shared/ui/ellipsis-text'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
 import type { Product } from '@store/store-stub'
+import { AuthenticatedProductImage } from '../images/AuthenticatedProductImage'
 
 interface ProductChecklistSelectProps {
   t: StoreTranslator
@@ -14,7 +15,6 @@ interface ProductChecklistSelectProps {
   placeholder: string
   loading?: boolean
   disabled?: boolean
-  renderLeading?: (product: Product) => ReactNode
   renderTrailing?: (product: Product) => ReactNode
   onAdd: (productId: string) => void
   onRemove: (productId: string) => void
@@ -27,7 +27,6 @@ export function ProductChecklistSelect({
   placeholder,
   loading = false,
   disabled = false,
-  renderLeading,
   renderTrailing,
   onAdd,
   onRemove,
@@ -68,7 +67,7 @@ export function ProductChecklistSelect({
         return (
           <div className="product-checklist__option">
             <Checkbox checked={selectedIds.includes(product.id)} tabIndex={-1} className="product-checklist__check" />
-            {renderLeading?.(product)}
+            <AuthenticatedProductImage url={product.primaryThumbnailUrl ?? product.primaryImageUrl} alt={product.name} width={34} height={34} />
             <div className="u-flex-auto u-min-w-0">
               <div className="u-fw-600">
                 <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
