@@ -16,12 +16,15 @@ interface SaleSummaryViewProps {
   setValue: UseFormSetValue<SaleFormValues>
   paymentOptions: { value: PaymentMethod; label: string }[]
   cart: CartItem[]
-  isUsdPayment: boolean
   paidAmount: number
   paidAmountError: boolean
   onPaidAmountChange: (value: number | null) => void
   fullPaidAmount: number
   subtotal: number
+  uzsItemsTotal: number
+  usdItemsTotalUsd: number
+  usdItemsTotalUzs: number
+  exchangeRate: number
   debtAmount: number
   needsCustomer: boolean
   customerId?: string
@@ -37,12 +40,15 @@ export function SaleSummaryView({
   setValue,
   paymentOptions,
   cart,
-  isUsdPayment,
   paidAmount,
   paidAmountError,
   onPaidAmountChange,
   fullPaidAmount,
   subtotal,
+  uzsItemsTotal,
+  usdItemsTotalUsd,
+  usdItemsTotalUzs,
+  exchangeRate,
   debtAmount,
   needsCustomer,
   customerId,
@@ -56,6 +62,21 @@ export function SaleSummaryView({
       <div className="u-fs-13 u-fw-700 u-mb-14">{t('newSale.summary')}</div>
       <div className="u-flex u-flex-col u-gap-10">
         <Row label={t('newSale.rowProducts')} value={`${cart.length} ${t('newSale.typeSuffix')} · ${cart.reduce((sum, item) => sum + Math.max(item.quantity, 0), 0).toLocaleString('ru-RU')} ${t('newSale.qtySuffix')}`} />
+        {usdItemsTotalUsd > 0 ? (
+          <>
+            {uzsItemsTotal > 0 ? <Row label={t('newSale.rowUzsItems')} value={<MoneyDisplay amount={uzsItemsTotal} currency="UZS" />} /> : null}
+            <Row
+              label={t('newSale.rowUsdItems')}
+              value={(
+                <span className="u-flex u-flex-col u-items-end">
+                  <MoneyDisplay amount={usdItemsTotalUsd} currency="USD" noConvert />
+                  <span className="u-text-muted u-fs-10-5 u-fw-500 u-whitespace-nowrap">≈ <MoneyDisplay amount={usdItemsTotalUzs} currency="UZS" /></span>
+                </span>
+              )}
+            />
+            <Row label={t('newSale.rowRate')} value={<span className="u-text-muted">1 $ = <MoneyDisplay amount={exchangeRate} currency="UZS" /></span>} />
+          </>
+        ) : null}
         <Row label={t('newSale.rowTotal')} value={<span className="num u-fw-700" ><MoneyDisplay amount={subtotal} currency="UZS" /></span>} />
       </div>
       <div className="u-border-t-default u-m-14-0" />
@@ -65,7 +86,7 @@ export function SaleSummaryView({
           <Controller name="paymentMethod" control={control} render={({ field }) => <Select value={field.value} onChange={(value) => field.onChange(value)} options={paymentOptions} className="u-w-full" />} />
         </div>
         <div>
-          <Label>{isUsdPayment ? `${t('newSale.paidAmount')} (USD)` : t('newSale.paidAmount')}</Label>
+          <Label>{t('newSale.paidAmount')}</Label>
           <div className="u-grid u-gap-8 u-grid-cols-content-auto">
             <Controller
               name="paidAmount"
@@ -78,8 +99,8 @@ export function SaleSummaryView({
                   className="u-w-full"
                   min={0}
                   max={fullPaidAmount}
-                  step={isUsdPayment ? 1 : 10000}
-                  precision={isUsdPayment ? 2 : 0}
+                  step={10000}
+                  precision={0}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
                   parser={(value) => Number(value?.replace(/\s/g, ''))}
                 />

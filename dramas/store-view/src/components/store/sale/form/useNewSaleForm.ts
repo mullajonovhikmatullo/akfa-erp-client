@@ -1,7 +1,7 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
-import { getSaleProductPrice, getSaleProductPriceUzs } from '@store/store-shared/lib/product-pricing'
+import { getSaleLineTotalUzs, getSaleProductPrice, getSaleProductPriceUzs } from '@store/store-shared/lib/product-pricing'
 import type { Customer, PaymentMethod, Product } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { useCustomersList } from '../../customer/hooks/useCustomersList'
@@ -19,7 +19,7 @@ interface UseNewSaleFormOptions {
 }
 
 const MIN_QTY = 0.0001
-const SALE_PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CASH_USD', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT']
+const SALE_PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT']
 
 function emptySaleFormValues(branchId?: string): SaleFormValues {
   //
@@ -42,7 +42,7 @@ function persistedSaleFormValues(): SaleFormValues {
     branchId: draft.branchId,
     saleType: draft.saleType,
     customerId: draft.customerId,
-    paymentMethod: draft.paymentMethod,
+    paymentMethod: SALE_PAYMENT_METHODS.includes(draft.paymentMethod) ? draft.paymentMethod : 'CASH_UZS',
     paidAmount: draft.paidAmount,
     debtDueDateIso: draft.debtDueDateIso,
     selectedProductId: undefined,
@@ -137,17 +137,29 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     (product: Product) => getSaleProductPriceUzs(product, saleType, effectiveExchangeRate),
     [effectiveExchangeRate, saleType],
   )
-  const subtotal = useMemo(
-    () => cart.reduce((sum, item) => sum + Math.max(item.quantity, 0) * unitPrice(item.product), 0),
-    [cart, unitPrice],
-  )
-  const isUsdPayment = paymentMethod === 'CASH_USD'
-  const paidAmountUzsEquivalent = isUsdPayment ? paidAmount * effectiveExchangeRate : paidAmount
-  const debtAmount = Math.max(0, subtotal - paidAmountUzsEquivalent)
+  const totals = useMemo(() => {
+    //
+    let uzsItemsTotal = 0
+    let usdItemsTotalUsd = 0
+    let usdItemsTotalUzs = 0
+    for (const item of cart) {
+      const lineTotal = getSaleLineTotalUzs(item.quantity, unitPrice(item.product))
+      const originalPrice = getSaleProductPrice(item.product, saleType)
+      if (originalPrice.currency === 'USD') {
+        usdItemsTotalUsd += Math.max(item.quantity, 0) * originalPrice.amount
+        usdItemsTotalUzs += lineTotal
+      } else {
+        uzsItemsTotal += lineTotal
+      }
+    }
+    return { uzsItemsTotal, usdItemsTotalUsd, usdItemsTotalUzs, subtotal: uzsItemsTotal + usdItemsTotalUzs }
+  }, [cart, saleType, unitPrice])
+  const { subtotal } = totals
+  const debtAmount = Math.max(0, subtotal - paidAmount)
   const needsCustomer = debtAmount > 0
-  const fullPaidAmount = Number((isUsdPayment ? subtotal / effectiveExchangeRate : subtotal).toFixed(2))
-  const hasUsdPricedItems = cart.some((item) => getSaleProductPrice(item.product, saleType).currency === 'USD')
-  const needsExchangeRate = hasUsdPricedItems || isUsdPayment
+  const fullPaidAmount = subtotal
+  const hasUsdPricedItems = totals.usdItemsTotalUsd > 0
+  const needsExchangeRate = hasUsdPricedItems
   const hasValidQuantities = cart.every((item) => {
     //
     const stock = stockByProductId.get(item.productId) ?? 0
@@ -288,8 +300,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
         saleType: values.saleType,
         customerId: values.customerId || undefined,
         paymentMethod: values.paymentMethod,
-        paidAmountUzs: isUsdPayment ? 0 : safePaidAmount,
-        paidAmountUsd: isUsdPayment ? safePaidAmount : 0,
+        paidAmountUzs: safePaidAmount,
         usdToUzsRate: needsExchangeRate ? exchangeRate : undefined,
         debtDueDate: needsCustomer && values.debtDueDateIso ? values.debtDueDateIso : undefined,
         items: cart.map((item) => ({ productId: item.productId, quantity: item.quantity })),
@@ -347,12 +358,15 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     updateQty,
     removeItem,
     paymentOptions,
-    isUsdPayment,
     paidAmount,
     paidAmountError,
     handlePaidAmountChange,
     fullPaidAmount,
     subtotal,
+    uzsItemsTotal: totals.uzsItemsTotal,
+    usdItemsTotalUsd: totals.usdItemsTotalUsd,
+    usdItemsTotalUzs: totals.usdItemsTotalUzs,
+    exchangeRate,
     debtAmount,
     needsCustomer,
     customerId,

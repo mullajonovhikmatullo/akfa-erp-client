@@ -3,9 +3,8 @@
 // Run: pnpm contracts:sync
 
 export interface AddPaymentRequest {
-  "amountUzs"?: number
-  "amountUsd"?: number
-  "usdToUzsRate"?: number
+  "amountUzs": number
+  "amountUsd"?: 0
   "paymentMethod": PaymentMethod
   "note"?: string
 }
@@ -110,7 +109,7 @@ export interface CreateSaleRequest {
   "saleType": SaleType
   "items": SaleItemRequest[]
   "paidAmountUzs"?: number
-  "paidAmountUsd"?: number
+  "paidAmountUsd"?: 0
   "usdToUzsRate"?: number
   "paymentMethod": PaymentMethod
   "note"?: string

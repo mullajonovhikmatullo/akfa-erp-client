@@ -24,7 +24,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
   const payAmount = watch('amount') ?? 0
   const paymentOptions = useMemo(
     () =>
-      (['CASH_UZS', 'CASH_USD', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT'] as PaymentMethod[])
+      (['CASH_UZS', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT'] as PaymentMethod[])
         .filter((method) => method !== 'MIXED')
         .map((method) => ({ value: method, label: t(`payment.${method}`) })),
     [t],
