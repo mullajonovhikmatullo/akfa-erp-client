@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /store/
+Disallow: /platform/
+
+Sitemap: https://mavion.uz/sitemap.xml

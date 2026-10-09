@@ -1,4 +1,5 @@
 import {useEffect, useId, useRef, useState} from 'react';
+import {Check, ChevronDown, Globe} from 'lucide-react';
 
 import {useI18n} from '../../i18n/I18nProvider';
 import {formatMessage, languageOptions} from '../../i18n/translations';
@@ -36,15 +37,15 @@ export function LanguageSwitcher({mobile = false}: { mobile?: boolean }) {
             <button
                 className="language-switcher__trigger"
                 type="button"
-                aria-label={formatMessage(t.language.current, {language: currentLanguage.nativeLabel})}
+                aria-label={`${currentLanguage.shortLabel} — ${formatMessage(t.language.current, {language: currentLanguage.nativeLabel})}`}
                 aria-controls={menuId}
                 aria-expanded={open}
                 aria-haspopup="menu"
                 onClick={() => setOpen((current) => !current)}
             >
-                <span className="language-switcher__flag" aria-hidden="true">{currentLanguage.flag}</span>
+                <Globe size={16} aria-hidden="true"/>
                 <span>{currentLanguage.shortLabel}</span>
-                <i className="icons-arrow-down icon-size-14" aria-hidden="true"/>
+                <ChevronDown size={14} aria-hidden="true"/>
             </button>
 
             {open ? (
@@ -65,9 +66,9 @@ export function LanguageSwitcher({mobile = false}: { mobile?: boolean }) {
                                     setOpen(false);
                                 }}
                             >
-                                <span className="language-switcher__flag" aria-hidden="true">{option.flag}</span>
+                                <span className="language-switcher__code" aria-hidden="true">{option.shortLabel}</span>
                                 <span>{option.nativeLabel}</span>
-                                {selected ? <i className="icons-check icon-size-14" aria-hidden="true"/> : null}
+                                {selected ? <Check size={14} aria-hidden="true"/> : null}
                             </button>
                         );
                     })}
