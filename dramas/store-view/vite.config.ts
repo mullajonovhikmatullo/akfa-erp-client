@@ -36,6 +36,7 @@ export default defineConfig({
         category: entry('./src/components/store/category/index.ts'),
         customer: entry('./src/components/store/customer/index.ts'),
         dashboard: entry('./src/components/store/dashboard/index.ts'),
+        'exchange-rate': entry('./src/components/store/exchange-rate/index.ts'),
         expense: entry('./src/components/store/expense/index.ts'),
         inventory: entry('./src/components/store/inventory/index.ts'),
         product: entry('./src/components/store/product/index.ts'),

@@ -10,17 +10,13 @@ export function SettingsPage() {
   const setTheme = useUIStore((state) => state.setTheme)
   const displayCurrency = useUIStore((state) => state.displayCurrency)
   const setDisplayCurrency = useUIStore((state) => state.setDisplayCurrency)
-  const exchangeRate = useUIStore((state) => state.exchangeRate)
-  const setExchangeRate = useUIStore((state) => state.setExchangeRate)
 
   return (
     <SettingsPanel
       displayCurrency={displayCurrency}
-      exchangeRate={exchangeRate}
       lang={lang}
       theme={theme}
       onDisplayCurrencyChange={setDisplayCurrency}
-      onExchangeRateChange={setExchangeRate}
       onLangChange={(value: SettingsLang) => setLang(value)}
       onThemeChange={(value: SettingsTheme) => setTheme(value)}
     />

@@ -1,10 +1,11 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { InputNumber, Radio } from 'antd'
+import { Button, Radio } from 'antd'
 
 import { useStoreT, type StoreLocale } from '@store/store-i18n'
 import type { Currency } from '@store/store-stub'
+import { ExchangeRateModal, useExchangeRateSummary } from '../exchange-rate'
 import { SectionTitle } from './view/SectionTitle'
 import { ThemeChoice } from './view/ThemeChoice'
 
@@ -13,34 +14,31 @@ export type SettingsTheme = 'light' | 'dark' | 'system'
 
 interface SettingsFormValues {
   displayCurrency: Currency
-  exchangeRate: number
   lang: SettingsLang
   theme: SettingsTheme
 }
 
 export interface SettingsPanelProps extends SettingsFormValues {
   onDisplayCurrencyChange: (currency: Currency) => void
-  onExchangeRateChange: (rate: number) => void
   onLangChange: (lang: SettingsLang) => void
   onThemeChange: (theme: SettingsTheme) => void
 }
 
 export function SettingsPanel({
   displayCurrency,
-  exchangeRate,
   lang,
   theme,
   onDisplayCurrencyChange,
-  onExchangeRateChange,
   onLangChange,
   onThemeChange,
 }: SettingsPanelProps) {
   //
   const t = useStoreT()
+  const { data: exchangeRate } = useExchangeRateSummary()
+  const [exchangeRateOpen, setExchangeRateOpen] = useState(false)
   const { control, reset } = useForm<SettingsFormValues>({
     defaultValues: {
       displayCurrency,
-      exchangeRate,
       lang,
       theme,
     },
@@ -50,11 +48,10 @@ export function SettingsPanel({
     //
     reset({
       displayCurrency,
-      exchangeRate,
       lang,
       theme,
     })
-  }, [displayCurrency, exchangeRate, lang, reset, theme])
+  }, [displayCurrency, lang, reset, theme])
 
   return (
     <>
@@ -93,26 +90,17 @@ export function SettingsPanel({
             </div>
             <div>
               <div className="u-text-muted u-fs-12 u-mb-6">{t('settings.exchangeRate')}</div>
-              <Controller
-                name="exchangeRate"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber
-                    value={field.value}
-                    step={50}
-                    min={1000}
-                    onChange={(nextValue) => {
-                      //
-                      const value = Number(nextValue) || 0
-                      field.onChange(value)
-                      onExchangeRateChange(value)
-                    }}
-                    className="u-w-220"
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                    addonAfter={t('currency.UZS')}
-                  />
-                )}
-              />
+              <div className="u-flex u-items-center u-gap-10">
+                <strong className="num">
+                  {exchangeRate?.usdToUzsRate
+                    ? `${exchangeRate.usdToUzsRate.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ${t('currency.UZS')}`
+                    : t('exchangeRate.unavailable')}
+                </strong>
+                {exchangeRate ? (
+                  <span className="tagpill info">{t(exchangeRate.mode === 'CBU' ? 'exchangeRate.modeCbu' : 'exchangeRate.modeManual')}</span>
+                ) : null}
+                <Button size="small" onClick={() => setExchangeRateOpen(true)}>{t('exchangeRate.change')}</Button>
+              </div>
               <div className="u-text-muted u-fs-12 u-mt-6">{t('settings.exchangeRateNote')}</div>
             </div>
           </div>
@@ -188,6 +176,7 @@ export function SettingsPanel({
           </div>
         </div>
       </div>
+      <ExchangeRateModal t={t} open={exchangeRateOpen} current={exchangeRate} onClose={() => setExchangeRateOpen(false)} />
     </>
   )
 }
