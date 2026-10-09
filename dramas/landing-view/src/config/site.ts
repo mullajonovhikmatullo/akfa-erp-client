@@ -3,20 +3,23 @@
 export const site = {
   brand: {
     name: 'Mavion',
+    url: 'https://mavion.uz/',
   },
   contact: {
     phone: '+998 94 602 28 24',
     phoneHref: 'tel:+998946022824',
     email: 'hellomavionuz@gmail.com',
     emailHref: 'mailto:hellomavionuz@gmail.com',
-    mapHref: 'https://maps.google.com/?q=Toshkent%2C+O%27zbekiston',
+    // TODO: add the real Telegram channel or support bot, e.g. 'https://t.me/mavion_uz'. Hidden while null.
+    telegramHref: null as string | null,
+    // TODO: add real social profiles ({ key: 'instagram', href: '...' }). The footer hides this row while empty.
+    socials: [] as ReadonlyArray<{ key: 'instagram' | 'facebook' | 'youtube'; href: string }>,
   },
   navigation: [
     { key: 'features', href: '#imkoniyatlar' },
     { key: 'howItWorks', href: '#qanday-ishlaydi' },
     { key: 'pricing', href: '#tariflar' },
     { key: 'faq', href: '#savollar' },
-    { key: 'company', href: '#kompaniya' },
   ],
 } as const;
 

@@ -1,66 +1,55 @@
-import {site} from "../../config/site";
-import {useI18n} from "../../i18n/I18nProvider";
-import {Logo} from "./Logo";
+import {Mail, MapPin, Phone, Send} from 'lucide-react';
+
+import {site} from '../../config/site';
+import {useI18n} from '../../i18n/I18nProvider';
+import {formatMessage} from '../../i18n/translations';
+import {Logo} from './Logo';
 
 export function Footer() {
     //
     const {t} = useI18n();
-    const contactLinks = [
-        {label: site.contact.phone, href: site.contact.phoneHref, icon: 'phone'},
-        {label: site.contact.email, href: site.contact.emailHref, icon: 'mail'},
-        {label: t.footer.address, href: site.contact.mapHref, icon: 'location-pin'},
-    ];
-    const productLinks = [
-        {label: t.navigation.items.features, href: '#imkoniyatlar'},
-        {label: t.navigation.items.pricing, href: '#tariflar'},
-        {label: t.navigation.items.howItWorks, href: '#qanday-ishlaydi'},
-        {label: t.navigation.items.faq, href: '#savollar'},
+    const contacts = [
+        {key: 'phone', label: site.contact.phone, href: site.contact.phoneHref, Icon: Phone},
+        {key: 'email', label: site.contact.email, href: site.contact.emailHref, Icon: Mail},
+        ...(site.contact.telegramHref ? [{key: 'telegram', label: t.footer.telegram, href: site.contact.telegramHref, Icon: Send}] : []),
     ];
 
     return (
-        <footer className="landing-footer">
-            <div className="container-page">
-                <div className="landing-footer__grid">
-                    <div className="landing-footer__brand">
-                        <Logo markSize={27}/>
-                        <p>{t.brand.tagline}</p>
-                    </div>
-
-                    <div className="landing-footer__column">
-                        <h3>{t.footer.contact}</h3>
-                        <ul>
-                            {contactLinks.map(({label, href, icon}) => (
-                                <li key={href}>
-                                    <a href={href} {...(href.startsWith('https://') ? {
-                                        target: '_blank',
-                                        rel: 'noreferrer'
-                                    } : {})}>
-                                        <i className={`icons-${icon} icon-size-14`}/>
-                                        {label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className="landing-footer__column">
-                        <h3>{t.footer.product}</h3>
-                        <ul>{productLinks.map((link) => <li key={link.href}><a href={link.href}>{link.label}</a>
-                        </li>)}</ul>
-                    </div>
-
-                    <div className="landing-footer__column">
-                        <h3>{t.footer.company}</h3>
-                        <ul>
-                            <li><a href="#kompaniya">{t.footer.about}</a></li>
-                            <li><a href={site.contact.emailHref}>{t.footer.contact}</a></li>
-                        </ul>
-                    </div>
+        <footer className="site-footer">
+            <div className="container site-footer__grid">
+                <div className="site-footer__brand">
+                    <Logo markSize={24}/>
+                    <p>{t.brand.tagline}</p>
                 </div>
 
-                <div className="landing-footer__bottom">
-                    <span>{t.footer.copyright}</span>
+                <nav className="site-footer__column" aria-label={t.footer.product}>
+                    <h2>{t.footer.product}</h2>
+                    <ul>
+                        {site.navigation.map((item) => <li key={item.href}><a href={item.href}>{t.navigation.items[item.key]}</a></li>)}
+                    </ul>
+                </nav>
+
+                <div className="site-footer__column">
+                    <h2>{t.footer.contact}</h2>
+                    <ul>
+                        {contacts.map(({key, label, href, Icon}) => (
+                            <li key={key}>
+                                <a href={href} {...(href.startsWith('https://') ? {target: '_blank', rel: 'noreferrer'} : {})}>
+                                    <Icon size={15} aria-hidden="true"/>{label}
+                                </a>
+                            </li>
+                        ))}
+                        <li><span><MapPin size={15} aria-hidden="true"/>{t.footer.address}</span></li>
+                    </ul>
+                    {site.contact.socials.length > 0 ? (
+                        <ul className="site-footer__socials">
+                            {site.contact.socials.map((social) => <li key={social.key}><a href={social.href} target="_blank" rel="noreferrer">{social.key}</a></li>)}
+                        </ul>
+                    ) : null}
                 </div>
+            </div>
+            <div className="container site-footer__bottom">
+                <span>{formatMessage(t.footer.copyright, {year: new Date().getFullYear()})}</span>
             </div>
         </footer>
     );

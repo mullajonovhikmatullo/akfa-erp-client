@@ -1,25 +1,24 @@
-import {useI18n} from "../../i18n/I18nProvider";
+import {ArrowRight} from 'lucide-react';
+
+import {getAdminUrl} from '@store/landing-stub';
+import {useI18n} from '../../i18n/I18nProvider';
+
+const storeLoginUrl = getAdminUrl();
 
 export function FinalCTA() {
+    //
     const {t} = useI18n();
     const cta = t.finalCta;
 
     return (
-        <section className="final-cta-section">
-            <div className="container-page">
-                <div className="final-cta" data-reveal="scale">
-                    <div className="final-cta__pattern" aria-hidden="true"/>
-                    <div>
-                        <h2>{cta.heading}</h2>
-                        <p>{cta.text}</p>
-                    </div>
-                    <div className="final-cta__actions">
-                        <a className="button button--white" href="#tariflar">
-                            {cta.primary}
-                        </a>
-                        <a className="button button--glass" href="#tariflar">
-                            {cta.secondary}
-                        </a>
+        <section className="section section--cta" aria-labelledby="final-cta-heading">
+            <div className="container">
+                <div className="cta-panel" data-reveal="up">
+                    <h2 id="final-cta-heading">{cta.heading}</h2>
+                    <p>{cta.text}</p>
+                    <div className="cta-panel__actions">
+                        <a className="btn btn--light btn--lg" href="#tariflar">{cta.primary}<ArrowRight size={18} aria-hidden="true"/></a>
+                        <a className="btn btn--on-dark btn--lg" href={storeLoginUrl}>{cta.secondary}</a>
                     </div>
                 </div>
             </div>
