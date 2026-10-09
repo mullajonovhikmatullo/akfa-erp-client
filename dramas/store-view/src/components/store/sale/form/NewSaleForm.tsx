@@ -54,12 +54,15 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
           setValue={saleForm.setValue}
           paymentOptions={saleForm.paymentOptions}
           cart={saleForm.cart}
-          isUsdPayment={saleForm.isUsdPayment}
           paidAmount={saleForm.paidAmount}
           paidAmountError={saleForm.paidAmountError}
           onPaidAmountChange={saleForm.handlePaidAmountChange}
           fullPaidAmount={saleForm.fullPaidAmount}
           subtotal={saleForm.subtotal}
+          uzsItemsTotal={saleForm.uzsItemsTotal}
+          usdItemsTotalUsd={saleForm.usdItemsTotalUsd}
+          usdItemsTotalUzs={saleForm.usdItemsTotalUzs}
+          exchangeRate={saleForm.exchangeRate}
           debtAmount={saleForm.debtAmount}
           needsCustomer={saleForm.needsCustomer}
           customerId={saleForm.customerId}

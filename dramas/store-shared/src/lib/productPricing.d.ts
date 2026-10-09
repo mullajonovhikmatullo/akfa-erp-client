@@ -8,5 +8,6 @@ export declare function getProductPrice(product: Product, kind: ProductPriceKind
 export declare function getSaleProductPrice(product: Product, saleType: SaleType): ProductPrice;
 export declare function getProductPriceUzs(product: Product, kind: ProductPriceKind, exchangeRate: number): number;
 export declare function getSaleProductPriceUzs(product: Product, saleType: SaleType, exchangeRate: number): number;
+export declare function getSaleLineTotalUzs(quantity: number, unitPriceUzs: number): number;
 export {};
 //# sourceMappingURL=productPricing.d.ts.map
