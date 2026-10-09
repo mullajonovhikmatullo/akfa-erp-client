@@ -5,6 +5,7 @@ import { ExpenseFlowApi } from '@store/store-stub'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { expenseKeys } from './expenseKeys'
+import { exchangeRateKeys } from '../../exchange-rate/hooks/exchangeRateKeys'
 
 type Translate = StoreTranslator
 
@@ -20,7 +21,11 @@ export function useExpenseMutation(t: Translate) {
       queryClient.invalidateQueries({ queryKey: analyticsKeys.all })
       toast.success(t('expenses.createSuccess'))
     },
-    onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'expenses.createError')),
+    onError: (error: unknown) => {
+      //
+      queryClient.invalidateQueries({ queryKey: exchangeRateKeys.all })
+      toast.error(getLocalizedApiErrorMessage(error, t, 'expenses.createError'))
+    },
   })
 
   const deleteExpense = useMutation({

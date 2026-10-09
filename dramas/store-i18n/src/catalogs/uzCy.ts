@@ -851,6 +851,7 @@ export const uzCyTranslations = {
   'login.or': 'ёки',
   'login.otherSignInMethods': 'Бошқа кириш усуллари',
   'login.googleSignIn': 'Google орқали давом этиш',
+  'login.googleComingSoon': "Ишлаб чиқиш жараёнида",
   'login.googleLoading': 'Google орқали кириш юкланмоқда…',
   'login.googleVerifying': 'Google аккаунтингиз текширилмоқда…',
   'login.googleUnavailable': 'Google орқали кириш ҳозир мавжуд эмас. Логин ва паролингиздан фойдаланинг.',

@@ -855,6 +855,7 @@ export const ruTranslations = {
   'login.or': 'или',
   'login.otherSignInMethods': 'Другие способы входа',
   'login.googleSignIn': 'Продолжить с Google',
+  'login.googleComingSoon': "В процессе разработки",
   'login.googleLoading': 'Загрузка входа через Google…',
   'login.googleVerifying': 'Проверяем ваш аккаунт Google…',
   'login.googleUnavailable': 'Вход через Google сейчас недоступен. Используйте логин и пароль.',

@@ -4,7 +4,7 @@ import type { TFunc } from './types'
 
 interface GoogleSignInViewProps {
   t: TFunc
-  buttonRef: RefObject<HTMLDivElement | null>
+  buttonRef?: RefObject<HTMLDivElement | null>
   ready: boolean
   disabled: boolean
   pending: boolean
@@ -12,17 +12,18 @@ interface GoogleSignInViewProps {
   failed: boolean
   retrying: boolean
   onRetry: () => void
+  onPlaceholderClick?: () => void
 }
 
-export function GoogleSignInView({ t, buttonRef, ready, disabled, pending, unavailable, failed, retrying, onRetry }: GoogleSignInViewProps) {
+export function GoogleSignInView({ t, buttonRef, ready, disabled, pending, unavailable, failed, retrying, onRetry, onPlaceholderClick }: GoogleSignInViewProps) {
   //
-  const loading = !ready && !unavailable && !failed
+  const loading = !ready && !unavailable && !failed && !onPlaceholderClick
   return (
     <div className="mavion-google-signin" aria-label={t('login.otherSignInMethods')} aria-busy={loading || pending}>
       <div className={`mavion-google-signin__control${disabled ? ' is-disabled' : ''}`} inert={disabled}>
-        <div className="mavion-google-signin__button" ref={buttonRef} />
+        {buttonRef ? <div className="mavion-google-signin__button" ref={buttonRef} /> : null}
         {!ready && (
-          <button type="button" className="mavion-google-signin__placeholder" disabled>
+          <button type="button" className="mavion-google-signin__placeholder" disabled={!onPlaceholderClick} onClick={onPlaceholderClick}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.06H12v3.9h5.38a4.6 4.6 0 0 1-2 3.02v2.53h3.24c1.9-1.75 2.98-4.32 2.98-7.39Z" />
               <path fill="#34A853" d="M12 22c2.7 0 4.98-.9 6.63-2.38l-3.24-2.53c-.9.6-2.05.96-3.39.96-2.61 0-4.82-1.76-5.61-4.13H3.04v2.61A10 10 0 0 0 12 22Z" />

@@ -577,6 +577,8 @@
   cursor:not-allowed;
 }
 .mavion-google-signin__placeholder svg{width:20px;height:20px;flex:0 0 20px}
+.mavion-google-signin__placeholder:enabled{cursor:pointer}
+.mavion-google-signin__placeholder:enabled:hover{background:#f8faff;border-color:#d2e3fc}
 .mavion-google-signin__status{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin:0;color:#697a93;font-size:12px;line-height:1.5;text-align:center}
 .mavion-google-signin__status .mavion-login__submit-spinner{width:14px;height:14px;flex-basis:14px;color:var(--mavion-blue)}
 .mavion-google-signin__status button,.mavion-google-link button{padding:2px 0;border:0;background:none;color:var(--mavion-blue);font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px}

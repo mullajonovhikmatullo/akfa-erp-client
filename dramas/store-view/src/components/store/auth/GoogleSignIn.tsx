@@ -1,7 +1,10 @@
+import { toast } from 'sonner'
 import { useGoogleIdentityButton } from './hooks/useGoogleIdentityButton'
 import { useGoogleSignInConfigDetail } from './hooks/useGoogleSignInConfigDetail'
 import { GoogleSignInView } from './view/GoogleSignInView'
 import type { LoginLanguage, TFunc } from './view/types'
+
+const GOOGLE_SIGN_IN_ENABLED = false
 
 interface GoogleSignInProps {
   t: TFunc
@@ -11,7 +14,29 @@ interface GoogleSignInProps {
   onCredential: (credential: string) => void
 }
 
-export function GoogleSignIn({ t, language, disabled, pending, onCredential }: GoogleSignInProps) {
+export function GoogleSignIn(props: GoogleSignInProps) {
+  //
+  return GOOGLE_SIGN_IN_ENABLED ? <GoogleSignInLive {...props} /> : <GoogleSignInComingSoon t={props.t} disabled={props.disabled} />
+}
+
+function GoogleSignInComingSoon({ t, disabled }: Pick<GoogleSignInProps, 't' | 'disabled'>) {
+  //
+  return (
+    <GoogleSignInView
+      t={t}
+      ready={false}
+      disabled={disabled}
+      pending={false}
+      unavailable={false}
+      failed={false}
+      retrying={false}
+      onRetry={() => {}}
+      onPlaceholderClick={() => toast.info(t('login.googleComingSoon'))}
+    />
+  )
+}
+
+function GoogleSignInLive({ t, language, disabled, pending, onCredential }: GoogleSignInProps) {
   //
   const config = useGoogleSignInConfigDetail()
   const identity = useGoogleIdentityButton({

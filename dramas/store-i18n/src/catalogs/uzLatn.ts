@@ -857,6 +857,7 @@ export const uzLatnTranslations = {
   'login.or': 'yoki',
   'login.otherSignInMethods': 'Boshqa kirish usullari',
   'login.googleSignIn': 'Google orqali davom etish',
+  'login.googleComingSoon': "Ishlab chiqish jarayonida",
   'login.googleLoading': 'Google orqali kirish yuklanmoqda…',
   'login.googleVerifying': 'Google akkauntingiz tekshirilmoqda…',
   'login.googleUnavailable': 'Google orqali kirish hozir mavjud emas. Login va parolingizdan foydalaning.',

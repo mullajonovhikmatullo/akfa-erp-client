@@ -856,6 +856,7 @@ export const enTranslations = {
   'login.or': 'or',
   'login.otherSignInMethods': 'Other sign-in methods',
   'login.googleSignIn': 'Continue with Google',
+  'login.googleComingSoon': "In development",
   'login.googleLoading': 'Loading Google sign-in…',
   'login.googleVerifying': 'Verifying your Google account…',
   'login.googleUnavailable': 'Google sign-in is currently unavailable. Please use your username and password.',
