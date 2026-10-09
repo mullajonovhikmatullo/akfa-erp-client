@@ -40,6 +40,7 @@ import { TrashIcon } from '@phosphor-icons/react/dist/csr/Trash'
 import { UploadSimpleIcon } from '@phosphor-icons/react/dist/csr/UploadSimple'
 import { UserCheckIcon } from '@phosphor-icons/react/dist/csr/UserCheck'
 import { UserCircleIcon } from '@phosphor-icons/react/dist/csr/UserCircle'
+import { UserIcon } from '@phosphor-icons/react/dist/csr/User'
 import { UserPlusIcon } from '@phosphor-icons/react/dist/csr/UserPlus'
 import { UserSwitchIcon } from '@phosphor-icons/react/dist/csr/UserSwitch'
 import { WarningCircleIcon } from '@phosphor-icons/react/dist/csr/WarningCircle'
@@ -88,6 +89,7 @@ const STORE_ICONS = {
   tariff: TicketIcon,
   trash: TrashIcon,
   upload: UploadSimpleIcon,
+  user: UserIcon,
   'user-add': UserPlusIcon,
   'user-circle': UserCircleIcon,
   'user-switch': UserSwitchIcon,
