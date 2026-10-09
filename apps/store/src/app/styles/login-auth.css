@@ -1,0 +1,343 @@
+/* Login in the landing page design: same tokens, type, buttons and grid backdrop. */
+:root:has(.mavion-auth){scrollbar-gutter:auto}
+.mavion-auth,.mavion-auth *,.mavion-auth *::before,.mavion-auth *::after{box-sizing:border-box}
+.mavion-auth{
+  --auth-bg:#f7f8fa;
+  --auth-surface:#fff;
+  --auth-surface-2:#f1f4f8;
+  --auth-ink:#0f1a2a;
+  --auth-ink-2:#344155;
+  --auth-muted:#5b677a;
+  --auth-border:#e3e8ef;
+  --auth-border-strong:#cfd7e2;
+  --auth-brand-1:#1599e8;
+  --auth-brand-2:#0476d0;
+  --auth-brand-ink:#0368b8;
+  --auth-brand-soft:#e8f4fd;
+  --auth-brand-grad:linear-gradient(135deg,#1599e8,#0476d0);
+  --auth-red:#dc2626;
+  --auth-grid:rgb(15 26 42 / .05);
+  --auth-shadow:0 30px 70px -36px rgb(4 60 120 / .42);
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  min-height:100vh;
+  min-height:100dvh;
+  flex-direction:column;
+  overflow-x:hidden;
+  background:var(--auth-bg);
+  color:var(--auth-ink);
+  font-family:"Inter Tight","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html.dark .mavion-auth{
+  --auth-bg:#0a111e;
+  --auth-surface:#101a2b;
+  --auth-surface-2:#152236;
+  --auth-ink:#e9eef6;
+  --auth-ink-2:#c4cedc;
+  --auth-muted:#98a5b8;
+  --auth-border:#22314b;
+  --auth-border-strong:#2f405f;
+  --auth-brand-ink:#5cb8f5;
+  --auth-brand-soft:rgb(21 153 232 / .14);
+  --auth-red:#f87171;
+  --auth-grid:rgb(255 255 255 / .04);
+  --auth-shadow:0 30px 70px -34px rgb(0 0 0 / .75);
+}
+
+.mavion-auth__backdrop{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(55% 50% at 85% 0%, rgb(21 153 232 / .16), transparent 70%),
+    radial-gradient(40% 45% at 5% 35%, rgb(4 118 208 / .08), transparent 70%),
+    linear-gradient(var(--auth-grid) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, var(--auth-grid) 1px, transparent 1px) 0 0 / 44px 44px;
+  -webkit-mask-image:linear-gradient(180deg,#000 60%,transparent);
+  mask-image:linear-gradient(180deg,#000 60%,transparent);
+}
+
+.mavion-auth__top{
+  display:flex;
+  width:100%;
+  max-width:1200px;
+  height:68px;
+  align-items:center;
+  justify-content:space-between;
+  margin:0 auto;
+  padding:0 16px;
+}
+html.dark .mavion-auth .mavion-brand__asset-wordmark{background:#e9eef6}
+.mavion-auth__language{
+  display:inline-flex;
+  height:40px;
+  align-items:center;
+  gap:6px;
+  padding:0 12px;
+  border:1px solid var(--auth-border);
+  border-radius:10px;
+  background:var(--auth-surface);
+  color:var(--auth-ink-2);
+  font-family:inherit;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:border-color .18s ease;
+}
+.mavion-auth__language:hover{border-color:var(--auth-brand-1)}
+.mavion-auth__language:focus-visible{outline:2px solid var(--auth-brand-1);outline-offset:2px}
+
+.mavion-auth__grid{
+  display:grid;
+  flex:1;
+  width:100%;
+  max-width:1200px;
+  grid-template-columns:minmax(0,1fr);
+  align-items:center;
+  gap:56px;
+  margin:0 auto;
+  padding:24px 16px 32px;
+}
+@media (min-width:768px){
+  .mavion-auth__top{padding:0 24px}
+  .mavion-auth__grid{padding:32px 24px 40px}
+}
+@media (min-width:1024px){
+  .mavion-auth__grid{grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:72px}
+}
+
+.mavion-auth__intro{display:none}
+@media (min-width:1024px){
+  .mavion-auth__intro{display:grid;gap:20px;justify-items:start}
+}
+.mavion-auth__eyebrow{
+  display:inline-flex;
+  padding:6px 12px;
+  border-radius:999px;
+  background:var(--auth-brand-soft);
+  color:var(--auth-brand-ink);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+.mavion-auth__intro h2{
+  margin:0;
+  max-width:560px;
+  color:var(--auth-ink);
+  font-size:clamp(36px,4.2vw,52px);
+  font-weight:700;
+  letter-spacing:-.035em;
+  line-height:1.06;
+  text-wrap:balance;
+}
+.mavion-auth__accent{
+  background:var(--auth-brand-grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.mavion-auth__intro>p{max-width:520px;margin:0;color:var(--auth-muted);font-size:18px;line-height:1.6}
+.mavion-auth__features{display:grid;gap:12px;margin:12px 0 0;padding:0;list-style:none}
+.mavion-auth__features li{display:flex;align-items:center;gap:14px}
+.mavion-auth__features b{display:block;color:var(--auth-ink);font-size:16px;font-weight:700}
+.mavion-auth__features li>span:last-child{color:var(--auth-muted);font-size:15px;line-height:1.45}
+.mavion-auth__feature-icon{
+  display:inline-grid;
+  flex:0 0 auto;
+  width:44px;
+  height:44px;
+  place-items:center;
+  border:1px solid var(--auth-border);
+  border-radius:12px;
+  background:var(--auth-surface);
+  color:var(--auth-brand-ink);
+}
+
+.mavion-auth__card{
+  width:100%;
+  max-width:460px;
+  justify-self:center;
+  padding:32px 24px;
+  border:1px solid var(--auth-border);
+  border-radius:16px;
+  background:var(--auth-surface);
+  box-shadow:var(--auth-shadow);
+}
+@media (min-width:480px){.mavion-auth__card{padding:36px 32px}}
+.mavion-auth__heading h1{
+  margin:0;
+  color:var(--auth-ink);
+  font-size:30px;
+  font-weight:700;
+  letter-spacing:-.025em;
+  line-height:1.15;
+}
+.mavion-auth__heading p{margin:8px 0 0;color:var(--auth-muted);font-size:15px;line-height:1.5}
+
+.mavion-auth .mavion-login__form{display:block;margin-top:28px}
+.mavion-auth .mavion-login__form>.ant-alert{margin-bottom:14px}
+.mavion-auth .mavion-field{display:block;margin:0 0 16px}
+.mavion-auth .mavion-field__label{
+  display:block;
+  margin:0 0 6px;
+  color:var(--auth-ink-2);
+  font-size:14px;
+  font-weight:600;
+  line-height:20px;
+}
+.mavion-auth .mavion-field__label::before{content:none}
+.mavion-auth .mavion-field__control{
+  display:flex;
+  height:48px;
+  align-items:center;
+  gap:10px;
+  padding:0 12px 0 14px;
+  border:1px solid var(--auth-border-strong);
+  border-radius:10px;
+  background:var(--auth-surface);
+  box-shadow:none;
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+.mavion-auth .mavion-field__control>svg,.mavion-auth .mavion-field__control>i{flex:0 0 auto;width:18px;height:18px;color:var(--auth-muted)}
+.mavion-auth .mavion-field__control input{
+  flex:1 1 auto;
+  min-width:0;
+  height:100%;
+  padding:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--auth-ink);
+  font-family:inherit;
+  font-size:15px;
+}
+.mavion-auth .mavion-field__control input::placeholder{color:var(--auth-muted)}
+.mavion-auth .mavion-field__control:hover{border-color:var(--auth-brand-1)}
+.mavion-auth .mavion-field__control:focus-within{border-color:var(--auth-brand-1);box-shadow:0 0 0 4px rgb(21 153 232 / .16)}
+.mavion-auth .mavion-field--error .mavion-field__control{border-color:var(--auth-red)}
+.mavion-auth .mavion-field__error{display:block;margin-top:6px;color:var(--auth-red);font-size:13px}
+.mavion-auth .mavion-field__visibility{
+  display:inline-grid;
+  width:30px;
+  height:30px;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:8px;
+  background:none;
+  color:var(--auth-muted);
+  cursor:pointer;
+}
+.mavion-auth .mavion-field__visibility:hover{background:var(--auth-surface-2);color:var(--auth-ink)}
+
+.mavion-auth .mavion-login__form-options{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:4px 0 22px;
+  font-size:14px;
+}
+.mavion-auth .mavion-checkbox{display:inline-flex;align-items:center;gap:8px;color:var(--auth-ink-2);cursor:pointer}
+.mavion-auth .mavion-checkbox input{position:absolute;opacity:0;pointer-events:none}
+.mavion-auth .mavion-checkbox span{
+  position:relative;
+  width:18px;
+  height:18px;
+  border:1px solid var(--auth-border-strong);
+  border-radius:5px;
+  background:var(--auth-surface);
+}
+.mavion-auth .mavion-checkbox input:checked+span{border-color:transparent;background:var(--auth-brand-grad)}
+.mavion-auth .mavion-checkbox input:checked+span::after{
+  content:"";
+  position:absolute;
+  left:5.5px;
+  top:2px;
+  width:5px;
+  height:9px;
+  border:solid #fff;
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+.mavion-auth .mavion-checkbox input:focus-visible+span{outline:2px solid var(--auth-brand-1);outline-offset:2px}
+.mavion-auth .mavion-login__form-options a{color:var(--auth-brand-ink);font-weight:600;text-decoration:none}
+.mavion-auth .mavion-login__form-options a:hover{text-decoration:underline}
+
+.mavion-auth .mavion-login__submit{
+  display:flex;
+  width:100%;
+  height:52px;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:10px;
+  background:var(--auth-brand-grad);
+  box-shadow:0 10px 24px -12px rgb(4 118 208 / .7);
+  color:#fff;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:box-shadow .18s ease, filter .18s ease, transform .18s ease;
+}
+.mavion-auth .mavion-login__submit:hover:not(:disabled){filter:brightness(1.05);box-shadow:0 14px 30px -12px rgb(4 118 208 / .85)}
+.mavion-auth .mavion-login__submit:active:not(:disabled){transform:translateY(1px)}
+.mavion-auth .mavion-login__submit:disabled{opacity:.75;cursor:progress}
+.mavion-auth .mavion-login__submit:focus-visible{outline:2px solid var(--auth-brand-1);outline-offset:3px}
+.mavion-auth .mavion-login__submit-icon{width:18px;height:18px}
+
+.mavion-auth .mavion-login__divider{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:20px 0;
+  color:var(--auth-muted);
+  font-size:13px;
+}
+.mavion-auth .mavion-login__divider::before,.mavion-auth .mavion-login__divider::after{content:"";flex:1;height:1px;background:var(--auth-border)}
+.mavion-auth .mavion-login__divider span{padding:0}
+
+.mavion-auth .mavion-google-signin{display:block}
+.mavion-auth .mavion-google-signin__control{position:relative;min-height:48px}
+.mavion-auth .mavion-google-signin__placeholder{
+  position:static;
+  display:flex;
+  width:100%;
+  height:48px;
+  min-height:0;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:0 16px;
+  border:1px solid var(--auth-border-strong);
+  border-radius:10px;
+  background:var(--auth-surface);
+  color:var(--auth-ink);
+  font-family:inherit;
+  font-size:15px;
+  font-weight:600;
+}
+.mavion-auth .mavion-google-signin__placeholder:enabled{cursor:pointer}
+.mavion-auth .mavion-google-signin__placeholder:enabled:hover{border-color:var(--auth-brand-1);background:var(--auth-surface)}
+.mavion-auth .mavion-google-signin__placeholder:focus-visible{outline:2px solid var(--auth-brand-1);outline-offset:2px}
+.mavion-auth .mavion-google-signin__placeholder svg{width:20px;height:20px;flex:0 0 auto}
+.mavion-auth .mavion-google-signin__status{margin-top:8px;color:var(--auth-muted)}
+.mavion-auth .mavion-google-link{margin-bottom:14px}
+
+.mavion-auth__footer{
+  margin:0;
+  padding:0 16px 24px;
+  color:var(--auth-muted);
+  font-size:13px;
+  text-align:center;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .mavion-auth *{transition:none !important}
+}
