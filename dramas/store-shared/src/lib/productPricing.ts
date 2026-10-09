@@ -41,5 +41,10 @@ export function getProductPriceUzs(product: Product, kind: ProductPriceKind, exc
 export function getSaleProductPriceUzs(product: Product, saleType: SaleType, exchangeRate: number): number {
   //
   const price = getSaleProductPrice(product, saleType)
-  return price.currency === 'USD' ? Number((price.amount * exchangeRate).toFixed(2)) : price.amount
+  return price.currency === 'USD' ? Math.round(price.amount * exchangeRate) : price.amount
+}
+
+export function getSaleLineTotalUzs(quantity: number, unitPriceUzs: number): number {
+  //
+  return Math.round(Math.max(quantity, 0) * unitPriceUzs)
 }
