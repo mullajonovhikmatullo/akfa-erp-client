@@ -10,15 +10,14 @@ export const languageOptions: ReadonlyArray<{
   code: Language;
   shortLabel: string;
   nativeLabel: string;
-  flag: string;
 }> = [
-  { code: 'uz', shortLabel: 'UZ', nativeLabel: 'O‘zbekcha', flag: '🇺🇿' },
-  { code: 'ru', shortLabel: 'RU', nativeLabel: 'Русский', flag: '🇷🇺' },
-  { code: 'en', shortLabel: 'EN', nativeLabel: 'English', flag: '🇬🇧' },
+  { code: 'uz', shortLabel: 'UZ', nativeLabel: 'O‘zbekcha' },
+  { code: 'ru', shortLabel: 'RU', nativeLabel: 'Русский' },
+  { code: 'en', shortLabel: 'EN', nativeLabel: 'English' },
 ];
 
 export const languageLocales: Record<Language, string> = {
-  uz: 'uz-UZ',
+  uz: 'ru-RU',
   ru: 'ru-RU',
   en: 'en-US',
 };

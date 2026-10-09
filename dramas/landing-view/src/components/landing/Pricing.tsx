@@ -1,10 +1,11 @@
-import {useEffect, useMemo, useState} from 'react';
+import {lazy, Suspense, useEffect, useMemo, useState} from 'react';
+import {Check, Gift} from 'lucide-react';
 
 import {LandingSeekApi, type PublicPlan, type PublicPlanCode} from '@store/landing-stub';
 import {useI18n} from '../../i18n/I18nProvider';
 import {formatMessage} from '../../i18n/translations';
 import type {TranslationDictionary} from '../../i18n/types';
-import {RegistrationModal} from './RegistrationModal';
+import {SectionHeading} from './SectionHeading';
 
 type PlanTemplate = TranslationDictionary['pricing']['plans'][keyof TranslationDictionary['pricing']['plans']];
 
@@ -18,6 +19,8 @@ type DisplayPlan = {
     features: string[];
     cta: string;
 };
+
+const RegistrationModal = lazy(() => import('./RegistrationModal').then((module) => ({default: module.RegistrationModal})));
 
 const normalizePlanCode = (code: string) => code.trim().toUpperCase();
 
@@ -44,24 +47,20 @@ function formatPlanFeatures(
     return [branchFeature, userFeature, productFeature, ...(template?.features ?? [])];
 }
 
-const pricingSkeletonKeys = ['one', 'two', 'three'] as const;
+const pricingSkeletonKeys = ['one', 'two'] as const;
 
 function PricingSkeleton() {
     //
     return (
         <>
             {pricingSkeletonKeys.map((key) => (
-                <article className="pricing-card pricing-card--skeleton" key={key} aria-hidden="true">
-                    <span className="pricing-skeleton__line pricing-skeleton__line--title"/>
-                    <span className="pricing-skeleton__line pricing-skeleton__line--label"/>
-                    <span className="pricing-skeleton__line pricing-skeleton__line--price"/>
-                    <ul className="pricing-skeleton__features">
-                        <li><span className="pricing-skeleton__line"/></li>
-                        <li><span className="pricing-skeleton__line"/></li>
-                        <li><span className="pricing-skeleton__line"/></li>
-                        <li><span className="pricing-skeleton__line pricing-skeleton__line--short"/></li>
-                    </ul>
-                    <span className="pricing-skeleton__button"/>
+                <article className="price-card price-card--skeleton" key={key} aria-hidden="true">
+                    <span className="skeleton skeleton--title"/>
+                    <span className="skeleton skeleton--price"/>
+                    <span className="skeleton"/>
+                    <span className="skeleton"/>
+                    <span className="skeleton skeleton--short"/>
+                    <span className="skeleton skeleton--button"/>
                 </article>
             ))}
         </>
@@ -124,35 +123,34 @@ export function Pricing() {
     }, [locale, pricing, publicPlans]);
 
     return (
-        <section className="pricing-section" id="tariflar">
-            <div className="container-page">
-                <div className="section-heading section-heading--center" data-reveal="up">
-                    <div className="section-kicker">{pricing.kicker}</div>
-                    <h2>{pricing.heading}</h2>
-                    <p>{pricing.note}</p>
+        <section className="section section--tint" id="tariflar" aria-labelledby="pricing-heading">
+            <div className="container">
+                <SectionHeading id="pricing-heading" kicker={pricing.kicker} heading={pricing.heading} supporting={pricing.note}/>
+
+                <div className="trial-banner" data-reveal="up">
+                    <span className="feature-icon feature-icon--green" aria-hidden="true"><Gift size={20}/></span>
+                    <div><b>{pricing.trialTitle}</b><span>{pricing.trialText}</span></div>
                 </div>
 
-                <div className="pricing-grid" data-reveal-group aria-busy={loadState === 'loading'}>
+                <div className="pricing-grid" aria-busy={loadState === 'loading'}>
                     {loadState === 'loading' ? <PricingSkeleton/> : loadState === 'error' ? (
-                        <p className="pricing-empty-state" role="alert">{pricing.loadError}</p>
+                        <p className="pricing-empty" role="alert">{pricing.loadError}</p>
                     ) : plans.length === 0 ? (
-                        <p className="pricing-empty-state">{pricing.empty}</p>
+                        <p className="pricing-empty">{pricing.empty}</p>
                     ) : plans.map((plan) => (
-                        <article
-                            className={`pricing-card${plan.highlight ? ' pricing-card--featured' : ''} is-revealed`}
-                            key={plan.code}
-                            data-reveal="up"
-                        >
-                            {plan.badge ? <span className="pricing-card__badge">{plan.badge}</span> : null}
-                            <h3>{plan.name}</h3>
-                            <span className="pricing-card__price-label">{pricing.afterTrial}</span>
-                            <div className="pricing-card__price"><strong>{plan.price}</strong><span>{plan.unit}</span>
+                        <article className={`price-card${plan.highlight ? ' price-card--featured' : ''}`} key={plan.code}>
+                            <div className="price-card__head">
+                                <h3>{plan.name}</h3>
+                                {plan.badge ? <span className="price-card__badge">{plan.badge}</span> : null}
                             </div>
-                            <ul>
-                                {plan.features.map((feature, featureIndex) => <li key={`feature-${featureIndex}`}><i
-                                    className="icons-check icon-size-14"/>{feature}</li>)}
+                            <span className="price-card__label">{pricing.afterTrial}</span>
+                            <div className="price-card__price"><strong>{plan.price}</strong><span>{plan.unit}</span></div>
+                            <ul className="check-list">
+                                {plan.features.map((feature, featureIndex) => (
+                                    <li key={`feature-${featureIndex}`}><Check size={16} aria-hidden="true"/>{feature}</li>
+                                ))}
                             </ul>
-                            <button className={`button ${plan.highlight ? 'button--primary' : 'button--ghost'}`}
+                            <button className={`btn btn--block ${plan.highlight ? 'btn--primary' : 'btn--outline'}`}
                                     type="button" onClick={() => setSelectedPlan(plan)}>
                                 {plan.cta}
                             </button>
@@ -162,12 +160,14 @@ export function Pricing() {
             </div>
 
             {selectedPlan ? (
-                <RegistrationModal
-                    open
-                    planCode={selectedPlan.code}
-                    planName={selectedPlan.name}
-                    onClose={() => setSelectedPlan(null)}
-                />
+                <Suspense fallback={null}>
+                    <RegistrationModal
+                        open
+                        planCode={selectedPlan.code}
+                        planName={selectedPlan.name}
+                        onClose={() => setSelectedPlan(null)}
+                    />
+                </Suspense>
             ) : null}
         </section>
     );
