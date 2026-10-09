@@ -62,7 +62,7 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
           <div className={`mavion-field${errors.username || isCredentialError ? ' mavion-field--error' : ''}`}>
             <label className="mavion-field__label" htmlFor="mavion-login-username">{t('login.usernameLabel')}</label>
             <span className="mavion-field__control">
-              <StoreIcon name="user-circle" size={21} />
+              <StoreIcon name="user" size={18} />
               <input
                 {...field}
                 id="mavion-login-username"
@@ -117,7 +117,7 @@ export function LoginForm({ t, language, sessionExpired, externalError, onAuthen
                 aria-pressed={passwordVisible}
                 onClick={() => setPasswordVisible((visible) => !visible)}
               >
-                {passwordVisible ? <StoreIcon name="hide" size={18} /> : <StoreIcon name="eye" size={18} />}
+                {passwordVisible ? <StoreIcon name="eye" size={18} /> : <StoreIcon name="hide" size={18} />}
               </button>
             </span>
             {errors.password?.message && (
