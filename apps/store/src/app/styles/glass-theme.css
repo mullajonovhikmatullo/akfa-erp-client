@@ -211,6 +211,9 @@ html.dark .profile-menu-popup .ant-dropdown-menu{
   transition:none !important;
 }
 html.dark .topbar__exchange{box-shadow:inset 0 1px rgba(152,207,242,.08)}
+button.topbar__exchange{font:inherit;cursor:pointer}
+button.topbar__exchange:hover{border-color:color-mix(in srgb,var(--primary) 45%,var(--glass-border-subtle))}
+button.topbar__exchange:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .profile-page{width:100%;max-width:1120px;margin:0 auto}
 .profile-page__head{margin-bottom:18px}
 .profile-identity{

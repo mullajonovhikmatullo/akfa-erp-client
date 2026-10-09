@@ -43,6 +43,10 @@
       "types": "./dist/@types/components/store/dashboard/index.d.ts",
       "import": "./dist/dashboard.js"
     },
+    "./exchange-rate": {
+      "types": "./dist/@types/components/store/exchange-rate/index.d.ts",
+      "import": "./dist/exchange-rate.js"
+    },
     "./expense": {
       "types": "./dist/@types/components/store/expense/index.d.ts",
       "import": "./dist/expense.js"
