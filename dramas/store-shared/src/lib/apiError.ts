@@ -29,6 +29,9 @@ function messageKey(message: string | null): StoreTranslationKey | null {
   if (!message) return null
   const normalized = message.toLowerCase()
 
+  if (normalized.includes('owner password is incorrect')) return 'apiErrors.ownerPasswordIncorrect'
+  if (normalized.includes('exchange rate has changed')) return 'apiErrors.exchangeRateChanged'
+  if (normalized.includes('rate is not available')) return 'apiErrors.exchangeRateUnavailable'
   if (normalized.includes('only the receiving branch')) return 'apiErrors.receivingBranchOnly'
   if (normalized.includes('subscription payment is required')) return 'apiErrors.paymentRequired'
   if (normalized.includes('insufficient stock')) return 'apiErrors.insufficientStock'

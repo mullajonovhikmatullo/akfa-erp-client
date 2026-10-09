@@ -148,6 +148,24 @@ export interface CustomerResponse {
 }
 }
 
+export interface ExchangeRate {
+  "mode": ExchangeRateMode
+  "usdToUzsRate": number | null
+  "manualRate": number | null
+  "cbu": {
+  "rate": number
+  "rateDate": string
+  "fetchedAt": string
+} | null
+  "changedAt": string | null
+  "changedBy": {
+  "id": string
+  "fullName": string
+} | null
+}
+
+export type ExchangeRateMode = "CBU" | "MANUAL"
+
 export interface ExpenseCategory {
   "id"?: string
   "name"?: string
@@ -299,6 +317,12 @@ export interface UpdateCustomerRequest {
   "phone"?: string
   "address"?: string
   "isActive"?: boolean
+}
+
+export interface UpdateExchangeRateRequest {
+  "mode": ExchangeRateMode
+  "rate"?: number
+  "ownerPassword": string
 }
 
 export interface UpdateExpenseCategoryRequest {

@@ -2,12 +2,13 @@ import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { Dropdown, Tooltip, type MenuProps } from 'antd'
 
 import { useStoreT, type StoreLocale } from '@store/store-i18n'
-import type { User } from '@store/store-stub'
+import type { ExchangeRate, User } from '@store/store-stub'
 import { UserAvatar } from './UserAvatar'
 
 interface HeaderActionsProps {
   currentLangLabel: string
-  exchangeRate: number
+  exchangeRate?: ExchangeRate
+  onOpenExchangeRate: () => void
   isDarkActive: boolean
   lang: StoreLocale
   languageMenuItems: MenuProps['items']
@@ -19,6 +20,7 @@ interface HeaderActionsProps {
 export function HeaderActions({
   currentLangLabel,
   exchangeRate,
+  onOpenExchangeRate,
   isDarkActive,
   lang,
   languageMenuItems,
@@ -31,10 +33,17 @@ export function HeaderActions({
 
   return (
     <div className="topbar__actions">
-      <span className="tagpill info topbar__exchange topbar-hide-mobile">
-        <StoreIcon name="finance-money" size={16} />
-        {t('header.exchangeRate', { rate: exchangeRate.toLocaleString('ru-RU').replace(/,/g, ' ') })}
-      </span>
+      <Tooltip title={t('exchangeRate.change')} placement="bottom">
+        <button type="button" className="tagpill info topbar__exchange topbar-hide-mobile" onClick={onOpenExchangeRate}>
+          <StoreIcon name="finance-money" size={16} />
+          {exchangeRate?.usdToUzsRate
+            ? t('header.exchangeRate', { rate: exchangeRate.usdToUzsRate.toLocaleString('ru-RU', { maximumFractionDigits: 2 }).replace(/\s/g, ' ') })
+            : t('exchangeRate.unavailable')}
+          {exchangeRate ? (
+            <span className="u-text-muted u-fs-11">· {t(exchangeRate.mode === 'CBU' ? 'exchangeRate.sourceCbu' : 'exchangeRate.sourceManual')}</span>
+          ) : null}
+        </button>
+      </Tooltip>
 
       <Dropdown
         menu={{ items: languageMenuItems, selectedKeys: [lang] }}

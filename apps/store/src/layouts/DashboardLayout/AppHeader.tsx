@@ -1,4 +1,5 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import type { Branch } from '@store/store-stub'
@@ -6,6 +7,7 @@ import { useUIStore } from '@/app/stores/ui.store'
 import { useAuthStore } from '@/entities/user'
 import { ROUTES } from '@/shared/config/routes'
 import { useStoreT } from '@store/store-i18n'
+import { ExchangeRateModal, useExchangeRateSummary } from '@store/store-view/exchange-rate'
 import { useHeaderBranchSelection } from './hooks/useHeaderBranchSelection'
 import { useHeaderNavigation } from './hooks/useHeaderNavigation'
 import { useHeaderTheme } from './hooks/useHeaderTheme'
@@ -21,7 +23,8 @@ export function AppHeader({ branches }: AppHeaderProps) {
   const t = useStoreT()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
-  const exchangeRate = useUIStore((state) => state.exchangeRate)
+  const { data: exchangeRate } = useExchangeRateSummary()
+  const [exchangeRateOpen, setExchangeRateOpen] = useState(false)
   const sidebarCollapsed = useUIStore((state) => state.sidebarCollapsed)
   const toggleSidebar = useUIStore((state) => state.toggleSidebar)
   const toggleMobileSidebar = useUIStore((state) => state.toggleMobileSidebar)
@@ -92,6 +95,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
         <HeaderActions
           currentLangLabel={currentLangLabel}
           exchangeRate={exchangeRate}
+          onOpenExchangeRate={() => setExchangeRateOpen(true)}
           isDarkActive={isDarkActive}
           lang={lang}
           languageMenuItems={languageMenuItems}
@@ -100,6 +104,7 @@ export function AppHeader({ branches }: AppHeaderProps) {
           user={user}
         />
       </div>
+      <ExchangeRateModal t={t} open={exchangeRateOpen} current={exchangeRate} onClose={() => setExchangeRateOpen(false)} />
     </header>
   )
 }

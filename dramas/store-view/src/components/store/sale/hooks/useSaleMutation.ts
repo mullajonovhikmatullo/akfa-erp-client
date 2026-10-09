@@ -5,6 +5,7 @@ import { SaleFlowApi } from '@store/store-stub'
 import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { customerKeys } from '../../customer/hooks/customerKeys'
+import { exchangeRateKeys } from '../../exchange-rate/hooks/exchangeRateKeys'
 import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
 import { saleKeys } from './saleKeys'
 
@@ -24,6 +25,7 @@ export function useSaleMutation(t: StoreTranslator) {
     },
     onError: (error: unknown) => {
       //
+      queryClient.invalidateQueries({ queryKey: exchangeRateKeys.all })
       toast.error(getLocalizedApiErrorMessage(error, t, 'sales.createError'))
     },
   })

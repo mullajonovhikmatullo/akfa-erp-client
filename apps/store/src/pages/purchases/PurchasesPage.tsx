@@ -1,5 +1,5 @@
+import { useStoreExchangeRate } from '@/shared/hooks/useStoreExchangeRate'
 import { PurchasesList } from '@store/store-view/purchase'
-import { useUIStore } from '@/app/stores/ui.store'
 import { ROUTES } from '@/shared/config/routes'
 import { useBranchScope } from '@/shared/hooks/useBranchScope'
 import { useOpenFromList } from '@/shared/hooks/useListReturn'
@@ -8,7 +8,7 @@ export function PurchasesPage() {
   //
   const openFromList = useOpenFromList()
   const { isStoreOwner, userBranchId, activeBranchId } = useBranchScope()
-  const exchangeRate = useUIStore((state) => state.exchangeRate)
+  const exchangeRate = useStoreExchangeRate()
 
   return (
     <PurchasesList
