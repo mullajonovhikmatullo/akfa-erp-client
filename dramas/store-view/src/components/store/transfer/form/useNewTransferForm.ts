@@ -98,7 +98,8 @@ export function useNewTransferForm({
     hasValidQuantities &&
     toBranchId !== undefined &&
     toBranchId !== sourceBranchId &&
-    Boolean(sourceBranchId)
+    Boolean(sourceBranchId) &&
+    exchangeRate > 0
 
   useEffect(() => {
     //
@@ -182,6 +183,7 @@ export function useNewTransferForm({
           unitCostUzs: item.unitCostUzs,
         })),
         note: values.note.trim() || undefined,
+        usdToUzsRate: exchangeRate > 0 ? exchangeRate : undefined,
       },
       {
         onSuccess: () => {

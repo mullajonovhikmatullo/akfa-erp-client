@@ -6,6 +6,7 @@ import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
 import { transferKeys } from './transferKeys'
+import { exchangeRateKeys } from '../../exchange-rate/hooks/exchangeRateKeys'
 
 type Translate = StoreTranslator
 
@@ -22,7 +23,11 @@ export function useTransferMutation(t: Translate) {
       queryClient.invalidateQueries({ queryKey: analyticsKeys.all })
       toast.success(t('transfers.createSuccess'))
     },
-    onError: (error: unknown) => toast.error(getLocalizedApiErrorMessage(error, t, 'transfers.createError')),
+    onError: (error: unknown) => {
+      //
+      queryClient.invalidateQueries({ queryKey: exchangeRateKeys.all })
+      toast.error(getLocalizedApiErrorMessage(error, t, 'transfers.createError'))
+    },
   })
 
   const completeTransfer = useMutation({
