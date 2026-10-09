@@ -57,6 +57,7 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
   const canSubmit =
     cart.length > 0 &&
     cart.every((item) => item.quantity >= MIN_QTY && hasValidPrices(item)) &&
+    (exchangeRate > 0 || cart.every((item) => item.currency !== 'USD')) &&
     (isStoreOwner ? Boolean(branchId) : Boolean(userBranchId))
 
   useEffect(() => {
@@ -133,7 +134,7 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
         quantity: Math.max(item.quantity, MIN_QTY),
         costPriceUzs: costPriceUzs(item, effectiveExchangeRate),
         ...(item.currency === 'USD'
-          ? { costPriceUsd: item.costPrice, wholesalePriceUsd: item.wholesalePrice, retailPriceUsd: item.retailPrice }
+          ? { costPriceUsd: item.costPrice, wholesalePriceUsd: item.wholesalePrice, retailPriceUsd: item.retailPrice, usdToUzsRate: exchangeRate }
           : { wholesalePriceUzs: item.wholesalePrice, retailPriceUzs: item.retailPrice }),
       })),
       {

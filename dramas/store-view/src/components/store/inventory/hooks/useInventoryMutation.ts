@@ -6,6 +6,7 @@ import { getLocalizedApiErrorMessage } from '@store/store-shared'
 import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { productKeys } from '../../product/hooks/productKeys'
 import { inventoryKeys } from './inventoryKeys'
+import { exchangeRateKeys } from '../../exchange-rate/hooks/exchangeRateKeys'
 
 export function useInventoryMutation(t: StoreTranslator) {
   //
@@ -22,6 +23,7 @@ export function useInventoryMutation(t: StoreTranslator) {
     },
     onError: (error: unknown) => {
       //
+      queryClient.invalidateQueries({ queryKey: exchangeRateKeys.all })
       const typedError = error as { code?: string; message?: string; response?: { data?: { message?: string } } }
       const isTimeout = typedError.code === 'ECONNABORTED' || typedError.message?.includes('timeout')
       toast.error(isTimeout ? t('stockIn.timeoutError') : getLocalizedApiErrorMessage(error, t, 'stockIn.error'))

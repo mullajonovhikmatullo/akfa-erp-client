@@ -127,6 +127,7 @@ export interface CreateTransferRequest {
   "toBranchId": string
   "items": TransferItem[]
   "note"?: string
+  "usdToUzsRate"?: number
 }
 
 export interface TransferItem {
@@ -283,6 +284,7 @@ export interface StockInRequest {
   "retailPriceUzs"?: number
   "wholesalePriceUsd"?: number
   "retailPriceUsd"?: number
+  "usdToUzsRate"?: number
   "supplierNote"?: string
 }
 
