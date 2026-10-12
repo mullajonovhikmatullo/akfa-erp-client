@@ -7106,7 +7106,7 @@
             "schema": {
               "type": "boolean"
             },
-            "description": "Filter sales with outstanding debt"
+            "description": "true keeps sales with outstanding debt, false keeps fully paid sales; omit for all."
           },
           {
             "in": "query",
@@ -7243,6 +7243,92 @@
         "responses": {
           "200": {
             "description": "Paginated debt repayment list"
+          }
+        }
+      }
+    },
+    "/sales/report": {
+      "get": {
+        "summary": "Sales report for a date range (daily, weekly, monthly)",
+        "description": "Totals cover every sale in the range, not one page. payments are the money taken at checkout for these sales; debtCollections are debt repayments received in the range for any sale. byDay groups by calendar day in tz. sales lists at most 2000 rows (salesTruncated is then true).\n",
+        "tags": [
+          "Sales"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "At most 366 days after from."
+          },
+          {
+            "in": "query",
+            "name": "tz",
+            "schema": {
+              "type": "string",
+              "default": "Asia/Tashkent"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeSales",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "customerId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "saleType",
+            "schema": {
+              "$ref": "#/components/schemas/SaleType"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hasDebt",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary, payment-method breakdown, debt collections, per-day, per-seller, top products and the sale rows"
           }
         }
       }

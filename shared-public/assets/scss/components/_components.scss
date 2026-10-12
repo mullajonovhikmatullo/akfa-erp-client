@@ -570,3 +570,19 @@ html.dark .excel-dropzone__icon {
   h2 { margin: 4px 0 0; font-size: 16px; }
   p { margin: 0 0 8px; color: var(--ink-3); }
 }
+
+.sales-report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1px;
+  border-bottom: 1px solid var(--border);
+  background: var(--border);
+}
+.sales-report-summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  background: var(--surface, #fff);
+  font-size: 15px;
+}
