@@ -108,6 +108,7 @@ export interface CreateSaleRequest {
   "customerId"?: string
   "saleType": SaleType
   "items": SaleItemRequest[]
+  "discountPercent"?: number
   "paidAmountUzs"?: number
   "paidAmountUsd"?: 0
   "usdToUzsRate"?: number
@@ -120,6 +121,7 @@ export type SaleType = "RETAIL" | "WHOLESALE"
 export interface SaleItemRequest {
   "productId": string
   "quantity": number
+  "discountPercent"?: number
 }
 
 export interface CreateTransferRequest {
@@ -264,6 +266,8 @@ export interface SaleResponse {
   "id"?: string
   "saleType"?: SaleType
   "totalAmountUzs"?: string
+  "discountPercent"?: string
+  "discountAmountUzs"?: string
   "paidAmountUzs"?: string
   "debtAmountUzs"?: string
   "branch"?: Record<string, unknown>

@@ -1,14 +1,14 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
-import { getSaleLineTotalUzs, getSaleProductPrice, getSaleProductPriceUzs } from '@store/store-shared/lib/product-pricing'
+import { getDiscountedPriceUzs, getSaleLineTotalUzs, getSaleProductPrice, getSaleProductPriceUzs } from '@store/store-shared/lib/product-pricing'
 import type { Customer, PaymentMethod, Product } from '@store/store-stub'
 import { useBranchesList } from '../../branch/hooks/useBranchesList'
 import { useCustomersList } from '../../customer/hooks/useCustomersList'
 import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
 import { useProductsList } from '../../product/hooks/useProductsList'
 import { useSaleMutation } from '../hooks/useSaleMutation'
-import { clearSaleDraft, getSaleDraftScope, readSaleDraft, writeSaleDraft } from './saleDraft'
+import { clearSaleDraft, DEFAULT_SALE_DISCOUNT_PERCENT, getSaleDraftScope, readSaleDraft, writeSaleDraft } from './saleDraft'
 import type { CartItem, SaleFormValues } from './view/types'
 
 interface UseNewSaleFormOptions {
@@ -21,6 +21,14 @@ interface UseNewSaleFormOptions {
 const MIN_QTY = 0.0001
 const SALE_PAYMENT_METHODS: PaymentMethod[] = ['CASH_UZS', 'CARD', 'TRANSFER', 'MIXED', 'CREDIT']
 
+function normalizeDiscountPercent(value: unknown): number | null {
+  //
+  if (value == null || value === '') return null
+  const percent = Number(value)
+  if (!Number.isFinite(percent)) return null
+  return Math.round(Math.min(Math.max(percent, 0), 100) * 100) / 100
+}
+
 function emptySaleFormValues(branchId?: string): SaleFormValues {
   //
   return {
@@ -29,6 +37,7 @@ function emptySaleFormValues(branchId?: string): SaleFormValues {
     customerId: undefined,
     paymentMethod: 'CASH_UZS',
     paidAmount: 0,
+    discountPercent: DEFAULT_SALE_DISCOUNT_PERCENT,
     debtDueDateIso: undefined,
     selectedProductId: undefined,
     cart: [],
@@ -44,9 +53,10 @@ function persistedSaleFormValues(): SaleFormValues {
     customerId: draft.customerId,
     paymentMethod: SALE_PAYMENT_METHODS.includes(draft.paymentMethod) ? draft.paymentMethod : 'CASH_UZS',
     paidAmount: draft.paidAmount,
+    discountPercent: normalizeDiscountPercent(draft.discountPercent) ?? DEFAULT_SALE_DISCOUNT_PERCENT,
     debtDueDateIso: draft.debtDueDateIso,
     selectedProductId: undefined,
-    cart: draft.cart,
+    cart: draft.cart.map((item) => ({ ...item, discountPercent: normalizeDiscountPercent(item.discountPercent) })),
   }
 }
 
@@ -85,6 +95,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
   const customerId = useWatch({ control, name: 'customerId' })
   const paymentMethod = useWatch({ control, name: 'paymentMethod' }) ?? 'CASH_UZS'
   const paidAmount = useWatch({ control, name: 'paidAmount' }) ?? 0
+  const saleDiscountPercent = useWatch({ control, name: 'discountPercent' }) ?? DEFAULT_SALE_DISCOUNT_PERCENT
   const debtDueDateIso = useWatch({ control, name: 'debtDueDateIso' })
   const cartDraft = useWatch({ control, name: 'cart' }) ?? []
   const [paidAmountError, setPaidAmountError] = useState(false)
@@ -118,47 +129,60 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     [products, stockByProductId],
   )
   const productById = useMemo(() => new Map(products.map((product) => [product.id, product])), [products])
+  const unitPrice = useCallback(
+    (product: Product) => getSaleProductPriceUzs(product, saleType, effectiveExchangeRate),
+    [effectiveExchangeRate, saleType],
+  )
   const cart = useMemo<CartItem[]>(
     () =>
       cartDraft.flatMap((item) => {
         //
         const product = productById.get(item.productId)
         if (!product) return []
-        return { _key: item.key, productId: item.productId, product, quantity: item.quantity }
+        const discountPercent = item.discountPercent ?? saleDiscountPercent
+        const listUnitPriceUzs = unitPrice(product)
+        return {
+          _key: item.key,
+          productId: item.productId,
+          product,
+          quantity: item.quantity,
+          discountPercent,
+          listUnitPriceUzs,
+          unitPriceUzs: getDiscountedPriceUzs(listUnitPriceUzs, discountPercent),
+        }
       }),
-    [cartDraft, productById],
+    [cartDraft, productById, saleDiscountPercent, unitPrice],
   )
   const selectedProductIds = useMemo(() => new Set(cart.map((item) => item.productId)), [cart])
   const paymentOptions = useMemo(
     () => SALE_PAYMENT_METHODS.map((key) => ({ value: key, label: t(`payment.${key}`) })),
     [t],
   )
-  const unitPrice = useCallback(
-    (product: Product) => getSaleProductPriceUzs(product, saleType, effectiveExchangeRate),
-    [effectiveExchangeRate, saleType],
-  )
   const totals = useMemo(() => {
     //
     let uzsItemsTotal = 0
     let usdItemsTotalUsd = 0
     let usdItemsTotalUzs = 0
+    let listTotal = 0
     for (const item of cart) {
-      const lineTotal = getSaleLineTotalUzs(item.quantity, unitPrice(item.product))
+      const lineTotal = getSaleLineTotalUzs(item.quantity, item.unitPriceUzs)
       const originalPrice = getSaleProductPrice(item.product, saleType)
+      listTotal += getSaleLineTotalUzs(item.quantity, item.listUnitPriceUzs)
       if (originalPrice.currency === 'USD') {
-        usdItemsTotalUsd += Math.max(item.quantity, 0) * originalPrice.amount
+        usdItemsTotalUsd += Math.max(item.quantity, 0) * originalPrice.amount * (1 - item.discountPercent / 100)
         usdItemsTotalUzs += lineTotal
       } else {
         uzsItemsTotal += lineTotal
       }
     }
-    return { uzsItemsTotal, usdItemsTotalUsd, usdItemsTotalUzs, subtotal: uzsItemsTotal + usdItemsTotalUzs }
-  }, [cart, saleType, unitPrice])
+    const subtotal = uzsItemsTotal + usdItemsTotalUzs
+    return { uzsItemsTotal, usdItemsTotalUsd, usdItemsTotalUzs, listTotal, discountTotal: Math.max(0, listTotal - subtotal), subtotal }
+  }, [cart, saleType])
   const { subtotal } = totals
   const debtAmount = Math.max(0, subtotal - paidAmount)
   const needsCustomer = debtAmount > 0
   const fullPaidAmount = subtotal
-  const hasUsdPricedItems = totals.usdItemsTotalUsd > 0
+  const hasUsdPricedItems = cart.some((item) => getSaleProductPrice(item.product, saleType).currency === 'USD')
   const needsExchangeRate = hasUsdPricedItems
   const hasValidQuantities = cart.every((item) => {
     //
@@ -198,6 +222,19 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     const stock = stockByProductId.get(item.productId) ?? 0
     const nextQuantity = quantity == null || !Number.isFinite(quantity) ? 0 : Math.max(quantity, 0)
     update(index, { ...draftItem, quantity: Math.min(nextQuantity, stock) })
+  }
+
+  function updateItemDiscount(key: string, discountPercent: number | null) {
+    //
+    const index = cartDraft.findIndex((draftItem) => draftItem.key === key)
+    const draftItem = cartDraft[index]
+    if (index < 0 || !draftItem) return
+    update(index, { ...draftItem, discountPercent: normalizeDiscountPercent(discountPercent) })
+  }
+
+  function handleDiscountChange(value: number | null) {
+    //
+    setValue('discountPercent', normalizeDiscountPercent(value) ?? 0, { shouldDirty: true })
   }
 
   function changeQty(key: string, delta: number) {
@@ -283,10 +320,16 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
       customerId: customerId || undefined,
       paymentMethod,
       paidAmount,
+      discountPercent: saleDiscountPercent,
       debtDueDateIso,
-      cart: cartDraft.map((item) => ({ key: item.key, productId: item.productId, quantity: item.quantity })),
+      cart: cartDraft.map((item) => ({
+        key: item.key,
+        productId: item.productId,
+        quantity: item.quantity,
+        discountPercent: item.discountPercent ?? null,
+      })),
     }, draftScope)
-  }, [cartDraft, customerId, debtDueDateIso, draftScope, formBranchId, paidAmount, paymentMethod, saleType])
+  }, [cartDraft, customerId, debtDueDateIso, draftScope, formBranchId, paidAmount, paymentMethod, saleDiscountPercent, saleType])
 
   function submitSale(values: SaleFormValues) {
     //
@@ -301,9 +344,14 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
         customerId: values.customerId || undefined,
         paymentMethod: values.paymentMethod,
         paidAmountUzs: safePaidAmount,
+        discountPercent: saleDiscountPercent,
         usdToUzsRate: needsExchangeRate ? exchangeRate : undefined,
         debtDueDate: needsCustomer && values.debtDueDateIso ? values.debtDueDateIso : undefined,
-        items: cart.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+        items: cart.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          ...(item.discountPercent !== saleDiscountPercent && { discountPercent: item.discountPercent }),
+        })),
       },
       {
         onSuccess: () => {
@@ -353,9 +401,13 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     removeProduct,
     cart,
     saleType,
-    unitPrice,
     changeQty,
     updateQty,
+    updateItemDiscount,
+    discountPercent: saleDiscountPercent,
+    handleDiscountChange,
+    listTotal: totals.listTotal,
+    discountTotal: totals.discountTotal,
     removeItem,
     paymentOptions,
     paidAmount,
