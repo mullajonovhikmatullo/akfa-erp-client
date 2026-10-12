@@ -181,6 +181,8 @@ export interface SaleListItem {
   id: string
   saleType: SaleType
   totalAmountUzs: number
+  discountPercent: number
+  discountAmountUzs: number
   paidAmountUzs: number
   debtAmountUzs: number
   debtDueDate: string | null
@@ -195,6 +197,8 @@ export interface SaleListItem {
 export interface SaleLineItem {
   id: string
   quantity: number
+  listUnitPrice: number | null
+  discountPercent: number
   unitPrice: number
   totalPrice: number
   product: { id: string; name: string; sku: string | null; unit: ProductUnit }

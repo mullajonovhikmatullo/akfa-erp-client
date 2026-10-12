@@ -40,9 +40,9 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
             removeProduct={saleForm.removeProduct}
             cart={saleForm.cart}
             saleType={saleForm.saleType}
-            unitPrice={saleForm.unitPrice}
             changeQty={saleForm.changeQty}
             updateQty={saleForm.updateQty}
+            updateItemDiscount={saleForm.updateItemDiscount}
             removeItem={saleForm.removeItem}
           />
         </div>
@@ -58,6 +58,10 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
           paidAmountError={saleForm.paidAmountError}
           onPaidAmountChange={saleForm.handlePaidAmountChange}
           fullPaidAmount={saleForm.fullPaidAmount}
+          discountPercent={saleForm.discountPercent}
+          onDiscountChange={saleForm.handleDiscountChange}
+          listTotal={saleForm.listTotal}
+          discountTotal={saleForm.discountTotal}
           subtotal={saleForm.subtotal}
           uzsItemsTotal={saleForm.uzsItemsTotal}
           usdItemsTotalUsd={saleForm.usdItemsTotalUsd}

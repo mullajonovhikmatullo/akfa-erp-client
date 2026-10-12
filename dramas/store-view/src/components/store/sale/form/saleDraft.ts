@@ -4,6 +4,7 @@ export interface SaleDraftCartItem {
   key: string
   productId: string
   quantity: number
+  discountPercent?: number | null
 }
 
 export interface SaleDraftState {
@@ -12,9 +13,12 @@ export interface SaleDraftState {
   customerId?: string
   paymentMethod: PaymentMethod
   paidAmount: number
+  discountPercent: number
   debtDueDateIso?: string
   cart: SaleDraftCartItem[]
 }
+
+export const DEFAULT_SALE_DISCOUNT_PERCENT = 15
 
 const STORAGE_KEY = 'store-sale-draft'
 
@@ -35,6 +39,7 @@ export const initialSaleDraft: SaleDraftState = {
   customerId: undefined,
   paymentMethod: 'CASH_UZS',
   paidAmount: 0,
+  discountPercent: DEFAULT_SALE_DISCOUNT_PERCENT,
   debtDueDateIso: undefined,
   cart: [],
 }

@@ -12,6 +12,7 @@ import type { SaleListItem, SaleType } from '@store/store-stub'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
 import { NewSaleForm } from '../form/NewSaleForm'
 import { useSalesPage } from '../hooks/useSalesPage'
+import { printSalesReport } from './view/printSalesReport'
 import { createSalesColumns } from './view/salesColumns'
 
 type SalesFiltersForm = {
@@ -63,6 +64,22 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
     { value: 'RETAIL', label: t('sales.typeRetail') },
     { value: 'WHOLESALE', label: t('sales.typeWholesale') },
   ]
+
+  function handlePrint() {
+    //
+    const hasDebtLabel = filters.hasDebt === 'true' ? t('sales.hasDebt') : filters.hasDebt === 'false' ? t('sales.filterPaid') : null
+    printSalesReport({
+      t,
+      sales,
+      total,
+      firstRowNumber: rowIndex(0),
+      filters: [
+        filters.day ? filters.day.format('DD.MM.YYYY') : t('sales.printAllDays'),
+        saleTypeOptions.find((option) => option.value === filters.saleType)?.label ?? t('sales.filterAllTypes'),
+        ...(hasDebtLabel ? [hasDebtLabel] : []),
+      ],
+    })
+  }
 
   const columns = createSalesColumns({
     t,
@@ -171,6 +188,11 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
             />
             <Tooltip title={t('common.refresh')}>
               <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+            </Tooltip>
+            <Tooltip title={t('sales.printTooltip')}>
+              <Button icon={<StoreIcon name="printer" size={16} />} disabled={sales.length === 0 || isFetching} onClick={handlePrint}>
+                {t('sales.print')}
+              </Button>
             </Tooltip>
             <div className="sales-history-stats">
               {totalWithDebt > 0 && filters.hasDebt !== 'true' ? (

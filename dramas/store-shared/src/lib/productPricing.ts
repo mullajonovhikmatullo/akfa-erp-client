@@ -48,3 +48,8 @@ export function getSaleLineTotalUzs(quantity: number, unitPriceUzs: number): num
   //
   return Math.round(Math.max(quantity, 0) * unitPriceUzs)
 }
+
+export function getDiscountedPriceUzs(unitPriceUzs: number, discountPercent: number): number {
+  //
+  return Math.round(unitPriceUzs * (1 - discountPercent / 100))
+}

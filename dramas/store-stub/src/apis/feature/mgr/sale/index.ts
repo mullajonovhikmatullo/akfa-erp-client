@@ -16,6 +16,8 @@ type Raw = Record<string, unknown>
 const parseSale = (raw: Raw): SaleListItem => ({
   ...(raw as unknown as SaleListItem),
   totalAmountUzs: Number(raw.totalAmountUzs),
+  discountPercent: Number(raw.discountPercent ?? 0),
+  discountAmountUzs: Number(raw.discountAmountUzs ?? 0),
   paidAmountUzs: Number(raw.paidAmountUzs),
   debtAmountUzs: Number(raw.debtAmountUzs),
 })
@@ -25,6 +27,8 @@ const parseSaleDetail = (raw: Raw): SaleDetail => ({
   items: ((raw.items as Raw[]) ?? []).map((item) => ({
     ...(item as unknown as SaleDetail['items'][0]),
     quantity: Number(item.quantity),
+    listUnitPrice: item.listUnitPrice != null ? Number(item.listUnitPrice) : null,
+    discountPercent: Number(item.discountPercent ?? 0),
     unitPrice: Number(item.unitPrice),
     totalPrice: Number(item.totalPrice),
   })),

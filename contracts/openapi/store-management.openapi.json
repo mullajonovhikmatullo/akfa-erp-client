@@ -2508,6 +2508,13 @@
           "quantity": {
             "type": "number",
             "example": 5
+          },
+          "discountPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Optional. Overrides the sale-level discountPercent for this line.",
+            "example": 10
           }
         }
       },
@@ -2538,6 +2545,14 @@
             "items": {
               "$ref": "#/components/schemas/SaleItemRequest"
             }
+          },
+          "discountPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "default": 0,
+            "description": "Discount applied to every line without its own discountPercent. Each discounted unit price is rounded to whole so'm.",
+            "example": 15
           },
           "paidAmountUzs": {
             "type": "number",
@@ -2605,7 +2620,17 @@
           },
           "totalAmountUzs": {
             "type": "string",
-            "example": "250000.00"
+            "example": "250000.00",
+            "description": "Total after discounts."
+          },
+          "discountPercent": {
+            "type": "string",
+            "example": "15.00"
+          },
+          "discountAmountUzs": {
+            "type": "string",
+            "example": "44118.00",
+            "description": "List-price total minus totalAmountUzs."
           },
           "paidAmountUzs": {
             "type": "string",

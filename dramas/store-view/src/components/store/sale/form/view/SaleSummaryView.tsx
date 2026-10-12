@@ -20,6 +20,10 @@ interface SaleSummaryViewProps {
   paidAmountError: boolean
   onPaidAmountChange: (value: number | null) => void
   fullPaidAmount: number
+  discountPercent: number
+  onDiscountChange: (value: number | null) => void
+  listTotal: number
+  discountTotal: number
   subtotal: number
   uzsItemsTotal: number
   usdItemsTotalUsd: number
@@ -44,6 +48,10 @@ export function SaleSummaryView({
   paidAmountError,
   onPaidAmountChange,
   fullPaidAmount,
+  discountPercent,
+  onDiscountChange,
+  listTotal,
+  discountTotal,
   subtotal,
   uzsItemsTotal,
   usdItemsTotalUsd,
@@ -75,6 +83,31 @@ export function SaleSummaryView({
               )}
             />
             <Row label={t('newSale.rowRate')} value={<span className="u-text-muted">1 $ = <MoneyDisplay amount={exchangeRate} currency="UZS" /></span>} />
+          </>
+        ) : null}
+        <div className="u-items-center u-flex u-fs-13 u-justify-between u-gap-8">
+          <span className="u-text-muted">{t('newSale.saleDiscount')}</span>
+          <Controller
+            name="discountPercent"
+            control={control}
+            render={({ field }) => (
+              <InputNumber<number>
+                aria-label={t('newSale.saleDiscount')}
+                value={field.value ?? discountPercent}
+                onChange={onDiscountChange}
+                min={0}
+                max={100}
+                precision={2}
+                suffix="%"
+                className="u-w-120"
+              />
+            )}
+          />
+        </div>
+        {discountTotal > 0 ? (
+          <>
+            <Row label={t('newSale.rowListTotal')} value={<span className="num"><MoneyDisplay amount={listTotal} currency="UZS" /></span>} />
+            <Row label={t('newSale.rowDiscountAmount')} value={<span className="num u-text-success">−<MoneyDisplay amount={discountTotal} currency="UZS" /></span>} />
           </>
         ) : null}
         <Row label={t('newSale.rowTotal')} value={<span className="num u-fw-700" ><MoneyDisplay amount={subtotal} currency="UZS" /></span>} />
