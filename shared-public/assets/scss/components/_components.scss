@@ -133,7 +133,7 @@ $background-tones: (
 }
 .sale-cart-grid {
   display: grid;
-  grid-template-columns: minmax(150px, 1fr) minmax(150px, 176px) minmax(96px, 112px) minmax(88px, 96px) minmax(104px, 128px) minmax(112px, 148px) 28px;
+  grid-template-columns: minmax(150px, 1fr) minmax(150px, 176px) minmax(150px, 160px) minmax(88px, 96px) minmax(104px, 128px) minmax(112px, 148px) 28px;
   column-gap: 14px;
   row-gap: 8px;
 }
@@ -141,10 +141,11 @@ $background-tones: (
   overflow-x: auto;
 }
 .sale-cart-scroll > .sale-cart-grid {
-  min-width: 832px;
+  min-width: 886px;
 }
 .sale-cart-grid--header > div {
   min-width: 0;
+  white-space: nowrap;
   overflow-wrap: normal;
   word-break: normal;
 }
