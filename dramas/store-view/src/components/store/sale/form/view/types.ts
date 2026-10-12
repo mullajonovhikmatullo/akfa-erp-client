@@ -23,7 +23,7 @@ export type SaleFormValues = {
   cart: { key: string; productId: string; quantity: number; discountPercent?: number | null }[]
 }
 
-export const CART_GRID_COLUMNS = 'minmax(140px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(68px, 80px) minmax(96px, 128px) minmax(108px, 148px) 28px'
+export const CART_GRID_COLUMNS = 'minmax(150px, 1fr) minmax(150px, 176px) minmax(96px, 112px) minmax(88px, 96px) minmax(104px, 128px) minmax(112px, 148px) 28px'
 
 export interface SaleCartViewProps {
   t: StoreTranslator
