@@ -9,6 +9,8 @@ import type {
   SaleListItem,
   SalePage,
   SalePageQuery,
+  SaleReport,
+  SaleReportQuery,
 } from '../../../../models/domain/sale'
 
 type Raw = Record<string, unknown>
@@ -53,6 +55,13 @@ const findSalesPage = (params: SalePageQuery): Promise<SalePage> =>
     }
   })
 
+const findSalesReport = (params: SaleReportQuery): Promise<SaleReport> =>
+  http.get('/sales/report', { params }).then((response) => {
+    //
+    const body = response.data.data as Omit<SaleReport, 'sales'> & { sales: Raw[] | null }
+    return { ...body, sales: body.sales ? body.sales.map(parseSale) : null }
+  })
+
 const findSale = (id: string) => http.get(`/sales/${id}`).then((response) => parseSaleDetail(response.data.data))
 
 const findDebtPayments = (params: DebtPaymentFilters): Promise<DebtPaymentPage> =>
@@ -82,6 +91,7 @@ export const SaleSeekApi = {
   findSales,
   findSalesPage,
   findSale,
+  findSalesReport,
   findDebtPayments,
   fetch: {
     findSales: (params?: SaleFilters) => ({
@@ -91,6 +101,10 @@ export const SaleSeekApi = {
     findSalesPage: (params: SalePageQuery) => ({
       queryKey: ['sales', 'findSales', 'paginated', params.page, params.pageSize, params] as const,
       queryFn: () => findSalesPage(params),
+    }),
+    findSalesReport: (params: SaleReportQuery) => ({
+      queryKey: ['sales', 'report', params] as const,
+      queryFn: () => findSalesReport(params),
     }),
     findSale: (id: string) => ({
       queryKey: ['sales', 'findSale', id] as const,

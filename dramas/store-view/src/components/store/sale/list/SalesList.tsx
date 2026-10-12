@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { Button, DatePicker, Select, Tooltip } from 'antd'
 import { PlusIcon } from '@phosphor-icons/react/dist/csr/Plus'
 
-import dayjs, { type Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { useStoreT } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
@@ -12,14 +12,26 @@ import type { SaleListItem, SaleType } from '@store/store-stub'
 import { SaleDetailDrawer } from '../detail/SaleDetailDrawer'
 import { NewSaleForm } from '../form/NewSaleForm'
 import { useSalesPage } from '../hooks/useSalesPage'
-import { printSalesReport } from './view/printSalesReport'
+import { useSalesRangeReport } from '../hooks/useSalesRangeReport'
+import { useSalesRangeReportPrint } from '../hooks/useSalesRangeReportPrint'
+import { SalesReportSummary } from './view/SalesReportSummary'
 import { createSalesColumns } from './view/salesColumns'
+import {
+  createSalesPeriodPresets,
+  formatSalesPeriod,
+  SALES_REPORT_LIST_MAX_DAYS,
+  salesPeriodBounds,
+  salesPeriodDays,
+  type SalesPeriod,
+} from './view/salesPeriods'
 
 type SalesFiltersForm = {
   saleType?: SaleType
   hasDebt?: string
-  day: Dayjs | null
+  period: SalesPeriod | null
 }
+
+const REPORT_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 interface SalesListProps {
   isStoreOwner: boolean
@@ -35,21 +47,27 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
     defaultValues: {
       saleType: undefined,
       hasDebt: undefined,
-      day: null,
+      period: null,
     },
   })
   const filters = watch()
   const [tab, setTab] = useState<'new' | 'history'>('new')
   const [drawerSale, setDrawerSale] = useState<SaleListItem | null>(null)
   const hasDebtFilter = filters.hasDebt === undefined ? undefined : filters.hasDebt === 'true'
+  const periodBounds = filters.period ? salesPeriodBounds(filters.period) : null
 
   const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, resetPage, rowIndex } = useSalesPage({
     branchId,
     saleType: filters.saleType,
     hasDebt: hasDebtFilter,
-    from: filters.day?.startOf('day').toISOString(),
-    to: filters.day?.endOf('day').toISOString(),
+    from: periodBounds?.from,
+    to: periodBounds?.to,
   })
+  const reportQuery = periodBounds
+    ? { branchId, saleType: filters.saleType, hasDebt: hasDebtFilter, ...periodBounds, tz: REPORT_TIME_ZONE }
+    : null
+  const { data: report, refetch: refetchReport } = useSalesRangeReport(reportQuery ? { ...reportQuery, includeSales: false } : null)
+  const { print, isPrinting } = useSalesRangeReportPrint(t)
 
   useEffect(() => {
     //
@@ -67,18 +85,16 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
 
   function handlePrint() {
     //
+    if (!filters.period || !reportQuery) return
     const hasDebtLabel = filters.hasDebt === 'true' ? t('sales.hasDebt') : filters.hasDebt === 'false' ? t('sales.filterPaid') : null
-    printSalesReport({
-      t,
-      sales,
-      total,
-      firstRowNumber: rowIndex(0),
-      filters: [
-        filters.day ? filters.day.format('DD.MM.YYYY') : t('sales.printAllDays'),
+    void print(
+      { ...reportQuery, includeSales: salesPeriodDays(filters.period) <= SALES_REPORT_LIST_MAX_DAYS },
+      formatSalesPeriod(filters.period),
+      [
         saleTypeOptions.find((option) => option.value === filters.saleType)?.label ?? t('sales.filterAllTypes'),
         ...(hasDebtLabel ? [hasDebtLabel] : []),
       ],
-    })
+    )
   }
 
   const columns = createSalesColumns({
@@ -165,32 +181,35 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
               )}
             />
             <Controller
-              name="day"
+              name="period"
               control={control}
               render={({ field }) => (
-                <DatePicker
+                <DatePicker.RangePicker
                   value={field.value}
                   onChange={(value) => {
                     //
-                    field.onChange(value)
+                    field.onChange(value?.[0] && value[1] ? [value[0], value[1]] : null)
                     resetPage()
                   }}
                   format="DD.MM.YYYY"
-                  placeholder={t('sales.filterDay')}
+                  placeholder={[t('common.startDate'), t('common.endDate')]}
                   disabledDate={(date) => date.isAfter(dayjs(), 'day')}
-                  presets={[
-                    { label: t('common.today'), value: dayjs() },
-                    { label: t('common.yesterday'), value: dayjs().subtract(1, 'day') },
-                  ]}
-                  className="u-min-w-160"
+                  presets={createSalesPeriodPresets(t)}
                 />
               )}
             />
             <Tooltip title={t('common.refresh')}>
-              <Button icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />} onClick={() => refetch()} />
+              <Button
+                icon={<StoreIcon name="reload" size={16} className={isFetching ? 'ph-icon-spin' : undefined} />}
+                onClick={() => {
+                  //
+                  void refetch()
+                  if (reportQuery) void refetchReport()
+                }}
+              />
             </Tooltip>
-            <Tooltip title={t('sales.printTooltip')}>
-              <Button icon={<StoreIcon name="printer" size={16} />} disabled={sales.length === 0 || isFetching} onClick={handlePrint}>
+            <Tooltip title={filters.period ? t('sales.printTooltip') : t('sales.printNeedsPeriod')}>
+              <Button icon={<StoreIcon name="printer" size={16} />} disabled={!filters.period || total === 0} loading={isPrinting} onClick={handlePrint}>
                 {t('sales.print')}
               </Button>
             </Tooltip>
@@ -215,6 +234,8 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
               </span>
             </div>
           </div>
+
+          {filters.period && report ? <SalesReportSummary t={t} summary={report.summary} /> : null}
 
           <DataTable<SaleListItem>
             rowKey="id"
