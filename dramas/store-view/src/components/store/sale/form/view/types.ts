@@ -6,6 +6,9 @@ export interface CartItem {
   productId: string
   product: Product
   quantity: number
+  discountPercent: number
+  listUnitPriceUzs: number
+  unitPriceUzs: number
 }
 
 export type SaleFormValues = {
@@ -14,12 +17,13 @@ export type SaleFormValues = {
   customerId?: string
   paymentMethod: PaymentMethod
   paidAmount: number
+  discountPercent: number
   debtDueDateIso?: string
   selectedProductId?: string
-  cart: { key: string; productId: string; quantity: number }[]
+  cart: { key: string; productId: string; quantity: number; discountPercent?: number | null }[]
 }
 
-export const CART_GRID_COLUMNS = 'minmax(140px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(96px, 128px) minmax(108px, 148px) 28px'
+export const CART_GRID_COLUMNS = 'minmax(140px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(68px, 80px) minmax(96px, 128px) minmax(108px, 148px) 28px'
 
 export interface SaleCartViewProps {
   t: StoreTranslator
@@ -31,8 +35,8 @@ export interface SaleCartViewProps {
   removeProduct: (productId: string) => void
   cart: CartItem[]
   saleType: SaleType
-  unitPrice: (product: Product) => number
   changeQty: (key: string, delta: number) => void
   updateQty: (key: string, quantity: number | null) => void
+  updateItemDiscount: (key: string, discountPercent: number | null) => void
   removeItem: (key: string) => void
 }

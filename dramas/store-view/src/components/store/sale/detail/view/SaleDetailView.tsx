@@ -84,6 +84,14 @@ export function SaleDetailView({
             tone={hasDebt ? 'danger' : 'muted'}
           />
         </div>
+        {sale.discountAmountUzs > 0 ? (
+          <div className="u-flex u-fs-13 u-justify-between u-mb-16">
+            <span className="u-text-muted">{t('sales.drawerDiscount')}</span>
+            <span className="num u-text-success">
+              {sale.discountPercent > 0 ? `${sale.discountPercent.toLocaleString('ru-RU')}% · ` : null}−<MoneyDisplay amount={sale.discountAmountUzs} currency="UZS" />
+            </span>
+          </div>
+        ) : null}
 
         {hasDebt ? (
           <div className="u-mb-16">
@@ -150,7 +158,15 @@ export function SaleDetailView({
                   </div>
                   <div className="u-text-muted u-fs-11-5">
                     {item.quantity.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)} x{' '}
+                    {item.discountPercent > 0 && item.listUnitPrice != null ? (
+                      <>
+                        <span className="sale-price-cell__list">
+                          <MoneyDisplay amount={item.listUnitPrice} currency="UZS" />
+                        </span>{' '}
+                      </>
+                    ) : null}
                     <MoneyDisplay amount={item.unitPrice} currency="UZS" />
+                    {item.discountPercent > 0 ? <span className="u-text-success"> −{item.discountPercent.toLocaleString('ru-RU')}%</span> : null}
                   </div>
                 </div>
               </div>

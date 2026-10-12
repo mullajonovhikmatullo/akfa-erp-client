@@ -1,5 +1,5 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import { Button, Empty } from 'antd'
+import { Button, Empty, InputNumber } from 'antd'
 
 import { getSaleLineTotalUzs, getSaleProductPrice } from '@store/store-shared/lib/product-pricing'
 import { AuthenticatedProductImage } from '../../../product'
@@ -17,9 +17,9 @@ export function SaleCartView({
   removeProduct,
   cart,
   saleType,
-  unitPrice,
   changeQty,
   updateQty,
+  updateItemDiscount,
   removeItem,
 }: SaleCartViewProps) {
   //
@@ -45,16 +45,16 @@ export function SaleCartView({
       {cart.length === 0 ? <Empty description={t('newSale.emptyCart')} image={Empty.PRESENTED_IMAGE_SIMPLE} className="u-p-24-0" /> : (
         <>
           <div className="sale-cart-grid sale-cart-grid--header">
-            <div>{t('newSale.colProduct')}</div><div>{t('newSale.colQty')}</div><div className="u-text-right">{t('newSale.colRemainingStock')}</div><div className="u-text-right">{t('newSale.colUnitPrice')}</div><div className="u-text-right">{t('newSale.colTotal')}</div><div />
+            <div>{t('newSale.colProduct')}</div><div>{t('newSale.colQty')}</div><div className="u-text-right">{t('newSale.colRemainingStock')}</div><div>{t('newSale.colDiscount')}</div><div className="u-text-right">{t('newSale.colUnitPrice')}</div><div className="u-text-right">{t('newSale.colTotal')}</div><div />
           </div>
           {cart.map((item) => {
             //
             const originalPrice = getSaleProductPrice(item.product, saleType)
-            const unitPriceUzs = unitPrice(item.product)
+            const discountedOriginal = { ...originalPrice, amount: originalPrice.amount * (1 - item.discountPercent / 100) }
             const availableStock = stockByProductId.get(item.productId) ?? 0
             const remainingStock = Number(Math.max(0, availableStock - item.quantity).toFixed(4))
             const hasNoRemainingStock = remainingStock <= 0
-            return <div key={item._key} className="sale-cart-grid sale-cart-grid--row"><div className="u-items-center u-flex u-gap-9 u-min-w-0"><AuthenticatedProductImage url={item.product.primaryThumbnailUrl ?? item.product.primaryImageUrl} alt={item.product.name} width={40} height={40} /><div className="u-min-w-0"><div className="sale-cart-name" title={item.product.name}>{item.product.name}</div>{item.product.sku ? <div className="u-text-muted u-font-mono u-fs-11">{item.product.sku}</div> : null}</div></div><QuantityStepper value={item.quantity} max={availableStock} unitLabel={t(`units.${item.product.unit}`)} onMinus={() => changeQty(item._key, -1)} onPlus={() => changeQty(item._key, 1)} onChange={(value) => updateQty(item._key, value)} /><div className={`num sale-cart-stock${hasNoRemainingStock ? ' tone-danger' : ''}`}>{remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}</div><PriceCell original={originalPrice} uzs={unitPriceUzs} /><PriceCell original={{ ...originalPrice, amount: originalPrice.amount * Math.max(item.quantity, 0) }} uzs={getSaleLineTotalUzs(item.quantity, unitPriceUzs)} strong /><Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} onClick={() => removeItem(item._key)} /></div>
+            return <div key={item._key} className="sale-cart-grid sale-cart-grid--row"><div className="u-items-center u-flex u-gap-9 u-min-w-0"><AuthenticatedProductImage url={item.product.primaryThumbnailUrl ?? item.product.primaryImageUrl} alt={item.product.name} width={40} height={40} /><div className="u-min-w-0"><div className="sale-cart-name" title={item.product.name}>{item.product.name}</div>{item.product.sku ? <div className="u-text-muted u-font-mono u-fs-11">{item.product.sku}</div> : null}</div></div><QuantityStepper value={item.quantity} max={availableStock} unitLabel={t(`units.${item.product.unit}`)} onMinus={() => changeQty(item._key, -1)} onPlus={() => changeQty(item._key, 1)} onChange={(value) => updateQty(item._key, value)} /><div className={`num sale-cart-stock${hasNoRemainingStock ? ' tone-danger' : ''}`}>{remainingStock.toLocaleString('ru-RU')} {t(`units.${item.product.unit}`)}</div><InputNumber<number> aria-label={t('newSale.colDiscount')} value={item.discountPercent} min={0} max={100} precision={2} controls={false} suffix="%" className="u-w-full" onChange={(value) => updateItemDiscount(item._key, value)} /><PriceCell original={discountedOriginal} uzs={item.unitPriceUzs} listUzs={item.listUnitPriceUzs} /><PriceCell original={{ ...discountedOriginal, amount: discountedOriginal.amount * Math.max(item.quantity, 0) }} uzs={getSaleLineTotalUzs(item.quantity, item.unitPriceUzs)} listUzs={getSaleLineTotalUzs(item.quantity, item.listUnitPriceUzs)} strong /><Button size="small" type="text" danger icon={<StoreIcon name="trash" size={16} />} onClick={() => removeItem(item._key)} /></div>
           })}
         </>
       )}

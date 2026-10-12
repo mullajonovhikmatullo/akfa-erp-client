@@ -31,6 +31,7 @@ import { MinusIcon } from '@phosphor-icons/react/dist/csr/Minus'
 import { MoonIcon } from '@phosphor-icons/react/dist/csr/Moon'
 import { PencilSimpleIcon } from '@phosphor-icons/react/dist/csr/PencilSimple'
 import { PlusIcon } from '@phosphor-icons/react/dist/csr/Plus'
+import { PrinterIcon } from '@phosphor-icons/react/dist/csr/Printer'
 import { SignOutIcon } from '@phosphor-icons/react/dist/csr/SignOut'
 import { StarIcon } from '@phosphor-icons/react/dist/csr/Star'
 import { SunIcon } from '@phosphor-icons/react/dist/csr/Sun'
@@ -80,6 +81,7 @@ const STORE_ICONS = {
   payments: CreditCardIcon,
   'pen-line': PencilSimpleIcon,
   plus: PlusIcon,
+  printer: PrinterIcon,
   redirect: ArrowSquareOutIcon,
   reload: ArrowClockwiseIcon,
   search: MagnifyingGlassIcon,

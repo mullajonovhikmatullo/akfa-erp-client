@@ -125,9 +125,15 @@ $background-tones: (
   white-space: nowrap;
 }
 .sale-price-cell--strong { font-weight: 700; }
+.sale-price-cell__list {
+  color: var(--ink-3);
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: line-through;
+}
 .sale-cart-grid {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(96px, 128px) minmax(108px, 148px) 28px;
+  grid-template-columns: minmax(140px, 1fr) minmax(160px, 184px) minmax(72px, 96px) minmax(68px, 80px) minmax(96px, 128px) minmax(108px, 148px) 28px;
   gap: 8px;
 }
 .sale-cart-grid--header {
