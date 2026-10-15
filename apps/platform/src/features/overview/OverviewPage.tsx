@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { CalendarClock } from 'lucide-react';
 import type { PlatformPayment } from '@store/platform-stub';
 import { readPlatformUser } from '../../shared/auth/session';
-import { daysUntil } from '../../shared/lib/format';
+import { daysUntil, formatLongToday } from '../../shared/lib/format';
 import { PageHeader } from '../../shared/ui/display';
 import { usePlatformStoresPage } from '../companies/hooks/usePlatformStoresPage';
 import { usePaymentMutation } from '../payments/hooks/usePaymentMutation';
@@ -51,7 +51,7 @@ export function OverviewPage() {
     <>
       <PageHeader
         title={`${greeting()}, ${user?.name?.split(' ')[0] ?? 'xo‘jayin'}`}
-        description={new Intl.DateTimeFormat('uz-UZ', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}
+        description={formatLongToday()}
         actions={renewals > 0 ? (
           <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-2 px-2.5 py-1.5 text-[13px] text-muted-foreground">
             <CalendarClock className="size-4" /> 7 kun ichida {renewals} ta to‘lov muddati

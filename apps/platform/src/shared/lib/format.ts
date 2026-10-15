@@ -36,18 +36,28 @@ export const formatPlanPrice = (plan: PricedPlan) =>
     ? `${formatMoney(plan.oneTimePriceUsd ?? 0, 'USD')} bir marta`
     : `${formatMoney(plan.monthlyPriceUzs)} / oy`;
 
-const dateFormat = new Intl.DateTimeFormat('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' });
-const dateTimeFormat = new Intl.DateTimeFormat('uz-UZ', {
-  day: '2-digit',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
+// Browsers ship little or no `uz` locale data, so Intl prints things like "M10 15, Thu".
+const months = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'];
+const shortMonths = ['yan', 'fev', 'mar', 'apr', 'may', 'iyun', 'iyul', 'avg', 'sen', 'okt', 'noy', 'dek'];
+const weekdays = ['yakshanba', 'dushanba', 'seshanba', 'chorshanba', 'payshanba', 'juma', 'shanba'];
 
-export const formatDate = (value: string | null | undefined) => (value ? dateFormat.format(new Date(value)) : '—');
+const pad = (value: number) => String(value).padStart(2, '0');
 
-export const formatDateTime = (value: string | null | undefined) =>
-  value ? dateTimeFormat.format(new Date(value)) : '—';
+const shortDay = (date: Date) => {
+  const day = `${date.getDate()}-${shortMonths[date.getMonth()]}`;
+  return date.getFullYear() === new Date().getFullYear() ? day : `${day} ${date.getFullYear()}`;
+};
+
+export const formatDate = (value: string | null | undefined) => (value ? shortDay(new Date(value)) : '—');
+
+export const formatDateTime = (value: string | null | undefined) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  return `${shortDay(date)}, ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+export const formatLongToday = (date = new Date()) =>
+  `${date.getDate()}-${months[date.getMonth()]}, ${weekdays[date.getDay()]}`;
 
 export const daysUntil = (value: string | null | undefined) => {
   //
@@ -55,4 +65,4 @@ export const daysUntil = (value: string | null | undefined) => {
   return Math.ceil((new Date(value).getTime() - Date.now()) / 86_400_000);
 };
 
-export const formatLimit = (used: number, limit: number | null) => (limit === null ? `${used}` : `${used}/${limit}`);
+export const formatLimit = (used: number, limit: number | null) => (limit === null ? formatNumber(used) : `${formatNumber(used)}/${formatNumber(limit)}`);

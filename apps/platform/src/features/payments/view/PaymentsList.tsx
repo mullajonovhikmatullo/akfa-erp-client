@@ -104,7 +104,7 @@ export function PaymentsList(props: PaymentsListProps) {
                 <span className="truncate font-medium">{payment.store.name}</span>
                 <span className="text-xs text-muted-foreground">{formatDateTime(payment.createdAt)} · {period(payment)}</span>
               </div>
-              <span className="tabular font-semibold">{formatMoney(payment.amount, payment.currency)}</span>
+              <span className="tabular shrink-0 whitespace-nowrap font-semibold">{formatMoney(payment.amount, payment.currency)}</span>
             </div>
             <div className="flex items-center justify-between gap-2">
               <Badge tone={statusTone[payment.status]} dot>{paymentStatusLabels[payment.status]}</Badge>

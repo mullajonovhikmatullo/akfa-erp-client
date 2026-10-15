@@ -1,5 +1,5 @@
 import type { PlatformStore, StoreStatus } from '@store/platform-stub';
-import { billingTypeLabels, daysUntil, formatDate, formatPlanPrice, storeStatusLabels } from '../../../shared/lib/format';
+import { billingTypeLabels, daysUntil, formatDate, formatLimit, formatPlanPrice, storeStatusLabels } from '../../../shared/lib/format';
 import { Badge } from '../../../shared/ui/display';
 import type { Tone } from '../../../shared/ui/display';
 
@@ -44,14 +44,14 @@ export function UsageCell({ store }: { store: PlatformStore }) {
         const ratio = row.limit ? Math.min(row.used / row.limit, 1) : 0;
         return (
           <div key={row.label} className="flex items-center gap-2 text-xs">
-            <div className="h-1 w-12 overflow-hidden rounded-full bg-surface-2">
+            <div className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-surface-2">
               <div
                 className={ratio >= 0.9 ? 'h-full bg-warning' : 'h-full bg-foreground/40'}
                 style={{ width: `${row.limit ? ratio * 100 : 0}%` }}
               />
             </div>
-            <span className="tabular text-muted-foreground">
-              {row.used}{row.limit === null ? '' : `/${row.limit}`} {row.label}
+            <span className="tabular whitespace-nowrap text-muted-foreground">
+              {formatLimit(row.used, row.limit)} {row.label}
             </span>
           </div>
         );
@@ -64,7 +64,12 @@ export function TermCell({ store }: { store: PlatformStore }) {
   //
   const subscription = store.subscription;
   if (subscription?.lifetimeAccessAt) {
-    return <span className="text-xs text-muted-foreground">Muddatsiz · {formatDate(subscription.lifetimeAccessAt)} dan</span>;
+    return (
+      <div className="grid text-xs">
+        <span>Muddatsiz</span>
+        <span className="text-muted-foreground">{formatDate(subscription.lifetimeAccessAt)} dan</span>
+      </div>
+    );
   }
   if (store.status === 'TRIALING') {
     const days = daysUntil(subscription?.trialEndsAt ?? store.trialEndsAt);

@@ -21,7 +21,7 @@ export function StatusOverview({ byStatus, loading }: { byStatus: Record<string,
 
   return (
     <Card className="p-5">
-      <div className="grid gap-5 sm:grid-cols-[1.2fr_repeat(3,1fr)] sm:items-end">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-[1.2fr_repeat(3,1fr)] sm:items-end">
         <Link to={routes.companies} className="group grid gap-1">
           <span className="text-[13px] text-muted-foreground">Jami kompaniyalar</span>
           {loading ? <Skeleton className="h-9 w-16" /> : (
