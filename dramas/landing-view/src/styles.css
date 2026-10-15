@@ -473,8 +473,9 @@
 .trial-banner div { display: grid; }
 .trial-banner b { font-size: 16px; }
 .trial-banner span { color: var(--ink-2); font-size: 14.5px; }
-.pricing-grid { display: grid; gap: 20px; max-width: 860px; margin-inline: auto; }
-@media (min-width: 720px) { .pricing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; } }
+.pricing-grid { display: grid; gap: 20px; max-width: 480px; margin-inline: auto; }
+@media (min-width: 900px) { .pricing-grid { max-width: 1120px; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; } }
+@media (min-width: 900px) and (max-width: 1080px) { .price-card { padding: 22px; } }
 .price-card {
   position: relative; display: flex; flex-direction: column; gap: 14px; padding: 28px;
   border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg);

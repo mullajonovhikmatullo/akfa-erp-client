@@ -46,7 +46,15 @@ function formatPlanFeatures(
     return [branchFeature, userFeature, productFeature, ...(template?.features ?? [])];
 }
 
-const pricingSkeletonKeys = ['one', 'two'] as const;
+const pricingSkeletonKeys = ['one', 'two', 'three'] as const;
+
+function planContactHref(planName: string, template: string) {
+    //
+    const message = formatMessage(template, {plan: planName});
+    return site.contact.telegramHref
+        ? `${site.contact.telegramHref}?text=${encodeURIComponent(message)}`
+        : site.contact.phoneHref;
+}
 
 function PricingSkeleton() {
     //
@@ -149,7 +157,8 @@ export function Pricing() {
                                 ))}
                             </ul>
                             <a className={`btn btn--block ${plan.highlight ? 'btn--primary' : 'btn--outline'}`}
-                               href={site.contact.phoneHref}>
+                               href={planContactHref(plan.name, pricing.contactMessage)}
+                               target="_blank" rel="noreferrer">
                                 {plan.cta}
                             </a>
                         </article>

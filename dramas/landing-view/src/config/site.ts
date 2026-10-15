@@ -10,8 +10,7 @@ export const site = {
     phoneHref: 'tel:+998946022824',
     email: 'hellomavionuz@gmail.com',
     emailHref: 'mailto:hellomavionuz@gmail.com',
-    // TODO: add the real Telegram channel or support bot, e.g. 'https://t.me/mavion_uz'. Hidden while null.
-    telegramHref: null as string | null,
+    telegramHref: 'https://t.me/mullajonovhikmatullo' as string | null,
     // TODO: add real social profiles ({ key: 'instagram', href: '...' }). The footer hides this row while empty.
     socials: [] as ReadonlyArray<{ key: 'instagram' | 'facebook' | 'youtube'; href: string }>,
   },
