@@ -6,9 +6,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlatformFlowApi, PlatformSeekApi } from '@store/platform-stub';
 import type { PlatformStore, StoreStatus } from '@store/platform-stub';
 import {
+  billingTypeLabels,
   formatDateTime,
   formatLimitCount,
-  formatMoney,
+  formatPlanPrice,
   storeStatusLabels,
 } from '../../shared/lib/platformFormatters';
 import { createOwnerSetupUrl } from '../../shared/lib/ownerSetupUrl';
@@ -60,6 +61,7 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
   const [statusPassword, setStatusPassword] = useState('');
   const [pendingPlanChange, setPendingPlanChange] = useState<PlatformStore | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState('');
+  const [trialTarget, setTrialTarget] = useState<PlatformStore | null>(null);
   const [setupTarget, setSetupTarget] = useState<PlatformStore | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
   const [setupResult, setSetupResult] = useState<{
@@ -167,6 +169,25 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       setPendingPlanChange(null);
       setSelectedPlanId('');
       message.error(error instanceof Error ? error.message : 'Do‘kon tarifini yangilab bo‘lmadi');
+      void queryClient.invalidateQueries({ queryKey: ['platform-stores'] });
+    },
+  });
+  const trialMutation = useMutation({
+    mutationFn: (store: PlatformStore) =>
+      PlatformFlowApi.grantTrial({ storeId: store.id, payload: { expectedVersion: store.billingVersion } }),
+    onSuccess: async () => {
+      //
+      message.success('14 kunlik sinov muddati yoqildi');
+      setTrialTarget(null);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-dashboard'] }),
+      ]);
+    },
+    onError: (error) => {
+      //
+      setTrialTarget(null);
+      message.error(error instanceof Error ? error.message : 'Sinov muddatini yoqib bo‘lmadi');
       void queryClient.invalidateQueries({ queryKey: ['platform-stores'] });
     },
   });
@@ -344,7 +365,15 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
               render: (_value, store) => (
                 <div className="table-primary-cell">
                   <strong>{store.plan?.name ?? 'Tarif yo‘q'}</strong>
-                  <span>{formatMoney(store.plan?.monthlyPriceUzs ?? 0)}</span>
+                  {store.plan ? <span>{formatPlanPrice(store.plan)}</span> : null}
+                  {store.plan ? (
+                    <Space size={4} wrap>
+                      <Tag color={store.plan.billingType === 'LIFETIME' ? 'gold' : 'geekblue'}>
+                        {billingTypeLabels[store.plan.billingType]}
+                      </Tag>
+                      {store.subscription?.lifetimeAccessAt ? <Tag color="green">Doimiy yoqilgan</Tag> : null}
+                    </Space>
+                  ) : null}
                   <Button
                     type="link"
                     size="small"
@@ -385,8 +414,14 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
               width: 240,
               render: (_value, store) => (
                 <div className="table-primary-cell">
-                  <span>Sinov: {formatDateTime(store.trialEndsAt)}</span>
-                  <span>Keyingi to‘lov: {formatDateTime(store.subscription?.nextPaymentDueAt ?? null)}</span>
+                  {store.subscription?.lifetimeAccessAt ? (
+                    <span>Doimiy: {formatDateTime(store.subscription.lifetimeAccessAt)} dan</span>
+                  ) : (
+                    <>
+                      <span>Sinov: {formatDateTime(store.trialEndsAt)}</span>
+                      <span>Keyingi to‘lov: {formatDateTime(store.subscription?.nextPaymentDueAt ?? null)}</span>
+                    </>
+                  )}
                 </div>
               ),
             },
@@ -406,6 +441,16 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
                     onChange={(nextStatus) => setPendingStatusChange({ store, status: nextStatus })}
                     className="u-w-140"
                   />
+                  {store.status === 'PAST_DUE' && !store.subscription?.lifetimeAccessAt ? (
+                    <Tooltip title="14 kunlik sinovni yoqish">
+                      <Button
+                        aria-label="14 kunlik sinovni yoqish"
+                        icon={<i className="icons-clock icon-size-18" />}
+                        loading={trialMutation.isPending && trialMutation.variables?.id === store.id}
+                        onClick={() => setTrialTarget(store)}
+                      />
+                    </Tooltip>
+                  ) : null}
                   {store.ownerAccount?.mustChangePassword &&
                   store.ownerAccount.isActive &&
                   store.status !== 'SUSPENDED' &&
@@ -458,13 +503,36 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
             value={selectedPlanId || undefined}
             loading={plansQuery.isLoading}
             placeholder="Yangi tarifni tanlang"
-            options={(plansQuery.data ?? []).map((plan) => ({
-              value: plan.id,
-              label: `${plan.name} — ${formatMoney(plan.monthlyPriceUzs)}`,
-            }))}
+            options={(['MONTHLY', 'LIFETIME'] as const)
+              .filter((billingType) => !pendingPlanChange?.subscription?.lifetimeAccessAt || billingType === 'LIFETIME')
+              .map((billingType) => ({
+                label: billingTypeLabels[billingType],
+                options: (plansQuery.data ?? [])
+                  .filter((plan) => plan.billingType === billingType)
+                  .map((plan) => ({ value: plan.id, label: `${plan.name} — ${formatPlanPrice(plan)}` })),
+              }))}
             onChange={setSelectedPlanId}
             className="u-w-full"
           />
+        </div>
+      </Modal>
+
+      <Modal
+        title="14 kunlik sinov muddatini yoqish"
+        open={Boolean(trialTarget)}
+        okText="Sinovni yoqish"
+        cancelText="Bekor qilish"
+        confirmLoading={trialMutation.isPending}
+        onOk={() => {
+          if (trialTarget) trialMutation.mutate(trialTarget);
+        }}
+        onCancel={() => setTrialTarget(null)}
+      >
+        <div className="status-change-modal">
+          <p>
+            <strong>{trialTarget?.name}</strong> do‘koni bugundan boshlab 14 kun to‘liq ishlaydi.
+            Muddat tugagach to‘lov tasdiqlanmaguncha yana faqat ko‘rish rejimiga o‘tadi.
+          </p>
         </div>
       </Modal>
 

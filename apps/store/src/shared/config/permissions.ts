@@ -69,8 +69,9 @@ export const ROLE_PERMISSIONS: Record<User['role'], Permission[]> = {
   branch_admin: BRANCH_ADMIN_PERMISSIONS,
 };
 
-export function can(role: User['role'] | undefined, permission: Permission): boolean {
+export function can(user: Pick<User, 'role' | 'store'> | null | undefined, permission: Permission): boolean {
   //
-  if (!role) return false;
-  return ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
+  if (!user?.role) return false;
+  if (permission === 'billing:manage' && user.store?.plan?.billingType === 'LIFETIME') return false;
+  return ROLE_PERMISSIONS[user.role]?.includes(permission) ?? false;
 }

@@ -4,6 +4,7 @@ import type {
   CreatePaymentPayload,
   DeletePlanPayload,
   DeletePlanResult,
+  GrantTrialPayload,
   ListStoresParams,
   PaymentStatus,
   ManagedPlan,
@@ -124,6 +125,9 @@ const updateStorePlan = ({
     .patch<ApiResponse<PlatformStore>>(`/platform/stores/${storeId}/plan`, payload)
     .then(unwrap)
 
+const grantTrial = ({ storeId, payload }: { storeId: string; payload: GrantTrialPayload }) =>
+  platformHttp.post<ApiResponse<PlatformStore>>(`/platform/stores/${storeId}/trial`, payload).then(unwrap)
+
 const regenerateOwnerSetup = (storeId: string, currentPassword: string) =>
   platformHttp
     .post<ApiResponse<OwnerSetupResult>>(
@@ -204,6 +208,7 @@ export const PlatformFlowApi = {
   deletePlan,
   updateStoreStatus,
   updateStorePlan,
+  grantTrial,
   regenerateOwnerSetup,
   createPayment,
   approvePayment,

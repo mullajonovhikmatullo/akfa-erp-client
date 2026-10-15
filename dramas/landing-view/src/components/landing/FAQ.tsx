@@ -28,8 +28,11 @@ export function FAQ() {
                                         <ChevronDown className="faq__icon" size={18} aria-hidden="true"/>
                                     </button>
                                 </h3>
-                                <div id={answerId} className="faq__answer" role="region" aria-labelledby={buttonId} hidden={!isOpen}>
-                                    <p>{item.answer}</p>
+                                <div id={answerId} className="faq__answer" role="region" aria-labelledby={buttonId}
+                                     aria-hidden={!isOpen} inert={!isOpen}>
+                                    <div className="faq__answer-inner">
+                                        <p>{item.answer}</p>
+                                    </div>
                                 </div>
                             </div>
                         );

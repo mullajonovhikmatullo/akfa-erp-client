@@ -6,6 +6,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Segmented,
   Space,
   Switch,
   Table,
@@ -16,12 +17,14 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PlatformFlowApi, PlatformSeekApi } from '@store/platform-stub';
 import type { ManagedPlan, PlanMutationPayload, UpdatePlanPayload } from '@store/platform-stub';
-import { formatMoney } from '../../shared/lib/platformFormatters';
+import { billingTypeLabels, formatPlanPrice } from '../../shared/lib/platformFormatters';
 
 const initialPlan: PlanMutationPayload = {
   code: '',
   name: '',
+  billingType: 'MONTHLY',
   monthlyPriceUzs: 0,
+  oneTimePriceUsd: null,
   maxBranches: null,
   maxUsers: null,
   maxProducts: null,
@@ -41,6 +44,9 @@ export const PlansPage = () => {
   const [deleteTarget, setDeleteTarget] = useState<ManagedPlan | null>(null);
   const [deletePassword, setDeletePassword] = useState('');
   const isActiveValue = Form.useWatch('isActive', form);
+  const billingTypeValue = Form.useWatch('billingType', form) ?? 'MONTHLY';
+  const isLifetime = billingTypeValue === 'LIFETIME';
+  const billingTypeLocked = Boolean(editingPlan && (editingPlan._count.stores > 0 || editingPlan._count.subscriptions > 0));
 
   const plansQuery = useQuery(PlatformSeekApi.fetch.listManagedPlans());
 
@@ -128,7 +134,9 @@ export const PlansPage = () => {
     form.setFieldsValue({
       code: plan.code,
       name: plan.name,
+      billingType: plan.billingType,
       monthlyPriceUzs: plan.monthlyPriceUzs,
+      oneTimePriceUsd: plan.oneTimePriceUsd,
       maxBranches: plan.maxBranches,
       maxUsers: plan.maxUsers,
       maxProducts: plan.maxProducts,
@@ -141,14 +149,17 @@ export const PlansPage = () => {
   const submitPlan = async () => {
     //
     const values = await form.validateFields();
+    const lifetime = values.billingType === 'LIFETIME';
     const payload: PlanMutationPayload = {
       code: values.code.trim().toUpperCase(),
       name: values.name.trim(),
-      monthlyPriceUzs: Number(values.monthlyPriceUzs),
+      billingType: lifetime ? 'LIFETIME' : 'MONTHLY',
+      monthlyPriceUzs: lifetime ? 0 : Number(values.monthlyPriceUzs),
+      oneTimePriceUsd: lifetime ? Number(values.oneTimePriceUsd) : null,
       maxBranches: values.maxBranches ?? null,
       maxUsers: values.maxUsers ?? null,
       maxProducts: values.maxProducts ?? null,
-      isPublic: Boolean(values.isActive) && Boolean(values.isPublic),
+      isPublic: !lifetime && Boolean(values.isActive) && Boolean(values.isPublic),
       isActive: Boolean(values.isActive),
     };
 
@@ -190,6 +201,10 @@ export const PlansPage = () => {
           <span>Landing page</span>
           <strong>{plans.filter((plan) => plan.isActive && plan.isPublic).length}</strong>
         </div>
+        <div>
+          <span>Bir martalik</span>
+          <strong>{plans.filter((plan) => plan.isActive && plan.billingType === 'LIFETIME').length}</strong>
+        </div>
       </div>
 
       <div className="operation-panel">
@@ -213,10 +228,18 @@ export const PlansPage = () => {
               ),
             },
             {
-              title: 'Oylik narx',
+              title: 'Turi',
+              key: 'billingType',
+              width: 150,
+              render: (_value, plan) => (
+                <Tag color={plan.billingType === 'LIFETIME' ? 'gold' : 'geekblue'}>{billingTypeLabels[plan.billingType]}</Tag>
+              ),
+            },
+            {
+              title: 'Narx',
               key: 'price',
-              width: 180,
-              render: (_value, plan) => <strong>{formatMoney(plan.monthlyPriceUzs)}</strong>,
+              width: 200,
+              render: (_value, plan) => <strong>{formatPlanPrice(plan)}</strong>,
             },
             {
               title: 'Limitlar',
@@ -321,18 +344,44 @@ export const PlansPage = () => {
             </Form.Item>
           </div>
           <Form.Item
-            name="monthlyPriceUzs"
-            label="Oylik narx"
-            rules={[{ required: true, message: 'Narxni kiriting' }]}
+            name="billingType"
+            label="To‘lov turi"
+            extra={billingTypeLocked
+              ? 'Bu tarifni do‘konlar ishlatayotgani uchun turini o‘zgartirib bo‘lmaydi'
+              : 'Bir martalik tarif to‘lov tasdiqlangach doimiy yoqiladi'}
           >
-            <InputNumber
-              min={0}
-              max={1_000_000_000}
-              precision={0}
-              addonAfter="UZS"
-              className="u-w-full"
+            <Segmented
+              block
+              disabled={billingTypeLocked}
+              options={[
+                { label: billingTypeLabels.MONTHLY, value: 'MONTHLY' },
+                { label: billingTypeLabels.LIFETIME, value: 'LIFETIME' },
+              ]}
             />
           </Form.Item>
+          {isLifetime ? (
+            <Form.Item
+              name="oneTimePriceUsd"
+              label="Bir martalik narx"
+              rules={[{ required: true, message: 'Narxni kiriting' }]}
+            >
+              <InputNumber min={1} max={1_000_000} precision={2} addonAfter="USD" className="u-w-full" />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              name="monthlyPriceUzs"
+              label="Oylik narx"
+              rules={[{ required: true, message: 'Narxni kiriting' }]}
+            >
+              <InputNumber
+                min={0}
+                max={1_000_000_000}
+                precision={0}
+                addonAfter="UZS"
+                className="u-w-full"
+              />
+            </Form.Item>
+          )}
           <div className="plan-form-grid plan-form-grid--limits">
             <Form.Item name="maxBranches" label="Filial limiti" extra="Bo‘sh qolsa cheksiz">
               <InputNumber min={1} max={1_000_000} precision={0} className="u-w-full" />
@@ -352,9 +401,11 @@ export const PlansPage = () => {
               name="isPublic"
               label="Landing page’da ko‘rinsin"
               valuePropName="checked"
-              extra="Faqat faol tariflar landing va store’da ko‘rinadi"
+              extra={isLifetime
+                ? 'Bir martalik tariflar landingda ko‘rinmaydi, ularni siz taklif qilasiz'
+                : 'Faqat faol tariflar landing va store’da ko‘rinadi'}
             >
-              <Switch disabled={isActiveValue === false} />
+              <Switch disabled={isActiveValue === false || isLifetime} />
             </Form.Item>
           </div>
         </Form>

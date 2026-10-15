@@ -7,7 +7,7 @@ import {
   PlatformSeekApi,
 } from '@store/platform-stub';
 import type { CreatePaymentPayload, PaymentStatus, PlatformPayment } from '@store/platform-stub';
-import { formatDateTime, formatMoney, paymentStatusLabels } from '../../shared/lib/platformFormatters';
+import { formatDateTime, formatMoney, formatPlanPrice, paymentStatusLabels } from '../../shared/lib/platformFormatters';
 
 const paymentStatusOptions: Array<{ label: string; value: PaymentStatus }> = [
   { label: paymentStatusLabels.PENDING, value: 'PENDING' },
@@ -33,6 +33,7 @@ export const PaymentsPage = () => {
   const { message } = AntdApp.useApp();
   const queryClient = useQueryClient();
   const [form] = Form.useForm<CreatePaymentPayload>();
+  const paymentCurrency = Form.useWatch('currency', form) ?? 'UZS';
   const [status, setStatus] = useState<PaymentStatus | undefined>('PENDING');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<PlatformPayment | null>(null);
@@ -129,10 +130,12 @@ export const PaymentsPage = () => {
             store.status !== 'SUSPENDED' &&
             store.status !== 'CANCELLED' &&
             Boolean(store.plan) &&
-            Number(store.plan?.monthlyPriceUzs) > 0,
+            (store.plan?.billingType === 'LIFETIME'
+              ? Number(store.plan.oneTimePriceUsd) > 0 && !store.subscription?.lifetimeAccessAt
+              : Number(store.plan?.monthlyPriceUzs) > 0),
         )
         .map((store) => ({
-          label: `${store.name} · ${store.plan?.name} · ${formatMoney(store.plan?.monthlyPriceUzs ?? 0)}`,
+          label: `${store.name} · ${store.plan?.name} · ${store.plan ? formatPlanPrice(store.plan) : ''}`,
           value: store.id,
         })),
     [storesQuery.data?.items],
@@ -141,16 +144,17 @@ export const PaymentsPage = () => {
   const submitCreatePayment = async () => {
     //
     const values = await form.validateFields();
-    createMutation.mutate({ ...values, currency: 'UZS' });
+    createMutation.mutate(values);
   };
 
   const selectStore = (storeId: string) => {
     //
     const store = storesQuery.data?.items.find((item) => item.id === storeId);
+    const lifetime = store?.plan?.billingType === 'LIFETIME';
     form.setFieldsValue({
       storeId,
-      amount: store?.plan?.monthlyPriceUzs,
-      currency: 'UZS',
+      amount: lifetime ? store?.plan?.oneTimePriceUsd ?? undefined : store?.plan?.monthlyPriceUzs,
+      currency: lifetime ? 'USD' : 'UZS',
     });
   };
 
@@ -267,7 +271,7 @@ export const PaymentsPage = () => {
               render: (_value, payment) => (
                 <div className="table-primary-cell">
                   <span>Boshlanish: {formatDateTime(payment.periodStart)}</span>
-                  <span>Tugash: {formatDateTime(payment.periodEnd)}</span>
+                  <span>Tugash: {payment.periodEnd ? formatDateTime(payment.periodEnd) : 'Doimiy (bir martalik)'}</span>
                 </div>
               ),
             },
@@ -327,7 +331,7 @@ export const PaymentsPage = () => {
                   <Space size={6} wrap={false}>
                     <Popconfirm
                       title={`${payment.store.name} to‘lovini tasdiqlaysizmi?`}
-                      description={`${formatMoney(payment.amount, payment.currency)} · ${formatDateTime(payment.periodStart)} – ${formatDateTime(payment.periodEnd)}`}
+                      description={`${formatMoney(payment.amount, payment.currency)} · ${formatDateTime(payment.periodStart)} – ${payment.periodEnd ? formatDateTime(payment.periodEnd) : 'doimiy'}`}
                       okText="Ha"
                       cancelText="Yo‘q"
                       onConfirm={() => approveMutation.mutate(payment.id)}
@@ -413,14 +417,14 @@ export const PaymentsPage = () => {
           </Form.Item>
           <Form.Item
             name="amount"
-            label="Oylik tarif summasi"
+            label={paymentCurrency === 'USD' ? 'Bir martalik tarif summasi' : 'Oylik tarif summasi'}
             rules={[{ required: true, message: 'Do‘konni tanlang' }]}
           >
             <InputNumber
               readOnly
               controls={false}
-              precision={0}
-              addonAfter="UZS"
+              precision={paymentCurrency === 'USD' ? 2 : 0}
+              addonAfter={paymentCurrency}
               className="u-w-full"
               placeholder="Do‘kon tanlanganda avtomatik belgilanadi"
             />

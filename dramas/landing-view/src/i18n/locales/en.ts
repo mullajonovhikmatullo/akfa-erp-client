@@ -227,6 +227,7 @@ export const en: TranslationDictionary = {
     plans: {
       START: { name: 'Start', badge: '', highlight: false, features: ['Basic reports', 'E-mail support'], cta: 'Contact us' },
       BUSINESS: { name: 'Business', badge: 'Popular', highlight: true, features: ['Advanced reports', 'Transfer control', 'Priority support'], cta: 'Contact us' },
+      MEGA_BUSINESS: { name: 'Mega Business', badge: '', highlight: false, features: ['Advanced reports', 'Transfer control', 'Priority support'], cta: 'Contact us' },
       NETWORK: { name: 'Network', badge: '', highlight: false, features: [], cta: 'Contact us' },
     },
   },
@@ -261,7 +262,12 @@ export const en: TranslationDictionary = {
       {
         question: 'Can I add a branch later?',
         answer:
-          'Yes, any time within your plan: Start — 1 main + 2 additional branches, Business — 1 main + 5 additional branches.',
+          'Yes, any time within your plan: Start — 1 main + 2 additional branches, Business — 1 main + 5 additional branches, Mega Business — 1 main + 9 additional branches.',
+      },
+      {
+        question: 'Can I buy it with a one-time payment?',
+        answer:
+          'Yes. Besides the monthly subscription, each plan can be bought outright with a one-time payment: Start — $300, Business — $500, Mega Business — $1000. Once the payment is approved, the store runs with no expiry and no monthly fee. Contact us for details.',
       },
       {
         question: 'How do I pay for the subscription?',

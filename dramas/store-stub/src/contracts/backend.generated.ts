@@ -396,7 +396,9 @@ export interface TenantBillingSummary {
   "plan": {
   "code"?: PlanCode
   "name"?: string
+  "billingType"?: PlanBillingType
   "monthlyPriceUzs"?: number
+  "oneTimePriceUsd"?: number | null
   "maxBranches"?: number | null
   "maxUsers"?: number | null
   "maxProducts"?: number | null
@@ -407,11 +409,14 @@ export interface TenantBillingSummary {
   "currentPeriodStart"?: string | null
   "currentPeriodEnd"?: string | null
   "nextPaymentDueAt"?: string | null
+  "lifetimeAccessAt"?: string | null
 } | null
   "branches": PaymentBranch[]
 }
 
 export type PlanCode = string
+
+export type PlanBillingType = "MONTHLY" | "LIFETIME"
 
 export interface SubmitTenantPaymentPayload {
   "paidAt"?: string
