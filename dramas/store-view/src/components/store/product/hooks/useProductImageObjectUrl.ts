@@ -1,12 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { ProductSeekApi } from '@store/store-stub'
+
+const IMAGE_CACHE_TIME = 1000 * 60 * 30
 
 export function useProductImageObjectUrl(url?: string | null) {
   //
   const rootRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
-  const [failed, setFailed] = useState(false)
+  const { queryKey, queryFn } = ProductSeekApi.fetch.downloadProductImage(url ?? '')
+  const image = useQuery({
+    queryKey,
+    queryFn,
+    enabled: visible && Boolean(url),
+    staleTime: Infinity,
+    gcTime: IMAGE_CACHE_TIME,
+  })
+  const blob = url ? image.data : undefined
 
   useEffect(() => {
     //
@@ -33,29 +44,14 @@ export function useProductImageObjectUrl(url?: string | null) {
 
   useEffect(() => {
     //
-    setObjectUrl(null)
-    setFailed(false)
-    if (!visible || !url) return
-
-    let active = true
-    let nextObjectUrl: string | null = null
-    ProductSeekApi.downloadProductImage(url)
-      .then((blob) => {
-        //
-        if (!active) return
-        nextObjectUrl = URL.createObjectURL(blob)
-        setObjectUrl(nextObjectUrl)
-      })
-      .catch(() => {
-        if (active) setFailed(true)
-      })
-
-    return () => {
-      //
-      active = false
-      if (nextObjectUrl) URL.revokeObjectURL(nextObjectUrl)
+    if (!blob) {
+      setObjectUrl(null)
+      return
     }
-  }, [url, visible])
+    const nextObjectUrl = URL.createObjectURL(blob)
+    setObjectUrl(nextObjectUrl)
+    return () => URL.revokeObjectURL(nextObjectUrl)
+  }, [blob])
 
-  return { rootRef, visible, objectUrl, failed }
+  return { rootRef, visible: visible || Boolean(blob), objectUrl, failed: Boolean(url) && image.isError }
 }
