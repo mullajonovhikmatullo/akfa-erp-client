@@ -13,4 +13,3 @@ export * from './landing/MultiBranch';
 export * from './landing/PainSolution';
 export * from './landing/Pricing';
 export * from './landing/ThemeToggle';
-export * from './ui/UzbekPhoneInput';

@@ -103,16 +103,7 @@ const targets = [
     output: 'dramas/landing-stub/src/contracts/backend.generated.ts',
     schemas: [
       'PlanCode',
-      'PlatformUser',
-      'RegisterStorePayload',
-      'RegisterStoreResult',
-      'ExchangeHandoffPayload',
-      'CompleteAccountSetupPayload',
       'PublicPlan',
-      'RegisteredBranch',
-      'RegisteredStore',
-      'RegisteredSubscription',
-      'StoreStatus',
     ],
   },
 ]

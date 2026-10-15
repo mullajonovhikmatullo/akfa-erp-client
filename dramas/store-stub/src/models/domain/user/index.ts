@@ -43,10 +43,6 @@ export interface ChangePasswordPayload {
   confirmPassword: string
 }
 
-export interface ExchangeHandoffPayload {
-  handoffCode: string
-}
-
 export interface CompleteAccountSetupPayload {
   setupCode: string
   newPassword: string

@@ -32,8 +32,7 @@ export function useAuthMutation({ t, onAuthenticated, onError, onGoogleError, on
     },
     onError: (error, payload) => onGoogleError ? onGoogleError(error, payload) : onError(error),
   })
-  const exchangeHandoff = useMutation({ mutationFn: UserFlowApi.exchangeHandoff })
   const completeAccountSetup = useMutation({ mutationFn: UserFlowApi.completeAccountSetup })
 
-  return { login, loginWithGoogle, exchangeHandoff, completeAccountSetup }
+  return { login, loginWithGoogle, completeAccountSetup }
 }

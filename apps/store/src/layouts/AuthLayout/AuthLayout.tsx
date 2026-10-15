@@ -11,7 +11,7 @@ export function AuthLayout() {
   const [accountEntry] = useState(() => {
     //
     const fragment = new URLSearchParams(window.location.hash.slice(1));
-    return fragment.has('handoff') || fragment.has('setup');
+    return fragment.has('setup');
   });
 
   if (!isHydrated) return null;
