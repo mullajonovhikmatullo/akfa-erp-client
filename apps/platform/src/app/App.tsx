@@ -1,39 +1,30 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { routes } from '../config/routes';
+import { LoginPage } from '../features/auth/LoginPage';
+import { CompaniesPage } from '../features/companies/CompaniesPage';
+import { OverviewPage } from '../features/overview/OverviewPage';
+import { PaymentsPage } from '../features/payments/PaymentsPage';
+import { PlansPage } from '../features/plans/PlansPage';
 import { AppLayout } from '../layouts/AppLayout';
-import {
-  CompaniesPage,
-  ComingSoonPage,
-  DashboardPage,
-  LoginPage,
-  NewCompanyPage,
-  PaymentsPage,
-  PlansPage,
-} from '../pages';
-import { ProtectedRoute } from '../routes/ProtectedRoute';
+import { ProtectedRoute } from './routes/ProtectedRoute';
 
-export const App = () => (
-  <Routes>
-    <Route path={routes.login} element={<LoginPage />} />
-    <Route element={<ProtectedRoute />}>
-      <Route element={<AppLayout />}>
-        <Route path={routes.home} element={<Navigate to={routes.dashboard} replace />} />
-        <Route path={routes.dashboard} element={<DashboardPage />} />
-        <Route path={routes.companies} element={<CompaniesPage />} />
-        <Route path={routes.companiesNew} element={<NewCompanyPage />} />
-        <Route path={routes.companiesActive} element={<CompaniesPage initialStatus="ACTIVE" title="Faol mijozlar" />} />
-        <Route
-          path={routes.companiesBlocked}
-          element={<CompaniesPage initialStatus="SUSPENDED" title="Bloklangan mijozlar" />}
-        />
-        <Route path={routes.subscriptionPayments} element={<PaymentsPage />} />
-        <Route path={routes.subscriptionPlans} element={<PlansPage />} />
-        <Route
-          path={routes.subscriptionDebts}
-          element={<CompaniesPage initialStatus="PAST_DUE" title="Qarzdorliklar" />}
-        />
-        <Route path="*" element={<ComingSoonPage />} />
+export function App() {
+  //
+  return (
+    <Routes>
+      <Route path={routes.login} element={<LoginPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path={routes.home} element={<OverviewPage />} />
+          <Route path={routes.companies} element={<CompaniesPage />} />
+          <Route path={routes.payments} element={<PaymentsPage />} />
+          <Route path={routes.plans} element={<PlansPage />} />
+          <Route path="/subscriptions/payments" element={<Navigate to={routes.payments} replace />} />
+          <Route path="/subscriptions/plans" element={<Navigate to={routes.plans} replace />} />
+          <Route path="/companies/*" element={<Navigate to={routes.companies} replace />} />
+          <Route path="*" element={<Navigate to={routes.home} replace />} />
+        </Route>
       </Route>
-    </Route>
-  </Routes>
-);
+    </Routes>
+  );
+}
