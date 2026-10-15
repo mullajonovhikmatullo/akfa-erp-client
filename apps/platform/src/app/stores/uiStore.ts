@@ -1,71 +1,49 @@
 import { create } from 'zustand';
-import { themeStorageKey } from '../../config/theme';
-import type { ThemeMode, ThemePreference } from '../../shared/types';
 
-interface UIState {
-  themePreference: ThemePreference;
-  resolvedTheme: ThemeMode;
-  setThemePreference: (preference: ThemePreference) => void;
-  toggleTheme: () => void;
-  syncSystemTheme: (theme: ThemeMode) => void;
-}
+export type ThemeMode = 'light' | 'dark';
+type ThemePreference = ThemeMode | 'system';
 
-const canUseDOM = typeof window !== 'undefined';
+const storageKey = 'platform-theme';
 
-const getSystemTheme = (): ThemeMode => {
+const systemTheme = (): ThemeMode =>
+  window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+const storedPreference = (): ThemePreference => {
   //
-  if (!canUseDOM) {
-    return 'light';
-  }
-
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
-
-const getStoredPreference = (): ThemePreference => {
-  //
-  if (!canUseDOM) {
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    return stored === 'light' || stored === 'dark' ? stored : 'system';
+  } catch {
     return 'system';
   }
-
-  const stored = window.localStorage.getItem(themeStorageKey);
-  return stored === 'light' || stored === 'dark' ? stored : 'system';
 };
 
-const resolveTheme = (preference: ThemePreference): ThemeMode =>
-  preference === 'system' ? getSystemTheme() : preference;
+interface UIState {
+  preference: ThemePreference;
+  theme: ThemeMode;
+  toggleTheme: () => void;
+  syncSystemTheme: () => void;
+}
 
 export const useUIStore = create<UIState>((set, get) => {
   //
-  const initialPreference = getStoredPreference();
-
+  const preference = storedPreference();
   return {
-    themePreference: initialPreference,
-    resolvedTheme: resolveTheme(initialPreference),
-    setThemePreference: (preference) => {
-      //
-      if (canUseDOM) {
-        if (preference === 'system') {
-          window.localStorage.removeItem(themeStorageKey);
-        } else {
-          window.localStorage.setItem(themeStorageKey, preference);
-        }
-      }
-
-      set({
-        themePreference: preference,
-        resolvedTheme: resolveTheme(preference),
-      });
-    },
+    preference,
+    theme: preference === 'system' ? systemTheme() : preference,
     toggleTheme: () => {
       //
-      const nextTheme: ThemeMode = get().resolvedTheme === 'dark' ? 'light' : 'dark';
-      get().setThemePreference(nextTheme);
-    },
-    syncSystemTheme: (theme) => {
-      //
-      if (get().themePreference === 'system') {
-        set({ resolvedTheme: theme });
+      const theme: ThemeMode = get().theme === 'dark' ? 'light' : 'dark';
+      try {
+        window.localStorage.setItem(storageKey, theme);
+      } catch {
+        //
       }
+      set({ preference: theme, theme });
+    },
+    syncSystemTheme: () => {
+      //
+      if (get().preference === 'system') set({ theme: systemTheme() });
     },
   };
 });

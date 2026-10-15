@@ -1,78 +1,50 @@
-import { App as AntdApp, ConfigProvider } from 'antd';
+import { useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { useEffect, useMemo } from 'react';
-import type { ReactNode } from 'react';
-import { createAntdTheme } from '../../config/theme';
+import { Tooltip } from 'radix-ui';
 import { useUIStore } from '../stores/uiStore';
-import type { ThemeMode } from '../../shared/types';
 
 export const platformQueryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30_000,
-    },
+    queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus: false },
   },
 });
 
 const routerBasename = import.meta.env.BASE_URL === '/' ? undefined : import.meta.env.BASE_URL.replace(/\/$/, '');
 
-const getSystemTheme = (): ThemeMode =>
-  window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-
-const useThemeController = () => {
+function useThemeClass() {
   //
-  const themePreference = useUIStore((state) => state.themePreference);
-  const resolvedTheme = useUIStore((state) => state.resolvedTheme);
+  const theme = useUIStore((state) => state.theme);
   const syncSystemTheme = useUIStore((state) => state.syncSystemTheme);
 
   useEffect(() => {
     //
-    document.documentElement.dataset.theme = resolvedTheme;
-    document.documentElement.style.colorScheme = resolvedTheme;
-  }, [resolvedTheme]);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.style.colorScheme = theme;
+  }, [theme]);
 
   useEffect(() => {
     //
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => syncSystemTheme(getSystemTheme());
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    media.addEventListener('change', syncSystemTheme);
+    return () => media.removeEventListener('change', syncSystemTheme);
+  }, [syncSystemTheme]);
 
-    if (themePreference === 'system') {
-      handleChange();
-    }
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [syncSystemTheme, themePreference]);
-};
-
-interface AppProvidersProps {
-  children: ReactNode;
+  return theme;
 }
 
-export const AppProviders = ({ children }: AppProvidersProps) => {
+export function AppProviders({ children }: { children: ReactNode }) {
   //
-  useThemeController();
-  const resolvedTheme = useUIStore((state) => state.resolvedTheme);
-  const antdTheme = useMemo(() => createAntdTheme(resolvedTheme), [resolvedTheme]);
+  const theme = useThemeClass();
 
   return (
-    <ConfigProvider theme={antdTheme}>
-      <AntdApp>
-        <QueryClientProvider client={platformQueryClient}>
-          <BrowserRouter basename={routerBasename}>{children}</BrowserRouter>
-          <Toaster
-            richColors
-            closeButton
-            position="top-right"
-            toastOptions={{
-              className: 'app-toast',
-            }}
-          />
-        </QueryClientProvider>
-      </AntdApp>
-    </ConfigProvider>
+    <QueryClientProvider client={platformQueryClient}>
+      <Tooltip.Provider delayDuration={300}>
+        <BrowserRouter basename={routerBasename}>{children}</BrowserRouter>
+      </Tooltip.Provider>
+      <Toaster theme={theme} position="bottom-right" richColors closeButton />
+    </QueryClientProvider>
   );
-};
+}
