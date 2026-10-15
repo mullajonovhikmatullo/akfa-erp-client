@@ -3,21 +3,33 @@ import { LogOut, Moon, Search, Sun } from 'lucide-react';
 import { useUIStore } from '../app/stores/uiStore';
 import { readPlatformUser } from '../shared/auth/session';
 import { cn } from '../shared/lib/cn';
+import { Button } from '../shared/ui/button';
 import { Kbd } from '../shared/ui/display';
+import { Logo } from '../shared/ui/logo';
 import { usePlatformDashboardSummary } from '../features/overview/hooks/usePlatformDashboardSummary';
 import { navItems } from './navigation';
-import { useSignOut } from './useSignOut';
 
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({ className, size = 22 }: { className?: string; size?: number }) {
   //
   return (
-    <div className={cn('flex items-center gap-2.5', className)}>
-      <div className="grid size-7 place-items-center rounded-lg bg-foreground text-[13px] font-bold text-background">M</div>
-      <div className="grid leading-tight">
-        <span className="text-sm font-semibold tracking-tight">Mavion</span>
-        <span className="text-[11px] text-muted-foreground">Platform</span>
-      </div>
+    <div className={cn('flex items-center gap-2', className)}>
+      <Logo size={size} />
+      <span className="rounded-md bg-surface-2 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+        Platform
+      </span>
     </div>
+  );
+}
+
+export function ThemeToggle({ className }: { className?: string }) {
+  //
+  const theme = useUIStore((state) => state.theme);
+  const toggleTheme = useUIStore((state) => state.toggleTheme);
+  const label = theme === 'dark' ? 'Yorug‘ rejim' : 'To‘q rejim';
+  return (
+    <Button variant="ghost" size="icon" aria-label={label} title={label} onClick={toggleTheme} className={className}>
+      {theme === 'dark' ? <Sun /> : <Moon />}
+    </Button>
   );
 }
 
@@ -28,16 +40,17 @@ interface SidebarProps {
 
 export function Sidebar({ onOpenCommand, onNavigate }: SidebarProps) {
   //
-  const theme = useUIStore((state) => state.theme);
-  const toggleTheme = useUIStore((state) => state.toggleTheme);
-  const signOut = useSignOut();
+  const askSignOut = useUIStore((state) => state.setSignOutConfirmOpen);
   const user = readPlatformUser();
   const { data: summary } = usePlatformDashboardSummary();
   const badges: Record<string, number | undefined> = { '/payments': summary?.pendingPayments || undefined };
 
   return (
     <div className="flex h-full flex-col gap-4 px-3 py-4">
-      <BrandMark className="px-2" />
+      <div className="flex items-center justify-between gap-2 pl-2">
+        <BrandMark />
+        <ThemeToggle />
+      </div>
 
       <button
         type="button"
@@ -74,15 +87,7 @@ export function Sidebar({ onOpenCommand, onNavigate }: SidebarProps) {
         ))}
       </nav>
 
-      <div className="mt-auto grid gap-1 border-t border-border pt-3">
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-surface-2 hover:text-foreground"
-        >
-          {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          {theme === 'dark' ? 'Yorug‘ rejim' : 'To‘q rejim'}
-        </button>
+      <div className="mt-auto border-t border-border pt-3">
         <div className="flex items-center gap-2.5 rounded-lg px-2.5 py-2">
           <div className="grid size-8 place-items-center rounded-full bg-surface-2 text-xs font-semibold">
             {(user?.name ?? 'P').slice(0, 1).toUpperCase()}
@@ -95,7 +100,7 @@ export function Sidebar({ onOpenCommand, onNavigate }: SidebarProps) {
             type="button"
             aria-label="Chiqish"
             title="Chiqish"
-            onClick={() => void signOut()}
+            onClick={() => askSignOut(true)}
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-surface-2 hover:text-danger"
           >
             <LogOut className="size-4" />

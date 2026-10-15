@@ -6,6 +6,7 @@ import { Button } from '../shared/ui/button';
 import { CommandMenu } from './CommandMenu';
 import { navItems } from './navigation';
 import { BrandMark, Sidebar } from './Sidebar';
+import { SignOutDialog } from './SignOutDialog';
 
 function isTyping(target: EventTarget | null) {
   //
@@ -94,6 +95,7 @@ export function AppLayout() {
       </main>
 
       <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
+      <SignOutDialog />
     </div>
   );
 }
