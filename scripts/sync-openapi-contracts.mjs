@@ -22,6 +22,7 @@ const targets = [
       'PaymentCurrency',
       'PlatformUser',
       'PlatformLoginPayload',
+      'PlatformLoginAttempts',
       'PlatformLoginResponse',
       'PlatformDashboardResponse',
       'PlatformStore',
