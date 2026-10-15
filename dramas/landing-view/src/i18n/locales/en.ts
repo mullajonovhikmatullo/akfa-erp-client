@@ -219,6 +219,7 @@ export const en: TranslationDictionary = {
     empty: 'No plans are available yet.',
     loadError: 'Could not load plans. Please try again later.',
     monthlyUnit: 'UZS / month', defaultCta: 'Contact us',
+    contactMessage: "Hello! I'd like to sign up for the Mavion {plan} plan.",
     limits: {
       unlimitedBranches: 'Unlimited branches', mainStoreOnly: 'Main branch only',
       additionalBranches: '1 main + {count} additional branches', unlimitedUsers: 'Unlimited users',

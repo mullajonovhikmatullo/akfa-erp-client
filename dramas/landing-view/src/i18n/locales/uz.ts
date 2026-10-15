@@ -217,6 +217,7 @@ export const uz = {
     empty: 'Tariflar hozircha mavjud emas.',
     loadError: 'Tariflarni yuklab bo‘lmadi. Iltimos, keyinroq qayta urinib ko‘ring.',
     monthlyUnit: 'so‘m / oy', defaultCta: 'Bog‘lanish',
+    contactMessage: 'Assalomu alaykum! Mavion {plan} tarifiga ulanmoqchiman.',
     limits: {
       unlimitedBranches: 'Cheksiz filial', mainStoreOnly: 'Faqat asosiy filial',
       additionalBranches: '1 asosiy + {count} qo‘shimcha filial', unlimitedUsers: 'Cheksiz foydalanuvchi',
