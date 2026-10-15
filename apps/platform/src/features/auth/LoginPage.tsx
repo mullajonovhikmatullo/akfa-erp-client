@@ -10,7 +10,7 @@ import { loginPlatformOwner, savePlatformSession } from '../../shared/auth/sessi
 import { apiErrorMessage } from '../../shared/lib/apiError';
 import { Button } from '../../shared/ui/button';
 import { Field, Input, PasswordInput } from '../../shared/ui/form';
-import { BrandMark } from '../../layouts/Sidebar';
+import { BrandMark, ThemeToggle } from '../../layouts/Sidebar';
 import { AttemptDots, formatCountdown } from './view/AttemptDots';
 
 const safeRedirect = (value: string | null) =>
@@ -84,8 +84,9 @@ export function LoginPage() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 [background-image:radial-gradient(var(--border)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]"
       />
+      <ThemeToggle className="absolute top-4 right-4" />
       <div className="relative w-full max-w-sm animate-in">
-        <BrandMark className="mb-8 justify-center" />
+        <BrandMark size={30} className="mb-8 justify-center" />
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-soft">
           <div className="mb-5 grid gap-1">
             <h1 className="text-lg font-semibold tracking-tight">Xush kelibsiz</h1>
