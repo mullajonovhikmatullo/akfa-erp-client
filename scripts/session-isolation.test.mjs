@@ -250,22 +250,22 @@ test('a persisted sale draft never crosses account/store boundaries', async () =
   delete globalThis.sessionStorage
 })
 
-test('a registration handoff is processed even when that tab already has a user', async () => {
+test('an owner setup link is processed even when that tab already has a user', async () => {
   //
   const require = createRequire(new URL('apps/store/package.json', root))
   const React = require('react')
   const { renderToString } = require('react-dom/server')
   const { MemoryRouter, Routes, Route } = require('react-router-dom')
-  globalThis.window = { location: { hash: '#handoff=owner-B-code' } }
+  globalThis.window = { location: { hash: '#setup=owner-B-code' } }
   const { AuthLayout } = await loadSource('apps/store/src/layouts/AuthLayout/AuthLayout.tsx', {
     "import { useAuthStore } from '@/entities/user';": "const useAuthStore = (select) => select({ user: { id: 'A' }, isHydrated: true });",
     "import { ROUTES } from '@/shared/config/routes';": "const ROUTES = { DASHBOARD: '/dashboard' };",
   })
   try {
-    const outlet = React.createElement(Route, { path: '/auth/login', element: React.createElement('span', null, 'handoff-panel') })
+    const outlet = React.createElement(Route, { path: '/auth/login', element: React.createElement('span', null, 'setup-panel') })
     const layout = React.createElement(Route, { element: React.createElement(AuthLayout) }, outlet)
     const result = renderToString(React.createElement(MemoryRouter, { initialEntries: ['/auth/login'] }, React.createElement(Routes, null, layout)))
-    assert.match(result, /handoff-panel/)
+    assert.match(result, /setup-panel/)
   } finally { delete globalThis.window }
 })
 

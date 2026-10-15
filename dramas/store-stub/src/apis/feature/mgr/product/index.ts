@@ -205,6 +205,10 @@ export const ProductSeekApi = {
       queryKey: ['products', 'images', productId] as const,
       queryFn: () => findProductImages(productId),
     }),
+    downloadProductImage: (url: string) => ({
+      queryKey: ['product-image-files', url] as const,
+      queryFn: () => downloadProductImage(url),
+    }),
   },
 }
 

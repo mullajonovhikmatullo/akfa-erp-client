@@ -24,6 +24,14 @@ export interface PlatformLoginPayload {
   "password": string
 }
 
+export interface PlatformLoginAttempts {
+  "maxAttempts": number
+  "failedAttempts": number
+  "remainingAttempts": number
+  "lockedUntil": string | null
+  "retryAfterSeconds": number
+}
+
 export interface PlatformLoginResponse {
   "accessToken": string
   "user": PlatformUser

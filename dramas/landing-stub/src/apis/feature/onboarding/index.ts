@@ -1,8 +1,4 @@
-import type {
-  PublicPlan,
-  RegisterStorePayload,
-  RegisterStoreResult,
-} from '~/contracts/backend.generated'
+import type { PublicPlan } from '~/contracts/backend.generated'
 
 type LandingImportMetaEnv = {
   VITE_API_URL?: string
@@ -32,13 +28,6 @@ export const getAdminUrl = () => {
   return url.toString()
 }
 
-export const createAdminHandoffUrl = (handoffCode: string) => {
-  const base = getAdminUrl()
-  const url = new URL(base, globalThis.location?.origin ?? 'http://localhost')
-  url.hash = new URLSearchParams({ handoff: handoffCode }).toString()
-  return url.toString()
-}
-
 interface ApiEnvelope<T> {
   success: boolean
   message?: string
@@ -60,25 +49,13 @@ async function parseResponse<T>(response: Response, fallbackMessage: string): Pr
   return body.data
 }
 
-export async function registerStore(payload: RegisterStorePayload): Promise<RegisterStoreResult> {
-  const response = await fetch(`${getApiBaseUrl()}/public/stores/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
-
-  return parseResponse(response, 'Admin ochish so‘rovini yuborib bo‘lmadi')
-}
-
 export async function listPublicPlans(): Promise<PublicPlan[]> {
   const response = await fetch(`${getApiBaseUrl()}/public/plans`)
   return parseResponse(response, 'Tariflarni yuklab bo‘lmadi')
 }
 
 export const LandingFlowApi = {
-  createAdminHandoffUrl,
   getAdminUrl,
-  registerStore,
 }
 
 export const LandingSeekApi = {

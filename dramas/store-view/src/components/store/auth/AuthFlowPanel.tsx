@@ -4,7 +4,6 @@ import { LoginPanel } from './LoginPanel'
 import { useAuthFlow } from './hooks/useAuthFlow'
 import type { LoginLanguage } from './view/types'
 import { AccountSetupView } from './view/AccountSetupView'
-import { HandoffTransitionView } from './view/HandoffTransitionView'
 
 export interface AuthFlowPanelProps {
   language: LoginLanguage
@@ -22,20 +21,6 @@ export function AuthFlowPanel({
   //
   const t = useStoreT()
   const authFlow = useAuthFlow({ t, onAuthenticated })
-  const showHandoff = authFlow.exchangeHandoff.isPending
-    || Boolean(authFlow.handoffCode && authFlow.handoffRetryable)
-
-  if (showHandoff) {
-    return (
-      <HandoffTransitionView
-        pending={authFlow.exchangeHandoff.isPending}
-        error={authFlow.authError}
-        t={t}
-        onRetry={() => authFlow.handleHandoffExchange(authFlow.handoffCode ?? '')}
-      />
-    )
-  }
-
   if (authFlow.setupCode) {
     return (
       <AccountSetupView
