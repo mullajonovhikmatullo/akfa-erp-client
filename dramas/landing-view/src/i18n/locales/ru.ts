@@ -227,6 +227,7 @@ export const ru: TranslationDictionary = {
     plans: {
       START: { name: 'Start', badge: '', highlight: false, features: ['Базовые отчёты', 'Поддержка по e-mail'], cta: 'Связаться' },
       BUSINESS: { name: 'Business', badge: 'Популярный', highlight: true, features: ['Расширенные отчёты', 'Контроль перемещений', 'Приоритетная поддержка'], cta: 'Связаться' },
+      MEGA_BUSINESS: { name: 'Mega Business', badge: '', highlight: false, features: ['Расширенные отчёты', 'Контроль перемещений', 'Приоритетная поддержка'], cta: 'Связаться' },
       NETWORK: { name: 'Network', badge: '', highlight: false, features: [], cta: 'Связаться' },
     },
   },
@@ -261,7 +262,12 @@ export const ru: TranslationDictionary = {
       {
         question: 'Можно добавить филиал позже?',
         answer:
-          'Да, в пределах тарифа в любое время: Start — 1 основной + 2 дополнительных филиала, Business — 1 основной + 5 дополнительных.',
+          'Да, в пределах тарифа в любое время: Start — 1 основной + 2 дополнительных филиала, Business — 1 основной + 5 дополнительных, Mega Business — 1 основной + 9 дополнительных.',
+      },
+      {
+        question: 'Можно купить разовой оплатой?',
+        answer:
+          'Да. Помимо ежемесячной подписки, любой тариф можно купить навсегда разовой оплатой: Start — 300$, Business — 500$, Mega Business — 1000$. После подтверждения оплаты магазин работает бессрочно, без ежемесячных платежей. За подробностями свяжитесь с нами.',
       },
       {
         question: 'Как оплатить подписку?',

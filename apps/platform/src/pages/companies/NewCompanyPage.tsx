@@ -1,12 +1,18 @@
 import { useMemo, useState } from 'react';
-import { App as AntdApp, Button, Form, Input, InputNumber, Modal, Select } from 'antd';
+import { App as AntdApp, Button, Form, Input, Modal, Select, Switch } from 'antd';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { PlatformFlowApi, PlatformSeekApi } from '@store/platform-stub';
 import type { ProvisionStorePayload, ProvisionStoreResult } from '@store/platform-stub';
 import { routes } from '../../config/routes';
-import { formatDateTime, formatLimitCount, formatMoney } from '../../shared/lib/platformFormatters';
+import {
+  billingTypeLabels,
+  formatDateTime,
+  formatLimitCount,
+  formatPlanPrice,
+  storeStatusLabels,
+} from '../../shared/lib/platformFormatters';
 import { createOwnerSetupUrl } from '../../shared/lib/ownerSetupUrl';
 
 export const NewCompanyPage = () => {
@@ -19,14 +25,21 @@ export const NewCompanyPage = () => {
   const plansQuery = useQuery(PlatformSeekApi.fetch.listPlans());
   const planOptions = useMemo(
     () =>
-      (plansQuery.data ?? []).map((plan) => ({
-        label: `${plan.name} · ${formatMoney(plan.monthlyPriceUzs)} · ${
-          plan.maxBranches === null
-            ? 'Cheklanmagan filial'
-            : formatLimitCount(plan.maxBranches, 'filial')
-        }`,
-        value: plan.code as ProvisionStorePayload['planCode'],
-      })),
+      (['MONTHLY', 'LIFETIME'] as const)
+        .map((billingType) => ({
+          label: billingTypeLabels[billingType],
+          options: (plansQuery.data ?? [])
+            .filter((plan) => plan.billingType === billingType)
+            .map((plan) => ({
+              label: `${plan.name} · ${formatPlanPrice(plan)} · ${
+                plan.maxBranches === null
+                  ? 'Cheklanmagan filial'
+                  : formatLimitCount(plan.maxBranches, 'filial')
+              }`,
+              value: plan.code as ProvisionStorePayload['planCode'],
+            })),
+        }))
+        .filter((group) => group.options.length > 0),
     [plansQuery.data],
   );
 
@@ -99,7 +112,7 @@ export const NewCompanyPage = () => {
           className="operation-form tenant-provisioning__form"
           form={form}
           layout="vertical"
-          initialValues={{ trialDays: 14 }}
+          initialValues={{ startTrial: false }}
           onFinish={submitProvision}
         >
           <Form.Item
@@ -143,8 +156,13 @@ export const NewCompanyPage = () => {
               placeholder="Aktiv tarifni tanlang"
             />
           </Form.Item>
-          <Form.Item label="Sinov muddati" name="trialDays" rules={[{ required: true }]}>
-            <InputNumber min={1} max={30} addonAfter="kun" className="u-w-full" />
+          <Form.Item
+            label="14 kunlik sinov muddati"
+            name="startTrial"
+            valuePropName="checked"
+            extra="Yoqilmasa do‘kon to‘lov tasdiqlanguncha faqat ko‘rish rejimida ochiladi. Sinovni keyinroq kompaniya kartasidan ham yoqish mumkin."
+          >
+            <Switch checkedChildren="Yoqilgan" unCheckedChildren="O‘chiq" />
           </Form.Item>
           <div className="tenant-provisioning__actions">
             <Button
@@ -176,6 +194,10 @@ export const NewCompanyPage = () => {
           <div>
             <span>Do‘kon</span>
             <strong>{provisioned?.store.name}</strong>
+          </div>
+          <div>
+            <span>Holati</span>
+            <strong>{provisioned ? storeStatusLabels[provisioned.store.status] : ''}</strong>
           </div>
           <div>
             <span>Login</span>

@@ -11,6 +11,7 @@ import { PastDueAlert, TrialBanner } from './view';
 export function DashboardLayout() {
   //
   const user = useAuthStore((s) => s.user);
+  const canManageBilling = useAuthStore((s) => s.can)('billing:manage');
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
   const mobileSidebarOpen = useUIStore((s) => s.mobileSidebarOpen);
   const closeMobileSidebar = useUIStore((s) => s.closeMobileSidebar);
@@ -50,10 +51,10 @@ export function DashboardLayout() {
       <div className="main">
         <AppHeader branches={branches} />
         {trialEndsAt ? (
-          <TrialBanner daysLeft={trialDaysLeft} canManageBilling={user?.role === 'store_owner'} />
+          <TrialBanner daysLeft={trialDaysLeft} canManageBilling={canManageBilling} />
         ) : null}
         {user?.store?.status === 'PAST_DUE' ? (
-          <PastDueAlert canManageBilling={user?.role === 'store_owner'} />
+          <PastDueAlert canManageBilling={canManageBilling} lifetime={user?.store?.plan?.billingType === 'LIFETIME'} />
         ) : null}
         <div className="page">
           <Outlet />

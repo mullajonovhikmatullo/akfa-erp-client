@@ -40,10 +40,12 @@ export interface User {
       trialEndsAt: string | null
       currentPeriodEnd: string | null
       nextPaymentDueAt: string | null
+      lifetimeAccessAt?: string | null
     } | null
     plan: {
       code: string
       name: string
+      billingType?: 'MONTHLY' | 'LIFETIME'
       maxBranches: number | null
       maxUsers: number | null
       maxProducts: number | null
