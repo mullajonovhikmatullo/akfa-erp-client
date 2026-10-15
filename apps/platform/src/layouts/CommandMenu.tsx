@@ -9,7 +9,6 @@ import { useUIStore } from '../app/stores/uiStore';
 import { storeStatusLabels } from '../shared/lib/format';
 import { usePlatformStoresPage } from '../features/companies/hooks/usePlatformStoresPage';
 import { navItems } from './navigation';
-import { useSignOut } from './useSignOut';
 
 interface CommandMenuProps {
   open: boolean;
@@ -48,7 +47,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
   //
   const navigate = useNavigate();
   const toggleTheme = useUIStore((state) => state.toggleTheme);
-  const signOut = useSignOut();
+  const askSignOut = useUIStore((state) => state.setSignOutConfirmOpen);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounced(search.trim());
   const storesQuery = usePlatformStoresPage(
@@ -114,7 +113,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                 <Item icon={<ReceiptText />} onSelect={() => run(() => navigate(`${routes.payments}?new=1`))}>To‘lovni qayd etish</Item>
                 <Item icon={<Plus />} onSelect={() => run(() => navigate(`${routes.plans}?new=1`))}>Yangi tarif</Item>
                 <Item icon={<Moon />} onSelect={() => run(toggleTheme)}>Rejimni almashtirish</Item>
-                <Item icon={<LogOut />} onSelect={() => run(() => void signOut())}>Chiqish</Item>
+                <Item icon={<LogOut />} onSelect={() => run(() => askSignOut(true))}>Chiqish</Item>
               </Command.Group>
             </Command.List>
             <div className="flex items-center justify-end gap-3 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">

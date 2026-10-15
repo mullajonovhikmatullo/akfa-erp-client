@@ -23,6 +23,8 @@ interface UIState {
   theme: ThemeMode;
   toggleTheme: () => void;
   syncSystemTheme: () => void;
+  signOutConfirmOpen: boolean;
+  setSignOutConfirmOpen: (open: boolean) => void;
 }
 
 export const useUIStore = create<UIState>((set, get) => {
@@ -45,5 +47,7 @@ export const useUIStore = create<UIState>((set, get) => {
       //
       if (get().preference === 'system') set({ theme: systemTheme() });
     },
+    signOutConfirmOpen: false,
+    setSignOutConfirmOpen: (open) => set({ signOutConfirmOpen: open }),
   };
 });
