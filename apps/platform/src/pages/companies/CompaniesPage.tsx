@@ -62,6 +62,10 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
   const [pendingPlanChange, setPendingPlanChange] = useState<PlatformStore | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [trialTarget, setTrialTarget] = useState<PlatformStore | null>(null);
+  const [lifetimeTarget, setLifetimeTarget] = useState<PlatformStore | null>(null);
+  const [lifetimePlanId, setLifetimePlanId] = useState('');
+  const [lifetimeNote, setLifetimeNote] = useState('');
+  const [lifetimePassword, setLifetimePassword] = useState('');
   const [setupTarget, setSetupTarget] = useState<PlatformStore | null>(null);
   const [setupPassword, setSetupPassword] = useState('');
   const [setupResult, setSetupResult] = useState<{
@@ -191,6 +195,46 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
       void queryClient.invalidateQueries({ queryKey: ['platform-stores'] });
     },
   });
+  const closeLifetime = () => {
+    //
+    setLifetimeTarget(null);
+    setLifetimePlanId('');
+    setLifetimeNote('');
+    setLifetimePassword('');
+  };
+  const lifetimeMutation = useMutation({
+    mutationFn: (store: PlatformStore) =>
+      PlatformFlowApi.grantLifetime({
+        storeId: store.id,
+        payload: {
+          planId: lifetimePlanId,
+          expectedVersion: store.billingVersion,
+          note: lifetimeNote.trim(),
+          currentPassword: lifetimePassword,
+        },
+      }),
+    onSuccess: async () => {
+      //
+      message.success('Doimiy litsenziya yoqildi');
+      closeLifetime();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['platform-stores'] }),
+        queryClient.invalidateQueries({ queryKey: ['platform-dashboard'] }),
+      ]);
+    },
+    onError: (error) => {
+      //
+      setLifetimePassword('');
+      message.error(error instanceof Error ? error.message : 'Litsenziyani yoqib bo‘lmadi');
+      void queryClient.invalidateQueries({ queryKey: ['platform-stores'] });
+    },
+  });
+  const lifetimePlans = (plansQuery.data ?? []).filter((plan) => plan.billingType === 'LIFETIME');
+  const openLifetime = (store: PlatformStore) => {
+    //
+    setLifetimeTarget(store);
+    setLifetimePlanId(store.plan?.billingType === 'LIFETIME' ? store.plan.id : '');
+  };
   const setupMutation = useMutation({
     mutationFn: (store: PlatformStore) =>
       PlatformFlowApi.regenerateOwnerSetup(store.id, setupPassword),
@@ -451,6 +495,15 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
                       />
                     </Tooltip>
                   ) : null}
+                  {!store.subscription?.lifetimeAccessAt && store.status !== 'SUSPENDED' && store.status !== 'CANCELLED' ? (
+                    <Tooltip title="Doimiy yoqish (to‘lovsiz)">
+                      <Button
+                        aria-label="Doimiy litsenziyani to‘lovsiz yoqish"
+                        icon={<i className="icons-circle-check icon-size-18" />}
+                        onClick={() => openLifetime(store)}
+                      />
+                    </Tooltip>
+                  ) : null}
                   {store.ownerAccount?.mustChangePassword &&
                   store.ownerAccount.isActive &&
                   store.status !== 'SUSPENDED' &&
@@ -513,6 +566,49 @@ export const CompaniesPage = ({ initialStatus, title = 'Mijoz kompaniyalar' }: C
               }))}
             onChange={setSelectedPlanId}
             className="u-w-full"
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        title="Doimiy litsenziyani to‘lovsiz yoqish"
+        open={Boolean(lifetimeTarget)}
+        okText="Doimiy yoqish"
+        cancelText="Bekor qilish"
+        confirmLoading={lifetimeMutation.isPending}
+        okButtonProps={{
+          disabled: !lifetimePlanId || lifetimeNote.trim().length < 3 || lifetimePassword.length === 0,
+        }}
+        onOk={() => {
+          if (lifetimeTarget) lifetimeMutation.mutate(lifetimeTarget);
+        }}
+        onCancel={closeLifetime}
+      >
+        <div className="status-change-modal">
+          <p>
+            <strong>{lifetimeTarget?.name}</strong> do‘koni tanlangan bir martalik tarifga o‘tkaziladi va
+            muddatsiz yoqiladi. To‘lov yozuvi yaratilmaydi, sababi audit jurnalida saqlanadi.
+          </p>
+          <Select
+            value={lifetimePlanId || undefined}
+            loading={plansQuery.isLoading}
+            placeholder="Bir martalik tarifni tanlang"
+            options={lifetimePlans.map((plan) => ({ value: plan.id, label: `${plan.name} — ${formatPlanPrice(plan)}` }))}
+            onChange={setLifetimePlanId}
+            className="u-w-full"
+          />
+          <Input.TextArea
+            value={lifetimeNote}
+            onChange={(event) => setLifetimeNote(event.target.value)}
+            maxLength={500}
+            rows={2}
+            placeholder="Sabab, masalan: birinchi mijozlarga sovg‘a / naqd kelishilgan"
+          />
+          <Input.Password
+            value={lifetimePassword}
+            onChange={(event) => setLifetimePassword(event.target.value)}
+            autoComplete="current-password"
+            placeholder="Platform egasining joriy paroli"
           />
         </div>
       </Modal>
