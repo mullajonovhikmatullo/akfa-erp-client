@@ -20,6 +20,7 @@ interface SaleSummaryViewProps {
   paidAmountError: boolean
   onPaidAmountChange: (value: number | null) => void
   fullPaidAmount: number
+  discountEnabled: boolean
   discountPercent: number
   onDiscountChange: (value: number | null) => void
   listTotal: number
@@ -48,6 +49,7 @@ export function SaleSummaryView({
   paidAmountError,
   onPaidAmountChange,
   fullPaidAmount,
+  discountEnabled,
   discountPercent,
   onDiscountChange,
   listTotal,
@@ -85,7 +87,7 @@ export function SaleSummaryView({
             <Row label={t('newSale.rowRate')} value={<span className="u-text-muted">1 $ = <MoneyDisplay amount={exchangeRate} currency="UZS" /></span>} />
           </>
         ) : null}
-        <div className="u-items-center u-flex u-fs-13 u-justify-between u-gap-8">
+        {discountEnabled ? <div className="u-items-center u-flex u-fs-13 u-justify-between u-gap-8">
           <span className="u-text-muted">{t('newSale.saleDiscount')}</span>
           <Controller
             name="discountPercent"
@@ -103,7 +105,7 @@ export function SaleSummaryView({
               />
             )}
           />
-        </div>
+        </div> : null}
         {discountTotal > 0 ? (
           <>
             <Row label={t('newSale.rowListTotal')} value={<span className="num"><MoneyDisplay amount={listTotal} currency="UZS" /></span>} />

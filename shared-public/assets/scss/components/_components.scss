@@ -143,6 +143,12 @@ $background-tones: (
 .sale-cart-scroll > .sale-cart-grid {
   min-width: 886px;
 }
+.sale-cart-grid--no-discount {
+  grid-template-columns: minmax(150px, 1fr) minmax(150px, 176px) minmax(150px, 160px) minmax(104px, 128px) minmax(112px, 148px) 28px;
+}
+.sale-cart-scroll > .sale-cart-grid--no-discount {
+  min-width: 776px;
+}
 .sale-cart-grid--header > div {
   min-width: 0;
   white-space: nowrap;
