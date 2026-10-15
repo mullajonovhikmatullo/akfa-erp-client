@@ -418,6 +418,32 @@
           }
         ]
       },
+      "GrantLifetimePayload": {
+        "type": "object",
+        "required": [
+          "planId",
+          "expectedVersion",
+          "note",
+          "currentPassword"
+        ],
+        "properties": {
+          "planId": {
+            "type": "string",
+            "description": "An active lifetime plan"
+          },
+          "expectedVersion": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string",
+            "description": "Why the licence is granted without a payment"
+          },
+          "currentPassword": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
       "GrantTrialPayload": {
         "type": "object",
         "required": [
@@ -3605,6 +3631,56 @@
         "responses": {
           "200": {
             "description": "Store trial started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PlatformStore"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform/stores/{id}/lifetime": {
+      "post": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Turn a lifetime plan on for a store without a payment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantLifetimePayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lifetime licence granted",
             "content": {
               "application/json": {
                 "schema": {

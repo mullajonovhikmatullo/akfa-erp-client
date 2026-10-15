@@ -4,6 +4,7 @@ import type {
   CreatePaymentPayload,
   DeletePlanPayload,
   DeletePlanResult,
+  GrantLifetimePayload,
   GrantTrialPayload,
   ListStoresParams,
   PaymentStatus,
@@ -128,6 +129,9 @@ const updateStorePlan = ({
 const grantTrial = ({ storeId, payload }: { storeId: string; payload: GrantTrialPayload }) =>
   platformHttp.post<ApiResponse<PlatformStore>>(`/platform/stores/${storeId}/trial`, payload).then(unwrap)
 
+const grantLifetime = ({ storeId, payload }: { storeId: string; payload: GrantLifetimePayload }) =>
+  platformHttp.post<ApiResponse<PlatformStore>>(`/platform/stores/${storeId}/lifetime`, payload).then(unwrap)
+
 const regenerateOwnerSetup = (storeId: string, currentPassword: string) =>
   platformHttp
     .post<ApiResponse<OwnerSetupResult>>(
@@ -209,6 +213,7 @@ export const PlatformFlowApi = {
   updateStoreStatus,
   updateStorePlan,
   grantTrial,
+  grantLifetime,
   regenerateOwnerSetup,
   createPayment,
   approvePayment,
