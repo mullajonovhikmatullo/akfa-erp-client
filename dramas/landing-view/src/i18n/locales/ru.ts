@@ -219,6 +219,7 @@ export const ru: TranslationDictionary = {
     empty: 'Тарифы пока недоступны.',
     loadError: 'Не удалось загрузить тарифы. Попробуйте позже.',
     monthlyUnit: 'сум / мес', defaultCta: 'Связаться',
+    contactMessage: 'Здравствуйте! Хочу подключить тариф Mavion {plan}.',
     limits: {
       unlimitedBranches: 'Без ограничения филиалов', mainStoreOnly: 'Только основной филиал',
       additionalBranches: '1 основной + {count} доп. филиала', unlimitedUsers: 'Без ограничения пользователей',
