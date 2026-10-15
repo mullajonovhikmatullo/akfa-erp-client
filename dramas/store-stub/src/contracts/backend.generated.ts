@@ -427,3 +427,8 @@ export interface SubmitTenantPaymentPayload {
   "base64": string
 }
 }
+
+export interface SaleSettings {
+  "discountEnabled": boolean
+  "defaultDiscountPercent": number
+}
