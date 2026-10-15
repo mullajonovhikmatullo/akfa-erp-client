@@ -70,15 +70,20 @@ export interface PlatformStorePlan {
   "id": string
   "code": string
   "name": string
+  "billingType": PlanBillingType
   "monthlyPriceUzs": number
+  "oneTimePriceUsd": number | null
   "maxBranches": number | null
   "maxUsers": number | null
   "maxProducts": number | null
 }
 
+export type PlanBillingType = "MONTHLY" | "LIFETIME"
+
 export interface PlatformStoreSubscription {
   "id": string
   "status": string
+  "lifetimeAccessAt": string | null
   "trialEndsAt": string | null
   "currentPeriodStart": string | null
   "currentPeriodEnd": string | null
@@ -104,7 +109,9 @@ export interface ManagedPlan {
   "id": string
   "code": string
   "name": string
+  "billingType": PlanBillingType
   "monthlyPriceUzs": number
+  "oneTimePriceUsd": number | null
   "maxBranches": number | null
   "maxUsers": number | null
   "maxProducts": number | null
@@ -122,7 +129,9 @@ export interface ManagedPlan {
 export interface PlanMutationPayload {
   "code": string
   "name": string
+  "billingType"?: PlanBillingType
   "monthlyPriceUzs": number
+  "oneTimePriceUsd"?: number | null
   "maxBranches": number | null
   "maxUsers": number | null
   "maxProducts": number | null
@@ -159,7 +168,7 @@ export interface ProvisionStorePayload {
   "email"?: string
   "username": string
   "planCode": PlanCode
-  "trialDays"?: number
+  "startTrial"?: boolean
 }
 
 export type PlanCode = string
@@ -169,6 +178,10 @@ export interface ProvisionStoreResult {
   "owner": PlatformUser
   "setupCode": string
   "setupExpiresAt": string
+}
+
+export interface GrantTrialPayload {
+  "expectedVersion": number
 }
 
 export interface OwnerSetupResult {
@@ -252,7 +265,7 @@ export interface PaymentReceiptMedia {
 export interface CreatePaymentPayload {
   "storeId": string
   "amount": number
-  "currency"?: "UZS"
+  "currency"?: "UZS" | "USD"
   "paidAt"?: string
   "note"?: string
 }

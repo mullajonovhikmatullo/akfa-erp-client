@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthStore>()(
           set({ user }, false, 'auth/setUser');
         },
 
-        can: (permission) => can(get().user?.role, permission),
+        can: (permission) => can(get().user, permission),
 
         isStoreOwner: () => get().user?.role === 'store_owner',
       }),

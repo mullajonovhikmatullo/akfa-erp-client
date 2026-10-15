@@ -225,6 +225,7 @@ export const uz = {
     plans: {
       START: { name: 'Start', badge: '', highlight: false, features: ['Asosiy hisobotlar', 'E-mail orqali qo‘llab-quvvatlash'], cta: 'Bog‘lanish' },
       BUSINESS: { name: 'Business', badge: 'Ommabop', highlight: true, features: ['Kengaytirilgan hisobotlar', 'Transferlar nazorati', 'Prioritet qo‘llab-quvvatlash'], cta: 'Bog‘lanish' },
+      MEGA_BUSINESS: { name: 'Mega Business', badge: '', highlight: false, features: ['Kengaytirilgan hisobotlar', 'Transferlar nazorati', 'Prioritet qo‘llab-quvvatlash'], cta: 'Bog‘lanish' },
       NETWORK: { name: 'Network', badge: '', highlight: false, features: [], cta: 'Bog‘lanish' },
     },
   },
@@ -259,7 +260,12 @@ export const uz = {
       {
         question: 'Keyinroq filial qo‘shsam bo‘ladimi?',
         answer:
-          'Ha, tarifingiz doirasida istalgan vaqtda: Start — 1 asosiy + 2 qo‘shimcha filial, Business — 1 asosiy + 5 qo‘shimcha filial.',
+          'Ha, tarifingiz doirasida istalgan vaqtda: Start — 1 asosiy + 2 qo‘shimcha filial, Business — 1 asosiy + 5 qo‘shimcha filial, Mega Business — 1 asosiy + 9 qo‘shimcha filial.',
+      },
+      {
+        question: 'Bir martalik to‘lov bilan sotib olsa bo‘ladimi?',
+        answer:
+          'Ha. Oylik obunadan tashqari tariflarni bir martalik to‘lov bilan doimiy sotib olish mumkin: Start — 300$, Business — 500$, Mega Business — 1000$. To‘lov tasdiqlangach do‘kon muddatsiz ishlaydi va oylik to‘lov kerak bo‘lmaydi. Batafsil ma’lumot uchun biz bilan bog‘laning.',
       },
       {
         question: 'Obuna to‘lovi qanday qilinadi?',

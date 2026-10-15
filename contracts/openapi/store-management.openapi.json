@@ -212,13 +212,22 @@
           }
         }
       },
+      "PlanBillingType": {
+        "type": "string",
+        "enum": [
+          "MONTHLY",
+          "LIFETIME"
+        ]
+      },
       "PlatformStorePlan": {
         "type": "object",
         "required": [
           "id",
           "code",
           "name",
+          "billingType",
           "monthlyPriceUzs",
+          "oneTimePriceUsd",
           "maxBranches",
           "maxUsers",
           "maxProducts"
@@ -233,8 +242,15 @@
           "name": {
             "type": "string"
           },
+          "billingType": {
+            "$ref": "#/components/schemas/PlanBillingType"
+          },
           "monthlyPriceUzs": {
             "type": "number"
+          },
+          "oneTimePriceUsd": {
+            "type": "number",
+            "nullable": true
           },
           "maxBranches": {
             "type": "number",
@@ -256,7 +272,9 @@
           "id",
           "code",
           "name",
+          "billingType",
           "monthlyPriceUzs",
+          "oneTimePriceUsd",
           "maxBranches",
           "maxUsers",
           "maxProducts",
@@ -277,8 +295,15 @@
           "name": {
             "type": "string"
           },
+          "billingType": {
+            "$ref": "#/components/schemas/PlanBillingType"
+          },
           "monthlyPriceUzs": {
             "type": "number"
+          },
+          "oneTimePriceUsd": {
+            "type": "number",
+            "nullable": true
           },
           "maxBranches": {
             "type": "number",
@@ -345,8 +370,15 @@
           "name": {
             "type": "string"
           },
+          "billingType": {
+            "$ref": "#/components/schemas/PlanBillingType"
+          },
           "monthlyPriceUzs": {
             "type": "number"
+          },
+          "oneTimePriceUsd": {
+            "type": "number",
+            "nullable": true
           },
           "maxBranches": {
             "type": "number",
@@ -385,6 +417,17 @@
             }
           }
         ]
+      },
+      "GrantTrialPayload": {
+        "type": "object",
+        "required": [
+          "expectedVersion"
+        ],
+        "properties": {
+          "expectedVersion": {
+            "type": "number"
+          }
+        }
       },
       "DeletePlanPayload": {
         "type": "object",
@@ -435,7 +478,8 @@
           "currentPeriodStart",
           "currentPeriodEnd",
           "nextPaymentDueAt",
-          "lastPaymentAt"
+          "lastPaymentAt",
+          "lifetimeAccessAt"
         ],
         "properties": {
           "id": {
@@ -443,6 +487,11 @@
           },
           "status": {
             "type": "string"
+          },
+          "lifetimeAccessAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "trialEndsAt": {
             "type": "string",
@@ -1018,8 +1067,15 @@
               "name": {
                 "type": "string"
               },
+              "billingType": {
+                "$ref": "#/components/schemas/PlanBillingType"
+              },
               "monthlyPriceUzs": {
                 "type": "number"
+              },
+              "oneTimePriceUsd": {
+                "type": "number",
+                "nullable": true
               },
               "maxBranches": {
                 "type": "integer",
@@ -1057,6 +1113,11 @@
                 "nullable": true
               },
               "nextPaymentDueAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              },
+              "lifetimeAccessAt": {
                 "type": "string",
                 "format": "date-time",
                 "nullable": true
@@ -1121,9 +1182,11 @@
           "currency": {
             "type": "string",
             "enum": [
-              "UZS"
+              "UZS",
+              "USD"
             ],
-            "default": "UZS"
+            "default": "UZS",
+            "description": "USD only for a lifetime plan's one-time price"
           },
           "paidAt": {
             "type": "string",
@@ -1255,8 +1318,10 @@
           "planCode": {
             "$ref": "#/components/schemas/PlanCode"
           },
-          "trialDays": {
-            "type": "number"
+          "startTrial": {
+            "type": "boolean",
+            "default": false,
+            "description": "Start the 14-day trial right away"
           }
         }
       },
@@ -3490,6 +3555,56 @@
         "responses": {
           "200": {
             "description": "Store plan updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PlatformStore"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform/stores/{id}/trial": {
+      "post": {
+        "tags": [
+          "Platform"
+        ],
+        "summary": "Start the 14-day trial for a store waiting for payment",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantTrialPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Store trial started",
             "content": {
               "application/json": {
                 "schema": {

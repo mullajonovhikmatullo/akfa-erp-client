@@ -1,9 +1,9 @@
-import type { Currency, PaymentStatus, StoreStatus } from '@store/platform-stub';
+import type { Currency, PaymentStatus, PlanBillingType, StoreStatus } from '@store/platform-stub';
 
 export const storeStatusLabels: Record<StoreStatus, string> = {
   TRIALING: 'Sinov muddatida',
   ACTIVE: 'Faol',
-  PAST_DUE: 'Qarzdor',
+  PAST_DUE: 'To‘lov kutilmoqda',
   SUSPENDED: 'Bloklangan',
   CANCELLED: 'Bekor qilingan',
 };
@@ -33,5 +33,17 @@ export const formatMoney = (amount: number, currency: Currency = 'UZS') =>
   `${new Intl.NumberFormat('ru-RU', { maximumFractionDigits: currency === 'UZS' ? 0 : 2 })
     .format(amount)
     .replace(/\u00A0/g, ' ')} ${currency}`;
+
+export const billingTypeLabels: Record<PlanBillingType, string> = {
+  MONTHLY: 'Oylik obuna',
+  LIFETIME: 'Bir martalik',
+};
+
+type PricedPlan = { billingType: PlanBillingType; monthlyPriceUzs: number; oneTimePriceUsd: number | null };
+
+export const formatPlanPrice = (plan: PricedPlan) =>
+  plan.billingType === 'LIFETIME'
+    ? `${formatMoney(plan.oneTimePriceUsd ?? 0, 'USD')} bir marta`
+    : `${formatMoney(plan.monthlyPriceUzs)} / oy`;
 
 export const formatLimitCount = (count: number, label: string) => `${count} ta ${label}`;

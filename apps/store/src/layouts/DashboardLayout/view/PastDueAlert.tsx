@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Alert } from 'antd'
 import { ROUTES } from '@/shared/config/routes'
 
-export function PastDueAlert({ canManageBilling }: { canManageBilling: boolean }) {
+export function PastDueAlert({ canManageBilling, lifetime }: { canManageBilling: boolean; lifetime: boolean }) {
   //
   const t = useStoreT()
 
@@ -13,7 +13,7 @@ export function PastDueAlert({ canManageBilling }: { canManageBilling: boolean }
       showIcon
       banner
       message={t('billing.overdueTitle')}
-      description={t('billing.overdueDescription')}
+      description={t(lifetime ? 'billing.lifetimeAwaitingDescription' : 'billing.overdueDescription')}
       action={canManageBilling ? (
         <Link className="billing-alert-action" to={ROUTES.BILLING}>{t('billing.payButton')}</Link>
       ) : undefined}

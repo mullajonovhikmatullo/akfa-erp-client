@@ -68,7 +68,7 @@ export function getPlanFeatures(plan: PlanFeatureSource, t: BillingTranslate) {
     planCode === 'START' ? t('billing.featureBasicReports') : t('billing.featureAdvancedReports'),
     ...(planCode === 'START'
       ? [t('billing.featureEmailSupport')]
-      : planCode === 'BUSINESS'
+      : planCode === 'BUSINESS' || planCode === 'MEGA_BUSINESS'
         ? [t('billing.featureTransfers'), t('billing.featurePrioritySupport')]
         : [
             t('billing.featureIndividual'),
