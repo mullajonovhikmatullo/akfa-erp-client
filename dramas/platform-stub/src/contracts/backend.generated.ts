@@ -184,6 +184,13 @@ export interface GrantTrialPayload {
   "expectedVersion": number
 }
 
+export interface GrantLifetimePayload {
+  "planId": string
+  "expectedVersion": number
+  "note": string
+  "currentPassword": string
+}
+
 export interface OwnerSetupResult {
   "owner": {
   "id": string

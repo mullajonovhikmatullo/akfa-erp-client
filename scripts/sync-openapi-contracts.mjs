@@ -35,6 +35,7 @@ const targets = [
       'ProvisionStorePayload',
       'ProvisionStoreResult',
       'GrantTrialPayload',
+      'GrantLifetimePayload',
       'OwnerSetupResult',
       'RegenerateOwnerSetupPayload',
       'ListStoresParams',
