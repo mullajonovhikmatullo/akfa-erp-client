@@ -1145,6 +1145,35 @@
           }
         }
       },
+      "PlatformLoginAttempts": {
+        "type": "object",
+        "required": [
+          "maxAttempts",
+          "failedAttempts",
+          "remainingAttempts",
+          "lockedUntil",
+          "retryAfterSeconds"
+        ],
+        "properties": {
+          "maxAttempts": {
+            "type": "number"
+          },
+          "failedAttempts": {
+            "type": "number"
+          },
+          "remainingAttempts": {
+            "type": "number"
+          },
+          "lockedUntil": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "retryAfterSeconds": {
+            "type": "number"
+          }
+        }
+      },
       "PublicPlan": {
         "type": "object",
         "required": [
@@ -2815,6 +2844,91 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/PlatformLoginResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong credentials; data carries the client's attempt counters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PlatformLoginAttempts"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many failed attempts; sign-in is locked until data.lockedUntil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PlatformLoginAttempts"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platform/auth/login-attempts": {
+      "get": {
+        "tags": [
+          "Platform Auth"
+        ],
+        "summary": "Failed platform sign-in attempts and lock state for this client",
+        "responses": {
+          "200": {
+            "description": "Attempt counters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/PlatformLoginAttempts"
                     }
                   }
                 }

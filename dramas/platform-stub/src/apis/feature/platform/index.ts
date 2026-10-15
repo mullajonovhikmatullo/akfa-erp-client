@@ -11,6 +11,7 @@ import type {
   OwnerSetupResult,
   PlatformStorePlan,
   PlatformDashboardResponse,
+  PlatformLoginAttempts,
   PlatformLoginPayload,
   PlatformLoginResponse,
   PlatformPayment,
@@ -46,6 +47,16 @@ const unwrap = <T>(response: { data: ApiResponse<T> }) => response.data.data
 
 const login = (payload: PlatformLoginPayload) =>
   platformHttp.post<ApiResponse<PlatformLoginResponse>>('/platform/auth/login', payload).then(unwrap)
+
+const findLoginAttempts = () =>
+  platformHttp.get<ApiResponse<PlatformLoginAttempts>>('/platform/auth/login-attempts').then(unwrap)
+
+export const readPlatformLoginAttempts = (error: unknown): PlatformLoginAttempts | null => {
+  //
+  const response = (error as { response?: { status?: number; data?: { data?: PlatformLoginAttempts } } }).response
+  if (response?.status !== 401 && response?.status !== 429) return null
+  return typeof response.data?.data?.maxAttempts === 'number' ? response.data.data : null
+}
 
 const me = () => platformHttp.get<ApiResponse<PlatformLoginResponse['user']>>('/platform/auth/me').then(unwrap)
 
@@ -148,6 +159,7 @@ const downloadMedia = (mediaId: string) =>
     .then((response) => response.data)
 
 export const PlatformSeekApi = {
+  findLoginAttempts,
   dashboard,
   me,
   listPlans,
@@ -157,6 +169,10 @@ export const PlatformSeekApi = {
   listPayments,
   downloadMedia,
   fetch: {
+    findLoginAttempts: () => ({
+      queryKey: ['platform-login-attempts'] as const,
+      queryFn: findLoginAttempts,
+    }),
     dashboard: () => ({
       queryKey: ['platform-dashboard', 'metrics'] as const,
       queryFn: dashboard,

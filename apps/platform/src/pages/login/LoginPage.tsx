@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Alert, Button, Input } from 'antd';
+import { useQuery } from '@tanstack/react-query';
+import { PlatformSeekApi, readPlatformLoginAttempts } from '@store/platform-stub';
 
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { routes } from '../../config/routes';
@@ -9,6 +11,7 @@ import {
   savePlatformSession,
 } from '../../shared/auth/session';
 import { platformQueryClient } from '../../app/providers/AppProviders';
+import { formatLockCountdown, LoginAttemptsNotice } from './LoginAttemptsNotice';
 
 type LoginFormState = {
   username: string;
@@ -37,7 +40,31 @@ export const LoginPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const loginAttempts = PlatformSeekApi.fetch.findLoginAttempts();
+  const attemptsQuery = useQuery({ ...loginAttempts, retry: false, staleTime: 0 });
+  const attempts = attemptsQuery.data;
+  const unlockAt = attempts?.retryAfterSeconds ? attemptsQuery.dataUpdatedAt + attempts.retryAfterSeconds * 1000 : 0;
+  const [now, setNow] = useState(() => Date.now());
+  const lockSecondsLeft = Math.max(0, Math.ceil((unlockAt - now) / 1000));
+  const isLocked = lockSecondsLeft > 0;
+  const { refetch: refetchAttempts } = attemptsQuery;
+
   const redirectTo = useMemo(() => normalizeRedirect(searchParams.get('from')), [searchParams]);
+
+  useEffect(() => {
+    //
+    if (!unlockAt) return undefined;
+    setNow(Date.now());
+    const timer = window.setInterval(() => {
+      //
+      const current = Date.now();
+      setNow(current);
+      if (current < unlockAt) return;
+      window.clearInterval(timer);
+      void refetchAttempts();
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [unlockAt, refetchAttempts]);
 
   const updateField = (key: keyof LoginFormState, value: string) => {
     //
@@ -58,6 +85,11 @@ export const LoginPage = () => {
       savePlatformSession(result);
       navigate(redirectTo, { replace: true });
     } catch (loginError) {
+      const nextAttempts = readPlatformLoginAttempts(loginError);
+      if (nextAttempts) {
+        platformQueryClient.setQueryData(loginAttempts.queryKey, nextAttempts);
+        return;
+      }
       setError(loginError instanceof Error ? loginError.message : 'Tizimga kirib bo‘lmadi');
     } finally {
       setIsSubmitting(false);
@@ -86,6 +118,7 @@ export const LoginPage = () => {
         </div>
 
         {error && <Alert type="error" showIcon message={error} />}
+        <LoginAttemptsNotice attempts={attempts} lockSecondsLeft={lockSecondsLeft} />
 
         <form className="platform-login__form" onSubmit={handleSubmit}>
           <label>
@@ -96,7 +129,7 @@ export const LoginPage = () => {
               value={form.username}
               onChange={(event) => updateField('username', event.target.value)}
               autoComplete="username"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLocked}
               required
               autoFocus
             />
@@ -110,13 +143,13 @@ export const LoginPage = () => {
               value={form.password}
               onChange={(event) => updateField('password', event.target.value)}
               autoComplete="current-password"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLocked}
               required
             />
           </label>
 
-          <Button type="primary" htmlType="submit" size="large" block loading={isSubmitting}>
-            Kirish
+          <Button type="primary" htmlType="submit" size="large" block loading={isSubmitting} disabled={isLocked}>
+            {isLocked ? `Bloklangan (${formatLockCountdown(lockSecondsLeft)})` : 'Kirish'}
           </Button>
         </form>
       </section>
