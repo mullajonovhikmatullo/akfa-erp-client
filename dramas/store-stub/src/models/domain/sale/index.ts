@@ -1,7 +1,7 @@
 import type { DebtPayment, PaymentMethod, ProductUnit, SaleDetail, SaleListItem, SaleType } from '@store/store-shared'
-import type { AddPaymentRequest, CreateSaleRequest } from '../../../contracts/backend.generated'
+import type { AddPaymentRequest, CreateSaleRequest, SaleSettings } from '../../../contracts/backend.generated'
 
-export type { DebtPayment, PaymentMethod, SaleDetail, SaleListItem, SaleType }
+export type { DebtPayment, PaymentMethod, SaleDetail, SaleListItem, SaleSettings, SaleType }
 
 export interface SaleFilters {
   branchId?: string

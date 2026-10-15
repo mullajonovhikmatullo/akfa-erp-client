@@ -6,4 +6,5 @@ export const saleKeys = {
   paginated: (page: number, pageSize: number, filters?: SaleFilters) => [...saleKeys.all, 'paginated', page, pageSize, filters] as const,
   detail: (id: string) => [...saleKeys.all, 'detail', id] as const,
   report: () => [...saleKeys.all, 'report'] as const,
+  settings: () => ['sale-settings'] as const,
 }

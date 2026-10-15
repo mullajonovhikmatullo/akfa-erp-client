@@ -1234,6 +1234,24 @@
           }
         }
       },
+      "SaleSettings": {
+        "type": "object",
+        "required": [
+          "discountEnabled",
+          "defaultDiscountPercent"
+        ],
+        "properties": {
+          "discountEnabled": {
+            "type": "boolean",
+            "description": "When false, checkout hides discounts and the API rejects them"
+          },
+          "defaultDiscountPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
       "PlatformLoginAttempts": {
         "type": "object",
         "required": [
@@ -7393,6 +7411,68 @@
         "responses": {
           "200": {
             "description": "Summary, payment-method breakdown, debt collections, per-day, per-seller, top products and the sale rows"
+          }
+        }
+      }
+    },
+    "/sales/settings": {
+      "get": {
+        "summary": "Whether this store's checkout uses discounts and the percent a new sale starts with",
+        "tags": [
+          "Sales"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sale settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SaleSettings"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Change the store's discount settings (store owner only)",
+        "tags": [
+          "Sales"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated sale settings"
+          },
+          "403": {
+            "description": "Only the store owner can change them"
           }
         }
       }

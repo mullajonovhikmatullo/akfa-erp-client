@@ -44,6 +44,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
             updateQty={saleForm.updateQty}
             updateItemDiscount={saleForm.updateItemDiscount}
             removeItem={saleForm.removeItem}
+            discountEnabled={saleForm.discountEnabled}
           />
         </div>
 
@@ -58,6 +59,7 @@ export function NewSaleForm({ t, isStoreOwner, userBranchId, exchangeRate, onSuc
           paidAmountError={saleForm.paidAmountError}
           onPaidAmountChange={saleForm.handlePaidAmountChange}
           fullPaidAmount={saleForm.fullPaidAmount}
+          discountEnabled={saleForm.discountEnabled}
           discountPercent={saleForm.discountPercent}
           onDiscountChange={saleForm.handleDiscountChange}
           listTotal={saleForm.listTotal}

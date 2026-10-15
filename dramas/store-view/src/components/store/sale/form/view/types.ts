@@ -17,7 +17,7 @@ export type SaleFormValues = {
   customerId?: string
   paymentMethod: PaymentMethod
   paidAmount: number
-  discountPercent: number
+  discountPercent: number | null
   debtDueDateIso?: string
   selectedProductId?: string
   cart: { key: string; productId: string; quantity: number; discountPercent?: number | null }[]
@@ -39,4 +39,5 @@ export interface SaleCartViewProps {
   updateQty: (key: string, quantity: number | null) => void
   updateItemDiscount: (key: string, discountPercent: number | null) => void
   removeItem: (key: string) => void
+  discountEnabled: boolean
 }

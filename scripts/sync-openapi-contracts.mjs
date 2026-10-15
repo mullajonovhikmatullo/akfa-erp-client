@@ -99,6 +99,7 @@ const targets = [
       'TenantPayment',
       'TenantBillingSummary',
       'SubmitTenantPaymentPayload',
+      'SaleSettings',
     ],
   },
   {
