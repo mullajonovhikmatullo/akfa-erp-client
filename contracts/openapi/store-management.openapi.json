@@ -1145,147 +1145,6 @@
           }
         }
       },
-      "RegisterStorePayload": {
-        "type": "object",
-        "required": [
-          "storeName",
-          "ownerName",
-          "phone",
-          "username",
-          "password",
-          "confirmPassword"
-        ],
-        "properties": {
-          "storeName": {
-            "type": "string"
-          },
-          "ownerName": {
-            "type": "string"
-          },
-          "phone": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "confirmPassword": {
-            "type": "string"
-          },
-          "planCode": {
-            "$ref": "#/components/schemas/PublicPlanCode"
-          }
-        }
-      },
-      "RegisteredStore": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "slug",
-          "status",
-          "billingVersion",
-          "trialEndsAt"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/StoreStatus"
-          },
-          "billingVersion": {
-            "type": "number"
-          },
-          "trialEndsAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RegisteredBranch": {
-        "type": "object",
-        "required": [
-          "id",
-          "name"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "RegisteredSubscription": {
-        "type": "object",
-        "required": [
-          "id",
-          "status",
-          "trialEndsAt",
-          "nextPaymentDueAt"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "trialEndsAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "nextPaymentDueAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RegisterStoreResult": {
-        "type": "object",
-        "required": [
-          "handoffCode",
-          "handoffExpiresAt",
-          "user",
-          "store",
-          "branch",
-          "subscription"
-        ],
-        "properties": {
-          "handoffCode": {
-            "type": "string"
-          },
-          "handoffExpiresAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "user": {
-            "$ref": "#/components/schemas/PlatformUser"
-          },
-          "store": {
-            "$ref": "#/components/schemas/RegisteredStore"
-          },
-          "branch": {
-            "$ref": "#/components/schemas/RegisteredBranch"
-          },
-          "subscription": {
-            "$ref": "#/components/schemas/RegisteredSubscription"
-          }
-        }
-      },
       "PublicPlan": {
         "type": "object",
         "required": [
@@ -1317,17 +1176,6 @@
           "maxProducts": {
             "type": "number",
             "nullable": true
-          }
-        }
-      },
-      "ExchangeHandoffPayload": {
-        "type": "object",
-        "required": [
-          "handoffCode"
-        ],
-        "properties": {
-          "handoffCode": {
-            "type": "string"
           }
         }
       },
@@ -2886,51 +2734,6 @@
         }
       }
     },
-    "/auth/handoff/exchange": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Exchange a single-use cross-origin handoff code",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExchangeHandoffPayload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Authenticated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/PlatformLoginResponse"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/auth/setup/complete": {
       "post": {
         "tags": [
@@ -3975,50 +3778,6 @@
         "responses": {
           "200": {
             "description": "Private media content"
-          }
-        }
-      }
-    },
-    "/public/stores/register": {
-      "post": {
-        "tags": [
-          "Onboarding"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterStorePayload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Store registered",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "message": {
-                      "type": "string"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/RegisterStoreResult"
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }

@@ -6,7 +6,6 @@ import type {
   ChangePasswordPayload,
   CompleteAccountSetupPayload,
   CreateAdminPayload,
-  ExchangeHandoffPayload,
   GoogleLoginPayload,
   GoogleLoginResponse,
   GoogleSignInConfig,
@@ -52,9 +51,6 @@ const loginWithGoogle = (payload: GoogleLoginPayload) =>
 
 const findGoogleSignInConfig = () =>
   http.get<ApiResponse<GoogleSignInConfig>>('/auth/google/config').then((r) => r.data.data)
-
-const exchangeHandoff = (payload: ExchangeHandoffPayload) =>
-  http.post<ApiResponse<LoginResponse>>('/auth/handoff/exchange', payload).then((r) => r.data.data)
 
 const completeAccountSetup = (payload: CompleteAccountSetupPayload) =>
   http.post<ApiResponse<LoginResponse>>('/auth/setup/complete', payload).then((r) => r.data.data)
@@ -125,7 +121,6 @@ export const UserSeekApi = {
 export const UserFlowApi = {
   login,
   loginWithGoogle,
-  exchangeHandoff,
   completeAccountSetup,
   me,
   createAdmin,
@@ -140,7 +135,6 @@ export const UserFlowApi = {
 
 export const userApi = {
   login,
-  exchangeHandoff,
   completeAccountSetup,
   me,
   list: findUsers,

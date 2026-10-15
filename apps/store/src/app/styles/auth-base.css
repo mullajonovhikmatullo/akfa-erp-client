@@ -40,11 +40,5 @@
   font-size:12px; letter-spacing:.18em; color:#94a3b8; text-transform:uppercase;
 }
 .login-art-footer{ position:relative; z-index:1; color:#64748b; font-size:12px; }
-.login-transition{
-  display:flex; align-items:center; justify-content:center; background:var(--surface);
-}
-.login-transition-content{
-  display:flex; flex-direction:column; align-items:center; gap:16px; color:var(--ink-2);
-}
 
 

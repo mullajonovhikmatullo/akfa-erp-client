@@ -1,7 +1,8 @@
-import {lazy, Suspense, useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {Check, Gift} from 'lucide-react';
 
 import {LandingSeekApi, type PublicPlan, type PublicPlanCode} from '@store/landing-stub';
+import {site} from '../../config/site';
 import {useI18n} from '../../i18n/I18nProvider';
 import {formatMessage} from '../../i18n/translations';
 import type {TranslationDictionary} from '../../i18n/types';
@@ -19,8 +20,6 @@ type DisplayPlan = {
     features: string[];
     cta: string;
 };
-
-const RegistrationModal = lazy(() => import('./RegistrationModal').then((module) => ({default: module.RegistrationModal})));
 
 const normalizePlanCode = (code: string) => code.trim().toUpperCase();
 
@@ -71,7 +70,6 @@ export function Pricing() {
     //
     const {locale, t} = useI18n();
     const {pricing} = t;
-    const [selectedPlan, setSelectedPlan] = useState<DisplayPlan | null>(null);
     const [publicPlans, setPublicPlans] = useState<PublicPlan[]>([]);
     const [loadState, setLoadState] = useState<'loading' | 'success' | 'error'>('loading');
 
@@ -150,25 +148,14 @@ export function Pricing() {
                                     <li key={`feature-${featureIndex}`}><Check size={16} aria-hidden="true"/>{feature}</li>
                                 ))}
                             </ul>
-                            <button className={`btn btn--block ${plan.highlight ? 'btn--primary' : 'btn--outline'}`}
-                                    type="button" onClick={() => setSelectedPlan(plan)}>
+                            <a className={`btn btn--block ${plan.highlight ? 'btn--primary' : 'btn--outline'}`}
+                               href={site.contact.phoneHref}>
                                 {plan.cta}
-                            </button>
+                            </a>
                         </article>
                     ))}
                 </div>
             </div>
-
-            {selectedPlan ? (
-                <Suspense fallback={null}>
-                    <RegistrationModal
-                        open
-                        planCode={selectedPlan.code}
-                        planName={selectedPlan.name}
-                        onClose={() => setSelectedPlan(null)}
-                    />
-                </Suspense>
-            ) : null}
         </section>
     );
 }
