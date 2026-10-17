@@ -3,8 +3,6 @@ import dayjs, { type Dayjs } from 'dayjs'
 
 export type SalesPeriod = [Dayjs, Dayjs]
 
-export const SALES_REPORT_LIST_MAX_DAYS = 7
-
 function weekStart(date: Dayjs): Dayjs {
   //
   return date.subtract((date.day() + 6) % 7, 'day').startOf('day')
@@ -28,11 +26,6 @@ export function createSalesPeriodPresets(t: StoreTranslator): { label: string; v
 export function salesPeriodBounds(period: SalesPeriod): { from: string; to: string } {
   //
   return { from: period[0].startOf('day').toISOString(), to: period[1].endOf('day').toISOString() }
-}
-
-export function salesPeriodDays(period: SalesPeriod): number {
-  //
-  return period[1].startOf('day').diff(period[0].startOf('day'), 'day') + 1
 }
 
 export function formatSalesPeriod(period: SalesPeriod): string {

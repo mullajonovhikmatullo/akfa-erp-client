@@ -96,6 +96,19 @@ export interface SaleReportProduct {
   totalUzs: number
 }
 
+export interface SaleReportLine {
+  productId: string
+  name: string
+  sku: string | null
+  unit: ProductUnit
+  listUnitPrice: number
+  discountPercent: number
+  unitPrice: number
+  quantity: number
+  listTotalUzs: number
+  totalUzs: number
+}
+
 export interface SaleReport {
   from: string
   to: string
@@ -108,6 +121,10 @@ export interface SaleReport {
   topProducts: SaleReportProduct[]
   sales: SaleListItem[] | null
   salesTruncated: boolean
+  store: { name: string; phone: string | null; branchName: string | null }
+  usdToUzsRate: number | null
+  lines: SaleReportLine[]
+  linesTruncated: boolean
 }
 
 export interface SaleInvoice {
