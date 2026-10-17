@@ -1,11 +1,11 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, DatePicker, Select, Tooltip } from 'antd'
+import { Button, DatePicker, Dropdown, Select, Tooltip } from 'antd'
 import { PlusIcon } from '@phosphor-icons/react/dist/csr/Plus'
 
 import dayjs from 'dayjs'
-import { useStoreT } from '@store/store-i18n'
+import { useStoreT, type StoreLocale } from '@store/store-i18n'
 import { DataTable } from '@store/store-shared/ui/data-table'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { SaleListItem, SaleType } from '@store/store-stub'
@@ -19,9 +19,7 @@ import { createSalesColumns } from './view/salesColumns'
 import {
   createSalesPeriodPresets,
   formatSalesPeriod,
-  SALES_REPORT_LIST_MAX_DAYS,
   salesPeriodBounds,
-  salesPeriodDays,
   type SalesPeriod,
 } from './view/salesPeriods'
 
@@ -83,18 +81,10 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
     { value: 'WHOLESALE', label: t('sales.typeWholesale') },
   ]
 
-  function handlePrint() {
+  function handlePrint(locale: StoreLocale) {
     //
     if (!filters.period || !reportQuery) return
-    const hasDebtLabel = filters.hasDebt === 'true' ? t('sales.hasDebt') : filters.hasDebt === 'false' ? t('sales.filterPaid') : null
-    void print(
-      { ...reportQuery, includeSales: salesPeriodDays(filters.period) <= SALES_REPORT_LIST_MAX_DAYS },
-      formatSalesPeriod(filters.period),
-      [
-        saleTypeOptions.find((option) => option.value === filters.saleType)?.label ?? t('sales.filterAllTypes'),
-        ...(hasDebtLabel ? [hasDebtLabel] : []),
-      ],
-    )
+    void print({ ...reportQuery, includeSales: false }, formatSalesPeriod(filters.period), locale)
   }
 
   const columns = createSalesColumns({
@@ -209,9 +199,23 @@ export function SalesList({ isStoreOwner, userBranchId, branchId, exchangeRate }
               />
             </Tooltip>
             <Tooltip title={filters.period ? t('sales.printTooltip') : t('sales.printNeedsPeriod')}>
-              <Button icon={<StoreIcon name="printer" size={16} />} disabled={!filters.period || total === 0} loading={isPrinting} onClick={handlePrint}>
-                {t('sales.print')}
-              </Button>
+              <Dropdown
+                trigger={['click']}
+                disabled={!filters.period || total === 0 || isPrinting}
+                menu={{
+                  items: [
+                    { key: 'uz-la', label: t('settings.langUzLatn') },
+                    { key: 'uz-cy', label: t('settings.langUzCy') },
+                    { key: 'ru', label: t('settings.langRu') },
+                    { key: 'en', label: t('settings.langEn') },
+                  ],
+                  onClick: ({ key }) => handlePrint(key as StoreLocale),
+                }}
+              >
+                <Button icon={<StoreIcon name="printer" size={16} />} disabled={!filters.period || total === 0} loading={isPrinting}>
+                  {t('sales.print')}
+                </Button>
+              </Dropdown>
             </Tooltip>
             <div className="sales-history-stats">
               {totalWithDebt > 0 && filters.hasDebt !== 'true' ? (
