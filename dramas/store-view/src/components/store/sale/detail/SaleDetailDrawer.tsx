@@ -5,6 +5,7 @@ import { Drawer } from 'antd'
 import type { PaymentMethod, SaleListItem } from '@store/store-stub'
 import { useSaleDetail } from '../hooks/useSaleDetail'
 import { useSaleMutation } from '../hooks/useSaleMutation'
+import { useSaleInvoicePrint } from '../hooks/useSaleInvoicePrint'
 import { SaleDetailView, type PaymentFormValues } from './view/SaleDetailView'
 
 interface SaleDetailDrawerProps {
@@ -17,6 +18,7 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
   //
   const { data: detail, isLoading } = useSaleDetail(sale?.id ?? null)
   const { addPayment } = useSaleMutation(t)
+  const { print, isPrinting } = useSaleInvoicePrint(t)
   const [showPayForm, setShowPayForm] = useState(false)
   const { control, handleSubmit, reset, watch } = useForm<PaymentFormValues>({
     defaultValues: { amount: 0, method: 'CASH_UZS' },
@@ -81,6 +83,8 @@ export function SaleDetailDrawer({ t, sale, onClose }: SaleDetailDrawerProps) {
           onOpenPayForm={openPayForm}
           onCancelPayment={cancelPayment}
           onSubmitPayment={handleSubmit(submitPayment)}
+          printing={isPrinting}
+          onPrint={(locale) => void print(sale.id, locale)}
         />
       ) : null}
     </Drawer>
