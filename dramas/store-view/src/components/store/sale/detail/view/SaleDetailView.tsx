@@ -1,7 +1,7 @@
 import { StoreIcon } from '@store/store-shared/ui/store-icon'
-import type { StoreTranslator } from '@store/store-i18n'
+import type { StoreLocale, StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
-import { Button, Divider, Form, InputNumber, Select, Skeleton } from 'antd'
+import { Button, Divider, Dropdown, Form, InputNumber, Select, Skeleton } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
@@ -33,6 +33,8 @@ interface SaleDetailViewProps {
   onOpenPayForm: () => void
   onCancelPayment: () => void
   onSubmitPayment: () => void
+  printing: boolean
+  onPrint: (locale: StoreLocale) => void
 }
 
 export function SaleDetailView({
@@ -48,6 +50,8 @@ export function SaleDetailView({
   onOpenPayForm,
   onCancelPayment,
   onSubmitPayment,
+  printing,
+  onPrint,
 }: SaleDetailViewProps) {
   //
   const hasDebt = sale.debtAmountUzs > 0
@@ -55,8 +59,27 @@ export function SaleDetailView({
   return (
     <>
       <div className="u-border-b-default u-p-20-24">
-        <div className="u-text-muted u-font-mono u-fs-11 u-tracking-normal">
-          #{(sale.id.split('-')[0] ?? '').toUpperCase()}
+        <div className="u-items-center u-flex u-justify-between u-gap-8">
+          <div className="u-text-muted u-font-mono u-fs-11 u-tracking-normal">
+            #{(sale.id.split('-')[0] ?? '').toUpperCase()}
+          </div>
+          <Dropdown
+            trigger={['click']}
+            disabled={printing}
+            menu={{
+              items: [
+                { key: 'uz-la', label: t('settings.langUzLatn') },
+                { key: 'uz-cy', label: t('settings.langUzCy') },
+                { key: 'ru', label: t('settings.langRu') },
+                { key: 'en', label: t('settings.langEn') },
+              ],
+              onClick: ({ key }) => onPrint(key as StoreLocale),
+            }}
+          >
+            <Button size="small" icon={<StoreIcon name="printer" size={14} />} loading={printing}>
+              {t('sales.print')}
+            </Button>
+          </Dropdown>
         </div>
         <div className="u-items-center u-flex u-gap-8 u-m-6-0-8">
           <h2 className="u-fs-16 u-m-0">{sale.customer?.fullName ?? t('sales.drawerAnonymous')}</h2>
