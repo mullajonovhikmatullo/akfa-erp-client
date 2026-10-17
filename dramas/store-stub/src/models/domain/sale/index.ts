@@ -110,6 +110,16 @@ export interface SaleReport {
   salesTruncated: boolean
 }
 
+export interface SaleInvoice {
+  sale: SaleDetail
+  store: { name: string; phone: string | null }
+  branch: { name: string; address: string | null }
+  usdToUzsRate: number | null
+  paidAtSaleUzs: number
+  changeUzs: number
+  customerDebt: { beforeUzs: number; afterUzs: number } | null
+}
+
 export type CreateSalePayload = CreateSaleRequest & { debtDueDate?: string | null }
 
 export type AddPaymentPayload = AddPaymentRequest

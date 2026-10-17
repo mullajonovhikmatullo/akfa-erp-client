@@ -6,6 +6,7 @@ import type {
   DebtPaymentFilters,
   SaleDetail,
   SaleFilters,
+  SaleInvoice,
   SaleListItem,
   SalePage,
   SalePageQuery,
@@ -65,6 +66,19 @@ const findSalesReport = (params: SaleReportQuery): Promise<SaleReport> =>
 
 const findSale = (id: string) => http.get(`/sales/${id}`).then((response) => parseSaleDetail(response.data.data))
 
+const findSaleInvoice = (id: string): Promise<SaleInvoice> =>
+  http.get(`/sales/${id}/invoice`).then((response) => {
+    //
+    const body = response.data.data as Raw & { sale: Raw }
+    return {
+      ...(body as unknown as SaleInvoice),
+      sale: parseSaleDetail(body.sale),
+      usdToUzsRate: body.usdToUzsRate != null ? Number(body.usdToUzsRate) : null,
+      paidAtSaleUzs: Number(body.paidAtSaleUzs),
+      changeUzs: Number(body.changeUzs),
+    }
+  })
+
 const findDebtPayments = (params: DebtPaymentFilters): Promise<DebtPaymentPage> =>
   http.get('/sales/payments', { params }).then((response) => {
     const body = response.data.data as DebtPaymentPage
@@ -102,6 +116,7 @@ export const SaleSeekApi = {
   findSales,
   findSalesPage,
   findSale,
+  findSaleInvoice,
   findSalesReport,
   findDebtPayments,
   findSaleSettings,
@@ -121,6 +136,10 @@ export const SaleSeekApi = {
     findSale: (id: string) => ({
       queryKey: ['sales', 'findSale', id] as const,
       queryFn: () => findSale(id),
+    }),
+    findSaleInvoice: (id: string) => ({
+      queryKey: ['sales', 'findSaleInvoice', id] as const,
+      queryFn: () => findSaleInvoice(id),
     }),
     findDebtPayments: (params: DebtPaymentFilters) => ({
       queryKey: ['sales', 'debtPayments', params] as const,

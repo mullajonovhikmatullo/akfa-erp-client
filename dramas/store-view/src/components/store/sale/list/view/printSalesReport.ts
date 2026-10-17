@@ -1,22 +1,13 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { formatDateTime, formatUZS } from '@store/store-shared/lib/formatters'
 import type { SaleListItem, SaleReport, SaleReportMethodRow } from '@store/store-stub'
+import { escapeHtml, printHtml } from '../../print/printHtml'
 
 interface PrintSalesReportOptions {
   t: StoreTranslator
   report: SaleReport
   periodLabel: string
   filters: string[]
-}
-
-function escapeHtml(value: string): string {
-  //
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
 }
 
 function money(value: number): string {
@@ -196,21 +187,5 @@ function buildSalesReportHtml({ t, report, periodLabel, filters }: PrintSalesRep
 
 export function printSalesReport(options: PrintSalesReportOptions) {
   //
-  const frame = document.createElement('iframe')
-  frame.setAttribute('aria-hidden', 'true')
-  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden'
-  document.body.appendChild(frame)
-
-  const frameWindow = frame.contentWindow
-  if (!frameWindow) {
-    frame.remove()
-    return
-  }
-
-  frameWindow.document.open()
-  frameWindow.document.write(buildSalesReportHtml(options))
-  frameWindow.document.close()
-  frameWindow.addEventListener('afterprint', () => setTimeout(() => frame.remove(), 0), { once: true })
-  frameWindow.focus()
-  frameWindow.print()
+  printHtml(buildSalesReportHtml(options))
 }
