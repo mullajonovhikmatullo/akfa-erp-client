@@ -1038,7 +1038,7 @@ export const uzLatnTranslations = {
   'validation.priceInvalidType': 'Narxni kiriting',
   'validation.priceNegative': "Narx manfiy bo'lmasligi kerak",
   'validation.thresholdNegative': "Chegara manfiy bo'lmasligi kerak",
-  'validation.discountRange': "Skidka 0 dan 100% gacha bo'lishi kerak",
+  'validation.discountRange': "Skidka 0 dan 100 gacha butun son bo'lishi kerak",
   'validation.nameRequired': 'Nomi majburiy',
   'validation.nameMax': 'Nom 200 ta belgidan oshmasligi kerak',
   'validation.skuPattern': "Mahsulot kodi faqat harf, raqam, tire va pastki chiziqdan iborat bo'lishi mumkin",
