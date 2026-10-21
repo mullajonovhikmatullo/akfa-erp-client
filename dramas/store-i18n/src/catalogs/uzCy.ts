@@ -1038,7 +1038,7 @@ export const uzCyTranslations = {
   'validation.priceInvalidType': 'Нархни киритинг',
   'validation.priceNegative': 'Нарх манфий бўлмаслиги керак',
   'validation.thresholdNegative': 'Чегара манфий бўлмаслиги керак',
-  'validation.discountRange': 'Скидка 0 дан 100% гача бўлиши керак',
+  'validation.discountRange': 'Скидка 0 дан 100 гача бутун сон бўлиши керак',
   'validation.nameRequired': 'Номи мажбурий',
   'validation.nameMax': 'Ном 200 та белгидан ошмаслиги керак',
   'validation.skuPattern': 'Маҳсулот коди фақат ҳарф, рақам, тире ва пастки чизиқдан иборат бўлиши мумкин',

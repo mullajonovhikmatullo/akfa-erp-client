@@ -30,7 +30,7 @@ export const createProductSchema = (t: StoreTranslator) => {
         .number({ error: t('validation.discountRange') })
         .min(0, t('validation.discountRange'))
         .max(100, t('validation.discountRange'))
-        .multipleOf(0.01),
+        .int(t('validation.discountRange')),
       isActive: z.boolean().optional(),
     })
     .superRefine((data, context) => {
