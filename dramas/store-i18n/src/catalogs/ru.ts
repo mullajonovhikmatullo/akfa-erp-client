@@ -1036,7 +1036,7 @@ export const ruTranslations = {
   'validation.priceInvalidType': 'Введите цену',
   'validation.priceNegative': 'Цена не может быть отрицательной',
   'validation.thresholdNegative': 'Порог не может быть отрицательным',
-  'validation.discountRange': 'Скидка должна быть от 0 до 100%',
+  'validation.discountRange': 'Скидка должна быть целым числом от 0 до 100',
   'validation.nameRequired': 'Название обязательно',
   'validation.nameMax': 'Название не должно превышать 200 символов',
   'validation.skuPattern': 'Код товара может содержать только буквы, цифры, дефис и подчёркивание',

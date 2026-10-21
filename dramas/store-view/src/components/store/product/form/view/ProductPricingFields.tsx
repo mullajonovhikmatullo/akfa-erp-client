@@ -172,7 +172,8 @@ export function ProductPricingFields({
                 className="u-w-full"
                 min={0}
                 max={100}
-                precision={2}
+                precision={0}
+                step={1}
                 suffix="%"
               />
             </Form.Item>

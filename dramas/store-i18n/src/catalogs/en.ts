@@ -1037,7 +1037,7 @@ export const enTranslations = {
   'validation.priceInvalidType': 'Enter price',
   'validation.priceNegative': 'Price cannot be negative',
   'validation.thresholdNegative': 'Threshold cannot be negative',
-  'validation.discountRange': 'Discount must be between 0 and 100%',
+  'validation.discountRange': 'Discount must be a whole number from 0 to 100',
   'validation.nameRequired': 'Name is required',
   'validation.nameMax': 'Name must not exceed 200 characters',
   'validation.skuPattern': 'Product code can only contain letters, numbers, hyphens and underscores',

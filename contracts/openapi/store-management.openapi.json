@@ -2446,7 +2446,7 @@
             "example": 16.5
           },
           "discountPercent": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "maximum": 100,
             "default": 0,
@@ -2499,7 +2499,7 @@
             "type": "number"
           },
           "discountPercent": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "maximum": 100,
             "description": "Every change is kept in the product's discount history."
@@ -2543,7 +2543,7 @@
             "example": 5
           },
           "discountPercent": {
-            "type": "number",
+            "type": "integer",
             "minimum": 0,
             "maximum": 100,
             "description": "Optional. Overrides the product's discountPercent for this line.",

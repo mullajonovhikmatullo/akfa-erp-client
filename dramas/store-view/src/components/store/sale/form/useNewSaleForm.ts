@@ -26,7 +26,7 @@ function normalizeDiscountPercent(value: unknown): number | null {
   if (value == null || value === '') return null
   const percent = Number(value)
   if (!Number.isFinite(percent)) return null
-  return Math.round(Math.min(Math.max(percent, 0), 100) * 100) / 100
+  return Math.round(Math.min(Math.max(percent, 0), 100))
 }
 
 function emptySaleFormValues(branchId?: string): SaleFormValues {
@@ -136,7 +136,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
         //
         const product = productById.get(item.productId)
         if (!product) return []
-        const discountPercent = item.discountPercent ?? product.discountPercent
+        const discountPercent = item.discountPercent ?? Math.round(product.discountPercent)
         const listUnitPriceUzs = unitPrice(product)
         return {
           _key: item.key,
