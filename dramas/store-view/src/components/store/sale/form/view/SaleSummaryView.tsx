@@ -20,9 +20,6 @@ interface SaleSummaryViewProps {
   paidAmountError: boolean
   onPaidAmountChange: (value: number | null) => void
   fullPaidAmount: number
-  discountEnabled: boolean
-  discountPercent: number
-  onDiscountChange: (value: number | null) => void
   listTotal: number
   discountTotal: number
   subtotal: number
@@ -49,9 +46,6 @@ export function SaleSummaryView({
   paidAmountError,
   onPaidAmountChange,
   fullPaidAmount,
-  discountEnabled,
-  discountPercent,
-  onDiscountChange,
   listTotal,
   discountTotal,
   subtotal,
@@ -87,25 +81,6 @@ export function SaleSummaryView({
             <Row label={t('newSale.rowRate')} value={<span className="u-text-muted">1 $ = <MoneyDisplay amount={exchangeRate} currency="UZS" /></span>} />
           </>
         ) : null}
-        {discountEnabled ? <div className="u-items-center u-flex u-fs-13 u-justify-between u-gap-8">
-          <span className="u-text-muted">{t('newSale.saleDiscount')}</span>
-          <Controller
-            name="discountPercent"
-            control={control}
-            render={({ field }) => (
-              <InputNumber<number>
-                aria-label={t('newSale.saleDiscount')}
-                value={field.value ?? discountPercent}
-                onChange={onDiscountChange}
-                min={0}
-                max={100}
-                precision={2}
-                suffix="%"
-                className="u-w-120"
-              />
-            )}
-          />
-        </div> : null}
         {discountTotal > 0 ? (
           <>
             <Row label={t('newSale.rowListTotal')} value={<span className="num"><MoneyDisplay amount={listTotal} currency="UZS" /></span>} />

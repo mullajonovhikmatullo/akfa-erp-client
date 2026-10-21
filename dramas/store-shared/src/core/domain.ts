@@ -113,6 +113,7 @@ export interface Product {
   sku: string | null
   unit: ProductUnit
   lowStockThreshold: number | null
+  discountPercent: number
   categoryId: string | null
   category: { id: string; name: string } | null
   costPriceUzs: number

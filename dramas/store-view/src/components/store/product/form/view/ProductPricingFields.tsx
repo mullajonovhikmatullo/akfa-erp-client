@@ -1,6 +1,8 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control, type FieldErrors } from 'react-hook-form'
 import { Form, InputNumber, Segmented } from 'antd'
+import { getDiscountedPriceUzs } from '@store/store-shared/lib/product-pricing'
+import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import type { ProductFormValues } from '../productSchema'
 
 interface ProductPricingFieldsProps {
@@ -12,6 +14,7 @@ interface ProductPricingFieldsProps {
   wholesaleUzs?: number
   retailUsd?: number
   wholesaleUsd?: number
+  discountPercent?: number
   onCurrencyChange: (value: string | number) => void
 }
 
@@ -27,9 +30,20 @@ export function ProductPricingFields({
   wholesaleUzs,
   retailUsd,
   wholesaleUsd,
+  discountPercent = 0,
   onCurrencyChange,
 }: ProductPricingFieldsProps) {
   //
+  const discountedPrices = currency === 'UZS'
+    ? [
+        { key: 'wholesale', label: t('productForm.labelWholesaleUzs'), amount: getDiscountedPriceUzs(wholesaleUzs ?? 0, discountPercent), currency: 'UZS' as const },
+        { key: 'retail', label: t('productForm.labelRetailUzs'), amount: getDiscountedPriceUzs(retailUzs ?? 0, discountPercent), currency: 'UZS' as const },
+      ]
+    : [
+        { key: 'wholesale', label: t('productForm.labelWholesaleUsd'), amount: Number(((wholesaleUsd ?? 0) * (1 - discountPercent / 100)).toFixed(4)), currency: 'USD' as const },
+        { key: 'retail', label: t('productForm.labelRetailUsd'), amount: Number(((retailUsd ?? 0) * (1 - discountPercent / 100)).toFixed(4)), currency: 'USD' as const },
+      ]
+
   return (
     <>
       <Form.Item className="u-mb-8">
@@ -143,6 +157,35 @@ export function ProductPricingFields({
           />
         </div>
       )}
+
+      <div className="u-grid u-gap-12 u-grid-cols-fit-150">
+        <Controller
+          name="discountPercent"
+          control={control}
+          render={({ field }) => (
+            <Form.Item label={t('productForm.labelDiscount')} extra={t('productForm.discountHint')} validateStatus={errors.discountPercent ? 'error' : undefined} help={errors.discountPercent?.message}>
+              <InputNumber<number>
+                value={field.value}
+                onChange={(value) => field.onChange(value ?? 0)}
+                onBlur={field.onBlur}
+                ref={field.ref}
+                className="u-w-full"
+                min={0}
+                max={100}
+                precision={2}
+                suffix="%"
+              />
+            </Form.Item>
+          )}
+        />
+        {discountPercent > 0 ? discountedPrices.map((price) => (
+          <Form.Item key={price.key} label={`${price.label} · ${t('productForm.afterDiscount')}`}>
+            <div className="num u-fs-16 u-fw-700 u-text-success">
+              <MoneyDisplay amount={price.amount} currency={price.currency} noConvert />
+            </div>
+          </Form.Item>
+        )) : null}
+      </div>
     </>
   )
 }

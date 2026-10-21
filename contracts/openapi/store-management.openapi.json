@@ -1234,21 +1234,49 @@
           }
         }
       },
-      "SaleSettings": {
+      "ProductDiscountChange": {
         "type": "object",
         "required": [
-          "discountEnabled",
-          "defaultDiscountPercent"
+          "id",
+          "oldPercent",
+          "newPercent",
+          "createdAt",
+          "changedBy"
         ],
         "properties": {
-          "discountEnabled": {
-            "type": "boolean",
-            "description": "When false, checkout hides discounts and the API rejects them"
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          "defaultDiscountPercent": {
+          "oldPercent": {
             "type": "number",
             "minimum": 0,
             "maximum": 100
+          },
+          "newPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "changedBy": {
+            "type": "object",
+            "required": [
+              "id",
+              "fullName"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fullName": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -2275,6 +2303,11 @@
             "nullable": true,
             "description": "Product-specific quantity at or below which the product is considered low stock"
           },
+          "discountPercent": {
+            "type": "string",
+            "description": "Discount a sale line gets by default, 0..100",
+            "example": "10.00"
+          },
           "costPriceUzs": {
             "type": "string",
             "description": "Decimal value as string",
@@ -2411,6 +2444,14 @@
           "wholesalePriceUsd": {
             "type": "number",
             "example": 16.5
+          },
+          "discountPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "default": 0,
+            "description": "Discount a sale line gets by default; the cashier may still change it per line.",
+            "example": 10
           }
         }
       },
@@ -2457,6 +2498,12 @@
           "wholesalePriceUsd": {
             "type": "number"
           },
+          "discountPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Every change is kept in the product's discount history."
+          },
           "isActive": {
             "type": "boolean"
           }
@@ -2499,7 +2546,7 @@
             "type": "number",
             "minimum": 0,
             "maximum": 100,
-            "description": "Optional. Overrides the sale-level discountPercent for this line.",
+            "description": "Optional. Overrides the product's discountPercent for this line.",
             "example": 10
           }
         }
@@ -2531,14 +2578,6 @@
             "items": {
               "$ref": "#/components/schemas/SaleItemRequest"
             }
-          },
-          "discountPercent": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 100,
-            "default": 0,
-            "description": "Discount applied to every line without its own discountPercent. Each discounted unit price is rounded to whole so'm.",
-            "example": 15
           },
           "paidAmountUzs": {
             "type": "number",
@@ -7088,6 +7127,56 @@
         }
       }
     },
+    "/products/{id}/discount-history": {
+      "get": {
+        "summary": "Who changed the product's discount, from which percent to which, and when (newest first, up to 100)",
+        "tags": [
+          "Products"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Discount changes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProductDiscountChange"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found"
+          }
+        }
+      }
+    },
     "/sales": {
       "post": {
         "summary": "Create a sale (deducts inventory + updates customer debt atomically)",
@@ -7332,7 +7421,7 @@
     "/sales/report": {
       "get": {
         "summary": "Sales report for a date range (daily, weekly, monthly)",
-        "description": "Totals cover every sale in the range, not one page. payments are the money taken at checkout for these sales; debtCollections are debt repayments received in the range for any sale. byDay groups by calendar day in tz. sales lists at most 2000 rows (salesTruncated is then true).\n",
+        "description": "Totals cover every sale in the range, not one page. payments are the money taken at checkout for these sales; debtCollections are debt repayments received in the range for any sale. byDay groups by calendar day in tz. sales lists at most 2000 rows (salesTruncated is then true). lines has one row per product and price (at most 5000, linesTruncated is then true); store, usdToUzsRate (null when unavailable) fill the printed report header and USD totals.\n",
         "tags": [
           "Sales"
         ],
@@ -7415,68 +7504,6 @@
         }
       }
     },
-    "/sales/settings": {
-      "get": {
-        "summary": "Whether this store's checkout uses discounts and the percent a new sale starts with",
-        "tags": [
-          "Sales"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sale settings",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/SaleSettings"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "summary": "Change the store's discount settings (store owner only)",
-        "tags": [
-          "Sales"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SaleSettings"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated sale settings"
-          },
-          "403": {
-            "description": "Only the store owner can change them"
-          }
-        }
-      }
-    },
     "/sales/{id}": {
       "get": {
         "summary": "Get full sale detail including all items and payments",
@@ -7502,6 +7529,42 @@
         "responses": {
           "200": {
             "description": "Full sale detail"
+          },
+          "403": {
+            "description": "Sale belongs to another branch"
+          },
+          "404": {
+            "description": "Sale not found"
+          }
+        }
+      }
+    },
+    "/sales/{id}/invoice": {
+      "get": {
+        "summary": "Data for the printed sale document (накладная)",
+        "description": "The full sale plus the store name and phone, the money taken at checkout and the change given, the customer's debt just before and just after this sale, and the current store USD rate (null when no rate is available). Branch-scoped staff get the customer's debt in their branch only.\n",
+        "tags": [
+          "Sales"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice data"
           },
           "403": {
             "description": "Sale belongs to another branch"

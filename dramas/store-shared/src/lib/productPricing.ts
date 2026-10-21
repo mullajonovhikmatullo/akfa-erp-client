@@ -27,6 +27,15 @@ export function getProductPrice(product: Product, kind: ProductPriceKind): Produ
   return { amount: usd, currency: 'USD' }
 }
 
+export function getDiscountedProductPrice(product: Product, kind: ProductPriceKind): ProductPrice {
+  //
+  const price = getProductPrice(product, kind)
+  const factor = 1 - (product.discountPercent ?? 0) / 100
+  return price.currency === 'USD'
+    ? { amount: Number((price.amount * factor).toFixed(4)), currency: 'USD' }
+    : { amount: getDiscountedPriceUzs(price.amount, product.discountPercent ?? 0), currency: 'UZS' }
+}
+
 export function getSaleProductPrice(product: Product, saleType: SaleType): ProductPrice {
   //
   return getProductPrice(product, saleType === 'RETAIL' ? 'retail' : 'wholesale')
