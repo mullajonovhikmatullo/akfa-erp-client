@@ -79,6 +79,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
   const wholesaleUzs = watch('wholesalePriceUzs')
   const retailUsd = watch('retailPriceUsd')
   const wholesaleUsd = watch('wholesalePriceUsd')
+  const discountPercent = watch('discountPercent')
   const unit = watch('unit')
   const branchId = watch('branchId')
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
@@ -175,6 +176,7 @@ export function ProductFormModal({ t, open, product, onClose, onSaved, isStoreOw
             wholesaleUzs={wholesaleUzs}
             retailUsd={retailUsd}
             wholesaleUsd={wholesaleUsd}
+            discountPercent={discountPercent}
             onCurrencyChange={handleCurrencyChange}
           />
           <ProductImagesSection

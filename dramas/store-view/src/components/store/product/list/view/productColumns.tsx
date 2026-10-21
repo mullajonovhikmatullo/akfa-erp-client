@@ -3,7 +3,7 @@ import type { StoreTranslator } from '@store/store-i18n'
 import { Button, Popconfirm, Tooltip } from 'antd'
 
 import { formatDate } from '@store/store-shared/lib/formatters'
-import { getProductPrice } from '@store/store-shared/lib/product-pricing'
+import { getDiscountedProductPrice, getProductPrice } from '@store/store-shared/lib/product-pricing'
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Product, ProductUnit } from '@store/store-stub'
@@ -59,7 +59,7 @@ export function createProductColumns({
       key: 'name',
       render: (_: unknown, product: Product) => (
         <div className="u-items-center u-flex u-gap-9 u-min-w-0">
-          <AuthenticatedProductImage url={product.primaryThumbnailUrl} alt={product.name} width={42} height={42} />
+          <AuthenticatedProductImage url={product.primaryThumbnailUrl} alt={product.name} width={42} height={42} discountPercent={product.discountPercent} />
           <div className="u-min-w-0">
             <div className="u-items-center u-flex u-gap-8 u-min-w-0">
               <span className="u-fw-600 u-min-w-0 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap">{product.name}</span>
@@ -97,7 +97,17 @@ export function createProductColumns({
       render: (_: unknown, product: Product) => {
         //
         const price = getProductPrice(product, priceType)
-        return <span className={`num${priceType === 'cost' ? '' : ' product-price--emphasis'}`}><MoneyDisplay amount={price.amount} currency={price.currency} noConvert={price.currency === 'USD'} /></span>
+        const noConvert = price.currency === 'USD'
+        if (priceType === 'cost' || product.discountPercent <= 0) {
+          return <span className={`num${priceType === 'cost' ? '' : ' product-price--emphasis'}`}><MoneyDisplay amount={price.amount} currency={price.currency} noConvert={noConvert} /></span>
+        }
+        const discounted = getDiscountedProductPrice(product, priceType)
+        return (
+          <div className="num sale-price-cell">
+            <div className="sale-price-cell__list"><MoneyDisplay amount={price.amount} currency={price.currency} noConvert={noConvert} /></div>
+            <span className="product-price--emphasis"><MoneyDisplay amount={discounted.amount} currency={discounted.currency} noConvert={noConvert} /></span>
+          </div>
+        )
       },
     })),
     {

@@ -3,6 +3,7 @@ import type { ApiResponse, InventoryRecord } from '@store/store-shared'
 import type {
   CreateProductPayload,
   Product,
+  ProductDiscountChange,
   ProductImage,
   ProductListParams,
   ProductPage,
@@ -23,6 +24,7 @@ const parseProduct = (raw: Raw): Product => ({
   retailPriceUsd: raw.retailPriceUsd != null ? Number(raw.retailPriceUsd) : null,
   wholesalePriceUsd: raw.wholesalePriceUsd != null ? Number(raw.wholesalePriceUsd) : null,
   lowStockThreshold: raw.lowStockThreshold != null ? Number(raw.lowStockThreshold) : null,
+  discountPercent: Number(raw.discountPercent ?? 0),
   categoryId: raw.category ? (raw.category as { id: string }).id : null,
   primaryImageUrl: (raw.primaryImageUrl as string | null | undefined) ?? null,
   primaryThumbnailUrl: (raw.primaryThumbnailUrl as string | null | undefined) ?? null,
@@ -74,6 +76,15 @@ const findProductSummary = (): Promise<ProductSummary> =>
   }))
 
 const findProduct = (id: string) => http.get<ApiResponse<Raw>>(`/products/${id}`).then((response) => parseProduct(response.data.data))
+
+const findProductDiscountHistory = (id: string) =>
+  http.get<ApiResponse<ProductDiscountChange[]>>(`/products/${id}/discount-history`).then((response) =>
+    response.data.data.map((change) => ({
+      ...change,
+      oldPercent: Number(change.oldPercent),
+      newPercent: Number(change.newPercent),
+    })),
+  )
 
 const createProduct = (payload: CreateProductPayload) =>
   http.post<ApiResponse<Raw>>('/products', payload).then((response) => parseProduct(response.data.data))
@@ -177,6 +188,7 @@ export const ProductSeekApi = {
   findProductsPage,
   findProductSummary,
   findProduct,
+  findProductDiscountHistory,
   findProductInventory,
   findProductImages,
   downloadProductImage,
@@ -196,6 +208,10 @@ export const ProductSeekApi = {
     findProduct: (id: string) => ({
       queryKey: ['products', 'detail', id] as const,
       queryFn: () => findProduct(id),
+    }),
+    findProductDiscountHistory: (id: string) => ({
+      queryKey: ['products', 'discount-history', id] as const,
+      queryFn: () => findProductDiscountHistory(id),
     }),
     findProductInventory: (productId: string) => ({
       queryKey: ['products', 'inventory', productId] as const,

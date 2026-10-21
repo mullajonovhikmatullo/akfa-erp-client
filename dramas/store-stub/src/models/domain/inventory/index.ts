@@ -92,6 +92,7 @@ export interface StockLevel {
   updatedAt: string
   branches: { id: string; name: string }[]
   everStocked: boolean
+  discountPercent: number
   primaryThumbnailUrl: string | null
 }
 

@@ -65,6 +65,7 @@ export interface CustomerPurchasedProduct {
   totalAmountUzs: number
   purchaseCount: number
   lastPurchasedAt: string
+  discountPercent: number
   primaryThumbnailUrl: string | null
 }
 

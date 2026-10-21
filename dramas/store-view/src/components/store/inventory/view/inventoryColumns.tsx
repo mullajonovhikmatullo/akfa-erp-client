@@ -30,6 +30,7 @@ export function createInventoryColumns({ t, rowIndex }: InventoryColumnsOptions)
             alt={row.name}
             width={42}
             height={42}
+            discountPercent={row.discountPercent}
           />
           <div className="inventory-product-cell__text"><strong>{row.name}</strong><small>{row.sku || '—'}</small></div>
         </div>

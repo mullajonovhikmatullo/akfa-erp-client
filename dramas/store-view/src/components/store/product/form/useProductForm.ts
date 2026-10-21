@@ -37,6 +37,7 @@ const emptyValues: ProductFormValues = {
   costPriceUsd: undefined,
   retailPriceUsd: undefined,
   wholesalePriceUsd: undefined,
+  discountPercent: 0,
   isActive: true,
 }
 
@@ -59,6 +60,7 @@ function getProductFormValues(product: Product): ProductFormValues {
     costPriceUsd: hasUsdOnly ? (product.costPriceUsd ?? undefined) : undefined,
     retailPriceUsd: hasUsdOnly ? (product.retailPriceUsd ?? undefined) : undefined,
     wholesalePriceUsd: hasUsdOnly ? (product.wholesalePriceUsd ?? undefined) : undefined,
+    discountPercent: product.discountPercent,
     isActive: product.isActive,
   }
 }

@@ -99,6 +99,7 @@ export interface CreateProductRequest {
   "costPriceUsd"?: number
   "retailPriceUsd"?: number
   "wholesalePriceUsd"?: number
+  "discountPercent"?: number
 }
 
 export type ProductUnit = "KG" | "PIECE"
@@ -108,7 +109,6 @@ export interface CreateSaleRequest {
   "customerId"?: string
   "saleType": SaleType
   "items": SaleItemRequest[]
-  "discountPercent"?: number
   "paidAmountUzs"?: number
   "paidAmountUsd"?: 0
   "usdToUzsRate"?: number
@@ -223,6 +223,7 @@ export interface ProductResponse {
   "sku"?: string | null
   "unit"?: ProductUnit
   "lowStockThreshold"?: string | null
+  "discountPercent"?: string
   "costPriceUzs"?: string
   "retailPriceUzs"?: string
   "wholesalePriceUzs"?: string
@@ -350,6 +351,7 @@ export interface UpdateProductRequest {
   "costPriceUsd"?: number
   "retailPriceUsd"?: number
   "wholesalePriceUsd"?: number
+  "discountPercent"?: number
   "isActive"?: boolean
 }
 
@@ -428,7 +430,13 @@ export interface SubmitTenantPaymentPayload {
 }
 }
 
-export interface SaleSettings {
-  "discountEnabled": boolean
-  "defaultDiscountPercent": number
+export interface ProductDiscountChange {
+  "id": string
+  "oldPercent": number
+  "newPercent": number
+  "createdAt": string
+  "changedBy": {
+  "id": string
+  "fullName": string
+}
 }

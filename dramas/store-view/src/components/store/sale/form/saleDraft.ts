@@ -13,7 +13,6 @@ export interface SaleDraftState {
   customerId?: string
   paymentMethod: PaymentMethod
   paidAmount: number
-  discountPercent: number | null
   debtDueDateIso?: string
   cart: SaleDraftCartItem[]
 }
@@ -37,7 +36,6 @@ export const initialSaleDraft: SaleDraftState = {
   customerId: undefined,
   paymentMethod: 'CASH_UZS',
   paidAmount: 0,
-  discountPercent: null,
   debtDueDateIso: undefined,
   cart: [],
 }

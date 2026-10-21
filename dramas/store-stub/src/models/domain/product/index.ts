@@ -1,12 +1,13 @@
 import type { Currency, Product, ProductImage } from '@store/store-shared'
 import type {
   CreateProductRequest,
+  ProductDiscountChange,
   ProductUnit,
   ReorderProductImagesRequest,
   UpdateProductRequest,
 } from '../../../contracts/backend.generated'
 
-export type { Product, ProductImage, ProductUnit, Currency }
+export type { Product, ProductDiscountChange, ProductImage, ProductUnit, Currency }
 
 export interface ProductListParams {
   search?: string

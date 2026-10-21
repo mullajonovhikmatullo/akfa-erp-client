@@ -35,7 +35,6 @@ function messageKey(message: string | null): StoreTranslationKey | null {
   if (normalized.includes('only the receiving branch')) return 'apiErrors.receivingBranchOnly'
   if (normalized.includes('subscription payment is required')) return 'apiErrors.paymentRequired'
   if (normalized.includes('insufficient stock')) return 'apiErrors.insufficientStock'
-  if (normalized.includes('discounts are turned off')) return 'apiErrors.discountsDisabled'
   if (normalized.includes('inactive')) return 'apiErrors.inactive'
   if (normalized.includes('not found')) return 'apiErrors.notFound'
   if (

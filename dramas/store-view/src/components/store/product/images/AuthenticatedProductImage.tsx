@@ -11,6 +11,7 @@ interface AuthenticatedProductImageProps {
   borderRadius?: 0 | 6
   objectFit?: 'contain' | 'cover' | 'scale-down'
   className?: string
+  discountPercent?: number
 }
 
 export function AuthenticatedProductImage({
@@ -21,13 +22,14 @@ export function AuthenticatedProductImage({
   borderRadius = 6,
   objectFit = 'cover',
   className = '',
+  discountPercent = 0,
 }: AuthenticatedProductImageProps) {
   //
   const { rootRef, visible, objectUrl, failed } = useProductImageObjectUrl(url)
   const preserveWholeImage = objectFit === 'contain' || objectFit === 'scale-down'
   const dimensionClass = `product-image-frame--${String(width).replace('%', 'pct')}-${String(height).replace('%', 'pct')}`
 
-  return (
+  const frame = (
     <div
       ref={rootRef}
       className={`product-image-frame ${dimensionClass} product-image-frame--radius-${borderRadius} ${className}`}
@@ -47,5 +49,22 @@ export function AuthenticatedProductImage({
         <StoreIcon name="image" size={16} className="product-image-frame__placeholder" />
       )}
     </div>
+  )
+
+  if (discountPercent <= 0) return frame
+  return (
+    <div className="product-image-discount">
+      {frame}
+      <ProductDiscountBadge percent={discountPercent} />
+    </div>
+  )
+}
+
+export function ProductDiscountBadge({ percent, large = false }: { percent: number; large?: boolean }) {
+  //
+  return (
+    <span className={`product-image-discount__badge${large ? ' product-image-discount__badge--large' : ''}`}>
+      −{percent.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}%
+    </span>
   )
 }
