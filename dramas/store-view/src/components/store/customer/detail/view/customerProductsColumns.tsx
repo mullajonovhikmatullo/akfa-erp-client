@@ -25,7 +25,7 @@ export function createCustomerProductsColumns({ t, rowIndex }: CustomerProductsC
       key: 'product',
       render: (_: unknown, row: CustomerPurchasedProduct) => (
         <div className="u-items-center u-flex u-gap-9 u-min-w-0">
-          <AuthenticatedProductImage url={row.primaryThumbnailUrl} alt={row.name} width={40} height={40} />
+          <AuthenticatedProductImage url={row.primaryThumbnailUrl} alt={row.name} width={40} height={40} discountPercent={row.discountPercent} />
           <div className="u-min-w-0">
             <div className="u-fw-600 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap">{row.name}</div>
             <div className="u-text-muted u-font-mono u-fs-11">{row.sku || '—'}</div>

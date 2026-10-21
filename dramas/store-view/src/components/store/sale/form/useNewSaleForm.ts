@@ -8,7 +8,6 @@ import { useCustomersList } from '../../customer/hooks/useCustomersList'
 import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
 import { useProductsList } from '../../product/hooks/useProductsList'
 import { useSaleMutation } from '../hooks/useSaleMutation'
-import { useSaleSettings } from '../hooks/useSaleSettings'
 import { clearSaleDraft, getSaleDraftScope, readSaleDraft, writeSaleDraft } from './saleDraft'
 import type { CartItem, SaleFormValues } from './view/types'
 
@@ -38,7 +37,6 @@ function emptySaleFormValues(branchId?: string): SaleFormValues {
     customerId: undefined,
     paymentMethod: 'CASH_UZS',
     paidAmount: 0,
-    discountPercent: null,
     debtDueDateIso: undefined,
     selectedProductId: undefined,
     cart: [],
@@ -54,7 +52,6 @@ function persistedSaleFormValues(): SaleFormValues {
     customerId: draft.customerId,
     paymentMethod: SALE_PAYMENT_METHODS.includes(draft.paymentMethod) ? draft.paymentMethod : 'CASH_UZS',
     paidAmount: draft.paidAmount,
-    discountPercent: normalizeDiscountPercent(draft.discountPercent),
     debtDueDateIso: draft.debtDueDateIso,
     selectedProductId: undefined,
     cart: draft.cart.map((item) => ({ ...item, discountPercent: normalizeDiscountPercent(item.discountPercent) })),
@@ -87,8 +84,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
   } = useCustomersList(customerFilters)
   const { data: branches = [], isLoading: branchesLoading } = useBranchesList()
   const { createSale } = useSaleMutation(t)
-  const { data: saleSettings } = useSaleSettings()
-  const discountEnabled = saleSettings?.discountEnabled ?? true
   const { control, handleSubmit, reset, setValue } = useForm<SaleFormValues>({
     defaultValues: persistedSaleFormValues(),
   })
@@ -98,8 +93,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
   const customerId = useWatch({ control, name: 'customerId' })
   const paymentMethod = useWatch({ control, name: 'paymentMethod' }) ?? 'CASH_UZS'
   const paidAmount = useWatch({ control, name: 'paidAmount' }) ?? 0
-  const chosenDiscountPercent = useWatch({ control, name: 'discountPercent' })
-  const saleDiscountPercent = discountEnabled ? (chosenDiscountPercent ?? saleSettings?.defaultDiscountPercent ?? 0) : 0
   const debtDueDateIso = useWatch({ control, name: 'debtDueDateIso' })
   const cartDraft = useWatch({ control, name: 'cart' }) ?? []
   const [paidAmountError, setPaidAmountError] = useState(false)
@@ -143,7 +136,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
         //
         const product = productById.get(item.productId)
         if (!product) return []
-        const discountPercent = discountEnabled ? (item.discountPercent ?? saleDiscountPercent) : 0
+        const discountPercent = item.discountPercent ?? product.discountPercent
         const listUnitPriceUzs = unitPrice(product)
         return {
           _key: item.key,
@@ -155,7 +148,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
           unitPriceUzs: getDiscountedPriceUzs(listUnitPriceUzs, discountPercent),
         }
       }),
-    [cartDraft, discountEnabled, productById, saleDiscountPercent, unitPrice],
+    [cartDraft, productById, unitPrice],
   )
   const selectedProductIds = useMemo(() => new Set(cart.map((item) => item.productId)), [cart])
   const paymentOptions = useMemo(
@@ -194,7 +187,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     return item.quantity >= MIN_QTY && item.quantity <= stock
   })
   const canSubmit =
-    Boolean(saleSettings) &&
     Boolean(userBranchId) &&
     cart.length > 0 &&
     hasValidQuantities &&
@@ -235,11 +227,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     const draftItem = cartDraft[index]
     if (index < 0 || !draftItem) return
     update(index, { ...draftItem, discountPercent: normalizeDiscountPercent(discountPercent) })
-  }
-
-  function handleDiscountChange(value: number | null) {
-    //
-    setValue('discountPercent', normalizeDiscountPercent(value) ?? 0, { shouldDirty: true })
   }
 
   function changeQty(key: string, delta: number) {
@@ -325,7 +312,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
       customerId: customerId || undefined,
       paymentMethod,
       paidAmount,
-      discountPercent: chosenDiscountPercent ?? null,
       debtDueDateIso,
       cart: cartDraft.map((item) => ({
         key: item.key,
@@ -334,7 +320,7 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
         discountPercent: item.discountPercent ?? null,
       })),
     }, draftScope)
-  }, [cartDraft, chosenDiscountPercent, customerId, debtDueDateIso, draftScope, formBranchId, paidAmount, paymentMethod, saleType])
+  }, [cartDraft, customerId, debtDueDateIso, draftScope, formBranchId, paidAmount, paymentMethod, saleType])
 
   function submitSale(values: SaleFormValues) {
     //
@@ -349,13 +335,12 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
         customerId: values.customerId || undefined,
         paymentMethod: values.paymentMethod,
         paidAmountUzs: safePaidAmount,
-        discountPercent: saleDiscountPercent,
         usdToUzsRate: needsExchangeRate ? exchangeRate : undefined,
         debtDueDate: needsCustomer && values.debtDueDateIso ? values.debtDueDateIso : undefined,
         items: cart.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
-          ...(discountEnabled && item.discountPercent !== saleDiscountPercent && { discountPercent: item.discountPercent }),
+          discountPercent: item.discountPercent,
         })),
       },
       {
@@ -409,9 +394,6 @@ export function useNewSaleForm({ t, userBranchId, exchangeRate, onSuccess }: Use
     changeQty,
     updateQty,
     updateItemDiscount,
-    discountEnabled,
-    discountPercent: saleDiscountPercent,
-    handleDiscountChange,
     listTotal: totals.listTotal,
     discountTotal: totals.discountTotal,
     removeItem,

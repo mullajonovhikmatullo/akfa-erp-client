@@ -7,6 +7,7 @@ import { analyticsKeys } from '../../analytics/hooks/analyticsKeys'
 import { customerKeys } from '../../customer/hooks/customerKeys'
 import { exchangeRateKeys } from '../../exchange-rate/hooks/exchangeRateKeys'
 import { inventoryKeys } from '../../inventory/hooks/inventoryKeys'
+import { productKeys } from '../../product/hooks/productKeys'
 import { saleKeys } from './saleKeys'
 
 export function useSaleMutation(t: StoreTranslator) {
@@ -26,22 +27,8 @@ export function useSaleMutation(t: StoreTranslator) {
     onError: (error: unknown) => {
       //
       queryClient.invalidateQueries({ queryKey: exchangeRateKeys.all })
-      queryClient.invalidateQueries({ queryKey: saleKeys.settings() })
+      queryClient.invalidateQueries({ queryKey: productKeys.all })
       toast.error(getLocalizedApiErrorMessage(error, t, 'sales.createError'))
-    },
-  })
-
-  const updateSaleSettings = useMutation({
-    mutationFn: SaleFlowApi.updateSaleSettings,
-    onSuccess: (settings) => {
-      //
-      queryClient.setQueryData(saleKeys.settings(), settings)
-      toast.success(t('settings.saleSaved'))
-    },
-    onError: (error: unknown) => {
-      //
-      queryClient.invalidateQueries({ queryKey: saleKeys.settings() })
-      toast.error(getLocalizedApiErrorMessage(error, t, 'settings.saleSaveError'))
     },
   })
 
@@ -67,5 +54,5 @@ export function useSaleMutation(t: StoreTranslator) {
     },
   })
 
-  return { createSale, addPayment, setDebtDeadline, updateSaleSettings }
+  return { createSale, addPayment, setDebtDeadline }
 }

@@ -11,7 +11,6 @@ import type {
   SalePageQuery,
   SaleReport,
   SaleReportQuery,
-  SaleSettings,
 } from '../../../../models/domain/sale'
 
 type Raw = Record<string, unknown>
@@ -80,16 +79,6 @@ const findDebtPayments = (params: DebtPaymentFilters): Promise<DebtPaymentPage> 
     }
   })
 
-const parseSaleSettings = (raw: Raw): SaleSettings => ({
-  discountEnabled: Boolean(raw.discountEnabled),
-  defaultDiscountPercent: Number(raw.defaultDiscountPercent ?? 0),
-})
-
-const findSaleSettings = () => http.get('/sales/settings').then((response) => parseSaleSettings(response.data.data))
-
-const updateSaleSettings = (payload: SaleSettings) =>
-  http.put('/sales/settings', payload).then((response) => parseSaleSettings(response.data.data))
-
 const createSale = (payload: CreateSalePayload) => http.post('/sales', payload).then((response) => parseSaleDetail(response.data.data))
 
 const addPayment = ({ saleId, payload }: { saleId: string; payload: AddPaymentPayload }) =>
@@ -104,7 +93,6 @@ export const SaleSeekApi = {
   findSale,
   findSalesReport,
   findDebtPayments,
-  findSaleSettings,
   fetch: {
     findSales: (params?: SaleFilters) => ({
       queryKey: ['sales', 'findSales', params] as const,
@@ -126,10 +114,6 @@ export const SaleSeekApi = {
       queryKey: ['sales', 'debtPayments', params] as const,
       queryFn: () => findDebtPayments(params),
     }),
-    findSaleSettings: () => ({
-      queryKey: ['sale-settings'] as const,
-      queryFn: findSaleSettings,
-    }),
   },
 }
 
@@ -137,7 +121,6 @@ export const SaleFlowApi = {
   createSale,
   addPayment,
   setDebtDeadline,
-  updateSaleSettings,
 }
 
 export const saleApi = {

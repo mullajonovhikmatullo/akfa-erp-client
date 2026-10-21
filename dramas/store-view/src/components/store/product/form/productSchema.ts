@@ -26,6 +26,11 @@ export const createProductSchema = (t: StoreTranslator) => {
       costPriceUsd: priceField.optional(),
       retailPriceUsd: priceField.optional(),
       wholesalePriceUsd: priceField.optional(),
+      discountPercent: z
+        .number({ error: t('validation.discountRange') })
+        .min(0, t('validation.discountRange'))
+        .max(100, t('validation.discountRange'))
+        .multipleOf(0.01),
       isActive: z.boolean().optional(),
     })
     .superRefine((data, context) => {

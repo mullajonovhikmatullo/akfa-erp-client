@@ -6,9 +6,6 @@ import { Button, Radio } from 'antd'
 import { useStoreT, type StoreLocale } from '@store/store-i18n'
 import type { Currency } from '@store/store-stub'
 import { ExchangeRateModal, useExchangeRateSummary } from '../exchange-rate'
-import { useSaleMutation } from '../sale/hooks/useSaleMutation'
-import { useSaleSettings } from '../sale/hooks/useSaleSettings'
-import { SaleSettingsCard } from './view/SaleSettingsCard'
 import { SectionTitle } from './view/SectionTitle'
 import { ThemeChoice } from './view/ThemeChoice'
 
@@ -25,7 +22,6 @@ export interface SettingsPanelProps extends SettingsFormValues {
   onDisplayCurrencyChange: (currency: Currency) => void
   onLangChange: (lang: SettingsLang) => void
   onThemeChange: (theme: SettingsTheme) => void
-  canManageSaleSettings: boolean
 }
 
 export function SettingsPanel({
@@ -35,14 +31,11 @@ export function SettingsPanel({
   onDisplayCurrencyChange,
   onLangChange,
   onThemeChange,
-  canManageSaleSettings,
 }: SettingsPanelProps) {
   //
   const t = useStoreT()
   const { data: exchangeRate } = useExchangeRateSummary()
   const [exchangeRateOpen, setExchangeRateOpen] = useState(false)
-  const { data: saleSettings } = useSaleSettings()
-  const { updateSaleSettings } = useSaleMutation(t)
   const { control, reset } = useForm<SettingsFormValues>({
     defaultValues: {
       displayCurrency,
@@ -112,14 +105,6 @@ export function SettingsPanel({
             </div>
           </div>
         </div>
-
-        <SaleSettingsCard
-          t={t}
-          settings={saleSettings}
-          canManage={canManageSaleSettings}
-          saving={updateSaleSettings.isPending}
-          onSave={(settings) => updateSaleSettings.mutate(settings)}
-        />
 
         <div className="card">
           <SectionTitle>{t('settings.localization')}</SectionTitle>

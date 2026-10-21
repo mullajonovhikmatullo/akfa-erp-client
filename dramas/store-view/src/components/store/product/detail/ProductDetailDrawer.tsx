@@ -1,10 +1,13 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { Divider, Drawer, Skeleton } from 'antd'
+import { getDiscountedPriceUzs } from '@store/store-shared/lib/product-pricing'
 import { StatusBadge } from '@store/store-shared/ui/status-badge'
 import type { Product } from '@store/store-stub'
 import { ProductImageGallery } from '../images/ProductImageGallery'
 import { useProductDetail } from '../hooks/useProductDetail'
 import { useProductInventory } from '../hooks/useProductInventory'
+import { useProductDiscountHistoryList } from '../hooks/useProductDiscountHistoryList'
+import { DiscountHistory } from './view/DiscountHistory'
 import { PriceBox } from './view/PriceBox'
 import { SectionLabel } from './view/SectionLabel'
 
@@ -18,7 +21,9 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
   //
   const { data: inventory = [], isLoading: stockLoading } = useProductInventory(product?.id ?? null)
   const { data: productDetail, isLoading: detailLoading } = useProductDetail(product?.id ?? null)
+  const { data: discountHistory = [], isLoading: discountHistoryLoading } = useProductDiscountHistoryList(product?.id ?? null)
   const displayedProduct = productDetail ?? product
+  const discountFactor = 1 - (displayedProduct?.discountPercent ?? 0) / 100
 
   return (
     <Drawer rootClassName="ant-drawer-root detail-drawer--flush" title={null} open={Boolean(product)} onClose={onClose} width={540} closable={{ placement: 'end' }} destroyOnHidden>
@@ -29,6 +34,7 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
             productName={displayedProduct.name}
             t={t}
             loading={detailLoading}
+            discountPercent={displayedProduct.discountPercent}
           />
 
           <div className="u-border-b-default u-p-20-24">
@@ -46,6 +52,11 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
             <div className="u-flex u-flex-wrap u-gap-8 u-mt-8">
               {displayedProduct.category ? <StatusBadge tone="info">{displayedProduct.category.name}</StatusBadge> : null}
               <StatusBadge tone="muted">{t(`units.${displayedProduct.unit}`)}</StatusBadge>
+              {displayedProduct.discountPercent > 0 ? (
+                <StatusBadge tone="danger">
+                  {t('products.discountBadge', { percent: displayedProduct.discountPercent.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) })}
+                </StatusBadge>
+              ) : null}
               {displayedProduct.lowStockThreshold != null ? (
                 <StatusBadge tone="warning">
                   {t('products.drawerLowStockThreshold')}: {displayedProduct.lowStockThreshold.toLocaleString('uz-UZ', { maximumFractionDigits: 4 })} {t(`units.${displayedProduct.unit}`)}
@@ -70,20 +81,27 @@ export function ProductDetailDrawer({ t, product, onClose }: ProductDetailDrawer
                 <PriceBox label={t('products.drawerCostUzs')} amount={displayedProduct.costPriceUzs} currency="UZS" />
               ) : null}
               {displayedProduct.wholesalePriceUzs > 0 ? (
-                <PriceBox label={t('products.drawerWholesaleUzs')} amount={displayedProduct.wholesalePriceUzs} currency="UZS" />
+                <PriceBox label={t('products.drawerWholesaleUzs')} amount={displayedProduct.wholesalePriceUzs} currency="UZS" discountedAmount={getDiscountedPriceUzs(displayedProduct.wholesalePriceUzs, displayedProduct.discountPercent)} />
               ) : null}
               {displayedProduct.retailPriceUzs > 0 ? (
-                <PriceBox label={t('products.drawerRetailUzs')} amount={displayedProduct.retailPriceUzs} currency="UZS" />
+                <PriceBox label={t('products.drawerRetailUzs')} amount={displayedProduct.retailPriceUzs} currency="UZS" discountedAmount={getDiscountedPriceUzs(displayedProduct.retailPriceUzs, displayedProduct.discountPercent)} />
               ) : null}
               {displayedProduct.costPriceUsd != null ? (
                 <PriceBox label={t('products.drawerCostUsd')} amount={displayedProduct.costPriceUsd} currency="USD" />
               ) : null}
               {displayedProduct.wholesalePriceUsd != null ? (
-                <PriceBox label={t('products.drawerWholesaleUsd')} amount={displayedProduct.wholesalePriceUsd} currency="USD" />
+                <PriceBox label={t('products.drawerWholesaleUsd')} amount={displayedProduct.wholesalePriceUsd} currency="USD" discountedAmount={Number((displayedProduct.wholesalePriceUsd * discountFactor).toFixed(4))} />
               ) : null}
               {displayedProduct.retailPriceUsd != null ? (
-                <PriceBox label={t('products.drawerRetailUsd')} amount={displayedProduct.retailPriceUsd} currency="USD" />
+                <PriceBox label={t('products.drawerRetailUsd')} amount={displayedProduct.retailPriceUsd} currency="USD" discountedAmount={Number((displayedProduct.retailPriceUsd * discountFactor).toFixed(4))} />
               ) : null}
+            </div>
+
+            <Divider className="u-m-0-0-16" />
+
+            <SectionLabel>{t('products.discountHistorySection')}</SectionLabel>
+            <div className="u-mb-20">
+              <DiscountHistory t={t} changes={discountHistory} loading={discountHistoryLoading} />
             </div>
 
             <Divider className="u-m-0-0-16" />

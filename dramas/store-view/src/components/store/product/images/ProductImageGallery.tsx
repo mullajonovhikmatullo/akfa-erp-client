@@ -2,7 +2,7 @@ import { StoreIcon } from '@store/store-shared/ui/store-icon'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { ProductImage } from '@store/store-stub'
-import { AuthenticatedProductImage } from './AuthenticatedProductImage'
+import { AuthenticatedProductImage, ProductDiscountBadge } from './AuthenticatedProductImage'
 import type { Translate } from './image-utils'
 import { ProductImageSkeleton } from './ProductImageSkeleton'
 
@@ -11,6 +11,7 @@ interface ProductImageGalleryProps {
   productName: string
   t: Translate
   loading?: boolean
+  discountPercent?: number
 }
 
 const MAX_PRODUCT_IMAGES = 5
@@ -20,6 +21,7 @@ export function ProductImageGallery({
   productName,
   t,
   loading = false,
+  discountPercent = 0,
 }: ProductImageGalleryProps) {
   //
   const orderedImages = useMemo(
@@ -64,6 +66,7 @@ export function ProductImageGallery({
             {t('productImages.primary')}
           </div>
         ) : null}
+        {!loading && discountPercent > 0 ? <ProductDiscountBadge percent={discountPercent} large /> : null}
       </div>
 
       <div className="product-image-gallery__thumbnails">

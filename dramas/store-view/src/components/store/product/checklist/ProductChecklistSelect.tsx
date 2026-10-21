@@ -67,7 +67,7 @@ export function ProductChecklistSelect({
         return (
           <div className="product-checklist__option">
             <Checkbox checked={selectedIds.includes(product.id)} tabIndex={-1} className="product-checklist__check" />
-            <AuthenticatedProductImage url={product.primaryThumbnailUrl ?? product.primaryImageUrl} alt={product.name} width={34} height={34} />
+            <AuthenticatedProductImage url={product.primaryThumbnailUrl ?? product.primaryImageUrl} alt={product.name} width={34} height={34} discountPercent={product.discountPercent} />
             <div className="u-flex-auto u-min-w-0">
               <div className="u-fw-600">
                 <EllipsisText maxWidth="100%">{product.name}</EllipsisText>
