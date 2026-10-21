@@ -1,5 +1,5 @@
 export * from './detail/ProductDetailDrawer'
-export * from './form/ProductFormModal'
+export * from './form/ProductFormPanel'
 export * from './form/useProductForm'
 export * from './hooks/productKeys'
 export * from './hooks/useProductDetail'

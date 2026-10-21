@@ -8,6 +8,10 @@ export const ProductsPage = lazy(() =>
   import('@/pages/products/ProductsPage').then((m) => ({ default: m.ProductsPage })),
 );
 
+export const ProductFormPage = lazy(() =>
+  import('@/pages/products/ProductFormPage').then((m) => ({ default: m.ProductFormPage })),
+);
+
 export const CustomersPage = lazy(() =>
   import('@/pages/customers/CustomersPage').then((m) => ({ default: m.CustomersPage })),
 );

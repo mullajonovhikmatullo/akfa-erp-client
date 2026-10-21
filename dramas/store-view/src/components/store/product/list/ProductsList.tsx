@@ -10,7 +10,6 @@ import type { CreateProductPayload, Currency, Product, ProductUnit } from '@stor
 import { useCategoriesList } from '../../category/hooks/useCategoriesList'
 import { useStockBatchesList } from '../../inventory/hooks/useStockBatchesList'
 import { ProductDetailDrawer } from '../detail/ProductDetailDrawer'
-import { ProductFormModal } from '../form/ProductFormModal'
 import { useProductMutation } from '../hooks/useProductMutation'
 import { useProductSummary } from '../hooks/useProductSummary'
 import { useProductsPage } from '../hooks/useProductsPage'
@@ -36,9 +35,11 @@ interface ProductsListProps {
   isStoreOwner: boolean
   userBranchId?: string | null
   activeBranchId?: string
+  onCreateProduct: () => void
+  onEditProduct: (product: Product) => void
 }
 
-export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBranchId }: ProductsListProps) {
+export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBranchId, onCreateProduct, onEditProduct }: ProductsListProps) {
   //
   const t = useStoreT()
   const { control, watch } = useForm<ProductFiltersForm>({
@@ -52,7 +53,6 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
   })
   const filters = watch()
   const [drawerProduct, setDrawerProduct] = useState<Product | null>(null)
-  const [editProduct, setEditProduct] = useState<Product | null | undefined>(undefined)
   const isActiveFilter = filters.status === 'all' ? undefined : filters.status === 'active'
   const scopedBranchId = isStoreOwner
     ? activeBranchId && activeBranchId !== '__all__'
@@ -94,7 +94,7 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
     deletingId: deleteProduct.variables,
     isNewProduct: (product) => Boolean(stockBatches) && !stockedProductIds.has(product.id),
     onView: setDrawerProduct,
-    onEdit: setEditProduct,
+    onEdit: onEditProduct,
     onDelete: (id) => deleteProduct.mutate(id),
   })
   const productImportHints = [
@@ -131,7 +131,7 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
         <div className="u-flex u-gap-8">
           {canManage ? (
             <>
-              <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={() => setEditProduct(null)}>
+              <Button type="primary" icon={<StoreIcon name="plus" size={16} />} onClick={onCreateProduct}>
                 {t('products.newProduct')}
               </Button>
               <ExcelImportButton<CreateProductPayload>
@@ -297,14 +297,6 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
         />
       </div>
 
-      <ProductFormModal
-        t={t}
-        isStoreOwner={isStoreOwner}
-        open={editProduct !== undefined}
-        product={editProduct ?? null}
-        onSaved={handleRefresh}
-        onClose={() => setEditProduct(undefined)}
-      />
       <ProductDetailDrawer t={t} product={drawerProduct} onClose={() => setDrawerProduct(null)} />
     </>
   )
