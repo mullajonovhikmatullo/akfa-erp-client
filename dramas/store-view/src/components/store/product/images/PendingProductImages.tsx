@@ -113,11 +113,15 @@ export function PendingProductImages({
             if (file.uid === fileList[0]?.uid) addFiles([...fileList])
             return Upload.LIST_IGNORE
           }}
-          className="u-bg-surface-2 u-mt-10 u-p-4-8"
+          className="u-bg-surface-2 u-mt-10 product-image-dropzone"
         >
-          <StoreIcon name="upload" size={24} className="u-text-primary" />
-          <div className="u-fs-13 u-fw-600 u-mt-5">{t('productImages.add')}</div>
-          <div className="u-text-muted u-fs-11-5 u-mt-2">{t('productImages.hint')}</div>
+          <div className="product-image-dropzone__body">
+            <StoreIcon name="upload" size={22} className="u-text-primary" />
+            <div>
+              <div className="u-fs-13 u-fw-600">{t('productImages.add')}</div>
+              <div className="u-text-muted u-fs-11-5 u-mt-2">{t('productImages.hint')}</div>
+            </div>
+          </div>
         </Upload.Dragger>
       ) : null}
     </div>

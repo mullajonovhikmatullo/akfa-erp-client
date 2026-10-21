@@ -1,5 +1,5 @@
 import type { StoreTranslator } from '@store/store-i18n'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Product } from '@store/store-stub'
@@ -119,11 +119,16 @@ export function useProductForm({
     onImageChangesChange,
   })
 
+  const productRef = useRef(product)
+  productRef.current = product
+  const resetKey = open ? (product?.id ?? 'new') : null
+
   useEffect(() => {
     //
-    if (!open) return
-    form.reset(product ? getProductFormValues(product) : emptyValues)
-  }, [form, open, product])
+    if (!resetKey) return
+    const current = productRef.current
+    form.reset(current ? getProductFormValues(current) : emptyValues)
+  }, [form, resetKey])
 
   const resetFlow = useCallback(() => {
     //

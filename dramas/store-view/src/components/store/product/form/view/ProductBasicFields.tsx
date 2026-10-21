@@ -96,47 +96,64 @@ export function ProductBasicFields({
         />
       </div>
 
-      <Controller
-        name="lowStockThreshold"
-        control={control}
-        render={({ field }) => (
-          <Form.Item label={t('productForm.lowStockThreshold')} extra={t('productForm.lowStockThresholdNote')}>
-            <InputNumber
-              value={field.value ?? undefined}
-              min={0}
-              step={unit === 'KG' ? 0.1 : 1}
-              precision={unit === 'KG' ? 4 : 0}
-              onChange={(value) => field.onChange(value ?? undefined)}
-              className="u-w-220"
-              addonAfter={t(`units.${unit}`)}
-              placeholder="—"
-            />
-          </Form.Item>
-        )}
-      />
-
-      {!isEdit && isStoreOwner ? (
+      <div className="u-grid u-gap-12 u-grid-cols-2">
         <Controller
-          name="branchId"
+          name="lowStockThreshold"
           control={control}
           render={({ field }) => (
-            <Form.Item
-              label={t('productForm.labelBranch')}
-              required
-              validateStatus={errors.branchId ? 'error' : undefined}
-              help={errors.branchId?.message}
-            >
-              <Select
-                {...field}
-                loading={branchesLoading}
-                notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
-                options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
-                placeholder={t('productForm.placeholderBranch')}
+            <Form.Item label={t('productForm.lowStockThreshold')} tooltip={t('productForm.lowStockThresholdNote')}>
+              <InputNumber
+                value={field.value ?? undefined}
+                min={0}
+                step={unit === 'KG' ? 0.1 : 1}
+                precision={unit === 'KG' ? 4 : 0}
+                onChange={(value) => field.onChange(value ?? undefined)}
+                className="u-w-full"
+                addonAfter={t(`units.${unit}`)}
+                placeholder="—"
               />
             </Form.Item>
           )}
         />
-      ) : null}
+        {!isEdit && isStoreOwner ? (
+          <Controller
+            name="branchId"
+            control={control}
+            render={({ field }) => (
+              <Form.Item
+                label={t('productForm.labelBranch')}
+                required
+                validateStatus={errors.branchId ? 'error' : undefined}
+                help={errors.branchId?.message}
+              >
+                <Select
+                  {...field}
+                  loading={branchesLoading}
+                  notFoundContent={branchesLoading ? <SelectLoadingContent /> : undefined}
+                  options={branches.map((branch) => ({ value: branch.id, label: branch.name }))}
+                  placeholder={t('productForm.placeholderBranch')}
+                />
+              </Form.Item>
+            )}
+          />
+        ) : null}
+        {isEdit ? (
+          <Controller
+            name="isActive"
+            control={control}
+            render={({ field }) => (
+              <Form.Item label={t('common.status')}>
+                <Switch
+                  checked={field.value}
+                  onChange={field.onChange}
+                  checkedChildren={t('common.active')}
+                  unCheckedChildren={t('common.inactive')}
+                />
+              </Form.Item>
+            )}
+          />
+        ) : null}
+      </div>
 
       <Controller
         name="description"
@@ -146,7 +163,7 @@ export function ProductBasicFields({
             <Input.TextArea
               {...field}
               {...blockAutofill('store-product-description')}
-              rows={2}
+              rows={3}
               maxLength={500}
               showCount={{ formatter: ({ count, maxLength }) => `${count}/${maxLength ?? ''}` }}
               placeholder={t('productForm.placeholderDescription')}
@@ -154,23 +171,6 @@ export function ProductBasicFields({
           </Form.Item>
         )}
       />
-
-      {isEdit ? (
-        <Controller
-          name="isActive"
-          control={control}
-          render={({ field }) => (
-            <Form.Item label={t('common.status')}>
-              <Switch
-                checked={field.value}
-                onChange={field.onChange}
-                checkedChildren={t('common.active')}
-                unCheckedChildren={t('common.inactive')}
-              />
-            </Form.Item>
-          )}
-        />
-      ) : null}
     </>
   )
 }
