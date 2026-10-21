@@ -36,12 +36,12 @@ export function ProductPricingFields({
   //
   const discountedPrices = currency === 'UZS'
     ? [
-        { key: 'wholesale', label: t('productForm.labelWholesaleUzs'), amount: getDiscountedPriceUzs(wholesaleUzs ?? 0, discountPercent), currency: 'UZS' as const },
-        { key: 'retail', label: t('productForm.labelRetailUzs'), amount: getDiscountedPriceUzs(retailUzs ?? 0, discountPercent), currency: 'UZS' as const },
+        { key: 'wholesale', label: t('products.colWholesale'), amount: getDiscountedPriceUzs(wholesaleUzs ?? 0, discountPercent), currency: 'UZS' as const },
+        { key: 'retail', label: t('products.colRetail'), amount: getDiscountedPriceUzs(retailUzs ?? 0, discountPercent), currency: 'UZS' as const },
       ]
     : [
-        { key: 'wholesale', label: t('productForm.labelWholesaleUsd'), amount: Number(((wholesaleUsd ?? 0) * (1 - discountPercent / 100)).toFixed(4)), currency: 'USD' as const },
-        { key: 'retail', label: t('productForm.labelRetailUsd'), amount: Number(((retailUsd ?? 0) * (1 - discountPercent / 100)).toFixed(4)), currency: 'USD' as const },
+        { key: 'wholesale', label: t('products.colWholesale'), amount: Number(((wholesaleUsd ?? 0) * (1 - discountPercent / 100)).toFixed(4)), currency: 'USD' as const },
+        { key: 'retail', label: t('products.colRetail'), amount: Number(((retailUsd ?? 0) * (1 - discountPercent / 100)).toFixed(4)), currency: 'USD' as const },
       ]
 
   return (
@@ -163,7 +163,7 @@ export function ProductPricingFields({
           name="discountPercent"
           control={control}
           render={({ field }) => (
-            <Form.Item label={t('productForm.labelDiscount')} extra={t('productForm.discountHint')} validateStatus={errors.discountPercent ? 'error' : undefined} help={errors.discountPercent?.message}>
+            <Form.Item label={t('productForm.labelDiscount')} tooltip={t('productForm.discountHint')} validateStatus={errors.discountPercent ? 'error' : undefined} help={errors.discountPercent?.message}>
               <InputNumber<number>
                 value={field.value}
                 onChange={(value) => field.onChange(value ?? 0)}
@@ -179,7 +179,7 @@ export function ProductPricingFields({
           )}
         />
         {discountPercent > 0 ? discountedPrices.map((price) => (
-          <Form.Item key={price.key} label={`${price.label} · ${t('productForm.afterDiscount')}`}>
+          <Form.Item key={price.key} label={`${price.label} · −${discountPercent.toLocaleString('ru-RU', { maximumFractionDigits: 2 })}%`}>
             <div className="num u-fs-16 u-fw-700 u-text-success">
               <MoneyDisplay amount={price.amount} currency={price.currency} noConvert />
             </div>

@@ -56,7 +56,7 @@ export function ProductImagesSection({
   }
 
   return (
-    <section className="u-border-t-default u-mt-6 u-pt-16">
+    <section>
       <div className="u-items-baseline u-flex u-gap-12 u-justify-between u-mb-10">
         <div className="u-fs-13 u-fw-700">{t('productImages.title')}</div>
         <span className="u-text-muted u-fs-11-5 u-numeric-tabular">

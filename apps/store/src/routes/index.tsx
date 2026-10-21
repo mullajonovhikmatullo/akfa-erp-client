@@ -9,6 +9,7 @@ import { ROUTES } from '@/shared/config/routes';
 import {
   DashboardPage,
   ProductsPage,
+  ProductFormPage,
   CustomersPage,
   CustomerDetailPage,
   PurchaseDetailPage,
@@ -76,6 +77,10 @@ export function AppRouter() {
               </Route>
               <Route element={<RoleRoute permission="admin:create" />}>
                 <Route path={ROUTES.ADMINS} element={<AdminsPage />} />
+              </Route>
+              <Route element={<RoleRoute permission="products:create" redirectTo={ROUTES.PRODUCTS} />}>
+                <Route path={ROUTES.PRODUCT_NEW} element={<ProductFormPage />} />
+                <Route path={ROUTES.PRODUCT_EDIT} element={<ProductFormPage />} />
               </Route>
               <Route element={<RoleRoute permission="category:manage" />}>
                 <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
