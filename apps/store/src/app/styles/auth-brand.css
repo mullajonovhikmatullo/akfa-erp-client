@@ -383,7 +383,7 @@
   outline:0;
   background:transparent;
   color:#101b38;
-  font:500 14px/1.4 "Inter Tight",system-ui,sans-serif;
+  font:500 14px/1.4 "Manrope",system-ui,sans-serif;
 }
 .mavion-field__control:has(input:-webkit-autofill),
 .mavion-field__control:has(input:autofill){
@@ -587,7 +587,7 @@
 .mavion-google-link p{margin:6px 0}
 .mavion-google-link button:disabled{opacity:.55;cursor:not-allowed}
 .mavion-google-signin__status button:focus-visible,.mavion-google-link button:focus-visible{outline:3px solid rgba(4,118,208,.2);outline-offset:3px;border-radius:3px}
-html.dark .mavion-login{color:#091735}
+html.dark .mavion-login{color:#18181a}
 
 @media (max-width:1360px){
   .mavion-login__showcase{padding-inline:4.5vw}

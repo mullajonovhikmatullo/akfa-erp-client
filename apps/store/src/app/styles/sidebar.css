@@ -405,52 +405,52 @@
 html.dark {
   color-scheme: dark;
 
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface-2: #243047;
-  --border: #334155;
-  --border-strong: #475569;
-  --ink: #f1f5f9;
-  --ink-1: #f1f5f9;
-  --ink-2: #e2e8f0;
-  --ink-3: #94a3b8;
-  --ink-4: #64748b;
-  --primary: #28a9f4;
-  --primary-2: #52b8f7;
-  --primary-soft: rgba(40,169,244,.15);
+  --bg: #09090a;
+  --surface: #101011;
+  --surface-2: #161618;
+  --border: rgba(255,255,255,.08);
+  --border-strong: rgba(255,255,255,.14);
+  --ink: #f5f5f6;
+  --ink-1: #f5f5f6;
+  --ink-2: #e4e4e7;
+  --ink-3: #a2a2a9;
+  --ink-4: #71717a;
+  --primary: #3aaaf0;
+  --primary-2: #5cb9f3;
+  --primary-soft: rgba(58,170,240,.14);
   --success: #22c55e;
   --warning: #f59e0b;
-  --danger: #ef4444;
-  --metallic: #64748b;
-  --steel: #94a3b8;
+  --danger: #f05252;
+  --metallic: #71717a;
+  --steel: #a2a2a9;
   --grid: rgba(255,255,255,.03);
 }
 
 
 html.dark .sb-root {
-  --sb-bg:            #1e293b;
-  --sb-bg-2:          #243047;
-  --sb-hover:         rgba(70,105,133,.1);
-  --sb-active-bg:     rgba(28,112,167,.2);
-  --sb-active-ring:   rgba(83,174,229,.18);
-  --sb-icon-bg:       rgba(112,157,194,.08);
-  --sb-icon-active:   rgba(40,169,244,.12);
-  --sb-text:          #cbd5e1;
-  --sb-text-dim:      #64748b;
-  --sb-text-active:   #f1f5f9;
-  --sb-text-header:   #475569;
-  --sb-divider:       #334155;
+  --sb-bg:            #0d0d0e;
+  --sb-bg-2:          #121213;
+  --sb-hover:         rgba(255,255,255,.045);
+  --sb-active-bg:     rgba(58,170,240,.12);
+  --sb-active-ring:   rgba(58,170,240,.18);
+  --sb-icon-bg:       rgba(255,255,255,.05);
+  --sb-icon-active:   rgba(58,170,240,.14);
+  --sb-text:          #d4d4d8;
+  --sb-text-dim:      #71717a;
+  --sb-text-active:   #fafafa;
+  --sb-text-header:   #424248;
+  --sb-divider:       rgba(255,255,255,.07);
 }
 
-html.dark .sb-brand__name { color: #f1f5f9; }
+html.dark .sb-brand__name { color: #f5f5f5; }
 html.dark .sb-brand__sub  { color: #28a9f4; }
-html.dark .sb-item:hover  { color: #f1f5f9; }
+html.dark .sb-item:hover  { color: #f5f5f5; }
 html.dark .sb-item--active{
-  background:linear-gradient(135deg,var(--sb-active-bg),rgba(21,52,77,.28)) !important;
+  background:var(--sb-active-bg) !important;
   box-shadow:inset 0 0 0 1px var(--sb-active-ring),0 9px 22px -18px rgba(0,0,0,.88);
 }
-html.dark .sb-item__icon{color:#8294a8}
-html.dark .sb-item:hover .sb-item__icon{color:#a9cbe0}
+html.dark .sb-item__icon{color:#919199}
+html.dark .sb-item:hover .sb-item__icon{color:#c2c2c7}
 html.dark .sb-item--active .sb-item__icon{
   color:#61c1f7;
   box-shadow:inset 0 0 0 1px rgba(97,193,247,.08);
@@ -468,7 +468,7 @@ html.dark .topbar .profile-trigger:hover {
 
 
 html.dark .ant-table-thead > tr > th {
-  background: #1a2236 !important;
+  background: #1f1f21 !important;
   color: var(--ink-3) !important;
   border-bottom-color: var(--border) !important;
 }
@@ -476,7 +476,7 @@ html.dark .ant-table-tbody > tr > td {
   border-bottom-color: var(--border) !important;
 }
 html.dark .ant-table-tbody > tr:hover > td {
-  background: rgba(40,169,244,.06) !important;
+  background: rgba(255,255,255,.035) !important;
 }
 html.dark .ant-table-tbody > tr:last-child > td { border-bottom: none !important; }
 
@@ -490,6 +490,7 @@ html.dark .tagpill.success { background: rgba(34,197,94,.1); color: #4ade80; bor
 html.dark .tagpill.danger  { background: rgba(239,68,68,.1); color: #f87171; border-color: rgba(239,68,68,.25); }
 html.dark .tagpill.warn,
 html.dark .tagpill.warning { background: rgba(245,158,11,.1); color: #fbbf24; border-color: rgba(245,158,11,.25); }
+html.dark .tagpill.muted   { background: rgba(255,255,255,.05); color: var(--ink-3); border-color: var(--border); }
 html.dark .tagpill.info    { background: rgba(40,169,244,.1); color: #8ed5ff; border-color: rgba(40,169,244,.26); }
 
 
@@ -528,6 +529,6 @@ html.dark .sidebar-toggle:hover {
 }
 
 
-html.dark ::-webkit-scrollbar-thumb { background: #334155; }
-html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
-html.dark .sb-nav::-webkit-scrollbar-thumb { background: #334155; }
+html.dark ::-webkit-scrollbar-thumb { background: #343439; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #444449; }
+html.dark .sb-nav::-webkit-scrollbar-thumb { background: #343439; }
