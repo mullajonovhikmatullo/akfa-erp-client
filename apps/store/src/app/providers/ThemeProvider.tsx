@@ -9,6 +9,7 @@ import 'dayjs/locale/uz-latn'
 import { useUIStore } from '@/app/stores/ui.store'
 import { ANTD_LOCALES } from './theme/antdLocales'
 import { createAntdTheme } from './theme/antdTheme'
+import { runThemeTransition } from './theme/runThemeTransition'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   //
@@ -34,7 +35,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     //
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (event: MediaQueryListEvent) => setSystemIsDark(event.matches)
+    const handleChange = (event: MediaQueryListEvent) => runThemeTransition(() => setSystemIsDark(event.matches))
     setSystemIsDark(mediaQuery.matches)
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import type { StoreLocale } from '@store/store-i18n';
 import type { Currency } from '@store/store-stub';
+import { runThemeTransition } from '@/app/providers/theme/runThemeTransition';
 
 type Density = 'compact' | 'default' | 'spacious';
 export type Theme = 'light' | 'dark' | 'system';
@@ -47,7 +48,7 @@ export const useUIStore = create<UIStore>()(
 
         setActiveBranch: (id) => set({ activeBranchId: id }, false, 'ui/setActiveBranch'),
         setLang: (lang) => set({ lang }, false, 'ui/setLang'),
-        setTheme: (theme) => set({ theme }, false, 'ui/setTheme'),
+        setTheme: (theme) => runThemeTransition(() => set({ theme }, false, 'ui/setTheme')),
         setDensity: (density) => set({ density }, false, 'ui/setDensity'),
         toggleSidebar: () =>
           set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed }), false, 'ui/toggleSidebar'),
