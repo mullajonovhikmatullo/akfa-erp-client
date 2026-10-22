@@ -65,7 +65,7 @@ export function MavionLogo({
           className="mavion-logo__wordmark"
           style={{
             color: 'currentColor',
-            fontFamily: '"Inter Tight", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
+            fontFamily: '"Inter Tight", Manrope, Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
             fontSize: wordmarkSize,
             fontWeight: 700,
             letterSpacing: '-0.03em',

@@ -27,17 +27,17 @@
   overflow-x:hidden;
   background:var(--auth-bg);
   color:var(--auth-ink);
-  font-family:"Inter Tight","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 html.dark .mavion-auth{
-  --auth-bg:#0a111e;
-  --auth-surface:#101a2b;
-  --auth-surface-2:#152236;
-  --auth-ink:#e9eef6;
-  --auth-ink-2:#c4cedc;
-  --auth-muted:#98a5b8;
-  --auth-border:#22314b;
-  --auth-border-strong:#2f405f;
+  --auth-bg:#0f0f11;
+  --auth-surface:#171719;
+  --auth-surface-2:#1d1d1f;
+  --auth-ink:#efeff0;
+  --auth-ink-2:#ceced2;
+  --auth-muted:#a5a5ab;
+  --auth-border:#2a2a2d;
+  --auth-border-strong:#37373b;
   --auth-brand-ink:#5cb8f5;
   --auth-brand-soft:rgb(21 153 232 / .14);
   --auth-red:#f87171;
@@ -69,7 +69,7 @@ html.dark .mavion-auth{
   margin:0 auto;
   padding:0 16px;
 }
-html.dark .mavion-auth .mavion-brand__asset-wordmark{background:#e9eef6}
+html.dark .mavion-auth .mavion-brand__asset-wordmark{background:#efeff0}
 .mavion-auth__language{
   display:inline-flex;
   height:40px;

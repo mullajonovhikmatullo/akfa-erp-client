@@ -26,6 +26,13 @@ export function useHeaderBranchSelection(branches: Branch[]) {
     reset({ activeBranchId: branchSelectValue })
   }, [branchSelectValue, reset])
 
+  useEffect(() => {
+    //
+    if (isStoreOwner && branches.length > 0 && activeBranchId !== '__all__' && !activeBranch) {
+      setActiveBranch('__all__')
+    }
+  }, [activeBranch, activeBranchId, branches.length, isStoreOwner, setActiveBranch])
+
   return {
     activeBranch,
     control,

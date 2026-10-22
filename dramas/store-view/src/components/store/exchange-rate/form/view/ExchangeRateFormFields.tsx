@@ -10,6 +10,7 @@ interface ExchangeRateFormFieldsProps {
   control: Control<ExchangeRateFormValues>
   current?: ExchangeRate
   mode: ExchangeRateFormValues['mode']
+  isChanged: boolean
   hasCbuRate: boolean
   minRate: number
 }
@@ -19,7 +20,7 @@ function formatRate(rate: number) {
   return rate.toLocaleString('ru-RU', { maximumFractionDigits: 2 }).replace(/,(?=\d{3})/g, ' ')
 }
 
-export function ExchangeRateFormFields({ t, control, current, mode, hasCbuRate, minRate }: ExchangeRateFormFieldsProps) {
+export function ExchangeRateFormFields({ t, control, current, mode, isChanged, hasCbuRate, minRate }: ExchangeRateFormFieldsProps) {
   //
   return (
     <Form layout="vertical" component="div" className="u-mt-4">
@@ -63,15 +64,17 @@ export function ExchangeRateFormFields({ t, control, current, mode, hasCbuRate, 
           />
         </Form.Item>
       ) : null}
-      <Form.Item label={t('exchangeRate.ownerPassword')} extra={t('exchangeRate.ownerPasswordHint')}>
-        <Controller
-          name="ownerPassword"
-          control={control}
-          render={({ field }) => (
-            <Input.Password value={field.value} onChange={field.onChange} autoComplete="off" name="store-owner-password" />
-          )}
-        />
-      </Form.Item>
+      {isChanged ? (
+        <Form.Item label={t('exchangeRate.ownerPassword')} extra={t('exchangeRate.ownerPasswordHint')}>
+          <Controller
+            name="ownerPassword"
+            control={control}
+            render={({ field }) => (
+              <Input.Password value={field.value} onChange={field.onChange} autoComplete="off" name="store-owner-password" />
+            )}
+          />
+        </Form.Item>
+      ) : null}
       {current?.changedAt && current.changedBy ? (
         <div className="u-text-muted u-fs-12">
           {t('exchangeRate.lastChanged', { name: current.changedBy.fullName, date: formatDateTime(current.changedAt) })}

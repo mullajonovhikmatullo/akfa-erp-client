@@ -5,7 +5,7 @@ const { darkAlgorithm, defaultAlgorithm } = antdTheme
 const BASE_TOKENS = {
   borderRadius: 8,
   borderRadiusLG: 12,
-  fontFamily: "'Inter Tight', system-ui, sans-serif",
+  fontFamily: "'Manrope', system-ui, sans-serif",
   fontSize: 13,
   fontSizeSM: 11,
   fontSizeLG: 14,
@@ -36,13 +36,15 @@ const LIGHT_TOKENS = {
 
 const DARK_TOKENS = {
   ...BASE_TOKENS,
-  colorPrimary: '#28A9F4',
-  colorInfo: '#28A9F4',
-  colorBorder: '#334155',
-  colorBorderSecondary: '#243047',
-  colorBgBase: '#0f172a',
-  colorBgContainer: '#1e293b',
-  colorTextBase: '#f1f5f9',
+  colorPrimary: '#3aaaf0',
+  colorInfo: '#3aaaf0',
+  colorBorder: '#2a2a2e',
+  colorBorderSecondary: '#1f1f23',
+  colorBgBase: '#0b0b0c',
+  colorBgContainer: '#141416',
+  colorBgElevated: '#1b1b1e',
+  colorBgLayout: '#0b0b0c',
+  colorTextBase: '#f5f5f6',
 }
 
 const SHARED_COMPONENTS = {
@@ -70,10 +72,10 @@ export function createAntdTheme(isDark: boolean): ThemeConfig {
     components: {
       ...SHARED_COMPONENTS,
       Table: {
-        headerBg: isDark ? '#1a2236' : '#f3f5f9',
-        headerColor: isDark ? '#94a3b8' : '#475569',
-        rowHoverBg: isDark ? 'rgba(40,169,244,.07)' : 'rgba(4,118,208,.035)',
-        borderColor: isDark ? '#334155' : '#e6e9ef',
+        headerBg: isDark ? '#1b1b1e' : '#f3f5f9',
+        headerColor: isDark ? '#a1a1aa' : '#475569',
+        rowHoverBg: isDark ? 'rgba(255,255,255,.035)' : 'rgba(4,118,208,.035)',
+        borderColor: isDark ? '#26262a' : '#e6e9ef',
         cellFontSize: 12,
         cellFontSizeMD: 12,
         cellFontSizeSM: 12,
@@ -87,8 +89,8 @@ export function createAntdTheme(isDark: boolean): ThemeConfig {
       },
       Menu: {
         itemBg: 'transparent',
-        itemSelectedBg: isDark ? 'rgba(40,169,244,.13)' : 'rgba(4,118,208,.08)',
-        itemSelectedColor: isDark ? '#28A9F4' : '#0476D0',
+        itemSelectedBg: isDark ? 'rgba(58,170,240,.12)' : 'rgba(4,118,208,.08)',
+        itemSelectedColor: isDark ? '#3aaaf0' : '#0476D0',
         itemHoverBg: isDark ? 'rgba(255,255,255,.05)' : 'rgba(15,23,42,.04)',
       },
     },

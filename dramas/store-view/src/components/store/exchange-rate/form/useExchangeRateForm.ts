@@ -42,7 +42,11 @@ export function useExchangeRateForm({ t, open, current, onClose }: UseExchangeRa
   }, [current, open, reset])
 
   const hasCbuRate = Boolean(current?.cbu)
+  const isChanged = !current
+    || mode !== current.mode
+    || (mode === 'MANUAL' && rate !== current.manualRate)
   const canSubmit =
+    isChanged &&
     ownerPassword.length > 0 &&
     (mode === 'CBU' ? hasCbuRate : rate != null && rate >= MIN_RATE)
 
@@ -57,6 +61,7 @@ export function useExchangeRateForm({ t, open, current, onClose }: UseExchangeRa
   return {
     control,
     mode,
+    isChanged,
     hasCbuRate,
     minRate: MIN_RATE,
     canSubmit,
