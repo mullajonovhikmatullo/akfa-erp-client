@@ -10,14 +10,12 @@
   padding: 13px 42px 13px 14px !important;
   border: 1px solid color-mix(in srgb, var(--border) 76%, transparent) !important;
   border-radius: 16px !important;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--surface) 94%, transparent), color-mix(in srgb, var(--surface-2) 88%, transparent)) !important;
+  background: var(--surface) !important;
   color: var(--ink-1, var(--ink)) !important;
   box-shadow:
     0 18px 48px rgba(15, 23, 42, 0.14),
     0 4px 14px rgba(15, 23, 42, 0.08),
     inset 0 1px 0 color-mix(in srgb, #fff 62%, transparent) !important;
-  backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
 }
 
@@ -81,9 +79,8 @@
 }
 
 .dark [data-sonner-toast].mavion-toast {
-  border-color: rgba(96, 165, 250, 0.16) !important;
-  background:
-    linear-gradient(135deg, rgba(25, 39, 61, 0.94), rgba(14, 26, 44, 0.91)) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: #1b1b1e !important;
   box-shadow:
     0 22px 58px rgba(0, 0, 0, 0.42),
     0 5px 18px rgba(0, 0, 0, 0.24),
@@ -122,7 +119,7 @@
 .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
 .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
   border-color: #f0c76d !important;
-  background: linear-gradient(135deg,#9b6518 0%,#d69b32 42%,#f2cd79 72%,#b8791f 100%) !important;
+  background: #d69b32 !important;
   color: #1f1608 !important;
 }
 
@@ -130,6 +127,6 @@ html.dark .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled)
 html.dark .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover,
 html.dark .app-shell .branch-limit-upgrade-button.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):active {
   border-color: #e6b85d !important;
-  background: linear-gradient(135deg,#8e5a13 0%,#c48b27 42%,#e3b956 72%,#a96b18 100%) !important;
+  background: #c48b27 !important;
   color: #1f1608 !important;
 }

@@ -2,17 +2,6 @@
   position:relative;
   overflow:hidden;
 }
-.settings-appearance-card::after{
-  content:"";
-  position:absolute;
-  right:-45px;
-  bottom:-55px;
-  width:150px;
-  height:150px;
-  border-radius:50%;
-  background:radial-gradient(circle, var(--primary-soft), transparent 68%);
-  pointer-events:none;
-}
 .settings-theme-field{
   position:relative;
   z-index:1;
