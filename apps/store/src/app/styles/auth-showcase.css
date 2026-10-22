@@ -75,7 +75,7 @@
   background:#f8fbfe;
   color:var(--mavion-blue);
   cursor:pointer;
-  font:650 12px/1.2 "Inter Tight",system-ui,sans-serif;
+  font:650 12px/1.2 "Manrope",system-ui,sans-serif;
   transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
 }
 .mavion-login__language-selector:hover{

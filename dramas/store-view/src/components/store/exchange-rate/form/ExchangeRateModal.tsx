@@ -31,6 +31,7 @@ export function ExchangeRateModal({ t, open, current, onClose }: ExchangeRateMod
         control={rateForm.control}
         current={current}
         mode={rateForm.mode}
+        isChanged={rateForm.isChanged}
         hasCbuRate={rateForm.hasCbuRate}
         minRate={rateForm.minRate}
       />

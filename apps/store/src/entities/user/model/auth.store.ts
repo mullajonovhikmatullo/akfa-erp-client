@@ -6,6 +6,11 @@ import { can, type Permission } from '@/shared/config/permissions';
 import { queryClient } from '@/app/providers/query/queryClient';
 import { useUIStore } from '@/app/stores/ui.store';
 
+function defaultBranchFor(user: User | null) {
+  //
+  return user?.role === 'store_owner' && user.branchId ? user.branchId : '__all__';
+}
+
 interface AuthState {
   user: User | null;
   isHydrated: boolean;
@@ -34,7 +39,7 @@ export const useAuthStore = create<AuthStore>()(
           //
           void queryClient.cancelQueries();
           queryClient.clear();
-          useUIStore.getState().setActiveBranch('__all__');
+          useUIStore.getState().setActiveBranch(defaultBranchFor(user));
           tokenStore.set(accessToken);
           set({ user, isHydrated: true, sessionVersion: get().sessionVersion + 1 }, false, 'auth/login');
         },
@@ -66,7 +71,9 @@ export const useAuthStore = create<AuthStore>()(
         partialize: (state) => ({ user: state.user }),
         onRehydrateStorage: () => (state) => {
           //
-          if (state) state.isHydrated = true;
+          if (!state) return;
+          state.isHydrated = true;
+          useUIStore.getState().setActiveBranch(defaultBranchFor(state.user));
         },
       },
     ),
