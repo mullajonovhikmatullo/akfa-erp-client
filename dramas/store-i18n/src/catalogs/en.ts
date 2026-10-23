@@ -384,6 +384,8 @@ export const enTranslations = {
   'categories.descriptionMaxLength': 'Description cannot exceed 500 characters',
   'categories.namePlaceholder': 'e.g. Glass Panels',
   'categories.descPlaceholder': 'Brief description',
+  'categories.descriptionExpand': 'Show full description',
+  'categories.descriptionCollapse': 'Collapse description',
   'categories.parseErrorName': 'Name is required',
   'dashboard.title': 'Dashboard',
   'dashboard.welcome': 'Welcome',

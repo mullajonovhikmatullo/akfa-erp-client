@@ -385,6 +385,8 @@ export const uzLatnTranslations = {
   'categories.descriptionMaxLength': 'Tavsif 500 ta belgidan oshmasligi kerak',
   'categories.namePlaceholder': 'Masalan: Shisha panellar',
   'categories.descPlaceholder': 'Qisqacha tasnif',
+  'categories.descriptionExpand': "Tasnifni to'liq ko'rsatish",
+  'categories.descriptionCollapse': "Tasnifni yig'ish",
   'categories.parseErrorName': 'Nomi kiritilmagan',
   'dashboard.title': 'Boshqaruv paneli',
   'dashboard.welcome': 'Xush kelibsiz',
