@@ -48,7 +48,8 @@ export function StockInModal({ t, open, onClose, isStoreOwner, userBranchId, exc
         productsLoading={stockInForm.productsLoading}
         selectedProductIds={stockInForm.selectedProductIds}
         cart={stockInForm.cart}
-        totalCost={stockInForm.totalCost}
+        totals={stockInForm.totals}
+        rateMissing={stockInForm.rateMissing}
         onAddProduct={stockInForm.addProduct}
         onRemoveProduct={stockInForm.removeProduct}
         onChangeQty={stockInForm.changeQty}
