@@ -1,6 +1,6 @@
 import type { StoreTranslator } from '@store/store-i18n'
 import { Controller, type Control } from 'react-hook-form'
-import { Empty, Select, Table } from 'antd'
+import { Alert, Empty, Select, Table } from 'antd'
 
 import { MoneyDisplay } from '@store/store-shared/ui/money-display'
 import { SelectLoadingContent } from '@store/store-shared/ui/select-loading-content'
@@ -8,7 +8,7 @@ import type { Branch, Product } from '@store/store-stub'
 import { ProductChecklistSelect } from '../../../product/checklist/ProductChecklistSelect'
 import { Label } from './Label'
 import { createStockInColumns } from './stockInColumns'
-import type { StockInCartItem, StockInFormValues } from './types'
+import type { StockInCartItem, StockInFormValues, StockInTotals } from './types'
 
 interface StockInFormViewProps {
   t: StoreTranslator
@@ -20,7 +20,8 @@ interface StockInFormViewProps {
   productsLoading: boolean
   selectedProductIds: Set<string>
   cart: StockInCartItem[]
-  totalCost: number
+  totals: StockInTotals
+  rateMissing: boolean
   onAddProduct: (productId: string) => void
   onRemoveProduct: (productId: string) => void
   onChangeQty: (key: string, delta: number) => void
@@ -39,7 +40,8 @@ export function StockInFormView({
   productsLoading,
   selectedProductIds,
   cart,
-  totalCost,
+  totals,
+  rateMissing,
   onAddProduct,
   onRemoveProduct,
   onChangeQty,
@@ -93,14 +95,25 @@ export function StockInFormView({
             pagination={false}
             rowKey="_key"
             dataSource={cart}
-            scroll={{ x: 1060 }}
+            scroll={{ x: 1100 }}
             columns={createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem, onRemoveItem })}
           />
-          <div className="u-items-center u-flex u-fs-13 u-gap-8 u-justify-end u-pr-32">
+          {rateMissing ? <Alert type="warning" showIcon message={t('apiErrors.exchangeRateUnavailable')} /> : null}
+          <div className="u-items-center u-flex u-flex-wrap u-fs-13 u-gap-16 u-justify-end u-pr-32">
             <span className="u-text-muted u-fs-11 u-flex-auto">{t('stockIn.pricesHint')}</span>
-            <span className="u-text-muted u-mr-8">{t('stockIn.totalCostLabel')}</span>
-            <span className="num u-inline-block u-fw-700 u-max-w-180 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
-              <MoneyDisplay amount={totalCost} currency="UZS" compact />
+            <span className="u-whitespace-nowrap">
+              <span className="u-text-muted u-mr-8">{t('stockIn.totalUzsLabel')}</span>
+              <span className="u-fw-600"><MoneyDisplay amount={totals.uzs} currency="UZS" /></span>
+            </span>
+            <span className="u-whitespace-nowrap">
+              <span className="u-text-muted u-mr-8">{t('stockIn.totalUsdLabel')}</span>
+              <span className="u-fw-600"><MoneyDisplay amount={totals.usd} currency="USD" /></span>
+            </span>
+            <span className="u-whitespace-nowrap">
+              <span className="u-text-muted u-mr-8">{t('stockIn.totalCostLabel')}</span>
+              <span className="num u-fw-700">
+                {totals.combinedUzs == null ? '—' : <MoneyDisplay amount={totals.combinedUzs} currency="UZS" />}
+              </span>
             </span>
           </div>
         </>

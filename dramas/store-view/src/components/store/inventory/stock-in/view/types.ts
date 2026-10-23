@@ -15,3 +15,9 @@ export interface StockInFormValues {
   branchId?: string
   cart: StockInCartItem[]
 }
+
+export interface StockInTotals {
+  uzs: number
+  usd: number
+  combinedUzs: number | null
+}

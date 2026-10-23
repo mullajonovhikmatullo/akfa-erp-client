@@ -50,14 +50,19 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
   const cart = watch('cart') ?? []
   const defaultBranchId = useMemo(() => findDefaultBranch(branches), [branches])
   const selectedProductIds = useMemo(() => new Set(cart.map((item) => item.productId)), [cart])
-  const totalCost = useMemo(
-    () => cart.reduce((sum, item) => sum + Math.max(item.quantity, 0) * costPriceUzs(item, effectiveExchangeRate), 0),
-    [cart, effectiveExchangeRate],
-  )
+  const totals = useMemo(() => {
+    //
+    const lineTotal = (currency: StockInCartItem['currency']) =>
+      cart.reduce((sum, item) => (item.currency === currency ? sum + Math.max(item.quantity, 0) * item.costPrice : sum), 0)
+    const uzs = lineTotal('UZS')
+    const usd = lineTotal('USD')
+    return { uzs, usd, combinedUzs: exchangeRate > 0 ? uzs + Number((usd * exchangeRate).toFixed(2)) : null }
+  }, [cart, exchangeRate])
+  const rateMissing = exchangeRate <= 0 && cart.some((item) => item.currency === 'USD')
   const canSubmit =
     cart.length > 0 &&
     cart.every((item) => item.quantity >= MIN_QTY && hasValidPrices(item)) &&
-    (exchangeRate > 0 || cart.every((item) => item.currency !== 'USD')) &&
+    !rateMissing &&
     (isStoreOwner ? Boolean(branchId) : Boolean(userBranchId))
 
   useEffect(() => {
@@ -157,7 +162,8 @@ export function useStockInForm({ t, open, onClose, isStoreOwner, userBranchId, e
     productsLoading,
     selectedProductIds,
     cart,
-    totalCost,
+    totals,
+    rateMissing,
     canSubmit,
     addProduct,
     removeProduct,
