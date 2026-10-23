@@ -86,7 +86,9 @@ export function LoginPage() {
       />
       <ThemeToggle className="absolute top-4 right-4" />
       <div className="relative w-full max-w-sm animate-in">
-        <BrandMark size={30} className="mb-8 justify-center" />
+        <a href="/" className="mx-auto mb-8 flex w-fit rounded-md">
+          <BrandMark size={30} />
+        </a>
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-soft">
           <div className="mb-5 grid gap-1">
             <h1 className="text-lg font-semibold tracking-tight">Xush kelibsiz</h1>
