@@ -615,3 +615,13 @@ html.dark .customer-tabs__count{background:rgba(165,165,171,.14)}
     background:var(--surface) !important;
   }
 }
+
+:is(.app-shell,.ant-modal-root,.ant-drawer-root) .ant-input-affix-wrapper>.ant-input,
+:is(.app-shell,.ant-modal-root,.ant-drawer-root) .ant-input-affix-wrapper>.ant-input:hover,
+:is(.app-shell,.ant-modal-root,.ant-drawer-root) .ant-input-affix-wrapper>.ant-input:focus{
+  border:0 !important;
+  border-radius:inherit !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.ant-drawer-root .ant-input-affix-wrapper>input.ant-input{min-height:auto !important}
