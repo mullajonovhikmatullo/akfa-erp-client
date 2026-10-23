@@ -1125,6 +1125,7 @@ export const enTranslations = {
   'exchangeRate.modeCbu': "Central Bank rate",
   'exchangeRate.modeManual': "Enter manually",
   'exchangeRate.cbuLine': "{rate} UZS · {date}",
+  'exchangeRate.fallbackLine': "{rate} UZS · {date} · market rate, Central Bank rate temporarily unavailable",
   'exchangeRate.cbuUnavailable': "The Central Bank rate has not been fetched yet",
   'exchangeRate.manualRateLabel': "Rate for 1 USD",
   'exchangeRate.ownerPassword': "Store owner password",

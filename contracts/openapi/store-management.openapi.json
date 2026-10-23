@@ -1770,7 +1770,7 @@
           "usdToUzsRate": {
             "type": "number",
             "nullable": true,
-            "description": "The rate the store uses now. Null only before the first Central Bank fetch.",
+            "description": "The rate the store uses now. Null only before the first successful rate fetch.",
             "example": 11846.57
           },
           "manualRate": {
@@ -1780,12 +1780,21 @@
           "cbu": {
             "type": "object",
             "nullable": true,
+            "description": "Latest fetched market rate. Central Bank first; ER_API when cbu.uz is unreachable.",
             "required": [
+              "source",
               "rate",
               "rateDate",
               "fetchedAt"
             ],
             "properties": {
+              "source": {
+                "type": "string",
+                "enum": [
+                  "CBU",
+                  "ER_API"
+                ]
+              },
               "rate": {
                 "type": "number"
               },
