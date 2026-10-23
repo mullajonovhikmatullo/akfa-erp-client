@@ -88,11 +88,11 @@ export function createStockInColumns({ t, onChangeQty, onUpdateQty, onUpdateItem
     {
       title: t('stockIn.colTotal'),
       key: 'total',
-      width: 130,
+      width: 170,
       align: 'right' as const,
       render: (_: unknown, item: StockInCartItem) => (
-        <span className="num u-inline-block u-fs-13 u-fw-700 u-max-w-140 u-overflow-hidden u-text-ellipsis u-whitespace-nowrap" >
-          <MoneyDisplay amount={Math.max(item.quantity, 0) * item.costPrice} currency={item.currency} compact />
+        <span className="num u-inline-block u-fs-13 u-fw-700 u-whitespace-nowrap">
+          <MoneyDisplay amount={Math.max(item.quantity, 0) * item.costPrice} currency={item.currency} />
         </span>
       ),
     },
