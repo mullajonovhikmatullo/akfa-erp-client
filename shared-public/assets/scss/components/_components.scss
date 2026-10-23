@@ -45,6 +45,56 @@ $background-tones: (
   .ellipsis-text--#{$name} { max-width: $width; }
 }
 
+.category-description {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: min(520px, 60vw);
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.category-description__text {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-description--expanded .category-description__text {
+  overflow: visible;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.category-description--interactive {
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover .category-description__chevron,
+  &:focus-visible .category-description__chevron {
+    color: var(--primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+.category-description__chevron {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--ink-3);
+  transition: transform .15s ease;
+}
+
+.category-description--expanded .category-description__chevron {
+  transform: rotate(180deg);
+}
+
 .user-avatar {
   display: inline-flex;
   flex-shrink: 0;

@@ -5,6 +5,7 @@ import { Button, Popconfirm, Switch, Tooltip } from 'antd'
 import { formatDate } from '@store/store-shared/lib/formatters'
 import type { ColumnDef } from '@store/store-shared/ui/data-table'
 import type { Category } from '@store/store-stub'
+import { CategoryDescription } from './CategoryDescription'
 import { CategoryIcon } from './CategoryIcon'
 
 interface CategoryColumnsOptions {
@@ -36,12 +37,23 @@ export function createCategoryColumns({ t, rowIndex, statusFilter, deleting, del
       render: (_: unknown, category: Category) => (
         <div className="u-items-center u-flex u-gap-8">
           <CategoryIcon name={category.name} />
-          <div>
-            <div className="u-fw-600">{category.name}</div>
-            {category.description && <div className="u-text-muted u-fs-12 u-max-w-300">{category.description}</div>}
-          </div>
+          <span className="u-fw-600">{category.name}</span>
         </div>
       ),
+    },
+    {
+      title: t('common.description'),
+      key: 'description',
+      render: (_: unknown, category: Category) =>
+        category.description ? (
+          <CategoryDescription
+            text={category.description}
+            expandLabel={t('categories.descriptionExpand')}
+            collapseLabel={t('categories.descriptionCollapse')}
+          />
+        ) : (
+          <span className="u-text-quiet">—</span>
+        ),
     },
     {
       title: t('common.status'),

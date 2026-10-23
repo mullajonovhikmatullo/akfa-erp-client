@@ -385,6 +385,8 @@ export const uzCyTranslations = {
   'categories.descriptionMaxLength': 'Тавсиф 500 та белгидан ошмаслиги керак',
   'categories.namePlaceholder': 'Масалан: Шиша панеллар',
   'categories.descPlaceholder': 'Қисқача тасниф',
+  'categories.descriptionExpand': 'Таснифни тўлиқ кўрсатиш',
+  'categories.descriptionCollapse': 'Таснифни йиғиш',
   'categories.parseErrorName': 'Номи киритилмаган',
   'dashboard.title': 'Бошқарув панели',
   'dashboard.welcome': 'Хуш келибсиз',
