@@ -33,7 +33,10 @@ export function ExchangeRateFormFields({ t, control, current, mode, isChanged, h
               <div className="u-fw-600">{t('exchangeRate.modeCbu')}</div>
               <div className="u-text-muted u-fs-12">
                 {current?.cbu
-                  ? t('exchangeRate.cbuLine', { rate: formatRate(current.cbu.rate), date: formatDate(current.cbu.rateDate) })
+                  ? t(current.cbu.source === 'CBU' ? 'exchangeRate.cbuLine' : 'exchangeRate.fallbackLine', {
+                      rate: formatRate(current.cbu.rate),
+                      date: formatDate(current.cbu.rateDate),
+                    })
                   : t('exchangeRate.cbuUnavailable')}
               </div>
             </Radio>

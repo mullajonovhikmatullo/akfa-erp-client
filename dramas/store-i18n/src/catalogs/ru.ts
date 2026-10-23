@@ -1125,6 +1125,7 @@ export const ruTranslations = {
   'exchangeRate.modeCbu': "Курс Центрального банка",
   'exchangeRate.modeManual': "Ввести вручную",
   'exchangeRate.cbuLine': "{rate} сум · {date}",
+  'exchangeRate.fallbackLine': "{rate} сум · {date} · рыночный курс, курс ЦБ временно недоступен",
   'exchangeRate.cbuUnavailable': "Курс Центрального банка пока не получен",
   'exchangeRate.manualRateLabel': "Курс за 1 USD",
   'exchangeRate.ownerPassword': "Пароль владельца магазина",

@@ -1125,6 +1125,7 @@ export const uzLatnTranslations = {
   'exchangeRate.modeCbu': "Markaziy bank kursi",
   'exchangeRate.modeManual': "Qo'lda kiritish",
   'exchangeRate.cbuLine': "{rate} so'm · {date}",
+  'exchangeRate.fallbackLine': "{rate} so'm · {date} · bozor kursi, Markaziy bank kursi vaqtincha olinmadi",
   'exchangeRate.cbuUnavailable': "Markaziy bank kursi hozircha olinmadi",
   'exchangeRate.manualRateLabel': "1 USD uchun kurs",
   'exchangeRate.ownerPassword': "Do'kon egasining paroli",
