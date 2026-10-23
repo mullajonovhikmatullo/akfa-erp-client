@@ -383,6 +383,8 @@ export const ruTranslations = {
   'categories.descriptionMaxLength': 'Описание не должно превышать 500 символов',
   'categories.namePlaceholder': 'Напр.: Стеклопанели',
   'categories.descPlaceholder': 'Краткое описание',
+  'categories.descriptionExpand': 'Показать описание полностью',
+  'categories.descriptionCollapse': 'Свернуть описание',
   'categories.parseErrorName': 'Название не указано',
   'dashboard.title': 'Панель управления',
   'dashboard.welcome': 'Добро пожаловать',
