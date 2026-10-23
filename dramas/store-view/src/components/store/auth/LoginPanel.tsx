@@ -29,7 +29,9 @@ export function LoginPanel(props: LoginPanelProps) {
     <main className="mavion-auth">
       <div className="mavion-auth__backdrop" aria-hidden="true" />
       <header className="mavion-auth__top">
-        <MavionBrand asset compact />
+        <a className="mavion-auth__home" href="/">
+          <MavionBrand asset compact />
+        </a>
         <Dropdown
           menu={{
             items: languageMenuItems,
