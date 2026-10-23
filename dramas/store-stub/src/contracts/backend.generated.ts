@@ -156,6 +156,7 @@ export interface ExchangeRate {
   "usdToUzsRate": number | null
   "manualRate": number | null
   "cbu": {
+  "source": "CBU" | "ER_API"
   "rate": number
   "rateDate": string
   "fetchedAt": string

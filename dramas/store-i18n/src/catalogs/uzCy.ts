@@ -1125,6 +1125,7 @@ export const uzCyTranslations = {
   'exchangeRate.modeCbu': "Марказий банк курси",
   'exchangeRate.modeManual': "Қўлда киритиш",
   'exchangeRate.cbuLine': "{rate} сўм · {date}",
+  'exchangeRate.fallbackLine': "{rate} сўм · {date} · бозор курси, Марказий банк курси вақтинча олинмади",
   'exchangeRate.cbuUnavailable': "Марказий банк курси ҳозирча олинмади",
   'exchangeRate.manualRateLabel': "1 USD учун курс",
   'exchangeRate.ownerPassword': "Дўкон эгасининг пароли",
