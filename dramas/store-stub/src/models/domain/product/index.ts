@@ -10,6 +10,7 @@ import type {
 export type { Product, ProductDiscountChange, ProductImage, ProductUnit, Currency }
 
 export interface ProductListParams {
+  branchId?: string
   search?: string
   categoryId?: string
   unit?: ProductUnit
