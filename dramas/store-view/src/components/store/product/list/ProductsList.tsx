@@ -61,6 +61,7 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
     : userBranchId ?? undefined
 
   const { data: result, isLoading, isFetching, refetch, page, pageSize, onPageChange, resetPage, rowIndex } = useProductsPage({
+    branchId: scopedBranchId,
     search: filters.search || undefined,
     categoryId: filters.categoryId,
     unit: filters.unit,
@@ -69,7 +70,7 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
   })
   const { data: stockBatches, isLoading: stockBatchesLoading, refetch: refetchStockBatches } =
     useStockBatchesList({ branchId: scopedBranchId })
-  const { data: productSummary, refetch: refetchProductSummary } = useProductSummary()
+  const { data: productSummary, refetch: refetchProductSummary } = useProductSummary(scopedBranchId)
   const { data: categories = [] } = useCategoriesList()
   const { createProduct, deleteProduct } = useProductMutation(t, { showCreateSuccess: false })
 
@@ -89,7 +90,7 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
   const columns = createProductColumns({
     t,
     rowIndex,
-    canManageProduct: (product) => canManage && (isStoreOwner || (Boolean(userBranchId) && product.ownerBranchId === userBranchId)),
+    canManageProduct: (product) => canManage && (isStoreOwner ? !product.ownerBranchId : Boolean(userBranchId) && product.ownerBranchId === userBranchId),
     deleting: deleteProduct.isPending,
     deletingId: deleteProduct.variables,
     isNewProduct: (product) => Boolean(stockBatches) && !stockedProductIds.has(product.id),

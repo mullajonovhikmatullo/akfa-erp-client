@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { ProductSeekApi } from '@store/store-stub'
 
-export function useProductSummary() {
+export function useProductSummary(branchId?: string) {
   //
-  const { queryKey, queryFn } = ProductSeekApi.fetch.findProductSummary()
+  const { queryKey, queryFn } = ProductSeekApi.fetch.findProductSummary(branchId)
 
   return useQuery({
     queryKey,

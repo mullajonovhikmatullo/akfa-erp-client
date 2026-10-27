@@ -2353,7 +2353,7 @@
             "type": "string",
             "format": "uuid",
             "nullable": true,
-            "description": "Branch that created the product; only that branch (and store managers) may edit it"
+            "description": "Branch that created the product; only that branch may edit or delete it (null means store managers manage it)"
           },
           "primaryImageUrl": {
             "type": "string",
@@ -6751,6 +6751,15 @@
               "type": "string"
             },
             "description": "Search by name, SKU, or description"
+          },
+          {
+            "in": "query",
+            "name": "branchId",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Only products visible in this branch (store-wide, its own, or stocked there); branch users are always scoped to their branch"
           },
           {
             "in": "query",
