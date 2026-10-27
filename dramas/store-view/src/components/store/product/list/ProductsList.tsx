@@ -89,7 +89,7 @@ export function ProductsList({ canManage, isStoreOwner, userBranchId, activeBran
   const columns = createProductColumns({
     t,
     rowIndex,
-    canManage,
+    canManageProduct: (product) => canManage && (isStoreOwner || (Boolean(userBranchId) && product.ownerBranchId === userBranchId)),
     deleting: deleteProduct.isPending,
     deletingId: deleteProduct.variables,
     isNewProduct: (product) => Boolean(stockBatches) && !stockedProductIds.has(product.id),
