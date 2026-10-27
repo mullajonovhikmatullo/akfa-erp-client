@@ -13,7 +13,7 @@ import { AuthenticatedProductImage } from '../../images/AuthenticatedProductImag
 type ProductColumnsOptions = {
   t: StoreTranslator
   rowIndex: (index: number) => number
-  canManage: boolean
+  canManageProduct: (product: Product) => boolean
   deleting: boolean
   deletingId?: string
   isNewProduct: (product: Product) => boolean
@@ -31,7 +31,7 @@ const PRODUCT_PRICE_COLUMN_KEYS = {
 export function createProductColumns({
   t,
   rowIndex,
-  canManage,
+  canManageProduct,
   deleting,
   deletingId,
   isNewProduct,
@@ -135,7 +135,7 @@ export function createProductColumns({
           <Tooltip title={t('common.view')}>
             <Button size="small" type="text" icon={<StoreIcon name="eye" size={16} />} onClick={(event) => { event.stopPropagation(); onView(product) }} />
           </Tooltip>
-          {canManage ? (
+          {canManageProduct(product) ? (
             <>
               <Button size="small" type="text" icon={<StoreIcon name="pen-line" size={16} />} onClick={(event) => { event.stopPropagation(); onEdit(product) }} />
               <Popconfirm

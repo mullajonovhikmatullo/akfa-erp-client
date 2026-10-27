@@ -2349,6 +2349,12 @@
           "isActive": {
             "type": "boolean"
           },
+          "ownerBranchId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Branch that created the product; only that branch (and store managers) may edit it"
+          },
           "primaryImageUrl": {
             "type": "string",
             "format": "uri",
