@@ -232,6 +232,7 @@ export interface ProductResponse {
   "retailPriceUsd"?: string | null
   "wholesalePriceUsd"?: string | null
   "isActive"?: boolean
+  "ownerBranchId"?: string | null
   "primaryImageUrl"?: string | null
   "primaryThumbnailUrl"?: string | null
   "imageCount"?: number

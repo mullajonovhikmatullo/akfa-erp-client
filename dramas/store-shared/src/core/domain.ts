@@ -123,6 +123,7 @@ export interface Product {
   retailPriceUsd: number | null
   wholesalePriceUsd: number | null
   isActive: boolean
+  ownerBranchId?: string | null
   primaryImageUrl?: string | null
   primaryThumbnailUrl?: string | null
   imageCount?: number
