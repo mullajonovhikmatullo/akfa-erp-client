@@ -69,8 +69,8 @@ const findProductsPage = (params: ProductPageQuery): Promise<ProductPage> =>
       total: response.data.data.total,
     }))
 
-const findProductSummary = (): Promise<ProductSummary> =>
-  http.get<ApiResponse<ProductSummary>>('/products/summary').then((response) => ({
+const findProductSummary = (branchId?: string): Promise<ProductSummary> =>
+  http.get<ApiResponse<ProductSummary>>('/products/summary', { params: { branchId } }).then((response) => ({
     totalActive: Number(response.data.data.totalActive),
     totalInactive: Number(response.data.data.totalInactive),
   }))
@@ -201,9 +201,9 @@ export const ProductSeekApi = {
       queryKey: ['products', 'paginated', params] as const,
       queryFn: () => findProductsPage(params),
     }),
-    findProductSummary: () => ({
-      queryKey: ['products', 'summary'] as const,
-      queryFn: findProductSummary,
+    findProductSummary: (branchId?: string) => ({
+      queryKey: ['products', 'summary', branchId ?? 'all'] as const,
+      queryFn: () => findProductSummary(branchId),
     }),
     findProduct: (id: string) => ({
       queryKey: ['products', 'detail', id] as const,
