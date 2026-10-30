@@ -46,10 +46,10 @@ importers:
         version: link:../../dramas/landing-view
       '@tailwindcss/vite':
         specifier: 4.2.1
-        version: 4.2.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 4.2.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
       '@vitejs/plugin-react':
         specifier: 6.0.1
-        version: 6.0.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 6.0.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
       react:
         specifier: 19.2.6
         version: 19.2.6
@@ -67,7 +67,7 @@ importers:
         version: 1.3.4
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
     devDependencies:
       '@types/react':
         specifier: 19.2.14
@@ -89,13 +89,13 @@ importers:
         version: link:../../dramas/platform-stub
       '@tailwindcss/vite':
         specifier: 4.2.1
-        version: 4.2.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 4.2.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
       '@tanstack/react-query':
         specifier: 5.100.9
         version: 5.100.9(react@19.2.6)
       '@vitejs/plugin-react':
         specifier: 6.0.1
-        version: 6.0.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 6.0.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -128,10 +128,10 @@ importers:
         version: 4.2.1
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
       vite-tsconfig-paths:
         specifier: 5.1.4
-        version: 5.1.4(typescript@6.0.3)(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 5.1.4(typescript@6.0.3)(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
       zustand:
         specifier: 5.0.13
         version: 5.0.13(@types/react@19.2.14)(immer@11.1.15)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
@@ -142,49 +142,6 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-
-  apps/solo-leveling:
-    dependencies:
-      '@tailwindcss/vite':
-        specifier: 4.2.1
-        version: 4.2.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
-      '@vitejs/plugin-react':
-        specifier: 6.0.1
-        version: 6.0.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
-      react:
-        specifier: 19.2.6
-        version: 19.2.6
-      react-dom:
-        specifier: 19.2.6
-        version: 19.2.6(react@19.2.6)
-      react-router-dom:
-        specifier: 7.18.4
-        version: 7.18.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      tailwindcss:
-        specifier: 4.2.1
-        version: 4.2.1
-      three:
-        specifier: 0.170.0
-        version: 0.170.0
-      vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
-    devDependencies:
-      '@types/node':
-        specifier: 22.15.21
-        version: 22.15.21
-      '@types/react':
-        specifier: 19.2.14
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: 19.2.3
-        version: 19.2.3(@types/react@19.2.14)
-      '@types/three':
-        specifier: 0.170.0
-        version: 0.170.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -272,7 +229,7 @@ importers:
         version: 19.2.3(@types/react@19.2.14)
       '@vitejs/plugin-react':
         specifier: 6.0.1
-        version: 6.0.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 6.0.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
       dotenv:
         specifier: 17.4.2
         version: 17.4.2
@@ -293,10 +250,10 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
       vite-tsconfig-paths:
         specifier: 5.1.4
-        version: 5.1.4(typescript@6.0.3)(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))
+        version: 5.1.4(typescript@6.0.3)(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))
 
   dramas/landing-stub:
     devDependencies:
@@ -305,7 +262,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   dramas/landing-view:
     dependencies:
@@ -333,7 +290,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   dramas/platform-stub:
     dependencies:
@@ -346,7 +303,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   dramas/store-i18n:
     dependencies:
@@ -368,7 +325,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   dramas/store-shared:
     dependencies:
@@ -408,7 +365,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   dramas/store-stub:
     dependencies:
@@ -421,7 +378,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   dramas/store-view:
     dependencies:
@@ -476,7 +433,7 @@ importers:
         version: 6.0.3
       vite:
         specifier: 8.0.16
-        version: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+        version: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
 packages:
 
@@ -2166,9 +2123,6 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@tweenjs/tween.js@23.1.3':
-    resolution: {integrity: sha512-vJmvvwFxYuGnF2axRtPYocag6Clbb5YS7kLL+SO/TeVFzHqDIWrNKYtcsPMibjDx9O+bu+psAy9NKfWklassUA==}
-
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
 
@@ -2208,9 +2162,6 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/node@22.15.21':
-    resolution: {integrity: sha512-EV/37Td6c+MgKAbkcLG6vqZ2zEYHD7bvSrzqqs2RIhbA6w3x+Dqz8MZM3sP6kGTeLrdoOgKZe+Xja7tUB2DNkQ==}
-
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -2219,17 +2170,8 @@ packages:
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
 
-  '@types/stats.js@0.17.4':
-    resolution: {integrity: sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA==}
-
-  '@types/three@0.170.0':
-    resolution: {integrity: sha512-CUm2uckq+zkCY7ZbFpviRttY+6f9fvwm6YqSqPfA5K22s9w7R4VnA3rzJse8kHVvuzLcTx+CjNCs2NYe0QFAyg==}
-
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
-
-  '@types/webxr@0.5.24':
-    resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
   '@vitejs/plugin-react@6.0.1':
     resolution: {integrity: sha512-l9X/E3cDb+xY3SWzlG1MOGt2usfEHGMNIaegaUGFsLkb3RCn/k8/TOXBcab+OndDI4TBtktT8/9BwwW8Vi9KUQ==}
@@ -2243,9 +2185,6 @@ packages:
         optional: true
       babel-plugin-react-compiler:
         optional: true
-
-  '@webgpu/types@0.1.74':
-    resolution: {integrity: sha512-lgiI4hbuLcI9unnm2cL/tvCaQU45dp0xcLWJh5uB/9MBGvIA4F8XIk7nSiBeg+K4xWGYwgZKn80LmERI5CxoTA==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -2555,9 +2494,6 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
-
-  fflate@0.8.3:
-    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   file-entry-cache@8.0.0:
     resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
@@ -2909,9 +2845,6 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  meshoptimizer@0.18.1:
-    resolution: {integrity: sha512-ZhoIoL7TNV4s5B6+rx5mC//fw8/POGyNxS/DZyCJeiZ12ScLfVwRE/GfsxwiTkMYYD5DmK2/JXnEVXqL4rF+Sw==}
-
   mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
@@ -3196,9 +3129,6 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
-  three@0.170.0:
-    resolution: {integrity: sha512-FQK+LEpYc0fBD+J8g6oSEyyNzjp+Q7Ks1C568WWaoMRLW+TkNNWmenWeGgJjV105Gd+p/2ql1ZcjYvNiPZBhuQ==}
-
   throttle-debounce@5.0.2:
     resolution: {integrity: sha512-B71/4oyj61iNH0KeCamLuE2rmKuTO5byTOSVwECM5FA7TiAiAW+UqTKZ9ERueC4qvgSttUhdmq1mXC3kJqGX7A==}
     engines: {node: '>=12.22'}
@@ -3239,9 +3169,6 @@ packages:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
-
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   update-browserslist-db@1.2.3:
     resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
@@ -5080,12 +5007,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.2.1
       '@tailwindcss/oxide-win32-x64-msvc': 4.2.1
 
-  '@tailwindcss/vite@4.2.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))':
+  '@tailwindcss/vite@4.2.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))':
     dependencies:
       '@tailwindcss/node': 4.2.1
       '@tailwindcss/oxide': 4.2.1
       tailwindcss: 4.2.1
-      vite: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+      vite: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   '@tanstack/query-core@5.100.9': {}
 
@@ -5119,8 +5046,6 @@ snapshots:
 
   '@turbo/windows-arm64@2.10.5':
     optional: true
-
-  '@tweenjs/tween.js@23.1.3': {}
 
   '@tybys/wasm-util@0.10.3':
     dependencies:
@@ -5157,10 +5082,6 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/node@22.15.21':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
       '@types/react': 19.2.14
@@ -5169,27 +5090,12 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@types/stats.js@0.17.4': {}
-
-  '@types/three@0.170.0':
-    dependencies:
-      '@tweenjs/tween.js': 23.1.3
-      '@types/stats.js': 0.17.4
-      '@types/webxr': 0.5.24
-      '@webgpu/types': 0.1.74
-      fflate: 0.8.3
-      meshoptimizer: 0.18.1
-
   '@types/use-sync-external-store@0.0.6': {}
 
-  '@types/webxr@0.5.24': {}
-
-  '@vitejs/plugin-react@6.0.1(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1))':
+  '@vitejs/plugin-react@6.0.1(vite@8.0.16(jiti@2.7.0)(sass@1.103.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.7
-      vite: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
-
-  '@webgpu/types@0.1.74': {}
+      vite: 8.0.16(jiti@2.7.0)(sass@1.103.1)
 
   acorn-jsx@5.3.2(acorn@8.17.0):
     dependencies:
@@ -5552,8 +5458,6 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.5
 
-  fflate@0.8.3: {}
-
   file-entry-cache@8.0.0:
     dependencies:
       flat-cache: 4.0.1
@@ -5819,8 +5723,6 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   math-intrinsics@1.1.0: {}
-
-  meshoptimizer@0.18.1: {}
 
   mime-db@1.52.0: {}
 
@@ -6141,8 +6043,6 @@ snapshots:
 
   tapable@2.3.3: {}
 
-  three@0.170.0: {}
-
   throttle-debounce@5.0.2: {}
 
   tiny-invariant@1.3.3: {}
@@ -6174,8 +6074,6 @@ snapshots:
       prelude-ls: 1.2.1
 
   typescript@6.0.3: {}
-
-  undici-types@6.21.0: {}
 
   update-browserslist-db@1.2.3(browserslist@4.28.6):
     dependencies:
@@ -6223,18 +6121,18 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vite-tsconfig-paths@5.1.4(typescript@6.0.3)(vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)):
+  vite-tsconfig-paths@5.1.4(typescript@6.0.3)(vite@8.0.16(jiti@2.7.0)(sass@1.103.1)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@6.0.3)
     optionalDependencies:
-      vite: 8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1)
+      vite: 8.0.16(jiti@2.7.0)(sass@1.103.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@8.0.16(@types/node@22.15.21)(jiti@2.7.0)(sass@1.103.1):
+  vite@8.0.16(jiti@2.7.0)(sass@1.103.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -6242,7 +6140,6 @@ snapshots:
       rolldown: 1.0.3
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 22.15.21
       fsevents: 2.3.3
       jiti: 2.7.0
       sass: 1.103.1
